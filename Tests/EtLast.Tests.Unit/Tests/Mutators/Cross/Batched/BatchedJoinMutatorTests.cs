@@ -15,8 +15,8 @@ public class BatchedJoinMutatorTests
         var context = TestExecuter.GetContext();
         var executedBatchCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .JoinBatched(new BatchedJoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .JoinBatched(new BatchedJoinMutator()
             {
                 BatchSize = 4,
                 LookupBuilder = new FilteredRowLookupBuilder()
@@ -24,7 +24,7 @@ public class BatchedJoinMutatorTests
                     ProcessCreator = filterRows =>
                     {
                         executedBatchCount++;
-                        return TestData.PersonEyeColor(context);
+                        return TestData.PersonEyeColor();
                     },
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
@@ -39,7 +39,7 @@ public class BatchedJoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, executedBatchCount);
         Assert.AreEqual(10, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
@@ -62,8 +62,8 @@ public class BatchedJoinMutatorTests
         var context = TestExecuter.GetContext();
         var executedBatchCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .JoinBatched(new BatchedJoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .JoinBatched(new BatchedJoinMutator()
             {
                 BatchSize = 4,
                 LookupBuilder = new FilteredRowLookupBuilder()
@@ -71,7 +71,7 @@ public class BatchedJoinMutatorTests
                     ProcessCreator = filterRows =>
                     {
                         executedBatchCount++;
-                        return TestData.PersonEyeColor(context);
+                        return TestData.PersonEyeColor();
                     },
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
@@ -83,7 +83,7 @@ public class BatchedJoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, executedBatchCount);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
@@ -102,8 +102,8 @@ public class BatchedJoinMutatorTests
         var context = TestExecuter.GetContext();
         var executedBatchCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .JoinBatched(new BatchedJoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .JoinBatched(new BatchedJoinMutator()
             {
                 BatchSize = 1,
                 LookupBuilder = new FilteredRowLookupBuilder()
@@ -111,7 +111,7 @@ public class BatchedJoinMutatorTests
                     ProcessCreator = filterRows =>
                     {
                         executedBatchCount++;
-                        return TestData.PersonEyeColor(context);
+                        return TestData.PersonEyeColor();
                     },
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
@@ -123,7 +123,7 @@ public class BatchedJoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, executedBatchCount);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
@@ -143,8 +143,8 @@ public class BatchedJoinMutatorTests
         var context = TestExecuter.GetContext();
         var executedBatchCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .JoinBatched(new BatchedJoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .JoinBatched(new BatchedJoinMutator()
             {
                 BatchSize = 4,
                 LookupBuilder = new FilteredRowLookupBuilder()
@@ -152,7 +152,7 @@ public class BatchedJoinMutatorTests
                     ProcessCreator = filterRows =>
                     {
                         executedBatchCount++;
-                        return TestData.PersonEyeColor(context);
+                        return TestData.PersonEyeColor();
                     },
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
@@ -164,7 +164,7 @@ public class BatchedJoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, executedBatchCount);
         Assert.AreEqual(0, result.MutatedRows.Count);
         Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
@@ -179,8 +179,8 @@ public class BatchedJoinMutatorTests
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .JoinBatched(new BatchedJoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .JoinBatched(new BatchedJoinMutator()
             {
                 BatchSize = 2,
                 LookupBuilder = new FilteredRowLookupBuilder()
@@ -188,7 +188,7 @@ public class BatchedJoinMutatorTests
                     ProcessCreator = filterRows =>
                     {
                         executedBatchCount++;
-                        return TestData.PersonEyeColor(context);
+                        return TestData.PersonEyeColor();
                     },
                     KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
                 },
@@ -200,7 +200,7 @@ public class BatchedJoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, executedBatchCount);
         Assert.AreEqual(3, executedLeftKeyDelegateCount);
         Assert.AreEqual(7, executedRightKeyDelegateCount);
@@ -217,8 +217,8 @@ public class BatchedJoinMutatorTests
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .JoinBatched(new BatchedJoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .JoinBatched(new BatchedJoinMutator()
             {
                 BatchSize = 1,
                 LookupBuilder = new FilteredRowLookupBuilder()
@@ -226,7 +226,7 @@ public class BatchedJoinMutatorTests
                     ProcessCreator = filterRows =>
                     {
                         executedBatchCount++;
-                        return TestData.PersonEyeColor(context);
+                        return TestData.PersonEyeColor();
                     },
                     KeyGenerator = row => { executedRightKeyDelegateCount++; return executedBatchCount < 2 ? row.GenerateKey("personId") : row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
                 },
@@ -238,7 +238,7 @@ public class BatchedJoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, executedBatchCount);
         Assert.AreEqual(3, executedLeftKeyDelegateCount);
         Assert.AreEqual(8, executedRightKeyDelegateCount);
@@ -259,8 +259,8 @@ public class BatchedJoinMutatorTests
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .JoinBatched(new BatchedJoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .JoinBatched(new BatchedJoinMutator()
             {
                 BatchSize = 1,
                 LookupBuilder = new FilteredRowLookupBuilder()
@@ -268,7 +268,7 @@ public class BatchedJoinMutatorTests
                     ProcessCreator = filterRows =>
                     {
                         executedBatchCount++;
-                        return TestData.PersonEyeColor(context);
+                        return TestData.PersonEyeColor();
                     },
                     KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
                 },
@@ -281,7 +281,7 @@ public class BatchedJoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, executedBatchCount);
         Assert.AreEqual(0, result.MutatedRows.Count);
         Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);

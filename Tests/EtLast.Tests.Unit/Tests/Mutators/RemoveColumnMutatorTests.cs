@@ -14,13 +14,13 @@ public class RemoveColumnMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .RemoveColumn(new RemoveColumnMutator(context)
+        .ReadFrom(TestData.Person())
+        .RemoveColumn(new RemoveColumnMutator()
         {
             Columns = TestData.PersonColumns,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(0, result.MutatedRows.Sum(x => x.ValueCount));
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -30,13 +30,13 @@ public class RemoveColumnMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .RemoveColumn(new RemoveColumnMutator(context)
+        .ReadFrom(TestData.Person())
+        .RemoveColumn(new RemoveColumnMutator()
         {
             Columns = ["name", "eyeColor"],
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["age"] = 17, ["height"] = 160, ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },

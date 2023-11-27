@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CustomJob(IEtlContext context) : AbstractJob(context)
+public sealed class CustomJob : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required Action<CustomJob> Action { get; init; }
@@ -29,7 +29,7 @@ public static class CustomJobFluent
 
     public static IFlow CustomJob(this IFlow builder, string name, Action<CustomJob> action)
     {
-        return builder.ExecuteProcess(() => new CustomJob(builder.Context)
+        return builder.ExecuteProcess(() => new CustomJob()
         {
             Name = name,
             Action = action,
@@ -38,7 +38,7 @@ public static class CustomJobFluent
 
     public static IFlow CustomJob(this IFlow builder, string name, Action action)
     {
-        return builder.ExecuteProcess(() => new CustomJob(builder.Context)
+        return builder.ExecuteProcess(() => new CustomJob()
         {
             Name = name,
             Action = _ => action?.Invoke(),

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class RemoveRowWithErrorMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class RemoveRowWithErrorMutator: AbstractMutator
 {
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {

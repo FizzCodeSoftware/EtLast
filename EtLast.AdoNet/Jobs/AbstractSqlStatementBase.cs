@@ -11,8 +11,7 @@ public abstract class AbstractSqlStatementBase : AbstractJob
     /// </summary>
     public int CommandTimeout { get; init; } = 60 * 60;
 
-    protected AbstractSqlStatementBase(IEtlContext context)
-        : base(context)
+    protected AbstractSqlStatementBase()
     {
     }
 

@@ -10,11 +10,11 @@ public class CountableOnlyRowLookupTests
         var lookup = new CountOnlyRowLookup();
         var builder = new RowLookupBuilder()
         {
-            Process = TestData.Person(context),
+            Process = TestData.Person(),
             KeyGenerator = row => row.GenerateKey("id"),
         };
 
-        builder.AddTo(lookup, null);
+        builder.AddTo(lookup, context);
         Assert.AreEqual(7, lookup.Keys.Count());
         Assert.AreEqual(7, lookup.Count);
         Assert.AreEqual(1, lookup.CountByKey("0"));
@@ -33,11 +33,11 @@ public class CountableOnlyRowLookupTests
         var lookup = new CountOnlyRowLookup();
         var builder = new RowLookupBuilder()
         {
-            Process = TestData.Person(context),
+            Process = TestData.Person(),
             KeyGenerator = row => row.GenerateKey("age"),
         };
 
-        builder.AddTo(lookup, null);
+        builder.AddTo(lookup, context);
         Assert.AreEqual(6, lookup.Keys.Count());
         Assert.AreEqual(6, lookup.Count);
         Assert.AreEqual(1, lookup.CountByKey("17"));
@@ -56,11 +56,11 @@ public class CountableOnlyRowLookupTests
         var lookup = new CountOnlyRowLookup();
         var builder = new RowLookupBuilder()
         {
-            Process = TestData.Person(context),
+            Process = TestData.Person(),
             KeyGenerator = row => row.GenerateKey("name"),
         };
 
-        builder.AddTo(lookup, null);
+        builder.AddTo(lookup, context);
         Assert.AreEqual(6, lookup.Keys.Count());
         Assert.AreEqual(2, lookup.CountByKey("A"));
         Assert.AreEqual(1, lookup.CountByKey("B"));

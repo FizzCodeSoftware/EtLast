@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class Splitter<TRowQueue>(IEtlContext context) : AbstractSequence(context)
+public sealed class Splitter<TRowQueue> : AbstractSequence
     where TRowQueue : IRowQueue, new()
 {
     public required ISequence InputProcess { get; init; }

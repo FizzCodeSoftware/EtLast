@@ -5,7 +5,7 @@ public enum ResilientSqlScopeTempTableMode
     KeepOnlyOnFailure, AlwaysKeep, AlwaysDrop
 }
 
-public sealed partial class ResilientSqlScope(IEtlContext context) : AbstractJob(context), IScope
+public sealed partial class ResilientSqlScope : AbstractJob, IScope
 {
     /// <summary>
     /// The transaction scope kind around the finalizers. Default value is <see cref="TransactionScopeKind.RequiresNew"/>.
@@ -182,7 +182,7 @@ public sealed partial class ResilientSqlScope(IEtlContext context) : AbstractJob
                         mainProducer = table.PartitionedProducerCreator.Invoke(table, partitionIndex);
                     }
 
-                    var rowCount = mainProducer.CountRowsAndReleaseOwnership(null);
+                    var rowCount = mainProducer.CountRowsAndReleaseOwnership(this);
 
                     if (FlowState.IsTerminating)
                         return;
@@ -208,13 +208,13 @@ public sealed partial class ResilientSqlScope(IEtlContext context) : AbstractJob
 
     private int CountTempRecordsIn(ResilientTableBase table)
     {
-        var count = new GetTableRecordCount(Context)
+        var count = new GetTableRecordCount()
         {
             Name = "TempRecordCountReader",
             ConnectionString = ConnectionString,
             TableName = table.TempTableName,
             WhereClause = null,
-        }.ExecuteWithResult(this);
+        }.ExecuteWithResult(this, FlowState);
 
         return count;
     }
@@ -245,7 +245,7 @@ public sealed partial class ResilientSqlScope(IEtlContext context) : AbstractJob
             }
         }
 
-        new CopyTableStructure(Context)
+        new CopyTableStructure()
         {
             Name = "RecreateTempTables",
             ConnectionString = ConnectionString,
@@ -263,7 +263,7 @@ public sealed partial class ResilientSqlScope(IEtlContext context) : AbstractJob
             .Where(x => x.AdditionalTables != null)
             .SelectMany(x => x.AdditionalTables.Select(y => y.TempTableName));
 
-        new DropTables(Context)
+        new DropTables()
         {
             Name = "DropTempTables",
             ConnectionString = ConnectionString,

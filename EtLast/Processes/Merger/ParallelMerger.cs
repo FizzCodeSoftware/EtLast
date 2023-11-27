@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ParallelMerger(IEtlContext context) : AbstractMerger(context)
+public sealed class ParallelMerger : AbstractMerger
 {
     protected override void ValidateImpl()
     {
@@ -75,13 +75,13 @@ public static class ParallelMergerFluent
 {
     public static IFluentSequenceMutatorBuilder ProcessOnMultipleThreads(this IFluentSequenceMutatorBuilder builder, int threadCount, Action<int, IFluentSequenceMutatorBuilder> mutatorBuilder)
     {
-        var splitter = new Splitter<DefaultRowQueue>(builder.ProcessBuilder.Result.Context)
+        var splitter = new Splitter<DefaultRowQueue>()
         {
             Name = "ParallelSplitter",
             InputProcess = builder.ProcessBuilder.Result,
         };
 
-        var merger = new ParallelMerger(builder.ProcessBuilder.Result.Context)
+        var merger = new ParallelMerger()
         {
             Name = "ParallelMerger",
             SequenceList = [],

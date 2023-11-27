@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class JoinMutator(IEtlContext context) : AbstractCrossMutator(context)
+public sealed class JoinMutator : AbstractCrossMutator
 {
     [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }

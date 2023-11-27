@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class AddIncrementalIntegerIdMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class AddIncrementalIntegerIdMutator : AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required string Column { get; init; }

@@ -5,8 +5,7 @@ public abstract class AbstractSimpleChangeMutator : AbstractMutator
 {
     protected List<KeyValuePair<string, object>> Changes;
 
-    protected AbstractSimpleChangeMutator(IEtlContext context)
-        : base(context)
+    protected AbstractSimpleChangeMutator()
     {
     }
 

@@ -2,7 +2,7 @@
 
 public delegate IEnumerable<IReadOnlySlimRow> EnumerableImporterDelegate(EnumerableImporter process);
 
-public sealed class EnumerableImporter(IEtlContext context) : AbstractRowSource(context)
+public sealed class EnumerableImporter: AbstractRowSource
 {
     public required EnumerableImporterDelegate InputGenerator { get; init; }
 

@@ -6,7 +6,7 @@ public delegate IRow ReduceGroupToSingleRowDelegate(IProcess process, IReadOnlyL
 /// Input can be unordered. Group key generation is applied on the input rows on-the-fly, but group processing is started only after all groups are created.
 /// - keeps all input rows in memory (!)
 /// </summary>
-public sealed class ReduceGroupToSingleRowMutator(IEtlContext context) : AbstractSequence(context), IMutator
+public sealed class ReduceGroupToSingleRowMutator: AbstractSequence, IMutator
 {
     public ISequence Input { get; set; }
     public RowTestDelegate RowFilter { get; set; }

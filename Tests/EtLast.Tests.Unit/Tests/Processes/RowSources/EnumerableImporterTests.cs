@@ -8,12 +8,12 @@ public class EnumerableImporterTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ImportEnumerable(new EnumerableImporter(context)
+        .ImportEnumerable(new EnumerableImporter()
         {
-            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
+            InputGenerator = caller => TestData.Person().TakeRowsAndReleaseOwnership(caller),
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -31,9 +31,9 @@ public class EnumerableImporterTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ImportEnumerable(new EnumerableImporter(context)
+        .ImportEnumerable(new EnumerableImporter()
         {
-            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
+            InputGenerator = caller => TestData.Person().TakeRowsAndReleaseOwnership(caller),
             Columns = new()
             {
                 ["ID"] = new ReaderColumn(),
@@ -41,7 +41,7 @@ public class EnumerableImporterTests
             },
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["ID"] = 0, ["age"] = 17, ["name"] = "A", ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -59,9 +59,9 @@ public class EnumerableImporterTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ImportEnumerable(new EnumerableImporter(context)
+        .ImportEnumerable(new EnumerableImporter()
         {
-            InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
+            InputGenerator = caller => TestData.Person().TakeRowsAndReleaseOwnership(caller),
             Columns = new()
             {
                 ["ID"] = new ReaderColumn(),
@@ -70,7 +70,7 @@ public class EnumerableImporterTests
             CopyOnlySpecifiedColumns = true,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["ID"] = 0, ["age"] = 17 },

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ResolveHierarchyMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
+public sealed class ResolveHierarchyMutator: AbstractSimpleChangeMutator
 {
     [ProcessParameterMustHaveValue]
     public required string IdentityColumn { get; init; }

@@ -14,8 +14,8 @@ public class ReplaceStringMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ReplaceString(new ReplaceStringMutator(context)
+            .ReadFrom(TestData.Person())
+            .ReplaceString(new ReplaceStringMutator()
             {
                 ColumnName = "eyeColor",
                 OldString = "row",
@@ -23,7 +23,7 @@ public class ReplaceStringMutatorTests
                 StringComparison = StringComparison.InvariantCulture,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "bapplen", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -41,8 +41,8 @@ public class ReplaceStringMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ReplaceString(new ReplaceStringMutator(context)
+            .ReadFrom(TestData.Person())
+            .ReplaceString(new ReplaceStringMutator()
             {
                 ColumnName = "eyeColor",
                 OldString = "ROW",
@@ -50,7 +50,7 @@ public class ReplaceStringMutatorTests
                 StringComparison = StringComparison.InvariantCulture,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -68,8 +68,8 @@ public class ReplaceStringMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ReplaceString(new ReplaceStringMutator(context)
+            .ReadFrom(TestData.Person())
+            .ReplaceString(new ReplaceStringMutator()
             {
                 ColumnName = "eyeColor",
                 OldString = "ROW",
@@ -77,7 +77,7 @@ public class ReplaceStringMutatorTests
                 StringComparison = StringComparison.InvariantCultureIgnoreCase,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "bapplen", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },

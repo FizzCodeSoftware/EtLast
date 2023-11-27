@@ -14,12 +14,12 @@ public class ExpandFromLookupMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ExpandFromLookup(new ExpandFromLookupMutator(context)
+            .ReadFrom(TestData.Person())
+            .ExpandFromLookup(new ExpandFromLookupMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.Country(context),
+                    Process = TestData.Country(),
                     KeyGenerator = row => row.GenerateKey("id"),
                 },
                 MatchSelector = (row, lookup) =>
@@ -42,7 +42,7 @@ public class ExpandFromLookupMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["countryAbbrev"] = "HU", ["countryAbbrevFound"] = true },

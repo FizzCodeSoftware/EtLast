@@ -8,30 +8,31 @@ public abstract class AbstractProcess : IProcess
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
-    public IEtlContext Context { get; protected set; }
+    public IEtlContext Context => FlowState.Context;
 
-    public FlowState FlowState { get; protected set; }
+    public FlowState FlowState { get; private set; }
+    public FlowState GetFlowState() => FlowState;
 
     public string Name { get; set; }
     public string Kind { get; }
 
-    /// <summary>
-    ///  Reserved for lazy-initialized <see cref="AbstractEtlTask"/> types.
-    /// </summary>
-    internal AbstractProcess()
+    protected AbstractProcess()
     {
         Name = GetType().GetFriendlyTypeName();
-        Kind = GetProcessKind(this);
+        Kind = this switch
+        {
+            IEtlTask => "task",
+            IRowSource => "source",
+            IRowSink => "sink",
+            IMutator => "mutator",
+            IScope => "scope",
+            ISequence => "sequence",
+            IProcess => "process",
+            _ => "unknown",
+        };
     }
 
-    protected AbstractProcess(IEtlContext context)
-    {
-        Context = context ?? throw new ProcessParameterNullException(this, nameof(context));
-        Name = GetType().GetFriendlyTypeName();
-        Kind = GetProcessKind(this);
-    }
-
-    protected void LogCall(IProcess caller)
+    protected void LogCall(ICaller caller)
     {
         var severity = this is IEtlTask or IScope
             ? LogSeverity.Information
@@ -40,19 +41,19 @@ public abstract class AbstractProcess : IProcess
         var typeName = GetType().GetFriendlyTypeName();
         if (Name == typeName)
         {
-            if (caller is IEtlTask)
-                Context.Log(severity, this, "{ProcessKind} started by {Task}", Kind, caller.InvocationName);
-            else if (caller != null)
-                Context.Log(severity, this, "{ProcessKind} started by {Process}", Kind, caller.InvocationName);
+            if (caller is IEtlTask asTask)
+                Context.Log(severity, this, "{ProcessKind} started by {Task}", Kind, asTask.InvocationName);
+            else if (caller is IProcess asProcess)
+                Context.Log(severity, this, "{ProcessKind} started by {Process}", Kind, asProcess.InvocationName);
             else
                 Context.Log(severity, this, "{ProcessKind} started", Kind);
         }
         else
         {
-            if (caller is IEtlTask)
-                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Task}", typeName, Kind, caller.InvocationName);
-            else if (caller != null)
-                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Process}", typeName, Kind, caller.InvocationName);
+            if (caller is IEtlTask asTask)
+                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Task}", typeName, Kind, asTask.InvocationName);
+            else if (caller is IProcess asProcess)
+                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Process}", typeName, Kind, asProcess.InvocationName);
             else
                 Context.Log(severity, this, "{ProcessType}/{ProcessKind} started", typeName, Kind);
         }
@@ -77,21 +78,6 @@ public abstract class AbstractProcess : IProcess
             Context.Log(severity, this, "{ProcessResult}",
                 FlowState.StatusToLogString());
         }
-    }
-
-    private static string GetProcessKind(IProcess process)
-    {
-        return process switch
-        {
-            IEtlTask => "task",
-            IRowSource => "source",
-            IRowSink => "sink",
-            IMutator => "mutator",
-            IScope => "scope",
-            ISequence => "sequence",
-            IProcess => "process",
-            _ => "unknown",
-        };
     }
 
     public override string ToString()
@@ -145,16 +131,17 @@ public abstract class AbstractProcess : IProcess
         }
     }
 
-    public virtual void Execute(IProcess caller)
-    {
-        Execute(caller, null);
-    }
+    public abstract void Execute(ICaller caller, FlowState flowState = null);
 
-    public abstract void Execute(IProcess caller, FlowState flow);
-
-    public void SetContext(IEtlContext context, bool overwrite = false)
+    protected void BeginExecution(ICaller caller, FlowState flowState, bool overwriteArguments = false)
     {
-        Context = context;
+        ArgumentNullException.ThrowIfNull(caller);
+        FlowState = flowState ?? caller.GetFlowState();
+        Context.RegisterProcessInvocationStart(this, caller);
+        LogCall(caller);
+
+        if (Context.Arguments == null)
+            return;
 
         var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
             .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
@@ -168,15 +155,15 @@ public abstract class AbstractProcess : IProcess
 
         foreach (var property in properties)
         {
-            if (!overwrite && property.GetValue(this) != null)
+            if (!overwriteArguments && property.GetValue(this) != null)
                 continue;
 
-            var key = context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
-            key ??= context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
+            var key = Context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
+            key ??= Context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
 
             if (key != null)
             {
-                var value = context.Arguments.Get(key);
+                var value = Context.Arguments.Get(key);
                 if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
                     property.SetValue(this, value);
             }

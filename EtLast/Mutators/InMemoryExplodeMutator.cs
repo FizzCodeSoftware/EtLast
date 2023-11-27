@@ -5,7 +5,7 @@ public delegate IEnumerable<ISlimRow> InMemoryExplodeDelegate(InMemoryExplodeMut
 /// <summary>
 /// Useful only for small amount of data due to all input rows are collected into a List and processed at once.
 /// </summary>
-public sealed class InMemoryExplodeMutator(IEtlContext context) : AbstractSequence(context), IMutator
+public sealed class InMemoryExplodeMutator: AbstractSequence, IMutator
 {
     [ProcessParameterMustHaveValue]
     public ISequence Input { get; set; }
@@ -181,7 +181,7 @@ public static class InMemoryExplodeMutatorFluent
     /// </summary>
     public static IFluentSequenceMutatorBuilder ExplodeInMemory(this IFluentSequenceMutatorBuilder builder, string name, InMemoryExplodeDelegate action)
     {
-        return builder.AddMutator(new InMemoryExplodeMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new InMemoryExplodeMutator()
         {
             Name = name,
             Action = action,

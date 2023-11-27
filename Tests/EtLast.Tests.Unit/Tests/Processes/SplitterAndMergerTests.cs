@@ -8,18 +8,18 @@ public class SplitterAndMergerTests
     {
         var context = TestExecuter.GetContext();
 
-        var splitter = new Splitter<DefaultRowQueue>(context)
+        var splitter = new Splitter<DefaultRowQueue>()
         {
-            InputProcess = new EnumerableImporter(context)
+            InputProcess = new EnumerableImporter()
             {
-                InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
+                InputGenerator = caller => TestData.Person().TakeRowsAndReleaseOwnership(caller),
             },
         };
 
         var processes = new ISequence[3];
         for (var i = 0; i < 3; i++)
         {
-            processes[i] = new CustomMutator(context)
+            processes[i] = new CustomMutator()
             {
                 Input = splitter,
                 Action = row =>
@@ -34,7 +34,7 @@ public class SplitterAndMergerTests
         var results = new List<ISlimRow>[3];
         for (var i = 0; i < 3; i++)
         {
-            results[i] = processes[i].TakeRowsAndReleaseOwnership(null).ToList();
+            results[i] = processes[i].TakeRowsAndReleaseOwnership(context).ToList();
         }
 
         Assert.AreEqual(7, results[0].Count);
@@ -53,18 +53,18 @@ public class SplitterAndMergerTests
     {
         var context = TestExecuter.GetContext();
 
-        var splitter = new Splitter<DefaultRowQueue>(context)
+        var splitter = new Splitter<DefaultRowQueue>()
         {
-            InputProcess = new EnumerableImporter(context)
+            InputProcess = new EnumerableImporter()
             {
-                InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
+                InputGenerator = caller => TestData.Person().TakeRowsAndReleaseOwnership(caller),
             },
         };
 
         var processes = new ISequence[3];
         for (var i = 0; i < 3; i++)
         {
-            processes[i] = new CustomMutator(context)
+            processes[i] = new CustomMutator()
             {
                 Input = splitter,
                 Action = row =>
@@ -84,7 +84,7 @@ public class SplitterAndMergerTests
             var threadIndex = i;
             var thread = new Thread(() =>
             {
-                var rows = processes[threadIndex].TakeRowsAndReleaseOwnership(null);
+                var rows = processes[threadIndex].TakeRowsAndReleaseOwnership(context);
                 results[threadIndex] = new List<ISlimRow>(rows);
             });
 
@@ -98,7 +98,7 @@ public class SplitterAndMergerTests
         }
 
         Assert.AreEqual(7, results[0].Count + results[1].Count + results[2].Count);
-        foreach (var p in TestData.Person(context).TakeRowsAndReleaseOwnership(null))
+        foreach (var p in TestData.Person().TakeRowsAndReleaseOwnership(context))
         {
             Assert.IsTrue(
                 results[0].Any(m => m.GetAs<int>("id") == p.GetAs<int>("id"))
@@ -114,7 +114,7 @@ public class SplitterAndMergerTests
     {
         var context = TestExecuter.GetContext();
 
-        var merger = new ParallelMerger(context)
+        var merger = new ParallelMerger()
         {
             SequenceList = [],
         };
@@ -122,8 +122,8 @@ public class SplitterAndMergerTests
         for (var i = 0; i < 3; i++)
         {
             merger.SequenceList.Add(SequenceBuilder.Fluent
-                .ReadFrom(TestData.Person(context))
-                .CustomCode(new CustomMutator(context)
+                .ReadFrom(TestData.Person())
+                .CustomCode(new CustomMutator()
                 {
                     Action = row =>
                     {
@@ -135,9 +135,9 @@ public class SplitterAndMergerTests
                 .Build());
         }
 
-        var result = merger.TakeRowsAndReleaseOwnership(null).ToList();
+        var result = merger.TakeRowsAndReleaseOwnership(context).ToList();
         Assert.AreEqual(21, result.Count);
-        foreach (var p in TestData.Person(context).TakeRowsAndReleaseOwnership(null))
+        foreach (var p in TestData.Person().TakeRowsAndReleaseOwnership(context))
         {
             Assert.AreEqual(3, result.Count(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
@@ -151,15 +151,15 @@ public class SplitterAndMergerTests
     {
         var context = TestExecuter.GetContext();
 
-        var splitter = new Splitter<DefaultRowQueue>(context)
+        var splitter = new Splitter<DefaultRowQueue>()
         {
-            InputProcess = new EnumerableImporter(context)
+            InputProcess = new EnumerableImporter()
             {
-                InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
+                InputGenerator = caller => TestData.Person().TakeRowsAndReleaseOwnership(caller),
             },
         };
 
-        var merger = new ParallelMerger(context)
+        var merger = new ParallelMerger()
         {
             SequenceList = [],
         };
@@ -168,7 +168,7 @@ public class SplitterAndMergerTests
         {
             merger.SequenceList.Add(SequenceBuilder.Fluent
                 .ReadFrom(splitter)
-                .CustomCode(new CustomMutator(context)
+                .CustomCode(new CustomMutator()
                 {
                     Action = row =>
                     {
@@ -180,9 +180,9 @@ public class SplitterAndMergerTests
                 .Build());
         }
 
-        var result = merger.TakeRowsAndReleaseOwnership(null).ToList();
+        var result = merger.TakeRowsAndReleaseOwnership(context).ToList();
         Assert.AreEqual(7, result.Count);
-        foreach (var p in TestData.Person(context).TakeRowsAndReleaseOwnership(null))
+        foreach (var p in TestData.Person().TakeRowsAndReleaseOwnership(context))
         {
             Assert.IsTrue(result.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }
@@ -199,12 +199,12 @@ public class SplitterAndMergerTests
         var n = 0;
 
         var builder = SequenceBuilder.Fluent
-            .ImportEnumerable(new EnumerableImporter(context)
+            .ImportEnumerable(new EnumerableImporter()
             {
-                InputGenerator = caller => TestData.Person(context).TakeRowsAndReleaseOwnership(caller),
+                InputGenerator = caller => TestData.Person().TakeRowsAndReleaseOwnership(caller),
             })
             .ProcessOnMultipleThreads(3, (i, mb) => mb
-               .CustomCode(new CustomMutator(context)
+               .CustomCode(new CustomMutator()
                {
                    Action = row =>
                    {
@@ -214,7 +214,7 @@ public class SplitterAndMergerTests
                    },
                })
                )
-            .CustomCode(new CustomMutator(context)
+            .CustomCode(new CustomMutator()
             {
                 Action = row =>
                 {
@@ -223,9 +223,9 @@ public class SplitterAndMergerTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
-        foreach (var p in TestData.Person(context).TakeRowsAndReleaseOwnership(null))
+        foreach (var p in TestData.Person().TakeRowsAndReleaseOwnership(context))
         {
             Assert.IsTrue(result.MutatedRows.Any(m => m.GetAs<int>("id") == p.GetAs<int>("id")));
         }

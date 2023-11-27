@@ -8,7 +8,7 @@ public class TrimStringMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(new RowCreator(context)
+        .ReadFrom(new RowCreator()
         {
             Columns = ["Name", "Pets"],
             InputRows =
@@ -17,13 +17,13 @@ public class TrimStringMutatorTests
                 [" Andrew, Smith", "Winston,Marley"],
             ],
         })
-        .TrimString(new TrimStringMutator(context)
+        .TrimString(new TrimStringMutator()
         {
             Columns = ["Name"],
         })
         .TrimString("Name");
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
                 new() { ["Name"] = "John, Oliver", ["Pets"] = "  Ubul" },

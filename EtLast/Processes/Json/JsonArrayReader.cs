@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace FizzCode.EtLast;
 
-public sealed class JsonArrayReader<T>(IEtlContext context) : AbstractRowSource(context)
+public sealed class JsonArrayReader<T>: AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }

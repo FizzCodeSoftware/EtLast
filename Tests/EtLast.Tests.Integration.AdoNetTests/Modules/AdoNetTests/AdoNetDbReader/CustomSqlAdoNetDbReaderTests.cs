@@ -11,7 +11,7 @@ public class CustomSqlAdoNetDbReaderTests : AbstractEtlTask
             .CustomJob("CheckCustomSqlResult", job =>
             {
                 var result = SequenceBuilder.Fluent
-                .ReadFromCustomSql(new CustomSqlAdoNetDbReader(Context)
+                .ReadFromCustomSql(new CustomSqlAdoNetDbReader()
                 {
                     Name = "ReturnCustomSqlResult",
                     ConnectionString = ConnectionString,

@@ -16,10 +16,10 @@ public class AddKeyHashMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
+            .ReadFrom(TestData.Person())
             .AddKeyHash("height-hash", "height");
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["height-hash"] = "a512db2741cd20693e4b16f19891e72b9ff12cead72761fc5e92d2aaf34740c1" },
@@ -37,15 +37,15 @@ public class AddKeyHashMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .AddKeyHash(new AddKeyHashMutator(context)
+            .ReadFrom(TestData.Person())
+            .AddKeyHash(new AddKeyHashMutator()
             {
                 TargetColumn = "hash",
                 UpperCaseHash = true,
                 HashAlgorithmCreator = SHA256.Create,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["hash"] = "59C9DD125B8960DC39991F01DDD7C6B77F2117CF6AC1B015A2C4ED9652CE52AF" },
@@ -63,10 +63,10 @@ public class AddKeyHashMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
+            .ReadFrom(TestData.Person())
             .AddKeyHash("eyeColor-hash", "eyeColor");
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["eyeColor-hash"] = "5eb67f9f8409b9c3f739735633cbdf92121393d0e13bd0f464b1b2a6a15ad2dc" },

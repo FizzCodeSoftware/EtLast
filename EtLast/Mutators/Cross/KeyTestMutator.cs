@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class KeyTestMutator(IEtlContext context) : AbstractCrossMutator(context)
+public sealed class KeyTestMutator : AbstractCrossMutator
 {
     [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }

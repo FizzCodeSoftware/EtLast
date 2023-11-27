@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class RemoveRowMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class RemoveRowMutator: AbstractMutator
 {
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
@@ -18,7 +18,7 @@ public static class RemoveRowMutatorFluent
 
     public static IFluentSequenceMutatorBuilder RemoveRow(this IFluentSequenceMutatorBuilder builder, string name, RowTestDelegate rowTestDelegate)
     {
-        return builder.AddMutator(new RemoveRowMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new RemoveRowMutator()
         {
             Name = name,
             RowFilter = rowTestDelegate,
@@ -27,7 +27,7 @@ public static class RemoveRowMutatorFluent
 
     public static IFluentSequenceMutatorBuilder RemoveAllRow(this IFluentSequenceMutatorBuilder builder)
     {
-        return builder.AddMutator(new RemoveRowMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new RemoveRowMutator()
         {
             Name = nameof(RemoveAllRow),
         });

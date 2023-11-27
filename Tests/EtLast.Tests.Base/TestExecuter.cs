@@ -7,14 +7,14 @@ public static class TestExecuter
         return new EtlContext(null);
     }
 
-    public static TestExecuterResult Execute(ISequenceBuilder builder)
+    public static TestExecuterResult Execute(IEtlContext context, ISequenceBuilder builder)
     {
         var result = new TestExecuterResult
         {
             Process = builder.Build(),
         };
 
-        result.MutatedRows = result.Process.TakeRowsAndReleaseOwnership(null, null).ToList();
+        result.MutatedRows = result.Process.TakeRowsAndReleaseOwnership(context).ToList();
 
         return result;
     }

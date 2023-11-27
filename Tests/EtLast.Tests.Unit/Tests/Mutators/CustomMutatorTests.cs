@@ -15,8 +15,8 @@ public class CustomMutatorTests
         var invocationCount = 0;
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .CustomCode(new CustomMutator(context)
+            .ReadFrom(TestData.Person())
+            .CustomCode(new CustomMutator()
             {
                 Action = row =>
                 {
@@ -26,7 +26,7 @@ public class CustomMutatorTests
                 }
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, invocationCount);
         Assert.AreEqual(0, result.MutatedRows.Count);
         Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
@@ -38,8 +38,8 @@ public class CustomMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .CustomCode(new CustomMutator(context)
+            .ReadFrom(TestData.Person())
+            .CustomCode(new CustomMutator()
             {
                 Action = row =>
                 {
@@ -47,7 +47,7 @@ public class CustomMutatorTests
                 }
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -62,8 +62,8 @@ public class CustomMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .CustomCode(new CustomMutator(context)
+            .ReadFrom(TestData.Person())
+            .CustomCode(new CustomMutator()
             {
                 RowFilter = row => row.GetAs<int>("id") > 2,
                 Action = row =>
@@ -73,7 +73,7 @@ public class CustomMutatorTests
                 }
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -93,13 +93,13 @@ public class CustomMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .SetTag(new SetTagMutator(context)
+            .ReadFrom(TestData.Person())
+            .SetTag(new SetTagMutator()
             {
                 RowFilter = row => row.GetAs<int>("id") > 2,
                 Tag = RowKind.test,
             })
-            .CustomCode(new CustomMutator(context)
+            .CustomCode(new CustomMutator()
             {
                 RowTagFilter = tag => tag is RowKind rk && rk == RowKind.test,
                 Action = row =>
@@ -109,7 +109,7 @@ public class CustomMutatorTests
                 }
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },

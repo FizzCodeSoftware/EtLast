@@ -4,7 +4,7 @@ public static class ResilientSqlFinalizerExtensions
 {
     public static ResilientSqlTableTableFinalizerBuilder TruncateTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, int commandTimeout = 60 * 60)
     {
-        return builder.Add(new TruncateTable(builder.Table.Scope.Context)
+        return builder.Add(new TruncateTable()
         {
             Name = "TruncateTargetTableFinalizer",
             ConnectionString = builder.Table.Scope.ConnectionString,
@@ -15,7 +15,7 @@ public static class ResilientSqlFinalizerExtensions
 
     public static ResilientSqlTableTableFinalizerBuilder DeleteTargetTable(this ResilientSqlTableTableFinalizerBuilder builder, string customWhereClause = null, int commandTimeout = 60 * 60)
     {
-        return builder.Add(new DeleteTable(builder.Table.Scope.Context)
+        return builder.Add(new DeleteTable()
         {
             Name = "DeleteTargetTableFinalizer",
             ConnectionString = builder.Table.Scope.ConnectionString,
@@ -30,7 +30,7 @@ public static class ResilientSqlFinalizerExtensions
         if (copyIdentityColumns && builder.Table.Columns == null)
             throw new EtlException(builder.Table.Scope, "identity columns can be copied only if the " + nameof(ResilientTable) + "." + nameof(ResilientTableBase.Columns) + " is specified");
 
-        return builder.Add(new CopyTableIntoExistingTable(builder.Table.Scope.Context)
+        return builder.Add(new CopyTableIntoExistingTable()
         {
             Name = "CopyTableFinalizer",
             ConnectionString = builder.Table.Scope.ConnectionString,
@@ -55,7 +55,7 @@ public static class ResilientSqlFinalizerExtensions
 
         keyColumn = builder.Table.Scope.ConnectionString.Escape(keyColumn);
 
-        return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
+        return builder.Add(new CustomMsSqlMergeStatement()
         {
             Name = "SimpleMergeFinalizer",
             ConnectionString = builder.Table.Scope.ConnectionString,
@@ -84,7 +84,7 @@ public static class ResilientSqlFinalizerExtensions
             .Where(x => !keyColumns.Any(keyColumn => string.Equals(x, keyColumn, StringComparison.InvariantCultureIgnoreCase)))
             .ToList();
 
-        return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
+        return builder.Add(new CustomMsSqlMergeStatement()
         {
             Name = "SimpleMergeFinalizer",
             ConnectionString = builder.Table.Scope.ConnectionString,
@@ -115,7 +115,7 @@ public static class ResilientSqlFinalizerExtensions
             .Where(x => !keyColumns.Contains(x))
             .ToList();
 
-        return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
+        return builder.Add(new CustomMsSqlMergeStatement()
         {
             Name = "SimpleMergeUpdateOnlyFinalizer",
             ConnectionString = builder.Table.Scope.ConnectionString,
@@ -137,7 +137,7 @@ public static class ResilientSqlFinalizerExtensions
 
     public static ResilientSqlTableTableFinalizerBuilder SimpleMergeInsertOnly(this ResilientSqlTableTableFinalizerBuilder builder, string[] keyColumns, int commandTimeout = 60 * 60)
     {
-        return builder.Add(new CustomMsSqlMergeStatement(builder.Table.Scope.Context)
+        return builder.Add(new CustomMsSqlMergeStatement()
         {
             Name = "SimpleMergeInsertOnlyFinalizer",
             ConnectionString = builder.Table.Scope.ConnectionString,
@@ -159,7 +159,7 @@ public static class ResilientSqlFinalizerExtensions
 
     public static ResilientSqlScopeProcessBuilder CustomJob(this ResilientSqlScopeProcessBuilder builder, string name, Action<CustomJob> action)
     {
-        builder.Jobs.Add(new CustomJob(builder.Scope.Context)
+        builder.Jobs.Add(new CustomJob()
         {
             Name = name,
             Action = action,
@@ -172,7 +172,7 @@ public static class ResilientSqlFinalizerExtensions
     {
         if (builder.Scope.Tables.Count > 1)
         {
-            builder.Jobs.Add(new MsSqlDisableConstraintCheck(builder.Scope.Context)
+            builder.Jobs.Add(new MsSqlDisableConstraintCheck()
             {
                 Name = "DisableForeignKeys",
                 ConnectionString = builder.Scope.ConnectionString,
@@ -189,7 +189,7 @@ public static class ResilientSqlFinalizerExtensions
     {
         if (builder.Scope.Tables.Count > 1)
         {
-            builder.Jobs.Add(new MsSqlEnableConstraintCheck(builder.Scope.Context)
+            builder.Jobs.Add(new MsSqlEnableConstraintCheck()
             {
                 Name = "EnableForeignKeys",
                 ConnectionString = builder.Scope.ConnectionString,

@@ -2,7 +2,7 @@
 
 public enum DelimitedLineHeader { NoHeader, HasHeader, IgnoreHeader }
 
-public sealed class DelimitedLineReader(IEtlContext context) : AbstractRowSource(context)
+public sealed class DelimitedLineReader : AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }

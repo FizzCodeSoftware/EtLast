@@ -21,11 +21,11 @@ public class ReadFromDelimitedTests
 
         var context = new EtlContext(null);
         SequenceBuilder.Fluent
-            .ImportEnumerable(new EnumerableImporter(context)
+            .ImportEnumerable(new EnumerableImporter()
             {
                 InputGenerator = proc => GenerateRows(13, RowCount, proc),
             })
-            .WriteToDelimited(new WriteToDelimitedMutator(context)
+            .WriteToDelimited(new WriteToDelimitedMutator()
             {
                 Delimiter = ';',
                 WriteHeader = true,
@@ -43,7 +43,7 @@ public class ReadFromDelimitedTests
                     ["2"] = null,
                 },
             })
-            .WriteToDelimited(new WriteToDelimitedMutator(context)
+            .WriteToDelimited(new WriteToDelimitedMutator()
             {
                 Delimiter = ';',
                 WriteHeader = true,
@@ -63,7 +63,7 @@ public class ReadFromDelimitedTests
                 },
             })
             .Build()
-            .Execute(null);
+            .Execute(context);
 
         Console.WriteLine(_file);
     }
@@ -85,7 +85,7 @@ public class ReadFromDelimitedTests
         stream.Seek(0, SeekOrigin.Begin);
 
         var context = new EtlContext(null);
-        var process = new DelimitedLineReader(context)
+        var process = new DelimitedLineReader()
         {
             StreamProvider = new MemoryStreamProvider()
             {
@@ -109,7 +109,7 @@ public class ReadFromDelimitedTests
     public void ReadFromDelimitedFile()
     {
         var context = new EtlContext(null);
-        var process = new DelimitedLineReader(context)
+        var process = new DelimitedLineReader()
         {
             StreamProvider = new LocalFileStreamProvider()
             {

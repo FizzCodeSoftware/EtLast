@@ -8,8 +8,8 @@ public class ResolveHierarchyMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.RoleHierarchy(context))
-        .ResolveHierarchy(new ResolveHierarchyMutator(context)
+        .ReadFrom(TestData.RoleHierarchy())
+        .ResolveHierarchy(new ResolveHierarchyMutator()
         {
             IdentityColumn = "id",
             NewColumnWithParentId = "parentId",
@@ -19,7 +19,7 @@ public class ResolveHierarchyMutatorTests
             NewColumnWithName = null,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["code"] = "A", ["level1"] = "AAA", ["level"] = 0 },
@@ -36,8 +36,8 @@ public class ResolveHierarchyMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.RoleHierarchy(context))
-        .ResolveHierarchy(new ResolveHierarchyMutator(context)
+        .ReadFrom(TestData.RoleHierarchy())
+        .ResolveHierarchy(new ResolveHierarchyMutator()
         {
             IdentityColumn = "id",
             NewColumnWithParentId = "parentId",
@@ -47,7 +47,7 @@ public class ResolveHierarchyMutatorTests
             NewColumnWithName = null,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["code"] = "A", ["level"] = 0 },
@@ -65,8 +65,8 @@ public class ResolveHierarchyMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.RoleHierarchy(context))
-        .ResolveHierarchy(new ResolveHierarchyMutator(context)
+        .ReadFrom(TestData.RoleHierarchy())
+        .ResolveHierarchy(new ResolveHierarchyMutator()
         {
             IdentityColumn = "id",
             NewColumnWithParentId = "parentId",
@@ -76,7 +76,7 @@ public class ResolveHierarchyMutatorTests
             NewColumnWithName = null,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["code"] = "A" },
@@ -93,8 +93,8 @@ public class ResolveHierarchyMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.RoleHierarchy(context))
-        .ResolveHierarchy(new ResolveHierarchyMutator(context)
+        .ReadFrom(TestData.RoleHierarchy())
+        .ResolveHierarchy(new ResolveHierarchyMutator()
         {
             IdentityColumn = "id",
             NewColumnWithParentId = "parentId",
@@ -104,7 +104,7 @@ public class ResolveHierarchyMutatorTests
             RemoveLevelColumns = true,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["code"] = "A", ["level"] = 0, ["name"] = "AAA" },
@@ -121,13 +121,13 @@ public class ResolveHierarchyMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.RoleHierarchy(context))
-        .ConvertValue(new InPlaceConvertMutator(context)
+        .ReadFrom(TestData.RoleHierarchy())
+        .ConvertValue(new InPlaceConvertMutator()
         {
             Columns = ["id"],
             TypeConverter = new StringConverter(),
         })
-        .ResolveHierarchy(new ResolveHierarchyMutator(context)
+        .ResolveHierarchy(new ResolveHierarchyMutator()
         {
             IdentityColumn = "id",
             NewColumnWithParentId = "parentId",
@@ -137,7 +137,7 @@ public class ResolveHierarchyMutatorTests
             NewColumnWithName = null,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = "0", ["code"] = "A", ["level1"] = "AAA", ["level"] = 0 },

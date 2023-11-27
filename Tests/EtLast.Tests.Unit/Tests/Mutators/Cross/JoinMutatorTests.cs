@@ -14,12 +14,12 @@ public class JoinMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
@@ -33,7 +33,7 @@ public class JoinMutatorTests
                 }
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(10, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "yellow", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -54,12 +54,12 @@ public class JoinMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
@@ -70,7 +70,7 @@ public class JoinMutatorTests
                 }
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "yellow", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -87,12 +87,12 @@ public class JoinMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
@@ -103,7 +103,7 @@ public class JoinMutatorTests
                 }
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "yellow", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -123,12 +123,12 @@ public class JoinMutatorTests
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
                 },
                 RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return executedLeftKeyDelegateCount < 3 ? row.GenerateKey("id") : row.GetAs<double>("id").ToString("D", CultureInfo.InvariantCulture); },
@@ -139,7 +139,7 @@ public class JoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(3, executedLeftKeyDelegateCount);
         Assert.AreEqual(7, executedRightKeyDelegateCount);
         Assert.AreEqual(5, result.MutatedRows.Count);
@@ -160,12 +160,12 @@ public class JoinMutatorTests
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GetAs<double>("personId").ToString("D", CultureInfo.InvariantCulture); },
                 },
                 RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
@@ -176,7 +176,7 @@ public class JoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(0, executedLeftKeyDelegateCount);
         Assert.AreEqual(1, executedRightKeyDelegateCount);
         Assert.AreEqual(0, result.MutatedRows.Count);
@@ -191,12 +191,12 @@ public class JoinMutatorTests
         var executedLeftKeyDelegateCount = 0;
         var executedRightKeyDelegateCount = 0;
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => { executedRightKeyDelegateCount++; return row.GenerateKey("personId"); },
                 },
                 RowKeyGenerator = row => { executedLeftKeyDelegateCount++; return row.GenerateKey("id"); },
@@ -208,7 +208,7 @@ public class JoinMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, executedLeftKeyDelegateCount);
         Assert.AreEqual(7, executedRightKeyDelegateCount);
         Assert.AreEqual(0, result.MutatedRows.Count);

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusPreLoadedExcelReader(IEtlContext context) : AbstractEpPlusExcelReader(context)
+public sealed class EpPlusPreLoadedExcelReader : AbstractEpPlusExcelReader
 {
     /// <summary>
     /// Usage: reader.PreLoadedFile = new ExcelPackage(new FileInfo(fileName));

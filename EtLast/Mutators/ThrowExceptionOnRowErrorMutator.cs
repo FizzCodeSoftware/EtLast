@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ThrowExceptionOnRowErrorMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class ThrowExceptionOnRowErrorMutator: AbstractMutator
 {
     protected override void StartMutator()
     {
@@ -46,6 +46,6 @@ public static class ThrowExceptionOnRowErrorMutatorFluent
 
     public static IFluentSequenceMutatorBuilder ThrowExceptionOnRowError(this IFluentSequenceMutatorBuilder builder)
     {
-        return builder.AddMutator(new ThrowExceptionOnRowErrorMutator(builder.ProcessBuilder.Result.Context));
+        return builder.AddMutator(new ThrowExceptionOnRowErrorMutator());
     }
 }

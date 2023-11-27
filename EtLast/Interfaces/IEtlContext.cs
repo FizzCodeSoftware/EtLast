@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public interface IEtlContext
+public interface IEtlContext : ICaller
 {
     public void SetRowType<T>() where T : IRow;
 
@@ -48,7 +48,7 @@ public interface IEtlContext
 
     public void SetRowOwner(IRow row, IProcess currentProcess);
 
-    public void RegisterProcessInvocationStart(IProcess process, IProcess caller);
+    public void RegisterProcessInvocationStart(IProcess process, ICaller caller);
     public void RegisterProcessInvocationEnd(IProcess process);
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
     public long GetSinkUid(string location, string path);

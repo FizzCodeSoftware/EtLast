@@ -217,7 +217,7 @@ public class EtlException : Exception
     {
         var builder = new StringBuilder(200);
 
-        var p = process.InvocationInfo?.Caller;
+        var p = process.InvocationInfo?.Caller as IProcess;
         while (p != null)
         {
             var assemblyName = p.GetType().Assembly?.GetName().Name;
@@ -246,7 +246,7 @@ public class EtlException : Exception
             builder.Append(", kind: ");
             builder.AppendLine(p.Kind);
 
-            p = p.InvocationInfo?.Caller;
+            p = p.InvocationInfo?.Caller as IProcess;
         }
 
         return builder.ToString().Trim();

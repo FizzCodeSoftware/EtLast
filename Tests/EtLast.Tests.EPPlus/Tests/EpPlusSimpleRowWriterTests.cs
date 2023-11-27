@@ -15,7 +15,7 @@ public class EpPlusSimpleRowWriterTests
 
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .UsePredefinedRows(new RowCreator(context)
+            .UsePredefinedRows(new RowCreator()
             {
                 Columns = ["id", "name", "age", "height", "eyeColor", "countryId", "birthDate", "lastChangedTime"],
                 InputRows =
@@ -29,7 +29,7 @@ public class EpPlusSimpleRowWriterTests
                     [6, "fake", null, 140, null, 5, new DateTime(2018, 1, 9), null],
                 ],
             })
-            .WriteRowToExcelSimple(new EpPlusSimpleRowWriterMutator(context)
+            .WriteRowToExcelSimple(new EpPlusSimpleRowWriterMutator()
             {
                 Columns = new()
                 {
@@ -58,7 +58,7 @@ public class EpPlusSimpleRowWriterTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -71,7 +71,7 @@ public class EpPlusSimpleRowWriterTests
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
 
         builder = SequenceBuilder.Fluent
-            .ReadFromExcel(new EpPlusExcelReader(context)
+            .ReadFromExcel(new EpPlusExcelReader()
             {
                 SheetName = "person",
                 StreamProvider = new LocalDirectoryStreamProvider()
@@ -92,7 +92,7 @@ public class EpPlusSimpleRowWriterTests
                 },
             });
 
-        result = TestExecuter.Execute(builder);
+        result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birth date"] = "40521", ["lastChangedTime"] = 42357.50001157408d },
@@ -114,7 +114,7 @@ public class EpPlusSimpleRowWriterTests
 
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .UsePredefinedRows(new RowCreator(context)
+            .UsePredefinedRows(new RowCreator()
             {
                 Columns = ["id", "name", "age", "height", "eyeColor", "countryId", "birthDate", "lastChangedTime"],
                 InputRows =
@@ -128,7 +128,7 @@ public class EpPlusSimpleRowWriterTests
                     [6, "fake", null, 140, null, 5, new DateTime(2018, 1, 9), null],
                 ],
             })
-            .WriteRowToExcelSimple(new EpPlusSimpleRowWriterMutator(context)
+            .WriteRowToExcelSimple(new EpPlusSimpleRowWriterMutator()
             {
                 Columns = new()
                 {
@@ -157,7 +157,7 @@ public class EpPlusSimpleRowWriterTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -170,7 +170,7 @@ public class EpPlusSimpleRowWriterTests
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
 
         builder = SequenceBuilder.Fluent
-            .ReadFromExcel(new EpPlusExcelReader(context)
+            .ReadFromExcel(new EpPlusExcelReader()
             {
                 SheetName = "person",
                 StreamProvider = new LocalDirectoryStreamProvider()
@@ -191,7 +191,7 @@ public class EpPlusSimpleRowWriterTests
                 },
             });
 
-        result = TestExecuter.Execute(builder);
+        result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birth date"] = "40521", ["lastChangedTime"] = 42357.50001157408d },

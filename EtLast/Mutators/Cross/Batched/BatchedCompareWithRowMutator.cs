@@ -14,8 +14,7 @@ public sealed class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
     /// </summary>
     public override int BatchSize { get; init; } = 1000;
 
-    public BatchedCompareWithRowMutator(IEtlContext context)
-        : base(context)
+    public BatchedCompareWithRowMutator()
     {
         UseBatchKeys = false;
     }

@@ -24,8 +24,7 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
 
     private ICountableLookup _lookup;
 
-    public BatchedKeyTestMutator(IEtlContext context)
-        : base(context)
+    public BatchedKeyTestMutator()
     {
         UseBatchKeys = true;
     }

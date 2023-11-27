@@ -10,7 +10,7 @@ public class EtlException : AbstractEtlTask
         flow
             .CustomJob(nameof(EtlException), job =>
             {
-                var process = new StoredProcedureAdoNetDbReader(Context)
+                var process = new StoredProcedureAdoNetDbReader()
                 {
                     ConnectionString = ConnectionString,
                     Sql = "NotExisting_StoredProcedure",

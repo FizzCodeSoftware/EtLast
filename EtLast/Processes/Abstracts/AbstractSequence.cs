@@ -5,17 +5,13 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
 {
     public Action<ISequence> Initializer { get; init; }
 
-    protected AbstractSequence(IEtlContext context)
-        : base(context)
+    protected AbstractSequence()
     {
     }
 
-    private IEnumerable<IRow> Evaluate(IProcess caller, FlowState flowState)
+    private IEnumerable<IRow> Evaluate(ICaller caller, FlowState flowState = null)
     {
-        Context.RegisterProcessInvocationStart(this, caller);
-        FlowState = flowState ?? caller?.FlowState ?? new FlowState(Context);
-
-        LogCall(caller);
+        BeginExecution(caller, flowState);
         LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();
@@ -97,46 +93,26 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
     protected abstract IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch);
     protected abstract void ValidateImpl();
 
-    public override void Execute(IProcess caller)
-    {
-        CountRowsAndReleaseOwnership(caller);
-    }
-
-    public override void Execute(IProcess caller, FlowState flowState)
+    public override void Execute(ICaller caller, FlowState flowState = null)
     {
         CountRowsAndReleaseOwnership(caller, flowState);
     }
 
-    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller)
-    {
-        return TakeRowsAndTransferOwnership(caller, caller?.FlowState);
-    }
-
-    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller)
-    {
-        return TakeRowsAndReleaseOwnership(caller, caller?.FlowState);
-    }
-
-    public int CountRowsAndReleaseOwnership(IProcess caller)
-    {
-        return CountRowsAndReleaseOwnership(caller, caller?.FlowState);
-    }
-
-    public IEnumerable<IRow> TakeRowsAndTransferOwnership(IProcess caller, FlowState flowState)
+    public IEnumerable<IRow> TakeRowsAndTransferOwnership(ICaller caller, FlowState flowState = null)
     {
         foreach (var row in Evaluate(caller, flowState))
         {
-            row.Context.SetRowOwner(row, caller);
+            row.Context.SetRowOwner(row, caller as IProcess);
             yield return row;
         }
     }
 
-    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(IProcess caller, FlowState flowState)
+    public IEnumerable<ISlimRow> TakeRowsAndReleaseOwnership(ICaller caller, FlowState flowState = null)
     {
         foreach (var row in Evaluate(caller, flowState))
         {
-            if (caller != null)
-                row.Context.SetRowOwner(row, caller);
+            if (caller is IProcess callerProcess)
+                row.Context.SetRowOwner(row, callerProcess);
 
             row.Context.SetRowOwner(row, null);
 
@@ -144,12 +120,12 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         }
     }
 
-    public int CountRowsAndReleaseOwnership(IProcess caller, FlowState flowState)
+    public int CountRowsAndReleaseOwnership(ICaller caller, FlowState flowState = null)
     {
         var count = 0;
         foreach (var row in Evaluate(caller, flowState))
         {
-            row.Context.SetRowOwner(row, caller);
+            row.Context.SetRowOwner(row, caller as IProcess);
             row.Context.SetRowOwner(row, null);
 
             count++;

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class DeleteTable(IEtlContext context) : AbstractSqlStatement(context)
+public sealed class DeleteTable : AbstractSqlStatement
 {
     [ProcessParameterMustHaveValue]
     public required string TableName { get; init; }

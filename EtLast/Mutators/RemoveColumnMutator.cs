@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class RemoveColumnMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
+public sealed class RemoveColumnMutator: AbstractSimpleChangeMutator
 {
     [ProcessParameterMustHaveValue]
     public required string[] Columns { get; init; }
@@ -40,7 +40,7 @@ public static class RemoveColumnMutatorFluent
 
     public static IFluentSequenceMutatorBuilder RemoveColumn(this IFluentSequenceMutatorBuilder builder, params string[] columns)
     {
-        return builder.AddMutator(new RemoveColumnMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new RemoveColumnMutator()
         {
             Columns = columns,
         });

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MsSqlResetSingleIdentityCounter(IEtlContext context) : AbstractSqlStatement(context)
+public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
 {
     [ProcessParameterMustHaveValue]
     public string TableName { get; init; }

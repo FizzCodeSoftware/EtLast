@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteToMsSqlMutator(IEtlContext context) : AbstractMutator(context), IRowSink
+public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }

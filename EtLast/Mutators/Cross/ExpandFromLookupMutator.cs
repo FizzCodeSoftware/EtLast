@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ExpandFromLookupMutator(IEtlContext context) : AbstractCrossMutator(context)
+public sealed class ExpandFromLookupMutator : AbstractCrossMutator
 {
     [ProcessParameterMustHaveValue]
     public required Dictionary<string, string> Columns { get; init; }

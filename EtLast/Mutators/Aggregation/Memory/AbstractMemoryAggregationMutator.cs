@@ -6,8 +6,7 @@ public abstract class AbstractMemoryAggregationMutator : AbstractAggregationMuta
     [ProcessParameterMustHaveValue]
     public required IMemoryAggregationOperation Operation { get; init; }
 
-    protected AbstractMemoryAggregationMutator(IEtlContext context)
-        : base(context)
+    protected AbstractMemoryAggregationMutator()
     {
     }
 

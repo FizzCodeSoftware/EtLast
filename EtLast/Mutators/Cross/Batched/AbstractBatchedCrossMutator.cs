@@ -9,8 +9,7 @@ public abstract class AbstractBatchedCrossMutator : AbstractBatchedMutator
     [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }
 
-    protected AbstractBatchedCrossMutator(IEtlContext context)
-        : base(context)
+    protected AbstractBatchedCrossMutator()
     {
     }
 

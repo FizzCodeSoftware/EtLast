@@ -8,13 +8,13 @@ public class RemoveRowMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .RemoveRow(new RemoveRowMutator(context)
+        .ReadFrom(TestData.Person())
+        .RemoveRow(new RemoveRowMutator()
         {
             RowFilter = row => row.GetAs<int>("id") >= 4 && (row.GetAs<double>("id") == 7.0d),
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -30,13 +30,13 @@ public class RemoveRowMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .RemoveRow(new RemoveRowMutator(context)
+        .ReadFrom(TestData.Person())
+        .RemoveRow(new RemoveRowMutator()
         {
             RowFilter = _ => true,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -46,13 +46,13 @@ public class RemoveRowMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .RemoveRow(new RemoveRowMutator(context)
+        .ReadFrom(TestData.Person())
+        .RemoveRow(new RemoveRowMutator()
         {
             RowFilter = _ => false,
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -70,13 +70,13 @@ public class RemoveRowMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .RemoveRow(new RemoveRowMutator(context)
+        .ReadFrom(TestData.Person())
+        .RemoveRow(new RemoveRowMutator()
         {
             RowFilter = row => row.GetAs<string>("name") == "A",
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(5, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 1, ["name"] = "B", ["age"] = 8, ["height"] = 190, ["eyeColor"] = null, ["countryId"] = 1, ["birthDate"] = new DateTime(2011, 2, 1, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 13, 2, 0, 0) },

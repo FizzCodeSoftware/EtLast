@@ -3,32 +3,18 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWithResult<T>
 {
-    protected AbstractProcessWithResult(IEtlContext context)
-        : base(context)
+    protected AbstractProcessWithResult()
     {
     }
 
-    public override void Execute(IProcess caller)
-    {
-        ExecuteWithResult(caller, null);
-    }
-
-    public override void Execute(IProcess caller, FlowState flowState)
+    public override void Execute(ICaller caller, FlowState flowState = null)
     {
         ExecuteWithResult(caller, flowState);
     }
 
-    public T ExecuteWithResult(IProcess caller)
+    public T ExecuteWithResult(ICaller caller, FlowState flowState = null)
     {
-        return ExecuteWithResult(caller, null);
-    }
-
-    public T ExecuteWithResult(IProcess caller, FlowState flowState)
-    {
-        Context.RegisterProcessInvocationStart(this, caller);
-        FlowState = flowState ?? caller?.FlowState ?? new FlowState(Context);
-
-        LogCall(caller);
+        BeginExecution(caller, flowState);
         LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();

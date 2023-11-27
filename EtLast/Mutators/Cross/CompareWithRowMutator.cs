@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CompareWithRowMutator(IEtlContext context) : AbstractCrossMutator(context)
+public sealed class CompareWithRowMutator : AbstractCrossMutator
 {
     [ProcessParameterMustHaveValue]
     public required RowKeyGenerator RowKeyGenerator { get; init; }

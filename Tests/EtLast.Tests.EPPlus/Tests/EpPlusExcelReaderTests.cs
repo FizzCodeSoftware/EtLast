@@ -5,7 +5,7 @@ public class EpPlusExcelReaderTests
 {
     private static EpPlusExcelReader GetReader(IEtlContext context, IStreamProvider streamProvider, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
     {
-        return new EpPlusExcelReader(context)
+        return new EpPlusExcelReader()
         {
             StreamProvider = streamProvider,
             SheetName = sheetName,
@@ -33,7 +33,7 @@ public class EpPlusExcelReaderTests
             .ReadFromExcel(reader)
             .ThrowExceptionOnRowError();
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
         Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
         Assert.IsTrue(result.Process.FlowState.Exceptions[0] is LocalFileReadException);
@@ -49,7 +49,7 @@ public class EpPlusExcelReaderTests
             .ReadFromExcel(reader)
             .ThrowExceptionOnRowError();
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
@@ -63,7 +63,7 @@ public class EpPlusExcelReaderTests
     public void PartitionedContentBySheetIndex()
     {
         var context = TestExecuter.GetContext();
-        var reader = new EpPlusExcelReader(context)
+        var reader = new EpPlusExcelReader()
         {
             StreamProvider = new LocalDirectoryStreamProvider()
             {
@@ -82,7 +82,7 @@ public class EpPlusExcelReaderTests
             .ReadFromExcel(reader)
             .ThrowExceptionOnRowError();
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(9, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Name"] = "AAA", ["Age"] = 20 },
@@ -107,7 +107,7 @@ public class EpPlusExcelReaderTests
             .ReadFromExcel(reader)
             .ThrowExceptionOnRowError();
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
@@ -127,7 +127,7 @@ public class EpPlusExcelReaderTests
             .ReadFromExcel(reader)
             .ThrowExceptionOnRowError();
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A   ", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },

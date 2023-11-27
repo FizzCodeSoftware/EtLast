@@ -6,8 +6,7 @@ public abstract class AbstractCrossMutator : AbstractMutator
     [ProcessParameterMustHaveValue]
     public required RowLookupBuilder LookupBuilder { get; init; }
 
-    protected AbstractCrossMutator(IEtlContext context)
-        : base(context)
+    protected AbstractCrossMutator()
     {
     }
 }

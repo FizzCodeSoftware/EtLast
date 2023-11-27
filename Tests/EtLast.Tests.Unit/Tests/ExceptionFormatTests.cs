@@ -9,14 +9,14 @@ public class ExceptionFormatTests
         var context = TestExecuter.GetContext();
 
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .CustomCode(new CustomMutator(context)
+            .ReadFrom(TestData.Person())
+            .CustomCode(new CustomMutator()
             {
                 Action = _ => throw new Exception("ohh"),
             });
 
         var process = builder.Build();
-        process.Execute(null);
+        process.Execute(context);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
@@ -28,14 +28,14 @@ public class ExceptionFormatTests
         var context = TestExecuter.GetContext();
 
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .CustomCode(new CustomMutator(context)
+            .ReadFrom(TestData.Person())
+            .CustomCode(new CustomMutator()
             {
                 Action = null,
             });
 
         var process = builder.Build();
-        process.Execute(null);
+        process.Execute(context);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
@@ -46,12 +46,12 @@ public class ExceptionFormatTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
@@ -60,7 +60,7 @@ public class ExceptionFormatTests
             });
 
         var process = builder.Build();
-        process.Execute(null);
+        process.Execute(context);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
@@ -71,12 +71,12 @@ public class ExceptionFormatTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
@@ -88,7 +88,7 @@ public class ExceptionFormatTests
             });
 
         var process = builder.Build();
-        process.Execute(null);
+        process.Execute(context);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
@@ -99,12 +99,12 @@ public class ExceptionFormatTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .Join(new JoinMutator(context)
+            .ReadFrom(TestData.Person())
+            .Join(new JoinMutator()
             {
                 LookupBuilder = new RowLookupBuilder()
                 {
-                    Process = TestData.PersonEyeColor(context),
+                    Process = TestData.PersonEyeColor(),
                     KeyGenerator = row => row.GenerateKey("personId"),
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
@@ -113,7 +113,7 @@ public class ExceptionFormatTests
             });
 
         var process = builder.Build();
-        process.Execute(null);
+        process.Execute(context);
         var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();

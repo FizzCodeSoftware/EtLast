@@ -3,9 +3,9 @@
 [TestClass]
 public class EpPlusExcelSheetReaderTests
 {
-    private static EpPlusExcelSheetListReader GetReader(IEtlContext context, string fileName)
+    private static EpPlusExcelSheetListReader GetReader(string fileName)
     {
-        return new EpPlusExcelSheetListReader(context)
+        return new EpPlusExcelSheetListReader()
         {
             StreamProvider = new LocalFileStreamProvider()
             {
@@ -19,13 +19,13 @@ public class EpPlusExcelSheetReaderTests
     public void MissingFileThrowsFileReadException()
     {
         var context = TestExecuter.GetContext();
-        var reader = GetReader(context, @".\TestData\MissingFile.xlsx");
+        var reader = GetReader(@".\TestData\MissingFile.xlsx");
 
         var builder = SequenceBuilder.Fluent
             .ReadSheetListFromExcel(reader)
             .ThrowExceptionOnRowError();
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
         Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
         Assert.IsTrue(result.Process.FlowState.Exceptions[0] is LocalFileReadException);
@@ -35,13 +35,13 @@ public class EpPlusExcelSheetReaderTests
     public void ListSheets()
     {
         var context = TestExecuter.GetContext();
-        var reader = GetReader(context, @".\TestData\Test.xlsx");
+        var reader = GetReader(@".\TestData\Test.xlsx");
 
         var builder = SequenceBuilder.Fluent
             .ReadSheetListFromExcel(reader)
             .ThrowExceptionOnRowError();
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Stream"] = @".\TestData\Test.xlsx", ["Index"] = 0, ["Name"] = "MergeAtIndex0", ["Color"] = System.Drawing.Color.FromArgb(0, 0, 0, 0), ["Visible"] = true, ["idx"] = 0 },

@@ -14,13 +14,13 @@ public class ReduceGroupToSingleRowMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ConvertValue(new InPlaceConvertMutator(context)
+            .ReadFrom(TestData.Person())
+            .ConvertValue(new InPlaceConvertMutator()
             {
                 Columns = ["age"],
                 TypeConverter = new DecimalConverter(),
             })
-            .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context)
+            .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator()
             {
                 KeyGenerator = row => row.GenerateKey("name"),
                 Selector = (proc, groupRows) =>
@@ -32,7 +32,7 @@ public class ReduceGroupToSingleRowMutatorTests
                 }
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(5, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 5, ["name"] = "A", ["age"] = 11m, ["height"] = 140, ["eyeColor"] = null, ["countryId"] = null, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
@@ -48,13 +48,13 @@ public class ReduceGroupToSingleRowMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ConvertValue(new InPlaceConvertMutator(context)
+            .ReadFrom(TestData.Person())
+            .ConvertValue(new InPlaceConvertMutator()
             {
                 Columns = ["age"],
                 TypeConverter = new DecimalConverter(),
             })
-            .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context)
+            .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator()
             {
                 IgnoreSelectorForSingleRowGroups = true,
                 KeyGenerator = row => row.GenerateKey("name"),
@@ -69,7 +69,7 @@ public class ReduceGroupToSingleRowMutatorTests
 
         // note: this includes "fake" because Selector is not applied over single-row groups
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(6, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 5, ["name"] = "A", ["age"] = 11m, ["height"] = 140, ["eyeColor"] = null, ["countryId"] = null, ["birthDate"] = new DateTime(2013, 5, 15, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2018, 1, 1, 0, 0, 0, 0) },
@@ -86,13 +86,13 @@ public class ReduceGroupToSingleRowMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ConvertValue(new InPlaceConvertMutator(context)
+            .ReadFrom(TestData.Person())
+            .ConvertValue(new InPlaceConvertMutator()
             {
                 Columns = ["age"],
                 TypeConverter = new DecimalConverter(),
             })
-            .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator(context)
+            .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator()
             {
                 KeyGenerator = row => row.GenerateKey("name"),
                 Selector = (proc, groupRows) =>
@@ -104,7 +104,7 @@ public class ReduceGroupToSingleRowMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17m, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) } ]);

@@ -14,8 +14,7 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
     /// </summary>
     protected bool UseBatchKeys { get; init; }
 
-    protected AbstractBatchedMutator(IEtlContext context)
-        : base(context)
+    protected AbstractBatchedMutator()
     {
     }
 

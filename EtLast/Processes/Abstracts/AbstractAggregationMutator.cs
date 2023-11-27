@@ -17,8 +17,7 @@ public abstract class AbstractAggregationMutator : AbstractSequence, IMutator
     /// </summary>
     public required Func<IRow, string> KeyGenerator { get; init; }
 
-    protected AbstractAggregationMutator(IEtlContext context)
-        : base(context)
+    protected AbstractAggregationMutator()
     {
     }
 

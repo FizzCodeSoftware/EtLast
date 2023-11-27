@@ -14,13 +14,13 @@ public class ThrowExceptionOnDuplicateKeyMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator(context)
+        .ReadFrom(TestData.Person())
+        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator()
         {
             RowKeyGenerator = row => row.GenerateKey("name"),
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(5, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -37,13 +37,13 @@ public class ThrowExceptionOnDuplicateKeyMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator(context)
+        .ReadFrom(TestData.Person())
+        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator()
         {
             RowKeyGenerator = row => row.GenerateKey("id", "name"),
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -61,13 +61,13 @@ public class ThrowExceptionOnDuplicateKeyMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator(context)
+        .ReadFrom(TestData.Person())
+        .ThrowExceptionOnDuplicateKey(new ThrowExceptionOnDuplicateKeyMutator()
         {
             RowKeyGenerator = row => row.GenerateKey("EYECOLOR"),
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },

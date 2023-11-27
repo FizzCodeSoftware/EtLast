@@ -2,7 +2,7 @@
 
 public delegate IEnumerable<ISlimRow> ExplodeDelegate(IReadOnlyRow row);
 
-public sealed class ExplodeMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class ExplodeMutator: AbstractMutator
 {
     /// <summary>
     /// Default true.
@@ -36,7 +36,7 @@ public static class ExplodeMutatorFluent
 
     public static IFluentSequenceMutatorBuilder Explode(this IFluentSequenceMutatorBuilder builder, string name, ExplodeDelegate rowCreator)
     {
-        return builder.AddMutator(new ExplodeMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new ExplodeMutator()
         {
             Name = name,
             RemoveOriginalRow = true,

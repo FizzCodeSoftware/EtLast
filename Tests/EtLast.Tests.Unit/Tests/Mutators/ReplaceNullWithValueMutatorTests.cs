@@ -14,14 +14,14 @@ public class ReplaceNullWithValueMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
+            .ReadFrom(TestData.Person())
+            .ReplaceNullWithValue(new ReplaceNullWithValueMutator()
             {
                 Columns = ["eyeColor"],
                 Value = "default",
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -39,14 +39,14 @@ public class ReplaceNullWithValueMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
+            .ReadFrom(TestData.Person())
+            .ReplaceNullWithValue(new ReplaceNullWithValueMutator()
             {
                 Columns = ["eyeColor", "missing"],
                 Value = "default",
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["missing"] = "default" },
@@ -64,14 +64,14 @@ public class ReplaceNullWithValueMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ReplaceNullWithValue(new ReplaceNullWithValueMutator(context)
+            .ReadFrom(TestData.Person())
+            .ReplaceNullWithValue(new ReplaceNullWithValueMutator()
             {
                 Columns = ["id", "name"],
                 Value = "default",
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },

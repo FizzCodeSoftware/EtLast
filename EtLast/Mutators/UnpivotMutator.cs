@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class UnpivotMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class UnpivotMutator: AbstractMutator
 {
     public Dictionary<string, string> FixColumns { get; init; }
 

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class AddKeyHashMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class AddKeyHashMutator : AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required string TargetColumn { get; init; }
@@ -76,7 +76,7 @@ public static class AddHashMutatorFluent
 
     public static IFluentSequenceMutatorBuilder AddKeyHash(this IFluentSequenceMutatorBuilder builder, string targetColumn, params string[] keyColumns)
     {
-        return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new AddKeyHashMutator()
         {
             TargetColumn = targetColumn,
             KeyColumns = keyColumns,
@@ -86,7 +86,7 @@ public static class AddHashMutatorFluent
 
     public static IFluentSequenceMutatorBuilder AddKeyHash(this IFluentSequenceMutatorBuilder builder, string targetColumn, Func<HashAlgorithm> hashAlgorithmCreator)
     {
-        return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new AddKeyHashMutator()
         {
             TargetColumn = targetColumn,
             HashAlgorithmCreator = hashAlgorithmCreator,
@@ -95,7 +95,7 @@ public static class AddHashMutatorFluent
 
     public static IFluentSequenceMutatorBuilder AddKeyHash(this IFluentSequenceMutatorBuilder builder, string targetColumn, Func<HashAlgorithm> hashAlgorithmCreator, params string[] keyColumns)
     {
-        return builder.AddMutator(new AddKeyHashMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new AddKeyHashMutator()
         {
             TargetColumn = targetColumn,
             HashAlgorithmCreator = hashAlgorithmCreator,

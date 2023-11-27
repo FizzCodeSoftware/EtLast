@@ -2,7 +2,7 @@
 
 namespace FizzCode.EtLast;
 
-public sealed class DeleteLocalFile(IEtlContext context) : AbstractJob(context)
+public sealed class DeleteLocalFile : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required string FileName { get; init; }

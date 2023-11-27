@@ -7,6 +7,9 @@ public sealed class EtlContext : IEtlContext
     public AdditionalData AdditionalData { get; } = new AdditionalData();
     public ArgumentCollection Arguments { get; }
 
+    public IEtlContext Context => this;
+    public FlowState GetFlowState() => new(this);
+
     /// <summary>
     /// Returns the identifier of the context, uniqueness is not guaranteed. Example: s220530-123059-993.
     /// </summary>
@@ -36,6 +39,7 @@ public sealed class EtlContext : IEtlContext
 
     private readonly CancellationTokenSource _cancellationTokenSource;
     public CancellationToken CancellationToken { get; }
+
     private readonly List<IEtlService> _services = [];
 
     private long _nextRowUid;
@@ -220,7 +224,7 @@ public sealed class EtlContext : IEtlContext
             listener.OnRowOwnerChanged(row, previousProcess, currentProcess);
     }
 
-    public void RegisterProcessInvocationStart(IProcess process, IProcess caller)
+    public void RegisterProcessInvocationStart(IProcess process, ICaller caller)
     {
         process.InvocationInfo = new ProcessInvocationInfo()
         {

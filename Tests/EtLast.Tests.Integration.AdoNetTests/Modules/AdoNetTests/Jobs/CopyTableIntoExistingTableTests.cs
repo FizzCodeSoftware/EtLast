@@ -8,7 +8,7 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomSqlStatement(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement()
             {
                 Name = "CreateSourceTable",
                 ConnectionString = ConnectionString,
@@ -17,14 +17,14 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CopyTableIntoExistingTableTests)} (Id, Value) VALUES (2, 'CopyTableIntoExistingTableTest');",
                 MainTableName = nameof(CopyTableIntoExistingTableTests),
             })
-            .CustomSqlStatement(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement()
             {
                 Name = "CreateTargetTable",
                 ConnectionString = ConnectionString,
                 SqlStatement = $"CREATE TABLE {nameof(CopyTableIntoExistingTableTests)}Target (Id INT NOT NULL, Value NVARCHAR(255));",
                 MainTableName = nameof(CopyTableIntoExistingTableTests) + "Target",
             })
-            .CopyTableIntoExistingTable(() => new CopyTableIntoExistingTable(Context)
+            .CopyTableIntoExistingTable(() => new CopyTableIntoExistingTable()
             {
                 ConnectionString = ConnectionString,
                 Configuration = new TableCopyConfiguration()
@@ -34,7 +34,7 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
                 }
             })
             .ExecuteSequenceAndTakeRows(out var result, builder => builder
-                .ReadFrom(new AdoNetDbReader(Context)
+                .ReadFrom(new AdoNetDbReader()
                 {
                     Name = "ReadTargetTableContents",
                     ConnectionString = ConnectionString,

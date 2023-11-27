@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class TrimStringMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
+public sealed class TrimStringMutator : AbstractSimpleChangeMutator
 {
     public required string[] Columns { get; init; }
 
@@ -52,7 +52,7 @@ public static class TrimStringMutatorFluent
 
     public static IFluentSequenceMutatorBuilder TrimString(this IFluentSequenceMutatorBuilder builder, params string[] columns)
     {
-        return builder.AddMutator(new TrimStringMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new TrimStringMutator()
         {
             Columns = columns,
         });

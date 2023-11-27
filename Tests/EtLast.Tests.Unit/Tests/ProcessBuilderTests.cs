@@ -8,8 +8,8 @@ public class ProcessBuilderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .CustomCode(new CustomMutator(context)
+        .ReadFrom(TestData.Person())
+        .CustomCode(new CustomMutator()
         {
             Action = row => true,
         });
@@ -25,12 +25,12 @@ public class ProcessBuilderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .CustomCode(new CustomMutator(context)
+        .ReadFrom(TestData.Person())
+        .CustomCode(new CustomMutator()
         {
             Action = row => true,
         })
-        .CustomCode(new CustomMutator(context)
+        .CustomCode(new CustomMutator()
         {
             Action = row => true,
         });
@@ -47,7 +47,7 @@ public class ProcessBuilderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context));
+        .ReadFrom(TestData.Person());
 
         var process = builder.Build();
         Assert.IsNotNull(process);

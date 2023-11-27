@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MultiplyByTagsMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class MultiplyByTagsMutator : AbstractMutator
 {
     /// <summary>
     /// Default true.
@@ -34,7 +34,7 @@ public static class MultiplyWithTagsMutatorFluent
 
     public static IFluentSequenceMutatorBuilder CreateTaggedVersions(this IFluentSequenceMutatorBuilder builder, params object[] tags)
     {
-        return builder.AddMutator(new MultiplyByTagsMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new MultiplyByTagsMutator()
         {
             Tags = tags,
             RemoveOriginalRow = true,

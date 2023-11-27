@@ -8,7 +8,7 @@ public class GetTableMaxValueTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomSqlStatement(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement()
             {
                 Name = "CreateTableAndInsertContent",
                 ConnectionString = ConnectionString,
@@ -17,7 +17,7 @@ public class GetTableMaxValueTests : AbstractEtlTask
                     $"INSERT INTO {nameof(GetTableMaxValueTests)} (Id, DateTimeValue) VALUES (1, '2022.07.09');",
                 MainTableName = nameof(GetTableMaxValueTests),
             })
-            .GetTableMaxValue(out var result, () => new GetTableMaxValue<DateTime>(Context)
+            .GetTableMaxValue(out var result, () => new GetTableMaxValue<DateTime>()
             {
                 Name = "GetTableMaxValue",
                 ConnectionString = ConnectionString,

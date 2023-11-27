@@ -2,6 +2,5 @@
 
 public interface IProcessWithResult<TResult> : IProcess
 {
-    TResult ExecuteWithResult(IProcess caller);
-    TResult ExecuteWithResult(IProcess caller, FlowState flowState);
+    TResult ExecuteWithResult(ICaller caller, FlowState flowState = null);
 }

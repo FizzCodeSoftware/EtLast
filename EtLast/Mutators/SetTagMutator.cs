@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class SetTagMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class SetTagMutator: AbstractMutator
 {
     public required object Tag { get; init; }
 

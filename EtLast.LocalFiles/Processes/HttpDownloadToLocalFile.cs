@@ -3,7 +3,7 @@ using System.Net.Http;
 
 namespace FizzCode.EtLast;
 
-public sealed class HttpDownloadToLocalFile(IEtlContext context) : AbstractJob(context)
+public sealed class HttpDownloadToLocalFile : AbstractJob
 {
     /// <summary>
     /// According to MSDN, it is recommended to reuse HttpClient instances if possible.

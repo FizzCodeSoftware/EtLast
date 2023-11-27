@@ -3,8 +3,7 @@
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSqlStatements : AbstractSqlStatementBase
 {
-    protected AbstractSqlStatements(IEtlContext context)
-        : base(context)
+    protected AbstractSqlStatements()
     {
     }
 

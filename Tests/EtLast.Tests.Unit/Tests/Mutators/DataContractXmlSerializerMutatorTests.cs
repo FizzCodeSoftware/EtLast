@@ -8,8 +8,8 @@ public class DataContractXmlSerializerMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .ConvertValue(new InPlaceConvertMutator(context)
+            .ReadFrom(TestData.Person())
+            .ConvertValue(new InPlaceConvertMutator()
             {
                 Columns = ["birthDate"],
                 TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU"))
@@ -18,7 +18,7 @@ public class DataContractXmlSerializerMutatorTests
                 },
                 ActionIfInvalid = InvalidValueAction.Throw,
             })
-            .Explode(new ExplodeMutator(context)
+            .Explode(new ExplodeMutator()
             {
                 RemoveOriginalRow = true,
                 RowCreator = row =>
@@ -37,23 +37,23 @@ public class DataContractXmlSerializerMutatorTests
                     return new[] { newRow };
                 },
             })
-            .SerializeToXml(new DataContractXmlSerializerMutator<TestData.PersonModel>(context)
+            .SerializeToXml(new DataContractXmlSerializerMutator<TestData.PersonModel>()
             {
                 SourceColumn = "personModel",
                 TargetColumn = "personModelXml",
                 ActionIfFailed = InvalidValueAction.Keep,
             })
-            .RemoveColumn(new RemoveColumnMutator(context)
+            .RemoveColumn(new RemoveColumnMutator()
             {
                 Columns = ["personModel"],
             })
-            .DeSerializeFromXml(new DataContractXmlDeSerializerMutator<TestData.PersonModel>(context)
+            .DeSerializeFromXml(new DataContractXmlDeSerializerMutator<TestData.PersonModel>()
             {
                 SourceColumn = "personModelXml",
                 TargetColumn = "personModel",
                 ActionIfFailed = InvalidValueAction.Keep,
             })
-            .Explode(new ExplodeMutator(context)
+            .Explode(new ExplodeMutator()
             {
                 RemoveOriginalRow = true,
                 RowCreator = row =>
@@ -71,7 +71,7 @@ public class DataContractXmlSerializerMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0) },

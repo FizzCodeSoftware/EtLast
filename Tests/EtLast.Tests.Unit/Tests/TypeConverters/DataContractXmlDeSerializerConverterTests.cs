@@ -10,8 +10,8 @@ public class DataContractXmlDeSerializerConverterTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person(context))
-        .ConvertValue(new InPlaceConvertMutator(context)
+        .ReadFrom(TestData.Person())
+        .ConvertValue(new InPlaceConvertMutator()
         {
             Columns = ["birthDate"],
             TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU")),
@@ -32,14 +32,14 @@ public class DataContractXmlDeSerializerConverterTests
 
             return new[] { newRow };
         })
-        .SerializeToXml(new DataContractXmlSerializerMutator<PersonModel>(context)
+        .SerializeToXml(new DataContractXmlSerializerMutator<PersonModel>()
         {
             SourceColumn = "personModel",
             TargetColumn = "personModelXml",
             ActionIfFailed = InvalidValueAction.Keep,
         })
         .RemoveColumn("personModel")
-        .ConvertValue(new InPlaceConvertMutator(context)
+        .ConvertValue(new InPlaceConvertMutator()
         {
             Columns = ["personModelXml"],
             TypeConverter = new DataContractXmlDeSerializerConverter<PersonModel>(),
@@ -59,7 +59,7 @@ public class DataContractXmlDeSerializerConverterTests
             return new[] { newRow };
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0) },

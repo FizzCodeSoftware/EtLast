@@ -2,7 +2,7 @@
 
 namespace FizzCode.EtLast.Processes.Producers.RowListener;
 
-public sealed class RowListener(IEtlContext context) : AbstractRowSource(context), IRowListener
+public sealed class RowListener: AbstractRowSource, IRowListener
 {
     public required Action<IRowListener> Worker { get; init; }
 

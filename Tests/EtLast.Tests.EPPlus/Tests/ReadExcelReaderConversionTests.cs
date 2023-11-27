@@ -8,7 +8,7 @@ public class ReadExcelReaderConversionTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFromExcel(new EpPlusExcelReader(context)
+            .ReadFromExcel(new EpPlusExcelReader()
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
@@ -22,7 +22,7 @@ public class ReadExcelReaderConversionTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Date"] = new EtlRowError(0d) },

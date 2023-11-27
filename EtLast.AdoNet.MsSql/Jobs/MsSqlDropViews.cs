@@ -2,7 +2,7 @@
 
 public enum MsSqlDropViewsProcessMode { All, SpecifiedViews, SpecifiedSchema }
 
-public sealed class MsSqlDropViews(IEtlContext context) : AbstractSqlStatements(context)
+public sealed class MsSqlDropViews : AbstractSqlStatements
 {
     /// <summary>
     /// Default value is <see cref="MsSqlDropViewsProcessMode.SpecifiedViews"/>

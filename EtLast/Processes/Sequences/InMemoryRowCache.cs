@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class InMemoryRowCache(IEtlContext context) : AbstractRowSource(context)
+public sealed class InMemoryRowCache : AbstractRowSource
 {
     private bool _firstEvaluationFinished;
     private List<IReadOnlySlimRow> _cache;
@@ -69,7 +69,7 @@ public static class InMemoryRowCacheFluent
 
     public static ISequence BuildToInMemoryRowCache(this IFluentSequenceMutatorBuilder builder, string name = null)
     {
-        return new InMemoryRowCache(builder.ProcessBuilder.Result.Context)
+        return new InMemoryRowCache()
         {
             Name = name,
             InputProcess = builder.ProcessBuilder.Result,

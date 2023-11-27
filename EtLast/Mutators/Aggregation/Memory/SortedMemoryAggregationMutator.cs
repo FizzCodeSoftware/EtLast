@@ -6,7 +6,7 @@
 /// - keeps the rows of a single group in memory
 /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
 /// </summary>
-public sealed class SortedMemoryAggregationMutator(IEtlContext context) : AbstractMemoryAggregationMutator(context)
+public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMutator
 {
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {

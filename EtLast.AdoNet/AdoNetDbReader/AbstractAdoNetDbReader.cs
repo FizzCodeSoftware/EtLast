@@ -38,8 +38,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
     protected abstract CommandType GetCommandType();
 
-    protected AbstractAdoNetDbReader(IEtlContext context)
-        : base(context)
+    protected AbstractAdoNetDbReader()
     {
         SqlValueProcessors.Add(new MySqlValueProcessor());
     }

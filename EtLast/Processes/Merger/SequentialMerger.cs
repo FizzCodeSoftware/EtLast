@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class SequentialMerger(IEtlContext context) : AbstractMerger(context)
+public sealed class SequentialMerger : AbstractMerger
 {
     protected override void ValidateImpl()
     {
@@ -28,9 +28,9 @@ public sealed class SequentialMerger(IEtlContext context) : AbstractMerger(conte
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class SequentialMergerFluent
 {
-    public static IFluentSequenceMutatorBuilder SequentialMerge(this IFluentSequenceBuilder builder, IEtlContext context, string name, Action<SequentialMergerBuilder> merger)
+    public static IFluentSequenceMutatorBuilder SequentialMerge(this IFluentSequenceBuilder builder, string name, Action<SequentialMergerBuilder> merger)
     {
-        var subBuilder = new SequentialMergerBuilder(context, name);
+        var subBuilder = new SequentialMergerBuilder(name);
         merger.Invoke(subBuilder);
         return builder.ReadFrom(subBuilder.Merger);
     }
@@ -40,9 +40,9 @@ public class SequentialMergerBuilder
 {
     public SequentialMerger Merger { get; }
 
-    internal SequentialMergerBuilder(IEtlContext context, string name)
+    internal SequentialMergerBuilder(string name)
     {
-        Merger = new SequentialMerger(context)
+        Merger = new SequentialMerger()
         {
             Name = name,
             SequenceList = [],

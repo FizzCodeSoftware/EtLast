@@ -34,18 +34,18 @@ public static class TestData
         public DateTime? BirthDate { get; set; }
     }
 
-    public static ISequence Country(IEtlContext context)
+    public static ISequence Country()
     {
-        return new RowCreator(context)
+        return new RowCreator()
         {
             Columns = CountryColumns,
             InputRows = CountryData
         };
     }
 
-    public static ISequence Person(IEtlContext context)
+    public static ISequence Person()
     {
-        return new RowCreator(context)
+        return new RowCreator()
         {
             Columns = PersonColumns,
             InputRows =
@@ -62,9 +62,9 @@ public static class TestData
         };
     }
 
-    public static ISequence PersonSortedByName(IEtlContext context)
+    public static ISequence PersonSortedByName()
     {
-        return new RowCreator(context)
+        return new RowCreator()
         {
             Columns = PersonColumns,
             InputRows =
@@ -81,9 +81,9 @@ public static class TestData
         };
     }
 
-    public static ISequence PersonChanged(IEtlContext context)
+    public static ISequence PersonChanged()
     {
-        return new RowCreator(context)
+        return new RowCreator()
         {
             Columns = PersonColumns,
             InputRows =
@@ -100,9 +100,9 @@ public static class TestData
         };
     }
 
-    public static ISequence PersonEyeColor(IEtlContext context)
+    public static ISequence PersonEyeColor()
     {
-        return new RowCreator(context)
+        return new RowCreator()
         {
             Columns = PersonEyeColorColumns,
             InputRows =
@@ -119,9 +119,9 @@ public static class TestData
         };
     }
 
-    public static ISequence RoleHierarchy(IEtlContext context)
+    public static ISequence RoleHierarchy()
     {
-        return new RowCreator(context)
+        return new RowCreator()
         {
             Columns = RoleHierarchyColumns,
             InputRows =
@@ -137,9 +137,9 @@ public static class TestData
         };
     }
 
-    public static ISequence PersonalAssetsPivot(IEtlContext context)
+    public static ISequence PersonalAssetsPivot()
     {
-        return new RowCreator(context)
+        return new RowCreator()
         {
             Columns = PersonalAssetsPivotColumns,
             InputRows =

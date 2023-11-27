@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceEmptyStringWithNullMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
+public sealed class ReplaceEmptyStringWithNullMutator: AbstractSimpleChangeMutator
 {
     public required string[] Columns { get; init; }
 
@@ -45,7 +45,7 @@ public static class ReplaceEmptyStringWithNullMutatorFluent
 
     public static IFluentSequenceMutatorBuilder ReplaceEmptyStringWithNull(this IFluentSequenceMutatorBuilder builder, params string[] columns)
     {
-        return builder.AddMutator(new ReplaceEmptyStringWithNullMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new ReplaceEmptyStringWithNullMutator()
         {
             Columns = columns,
         });

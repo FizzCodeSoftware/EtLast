@@ -8,7 +8,7 @@ public delegate IEnumerable<SlimRow> ServiceModelReaderClientInvokerDelegate<TCh
     where TChannel : class
     where TClient : ClientBase<TChannel>;
 
-public sealed class ServiceModelReader<TChannel, TClient>(IEtlContext context) : AbstractRowSource(context)
+public sealed class ServiceModelReader<TChannel, TClient>: AbstractRowSource
     where TChannel : class
     where TClient : ClientBase<TChannel>
 {

@@ -339,7 +339,7 @@ public class HttpSender : IDisposable, IEtlContextListener
             writer.WriteNullable(process.Kind);
             writer.Write(process.Name);
             writer.WriteNullable(process.GetTopic());
-            writer.WriteNullable7BitEncodedInt64(process.InvocationInfo.Caller?.InvocationInfo?.InvocationUid);
+            writer.WriteNullable7BitEncodedInt64((process.InvocationInfo.Caller as IProcess)?.InvocationInfo?.InvocationUid);
         });
     }
 

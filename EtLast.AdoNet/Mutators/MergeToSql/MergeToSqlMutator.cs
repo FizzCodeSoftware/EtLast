@@ -1,7 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MergeToSqlMutator(IEtlContext context)
-    : AbstractMutator(context), IRowSink
+public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue]
     public NamedConnectionString ConnectionString { get; init; }

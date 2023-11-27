@@ -8,7 +8,7 @@ public class GetTableRecordCountTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomSqlStatement(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement()
             {
                 Name = "CreateTableAndInsertContent",
                 ConnectionString = ConnectionString,
@@ -17,7 +17,7 @@ public class GetTableRecordCountTests : AbstractEtlTask
                     $"INSERT INTO {nameof(GetTableRecordCountTests)} (Id, DateTimeValue) VALUES (2, '2022.07.09');",
                 MainTableName = nameof(GetTableRecordCountTests),
             })
-            .GetTableRecordCount(out var result, () => new GetTableRecordCount(Context)
+            .GetTableRecordCount(out var result, () => new GetTableRecordCount()
             {
                 Name = "GetRecordCount",
                 ConnectionString = ConnectionString,

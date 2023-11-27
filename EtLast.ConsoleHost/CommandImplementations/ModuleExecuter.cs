@@ -64,13 +64,13 @@ internal static class ModuleExecuter
 
         var taskResults = new List<TaskExectionResult>();
 
-        var pipe = new FlowState(context);
+        var flowState = new FlowState(context);
 
         try
         {
             foreach (var taskName in taskNames)
             {
-                if (pipe.IsTerminating)
+                if (flowState.IsTerminating)
                     break;
 
                 IEtlTask task = null;
@@ -87,13 +87,12 @@ internal static class ModuleExecuter
 
                 try
                 {
-                    task.SetContext(context);
-                    task.Execute(null, pipe);
+                    task.Execute(context, flowState);
 
                     taskResults.Add(new TaskExectionResult(task));
                     executionResult.TaskResults.Add(new TaskExectionResult(task));
 
-                    if (pipe.Failed)
+                    if (flowState.Failed)
                     {
                         context.Log(LogSeverity.Fatal, task, "failed, terminating execution");
                         executionResult.Status = ExecutionStatusCode.ExecutionFailed;
@@ -133,11 +132,11 @@ internal static class ModuleExecuter
 
                         sb.Append("\tTPC#{ActiveTopic} ");
                         args.Add(action.Topic);
-                        if (action.Caller != null)
+                        if (action.Caller is IProcess callerProcess)
                         {
-                            var typ = action.Caller is IEtlTask ? "Task" : "Process";
+                            var typ = callerProcess is IEtlTask ? "Task" : "Process";
                             sb.Append("in {Active").Append(typ).Append("} ");
-                            args.Add(action.Caller.InvocationName);
+                            args.Add(callerProcess.InvocationName);
                         }
 
                         sb.Append("is {Action}");

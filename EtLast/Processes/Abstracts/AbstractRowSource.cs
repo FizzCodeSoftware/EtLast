@@ -24,8 +24,7 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
     private int _currentRowIndex;
     protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; init; } = true;
 
-    protected AbstractRowSource(IEtlContext context)
-        : base(context)
+    protected AbstractRowSource()
     {
     }
 

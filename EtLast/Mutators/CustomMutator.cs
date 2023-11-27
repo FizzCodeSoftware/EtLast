@@ -2,7 +2,7 @@
 
 public delegate bool CustomMutatorDelegate(IRow row);
 
-public sealed class CustomMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class CustomMutator : AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required CustomMutatorDelegate Action { get; init; }
@@ -42,7 +42,7 @@ public static class CustomMutatorFluent
 
     public static IFluentSequenceMutatorBuilder CustomCode(this IFluentSequenceMutatorBuilder builder, string name, Action<IRow> action)
     {
-        return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new CustomMutator()
         {
             Name = name,
             Action = row =>
@@ -55,7 +55,7 @@ public static class CustomMutatorFluent
 
     public static IFluentSequenceMutatorBuilder CustomCode(this IFluentSequenceMutatorBuilder builder, string name, CustomMutatorDelegate action)
     {
-        return builder.AddMutator(new CustomMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new CustomMutator()
         {
             Name = name,
             Action = action,

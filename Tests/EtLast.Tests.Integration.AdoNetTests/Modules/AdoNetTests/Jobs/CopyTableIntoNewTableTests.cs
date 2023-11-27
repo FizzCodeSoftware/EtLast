@@ -8,7 +8,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomSqlStatement(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement()
             {
                 Name = "CreateSourceTable",
                 ConnectionString = ConnectionString,
@@ -17,7 +17,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CopyTableIntoNewTableTests)} (Id, Value) VALUES (2, 'CopyTableIntoExistingTableTest');",
                 MainTableName = nameof(CopyTableIntoNewTableTests),
             })
-            .CopyTableIntoNewTable(() => new CopyTableIntoNewTable(Context)
+            .CopyTableIntoNewTable(() => new CopyTableIntoNewTable()
             {
                 ConnectionString = ConnectionString,
                 Configuration = new TableCopyConfiguration()
@@ -27,7 +27,7 @@ public class CopyTableIntoNewTableTests : AbstractEtlTask
                 }
             })
             .ExecuteSequenceAndTakeRows(out var result, builder => builder
-                .ReadFrom(new AdoNetDbReader(Context)
+                .ReadFrom(new AdoNetDbReader()
                 {
                     Name = "Read target table contents",
                     ConnectionString = ConnectionString,

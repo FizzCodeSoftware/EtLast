@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteToDelimitedMutator(IEtlContext context) : AbstractMutator(context), IRowSink
+public sealed class WriteToDelimitedMutator: AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue]
     public required ISinkProvider SinkProvider { get; init; }

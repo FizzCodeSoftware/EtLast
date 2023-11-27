@@ -14,15 +14,15 @@ public class MergeStringColumnsMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .MergeStringColumns(new MergeStringColumnsMutator(context)
+            .ReadFrom(TestData.Person())
+            .MergeStringColumns(new MergeStringColumnsMutator()
             {
                 ColumnsToMerge = ["name", "eyeColor"],
                 Separator = "",
                 TargetColumn = "Merged",
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = null, ["age"] = 17, ["height"] = 160, ["eyeColor"] = null, ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["Merged"] = "Abrown" },

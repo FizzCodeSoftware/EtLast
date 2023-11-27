@@ -29,11 +29,7 @@ public sealed class Flow : IFlow
         var builder = SequenceBuilder.Fluent;
         sequenceBuilder.Invoke(builder);
         var sequence = builder.Result;
-        if (sequence != null)
-        {
-            sequence.SetContext(Context);
-            sequence.Execute(_caller, _flowState);
-        }
+        sequence?.Execute(_caller, _flowState);
 
         return this;
     }
@@ -50,7 +46,6 @@ public sealed class Flow : IFlow
         var sequence = builder.Result;
         if (sequence != null)
         {
-            sequence.SetContext(Context);
             rows = sequence
                 .TakeRowsAndReleaseOwnership(_caller, _flowState)
                 .ToList();
@@ -84,11 +79,7 @@ public sealed class Flow : IFlow
             return this;
 
         var process = processCreator.Invoke();
-        if (process != null)
-        {
-            process.SetContext(Context);
-            process.Execute(_caller, _flowState);
-        }
+        process?.Execute(_caller, _flowState);
 
         return this;
     }
@@ -102,11 +93,7 @@ public sealed class Flow : IFlow
             return this;
 
         result = processCreator.Invoke();
-        if (result != null)
-        {
-            result.SetContext(Context);
-            result.Execute(_caller, _flowState);
-        }
+        result?.Execute(_caller, _flowState);
 
         return this;
     }
@@ -121,10 +108,7 @@ public sealed class Flow : IFlow
 
         var process = processCreator.Invoke();
         if (process != null)
-        {
-            process.SetContext(Context);
             result = process.ExecuteWithResult(_caller, _flowState);
-        }
 
         return this;
     }
@@ -231,11 +215,7 @@ public sealed class Flow : IFlow
         if (_flowState.IsTerminating && _flowState.Exceptions.Count > 0)
         {
             var process = processCreator.Invoke();
-            if (process != null)
-            {
-                process.SetContext(Context);
-                process.Execute(_caller, new FlowState(Context));
-            }
+            process?.Execute(_caller, new FlowState(Context));
         }
 
         return this;

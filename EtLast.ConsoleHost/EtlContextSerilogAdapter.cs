@@ -200,11 +200,11 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
 
         if (process != null)
         {
-            var proc = process.InvocationInfo.Caller;
+            var proc = process.InvocationInfo.Caller as IProcess;
             while (proc != null)
             {
                 sb.Append("  ");
-                proc = proc.InvocationInfo.Caller;
+                proc = proc.InvocationInfo.Caller as IProcess;
             }
 
             if (process is IEtlTask)

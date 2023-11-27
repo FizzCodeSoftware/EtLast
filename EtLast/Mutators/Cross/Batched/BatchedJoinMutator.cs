@@ -33,8 +33,7 @@ public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
     /// </summary>
     public bool CopyTag { get; init; } = true;
 
-    public BatchedJoinMutator(IEtlContext context)
-        : base(context)
+    public BatchedJoinMutator()
     {
         UseBatchKeys = true;
     }

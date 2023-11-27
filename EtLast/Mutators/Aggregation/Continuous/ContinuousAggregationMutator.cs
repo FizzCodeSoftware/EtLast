@@ -8,7 +8,7 @@
 ///   - sum, max, min, avg are trivial functions, but some others can be tricky
 ///  - each group results 0 or 1 aggregate per group
 /// </summary>
-public class ContinuousAggregationMutator(IEtlContext context) : AbstractAggregationMutator(context)
+public class ContinuousAggregationMutator : AbstractAggregationMutator
 {
     [ProcessParameterMustHaveValue]
     public required IContinuousAggregationOperation Operation { get; init; }

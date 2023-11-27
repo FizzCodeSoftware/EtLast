@@ -2,10 +2,10 @@
 
 public static class TestHelpers
 {
-    public static CustomJob CreateReadSqlTableAndAssertExactMacth(IProcess caller, NamedConnectionString connectionString, string table, params CaseInsensitiveStringKeyDictionary<object>[] expectedRows)
+    public static CustomJob CreateReadSqlTableAndAssertExactMatch(NamedConnectionString connectionString, string table, params CaseInsensitiveStringKeyDictionary<object>[] expectedRows)
     {
         var expectedRowsList = new List<CaseInsensitiveStringKeyDictionary<object>>(expectedRows);
-        return new CustomJob(caller.Context)
+        return new CustomJob()
         {
             Name = "ReadAndCheck" + table + "Table",
             Action = job =>
@@ -28,7 +28,7 @@ public static class TestHelpers
 
     public static List<ISlimRow> ReadRows(IProcess caller, NamedConnectionString connectionString, string schema, string table)
     {
-        return new AdoNetDbReader(caller.Context)
+        return new AdoNetDbReader()
         {
             Name = "Reader",
             ConnectionString = connectionString,

@@ -14,8 +14,8 @@ public class UnpivotMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.PersonalAssetsPivot(context))
-        .Unpivot(new UnpivotMutator(context)
+        .ReadFrom(TestData.PersonalAssetsPivot())
+        .Unpivot(new UnpivotMutator()
         {
             FixColumns = new()
             {
@@ -26,7 +26,7 @@ public class UnpivotMutatorTests
             NewColumnForValue = "amount",
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
@@ -49,8 +49,8 @@ public class UnpivotMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.PersonalAssetsPivot(context))
-        .Unpivot(new UnpivotMutator(context)
+        .ReadFrom(TestData.PersonalAssetsPivot())
+        .Unpivot(new UnpivotMutator()
         {
             FixColumns = new()
             {
@@ -62,7 +62,7 @@ public class UnpivotMutatorTests
             ValueColumns = ["cars", "houses", "kids"],
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
@@ -84,8 +84,8 @@ public class UnpivotMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.PersonalAssetsPivot(context))
-        .Unpivot(new UnpivotMutator(context)
+        .ReadFrom(TestData.PersonalAssetsPivot())
+        .Unpivot(new UnpivotMutator()
         {
             FixColumns = new()
             {
@@ -98,7 +98,7 @@ public class UnpivotMutatorTests
             ValueColumns = ["cars", "houses", "kids"],
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["assetId"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
@@ -121,15 +121,15 @@ public class UnpivotMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.PersonalAssetsPivot(context))
-        .Unpivot(new UnpivotMutator(context)
+        .ReadFrom(TestData.PersonalAssetsPivot())
+        .Unpivot(new UnpivotMutator()
         {
             ValueColumns = ["cars", "houses", "kids"],
             NewColumnForDimension = "asset-kind",
             NewColumnForValue = "amount",
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(11, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },
@@ -151,8 +151,8 @@ public class UnpivotMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.PersonalAssetsPivot(context))
-        .Unpivot(new UnpivotMutator(context)
+        .ReadFrom(TestData.PersonalAssetsPivot())
+        .Unpivot(new UnpivotMutator()
         {
             NewColumnForDimension = "asset-kind",
             NewColumnForValue = "amount",
@@ -160,7 +160,7 @@ public class UnpivotMutatorTests
             ValueColumns = ["cars", "houses", "kids"],
         });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(12, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 1, ["personName"] = "A", ["asset-kind"] = "cars", ["amount"] = 1 },

@@ -3,9 +3,9 @@
 [TestClass]
 public class DelimitedLineReaderTests
 {
-    private static DelimitedLineReader GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
+    private static DelimitedLineReader GetReader(string fileName, bool removeSurroundingDoubleQuotes = true)
     {
-        return new DelimitedLineReader(context)
+        return new DelimitedLineReader()
         {
             StreamProvider = new LocalFileStreamProvider()
             {
@@ -26,9 +26,9 @@ public class DelimitedLineReaderTests
         };
     }
 
-    private static DelimitedLineReader GetSimpleReader(IEtlContext context, string fileName)
+    private static DelimitedLineReader GetSimpleReader(string fileName)
     {
-        return new DelimitedLineReader(context)
+        return new DelimitedLineReader()
         {
             StreamProvider = new LocalFileStreamProvider()
             {
@@ -50,14 +50,14 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetReader(context, @"TestData\Sample.csv"))
-            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
+            .ReadDelimitedLines(GetReader(@"TestData\Sample.csv"))
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator()
             {
                 Columns = ["ValueDate"],
                 Value = null,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
@@ -70,7 +70,7 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(new DelimitedLineReader(context)
+            .ReadDelimitedLines(new DelimitedLineReader()
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
@@ -85,13 +85,13 @@ public class DelimitedLineReaderTests
                 Header = DelimitedLineHeader.HasHeader,
                 Delimiter = ';',
             })
-            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator()
             {
                 Columns = ["ValueDate"],
                 Value = null,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["Value3"] = null, ["ValueDouble"] = null },
@@ -104,7 +104,7 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(new DelimitedLineReader(context)
+            .ReadDelimitedLines(new DelimitedLineReader()
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
@@ -119,7 +119,7 @@ public class DelimitedLineReaderTests
                 Delimiter = ';',
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = "-1", ["Value3"] = null, ["Value4"] = null },
@@ -132,9 +132,9 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetReader(context, @"TestData\QuotedSample1.csv"));
+            .ReadDelimitedLines(GetReader(@"TestData\QuotedSample1.csv"));
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "te\"s\"t;test", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
@@ -147,10 +147,10 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetReader(context, @"TestData\QuotedSample1.csv", removeSurroundingDoubleQuotes: false))
+            .ReadDelimitedLines(GetReader(@"TestData\QuotedSample1.csv", removeSurroundingDoubleQuotes: false))
             .ThrowExceptionOnRowError();
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "\"te\"s\"t;test\"", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
@@ -163,9 +163,9 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetSimpleReader(context, @"TestData\QuotedSample2.csv"));
+            .ReadDelimitedLines(GetSimpleReader(@"TestData\QuotedSample2.csv"));
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(3, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = "A", ["Value"] = "test" },
@@ -180,9 +180,9 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetSimpleReader(context, @"TestData\QuotedSample3.csv"));
+            .ReadDelimitedLines(GetSimpleReader(@"TestData\QuotedSample3.csv"));
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(8, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = null, ["Value"] = "A" },
@@ -201,14 +201,14 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetReader(context, @"TestData\NewLineSample1.csv"))
-            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
+            .ReadDelimitedLines(GetReader(@"TestData\NewLineSample1.csv"))
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator()
             {
                 Columns = ["ValueDate"],
                 Value = null,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = " A", ["ValueString"] = "test\r\n continues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null } ]);
@@ -221,14 +221,14 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetReader(context, @"TestData\NewLineSample2.csv"))
-            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
+            .ReadDelimitedLines(GetReader(@"TestData\NewLineSample2.csv"))
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator()
             {
                 Columns = ["ValueDate"],
                 Value = null,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\r\ncontinues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null } ]);
@@ -241,14 +241,14 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(GetReader(context, @"TestData\SampleInvalidConversion.csv"))
-            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
+            .ReadDelimitedLines(GetReader(@"TestData\SampleInvalidConversion.csv"))
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator()
             {
                 Columns = ["ValueDate"],
                 Value = null,
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = new EtlRowError("X"), ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
@@ -261,7 +261,7 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(new DelimitedLineReader(context)
+            .ReadDelimitedLines(new DelimitedLineReader()
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
@@ -280,7 +280,7 @@ public class DelimitedLineReaderTests
                 Delimiter = ';',
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1, ["sg"] = null },
@@ -293,7 +293,7 @@ public class DelimitedLineReaderTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadDelimitedLines(new DelimitedLineReader(context)
+            .ReadDelimitedLines(new DelimitedLineReader()
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
@@ -313,7 +313,7 @@ public class DelimitedLineReaderTests
                 Delimiter = ';',
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1, ["Value3"] = null, ["Value4"] = null },

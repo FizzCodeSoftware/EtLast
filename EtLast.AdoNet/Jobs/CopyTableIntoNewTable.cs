@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CopyTableIntoNewTable(IEtlContext context) : AbstractSqlStatement(context)
+public sealed class CopyTableIntoNewTable : AbstractSqlStatement
 {
     [ProcessParameterMustHaveValue]
     public required TableCopyConfiguration Configuration { get; init; }

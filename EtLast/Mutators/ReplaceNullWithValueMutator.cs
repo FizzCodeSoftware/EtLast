@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class ReplaceNullWithValueMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
+public sealed class ReplaceNullWithValueMutator: AbstractSimpleChangeMutator
 {
     public required string[] Columns { get; init; }
 

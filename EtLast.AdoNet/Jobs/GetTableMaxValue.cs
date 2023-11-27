@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class GetTableMaxValue<TResult>(IEtlContext context) : AbstractSqlStatementWithResult<TableMaxValueResult<TResult>>(context)
+public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<TableMaxValueResult<TResult>>
 {
     public required string TableName { get; init; }
     public required string ColumnName { get; init; }

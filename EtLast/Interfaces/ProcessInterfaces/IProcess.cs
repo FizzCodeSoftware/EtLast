@@ -1,13 +1,11 @@
 ﻿namespace FizzCode.EtLast;
 
-public interface IProcess
+public interface IProcess : ICaller
 {
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
     public FlowState FlowState { get; }
-
-    public IEtlContext Context { get; }
 
     public string Name { get; }
     public string InvocationName => InvocationInfo.InvocationUid + "~" + Name;
@@ -15,9 +13,5 @@ public interface IProcess
     public string Kind { get; }
     public string GetTopic();
 
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-    public void SetContext(IEtlContext context, bool onlyNull = true);
-
-    public void Execute(IProcess caller);
-    public void Execute(IProcess caller, FlowState flowState);
+    public void Execute(ICaller caller, FlowState flowState = null);
 }

@@ -5,7 +5,7 @@
 /// - keeps all input rows in memory (!)
 /// - uses very flexible <see cref="IMemoryAggregationOperation"/> which takes all rows in a group and generates the aggregate.
 /// </summary>
-public sealed class MemoryAggregationMutator(IEtlContext context) : AbstractMemoryAggregationMutator(context)
+public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
 {
     protected override IEnumerable<IRow> EvaluateImpl(Stopwatch netTimeStopwatch)
     {

@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace FizzCode.EtLast;
 
-public sealed class DataContractXmlDeSerializerMutator<T>(IEtlContext context) : AbstractMutator(context)
+public sealed class DataContractXmlDeSerializerMutator<T>: AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required string SourceColumn { get; init; }

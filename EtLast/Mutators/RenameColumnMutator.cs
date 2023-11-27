@@ -8,7 +8,7 @@ public enum ColumnAlreadyExistsAction
     Overwrite,
 }
 
-public sealed class RenameColumnMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
+public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
 {
     /// <summary>
     /// Key is current name, Value is new name.
@@ -70,7 +70,7 @@ public static class RenameColumnMutatorFluent
 
     public static IFluentSequenceMutatorBuilder RenameColumn(this IFluentSequenceMutatorBuilder builder, string currentName, string newName)
     {
-        return builder.AddMutator(new RenameColumnMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new RenameColumnMutator()
         {
             Name = nameof(RenameColumn) + "From" + currentName + "To" + newName,
             ActionIfTargetValueExists = ColumnAlreadyExistsAction.Overwrite,

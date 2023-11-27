@@ -45,8 +45,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
     public int FirstDataRow { get; set; } = 2;
     public int FirstDataColumn { get; set; } = 1;
 
-    protected AbstractEpPlusExcelReader(IEtlContext context)
-        : base(context)
+    protected AbstractEpPlusExcelReader()
     {
     }
 

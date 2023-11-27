@@ -8,7 +8,7 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomSqlStatement(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement()
             {
                 Name = "CreateProcedure",
                 ConnectionString = ConnectionString,
@@ -21,7 +21,7 @@ public class StoredProcedureAdoNetDbReaderTests : AbstractEtlTask
             .CustomJob("CheckProcedureResult", job =>
             {
                 var result = SequenceBuilder.Fluent
-                .ReadFromStoredProcedure(new StoredProcedureAdoNetDbReader(Context)
+                .ReadFromStoredProcedure(new StoredProcedureAdoNetDbReader()
                 {
                     Name = "CallProcedure",
                     ConnectionString = ConnectionString,

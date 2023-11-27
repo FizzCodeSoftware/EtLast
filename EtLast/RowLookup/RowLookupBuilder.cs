@@ -5,16 +5,16 @@ public sealed class RowLookupBuilder
     public required ISequence Process { get; init; }
     public required Func<IReadOnlySlimRow, string> KeyGenerator { get; init; }
 
-    public RowLookup Build(IProcess caller)
+    public RowLookup Build(ICaller caller, FlowState flowState = null)
     {
         var lookup = new RowLookup();
-        AddTo(lookup, caller);
+        AddTo(lookup, caller, flowState);
         return lookup;
     }
 
-    public void AddTo(ICountableLookup lookup, IProcess caller)
+    public void AddTo(ICountableLookup lookup, ICaller caller, FlowState flowState = null)
     {
-        var allRows = Process.TakeRowsAndReleaseOwnership(caller);
+        var allRows = Process.TakeRowsAndReleaseOwnership(caller, flowState);
         var rowCount = 0;
         foreach (var row in allRows)
         {
@@ -27,13 +27,13 @@ public sealed class RowLookupBuilder
             }
             catch (Exception ex)
             {
-                throw KeyGeneratorException.Wrap(caller, row, ex);
+                throw KeyGeneratorException.Wrap(caller as IProcess, row, ex);
             }
 
             lookup.AddRow(key, row);
         }
 
-        caller?.Context.Log(LogSeverity.Debug, caller, "fetched {RowCount} rows, lookup size is {LookupSize}",
+        caller?.Context.Log(LogSeverity.Debug, caller as IProcess, "fetched {RowCount} rows, lookup size is {LookupSize}",
             rowCount, lookup.Count);
     }
 }

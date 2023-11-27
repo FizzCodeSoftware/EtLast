@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusSingleExcelFileWriterMutator<TState>(IEtlContext context) : AbstractMutator(context), IRowSink
+public sealed class EpPlusSingleExcelFileWriterMutator<TState>: AbstractMutator, IRowSink
     where TState : BaseExcelWriterState, new()
 {
     [ProcessParameterMustHaveValue]

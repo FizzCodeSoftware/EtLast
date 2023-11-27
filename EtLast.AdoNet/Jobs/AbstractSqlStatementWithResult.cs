@@ -16,8 +16,7 @@ public abstract class AbstractSqlStatementWithResult<T> : AbstractProcessWithRes
     /// </summary>
     public bool SuppressExistingTransactionScope { get; init; }
 
-    protected AbstractSqlStatementWithResult(IEtlContext context)
-        : base(context)
+    protected AbstractSqlStatementWithResult()
     {
     }
 

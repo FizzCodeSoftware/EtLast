@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CustomSqlAdoNetDbReader(IEtlContext context) : AbstractAdoNetDbReader(context)
+public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
 {
     [ProcessParameterMustHaveValue]
     public required string Sql { get; init; }

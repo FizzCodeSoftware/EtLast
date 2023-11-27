@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusExcelSheetListReader(IEtlContext context) : AbstractRowSource(context)
+public sealed class EpPlusExcelSheetListReader: AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }

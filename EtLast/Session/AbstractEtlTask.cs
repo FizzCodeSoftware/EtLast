@@ -15,12 +15,9 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
     {
     }
 
-    public override void Execute(IProcess caller, FlowState flowState)
+    public override void Execute(ICaller caller, FlowState flowState = null)
     {
-        Context.RegisterProcessInvocationStart(this, caller);
-        FlowState = flowState ?? caller?.FlowState ?? new FlowState(Context);
-
-        LogCall(caller);
+        BeginExecution(caller, flowState);
         LogPublicSettableProperties(LogSeverity.Debug);
 
         var netTimeStopwatch = Stopwatch.StartNew();

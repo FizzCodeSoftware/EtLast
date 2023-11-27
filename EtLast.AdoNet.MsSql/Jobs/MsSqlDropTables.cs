@@ -2,7 +2,7 @@
 
 public enum MsSqlDropTablesProcessMode { All, SpecifiedTables, SpecifiedSchema }
 
-public sealed class MsSqlDropTables(IEtlContext context) : AbstractSqlStatements(context)
+public sealed class MsSqlDropTables : AbstractSqlStatements
 {
     /// <summary>
     /// Default value is <see cref="MsSqlDropTablesProcessMode.SpecifiedTables"/>

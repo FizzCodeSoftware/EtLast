@@ -14,14 +14,14 @@ public class MultiplyWithTagsMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .CreateTaggedVersions(new MultiplyByTagsMutator(context)
+            .ReadFrom(TestData.Person())
+            .CreateTaggedVersions(new MultiplyByTagsMutator()
             {
                 RemoveOriginalRow = true,
                 Tags = ["one", 2, 29m],
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(21, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -57,12 +57,12 @@ public class MultiplyWithTagsMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
+            .ReadFrom(TestData.Person())
             .CreateTaggedVersions("one", 2, 29m)
             .IfTag(tag => tag is string v && v == "one", builder => builder
                 .RemoveAllRow())
             .IfTag(tag => tag is int v && v == 2, builder => builder
-                .CustomCode(new CustomMutator(context)
+                .CustomCode(new CustomMutator()
                 {
                     Action = row =>
                     {
@@ -70,12 +70,12 @@ public class MultiplyWithTagsMutatorTests
                         return true;
                     }
                 })
-                .RemoveColumn(new RemoveColumnMutator(context)
+                .RemoveColumn(new RemoveColumnMutator()
                 {
                     Columns = ["name"],
                 }));
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(14, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["age"] = 17, ["height"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0), ["ItWasTwo"] = true },

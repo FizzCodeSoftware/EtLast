@@ -2,7 +2,7 @@
 
 namespace FizzCode.EtLast;
 
-public sealed class JsonElementReader<T>(IEtlContext context) : AbstractRowSource(context)
+public sealed class JsonElementReader<T>: AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }

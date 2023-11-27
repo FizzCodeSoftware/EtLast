@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class EpPlusExcelReader(IEtlContext context) : AbstractEpPlusExcelReader(context)
+public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
 {
     [ProcessParameterMustHaveValue]
     public required IStreamProvider StreamProvider { get; init; }

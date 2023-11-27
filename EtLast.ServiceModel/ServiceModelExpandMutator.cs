@@ -8,7 +8,7 @@ public delegate object ServiceModelExpandMutatorClientInvokerDelegate<TChannel, 
     where TChannel : class
     where TClient : ClientBase<TChannel>;
 
-public sealed class ServiceModelExpandMutator<TChannel, TClient>(IEtlContext context) : AbstractMutator(context)
+public sealed class ServiceModelExpandMutator<TChannel, TClient>: AbstractMutator
     where TChannel : class
     where TClient : ClientBase<TChannel>
 {

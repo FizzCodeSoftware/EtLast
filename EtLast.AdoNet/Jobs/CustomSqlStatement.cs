@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CustomSqlStatement(IEtlContext context) : AbstractSqlStatement(context)
+public sealed class CustomSqlStatement : AbstractSqlStatement
 {
     [ProcessParameterMustHaveValue]
     public required string SqlStatement { get; init; }

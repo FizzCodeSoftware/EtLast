@@ -5,7 +5,7 @@
 /// - discards input rows on-the-fly
 /// - keeps already yielded row KEYS in memory (!)
 /// </summary>
-public sealed class RemoveDuplicateRowsMutator(IEtlContext context) : AbstractMutator(context)
+public sealed class RemoveDuplicateRowsMutator: AbstractMutator
 {
     [ProcessParameterMustHaveValue]
     public required Func<IReadOnlyRow, string> KeyGenerator { get; init; }
@@ -49,7 +49,7 @@ public static class RemoveDuplicateRowsMutatorFluent
     /// </summary>
     public static IFluentSequenceMutatorBuilder RemoveDuplicateRows(this IFluentSequenceMutatorBuilder builder, string name, Func<IReadOnlyRow, string> keyGenerator)
     {
-        return builder.AddMutator(new RemoveDuplicateRowsMutator(builder.ProcessBuilder.Result.Context)
+        return builder.AddMutator(new RemoveDuplicateRowsMutator()
         {
             Name = name,
             KeyGenerator = keyGenerator,

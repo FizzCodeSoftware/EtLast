@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MsSqlDropSchemas(IEtlContext context) : AbstractSqlStatements(context)
+public sealed class MsSqlDropSchemas : AbstractSqlStatements
 {
     [ProcessParameterMustHaveValue]
     public required string[] SchemaNames { get; init; }

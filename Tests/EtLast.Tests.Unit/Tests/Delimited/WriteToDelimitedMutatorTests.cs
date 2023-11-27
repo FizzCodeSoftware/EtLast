@@ -5,7 +5,7 @@ public class WriteToDelimitedMutatorTests
 {
     private static DelimitedLineReader GetReader(IEtlContext context, string fileName, bool removeSurroundingDoubleQuotes = true)
     {
-        return new DelimitedLineReader(context)
+        return new DelimitedLineReader()
         {
             StreamProvider = new LocalFileStreamProvider()
             {
@@ -31,8 +31,8 @@ public class WriteToDelimitedMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-            .ReadFrom(TestData.Person(context))
-            .WriteToDelimited(new WriteToDelimitedMutator(context)
+            .ReadFrom(TestData.Person())
+            .WriteToDelimited(new WriteToDelimitedMutator()
             {
                 Columns = [],
                 SinkProvider = new LocalFileSinkProvider()
@@ -43,7 +43,7 @@ public class WriteToDelimitedMutatorTests
                 },
             });
 
-        var result = TestExecuter.Execute(builder);
+        var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(0, result.MutatedRows.Count);
         Assert.AreEqual(1, result.Process.FlowState.Exceptions.Count);
         Assert.IsTrue(result.Process.FlowState.Exceptions[0] is InvalidProcessParameterException);
@@ -56,8 +56,8 @@ public class WriteToDelimitedMutatorTests
         {
             var context = TestExecuter.GetContext();
             var builder = SequenceBuilder.Fluent
-                .ReadFrom(TestData.Person(context))
-                .WriteToDelimited(new WriteToDelimitedMutator(context)
+                .ReadFrom(TestData.Person())
+                .WriteToDelimited(new WriteToDelimitedMutator()
                 {
                     Delimiter = ';',
                     WriteHeader = true,
@@ -81,7 +81,7 @@ public class WriteToDelimitedMutatorTests
                     },
                 });
 
-            var result = TestExecuter.Execute(builder);
+            var result = TestExecuter.Execute(context, builder);
             outputStream.Position = 0;
             var data = Encoding.UTF8.GetString(outputStream.ToArray());
 
@@ -99,7 +99,7 @@ public class WriteToDelimitedMutatorTests
 
             context = TestExecuter.GetContext();
             builder = SequenceBuilder.Fluent
-                .ReadDelimitedLines(new DelimitedLineReader(context)
+                .ReadDelimitedLines(new DelimitedLineReader()
                 {
                     StreamProvider = new MemoryStreamProvider()
                     {
@@ -120,7 +120,7 @@ public class WriteToDelimitedMutatorTests
                     Delimiter = ';',
                 });
 
-            result = TestExecuter.Execute(builder);
+            result = TestExecuter.Execute(context, builder);
             Assert.AreEqual(7, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["id"] = 0, ["name"] = "A", ["age"] = 17, ["HeightInCm"] = 160, ["eyeColor"] = "brown", ["countryId"] = 1, ["birthDate"] = new DateTime(2010, 12, 9, 0, 0, 0, 0), ["lastChangedTime"] = new DateTime(2015, 12, 19, 12, 0, 1, 0) },
@@ -142,12 +142,12 @@ public class WriteToDelimitedMutatorTests
             var context = TestExecuter.GetContext();
             var builder = SequenceBuilder.Fluent
                 .ReadDelimitedLines(GetReader(context, @"TestData\NewLineSample1.csv"))
-                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator(context)
+                .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator()
                 {
                     Columns = ["ValueDate"],
                     Value = null,
                 })
-                .WriteToDelimited(new WriteToDelimitedMutator(context)
+                .WriteToDelimited(new WriteToDelimitedMutator()
                 {
                     Delimiter = ';',
                     WriteHeader = true,
@@ -169,7 +169,7 @@ public class WriteToDelimitedMutatorTests
                     },
                 });
 
-            var result = TestExecuter.Execute(builder);
+            var result = TestExecuter.Execute(context, builder);
             Assert.AreEqual(1, result.MutatedRows.Count);
             Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = " A", ["ValueString"] = "test\r\n continues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null } ]);

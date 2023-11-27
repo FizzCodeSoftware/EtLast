@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class InPlaceConvertMutator(IEtlContext context) : AbstractSimpleChangeMutator(context)
+public sealed class InPlaceConvertMutator: AbstractSimpleChangeMutator
 {
     [ProcessParameterMustHaveValue]
     public required string[] Columns { get; init; }

@@ -11,7 +11,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomSqlStatement(() => new CustomSqlStatement(Context)
+            .CustomSqlStatement(() => new CustomSqlStatement()
             {
                 Name = "CreateTable",
                 ConnectionString = ConnectionString,
@@ -20,7 +20,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                     $"INSERT INTO {nameof(CreatePrimaryKeyConstraintTests)} (Id, DateTimeValue) VALUES (2, '2022.07.09');",
                 MainTableName = nameof(CreatePrimaryKeyConstraintTests),
             })
-            .GetTableRecordCount(out var countOfPrimaryKeys1, () => new GetTableRecordCount(Context)
+            .GetTableRecordCount(out var countOfPrimaryKeys1, () => new GetTableRecordCount()
             {
                 Name = "ReadPrimaryKey1",
                 ConnectionString = ConnectionString,
@@ -34,7 +34,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
             {
                 Assert.AreEqual(0, countOfPrimaryKeys1);
             })
-            .CreatePrimaryKeyConstraint(() => new CreatePrimaryKeyConstraint(Context)
+            .CreatePrimaryKeyConstraint(() => new CreatePrimaryKeyConstraint()
             {
                 Name = "CreatePrimaryKey",
                 ConnectionString = ConnectionString,
@@ -42,7 +42,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                 ConstraintName = "PK_" + nameof(CreatePrimaryKeyConstraintTests),
                 Columns = ["Id"]
             })
-            .GetTableRecordCount(out var countOfPrimaryKeys2, () => new GetTableRecordCount(Context)
+            .GetTableRecordCount(out var countOfPrimaryKeys2, () => new GetTableRecordCount()
             {
                 Name = "ReadPrimaryKey2",
                 ConnectionString = ConnectionString,
