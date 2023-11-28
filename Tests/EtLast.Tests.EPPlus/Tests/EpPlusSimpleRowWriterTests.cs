@@ -81,14 +81,14 @@ public class EpPlusSimpleRowWriterTests
                 },
                 Columns = new()
                 {
-                    ["id"] = new ReaderColumn(new IntConverter()),
+                    ["id"] = new ReaderColumn().AsInt(),
                     ["name"] = new ReaderColumn(),
-                    ["age"] = new ReaderColumn(new IntConverter()),
-                    ["height"] = new ReaderColumn(new IntConverter()),
+                    ["age"] = new ReaderColumn().AsInt(),
+                    ["height"] = new ReaderColumn().AsInt(),
                     ["eyeColor"] = new ReaderColumn(),
-                    ["countryId"] = new ReaderColumn(new IntConverter()),
-                    ["birth date"] = new ReaderColumn(new StringConverter()),
-                    ["lastChangedTime"] = new ReaderColumn(new DoubleConverter()),
+                    ["countryId"] = new ReaderColumn().AsInt(),
+                    ["birth date"] = new ReaderColumn().AsString(),
+                    ["lastChangedTime"] = new ReaderColumn().AsDouble(),
                 },
             });
 
@@ -180,14 +180,14 @@ public class EpPlusSimpleRowWriterTests
                 },
                 Columns = new()
                 {
-                    ["id"] = new ReaderColumn(new IntConverter()),
+                    ["id"] = new ReaderColumn().AsInt(),
                     ["name"] = new ReaderColumn(),
-                    ["age"] = new ReaderColumn(new IntConverter()),
-                    ["height"] = new ReaderColumn(new IntConverter()),
+                    ["age"] = new ReaderColumn().AsInt(),
+                    ["height"] = new ReaderColumn().AsInt(),
                     ["eyeColor"] = new ReaderColumn(),
-                    ["countryId"] = new ReaderColumn(new IntConverter()),
-                    ["birth date"] = new ReaderColumn(new StringConverter()),
-                    ["lastChangedTime"] = new ReaderColumn(new DoubleConverter()),
+                    ["countryId"] = new ReaderColumn().AsInt(),
+                    ["birth date"] = new ReaderColumn().AsString(),
+                    ["lastChangedTime"] = new ReaderColumn().AsDouble(),
                 },
             });
 

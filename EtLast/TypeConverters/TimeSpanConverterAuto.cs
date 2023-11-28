@@ -1,18 +1,18 @@
 ﻿namespace FizzCode.EtLast;
 
-public class TimeConverterAuto : TimeConverter
+public class TimeSpanConverterAuto : TimeSpanConverter
 {
     public string Format { get; }
     public IFormatProvider FormatProvider { get; }
     public DateTimeStyles DateTimeStyles { get; }
 
-    public TimeConverterAuto(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
+    public TimeSpanConverterAuto(IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
     {
         FormatProvider = formatProvider;
         DateTimeStyles = dateTimeStyles;
     }
 
-    public TimeConverterAuto(string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
+    public TimeSpanConverterAuto(string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces)
     {
         Format = format;
         FormatProvider = formatProvider;
@@ -43,4 +43,11 @@ public class TimeConverterAuto : TimeConverter
 
         return base.Convert(source);
     }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class TimeSpanConverterAutoFluent
+{
+    public static ReaderColumn AsTimeSpanAuto(this ReaderColumn column, IFormatProvider formatProvider = null, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new TimeSpanConverterAuto(formatProvider, dateTimeStyles));
+    public static ReaderColumn AsTimeSpanAuto(this ReaderColumn column, string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new TimeSpanConverterAuto(format, formatProvider, dateTimeStyles));
 }

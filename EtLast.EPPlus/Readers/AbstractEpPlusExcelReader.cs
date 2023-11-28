@@ -21,7 +21,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
     /// </summary>
     public bool AutomaticallyTrimAllStringValues { get; init; } = true;
 
-    public ReaderDefaultColumn DefaultColumns { get; init; }
+    public ReaderColumn DefaultColumns { get; init; }
 
     protected bool Transpose { get; init; } // todo: implement working transpose
 
@@ -62,7 +62,7 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
         if (Transpose)
             throw new NotImplementedException("Transpose is not finished yet, must be tested before used");
 
-        var columnIndexes = new List<(string rowColumn, int index, ReaderDefaultColumn configuration)>();
+        var columnIndexes = new List<(string rowColumn, int index, ReaderColumn configuration)>();
 
         // key is the SOURCE column name
         var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);

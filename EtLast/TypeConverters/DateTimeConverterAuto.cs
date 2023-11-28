@@ -39,3 +39,10 @@ public class DateTimeConverterAuto : DateTimeConverter
         return base.Convert(source);
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class DateTimeConverterAutoFluent
+{
+    public static ReaderColumn AsDateTimeAuto(this ReaderColumn column, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new DateTimeConverterAuto(formatProvider, dateTimeStyles));
+    public static ReaderColumn AsDateTimeAuto(this ReaderColumn column, string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new DateTimeConverterAuto(format, formatProvider, dateTimeStyles));
+}

@@ -26,3 +26,9 @@ public class IntConverterAuto(IFormatProvider formatProvider, NumberStyles numbe
         return base.Convert(source);
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class IntConverterAutoFluent
+{
+    public static ReaderColumn AsIntAuto(this ReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new IntConverterAuto(formatProvider, numberStyles));
+}

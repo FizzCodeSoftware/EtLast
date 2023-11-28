@@ -16,7 +16,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     public required ServiceModelReaderClientInvokerDelegate<TChannel, TClient> ClientInvoker { get; init; }
     public required Dictionary<string, ReaderColumn> Columns { get; init; }
 
-    public ReaderDefaultColumn DefaultColumns { get; init; }
+    public ReaderColumn DefaultColumns { get; init; }
 
     /// <summary>
     /// Default value is true.

@@ -12,12 +12,12 @@ public class EpPlusExcelReaderTests
             SheetIndex = sheetIndex,
             Columns = new()
             {
-                ["Id"] = new ReaderColumn(new IntConverter()).ValueWhenSourceIsNull(string.Empty),
+                ["Id"] = new ReaderColumn().AsInt().ValueWhenSourceIsNull(string.Empty),
                 ["Name"] = new ReaderColumn().ValueWhenSourceIsNull(string.Empty),
                 ["ValueString"] = new ReaderColumn().FromSource("Value1").ValueWhenSourceIsNull(string.Empty),
-                ["ValueInt"] = new ReaderColumn(new IntConverter()).FromSource("Value2"),
-                ["ValueDate"] = new ReaderColumn(new DateConverter()).FromSource("Value3"),
-                ["ValueDouble"] = new ReaderColumn(new DoubleConverter()).FromSource("Value4"),
+                ["ValueInt"] = new ReaderColumn().AsInt().FromSource("Value2"),
+                ["ValueDate"] = new ReaderColumn().AsDate().FromSource("Value3"),
+                ["ValueDouble"] = new ReaderColumn().AsDouble().FromSource("Value4"),
             },
             AutomaticallyTrimAllStringValues = automaticallyTrimAllStringValues,
         };
@@ -73,8 +73,8 @@ public class EpPlusExcelReaderTests
             SheetIndex = 0,
             Columns = new()
             {
-                ["Age"] = new ReaderColumn(new IntConverter()),
-                ["Name"] = new ReaderColumn(new StringConverter()),
+                ["Age"] = new ReaderColumn().AsInt(),
+                ["Name"] = new ReaderColumn().AsString(),
             },
         };
 

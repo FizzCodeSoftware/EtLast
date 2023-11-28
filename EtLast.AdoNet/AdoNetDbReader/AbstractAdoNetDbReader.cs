@@ -9,7 +9,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     public required NamedConnectionString ConnectionString { get; init; }
 
     public Dictionary<string, ReaderColumn> Columns { get; init; }
-    public ReaderDefaultColumn DefaultColumns { get; init; }
+    public ReaderColumn DefaultColumn { get; init; }
 
     /// <summary>
     /// If true, this process will execute out of ambient transaction scope. Default value is false.
@@ -122,18 +122,18 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             {
                 var name = reader.GetName(i);
 
-                if (DefaultColumns != null)
+                if (DefaultColumn != null)
                 {
                     columns[i] = columnMap != null && columnMap.TryGetValue(name, out var cc)
                         ? new MappedColumn()
                         {
                             NameInRow = cc.rowColumn,
-                            Config = (cc.config as ReaderDefaultColumn) ?? DefaultColumns,
+                            Config = (cc.config as ReaderColumn) ?? DefaultColumn,
                         }
                         : new MappedColumn()
                         {
                             NameInRow = name,
-                            Config = DefaultColumns,
+                            Config = DefaultColumn,
                         };
                 }
                 else if (columnMap != null)
@@ -340,7 +340,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     private class MappedColumn
     {
         public string NameInRow { get; init; }
-        public ReaderDefaultColumn Config { get; init; }
+        public ReaderColumn Config { get; init; }
     }
 
     protected abstract long RegisterIoCommandStart(string transactionId, int timeout, string statement);

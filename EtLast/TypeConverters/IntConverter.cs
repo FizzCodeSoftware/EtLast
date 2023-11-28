@@ -84,3 +84,9 @@ public class IntConverter : ITypeConverter, ITextConverter
         return null;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class IntConverterFluent
+{
+    public static ReaderColumn AsInt(this ReaderColumn column) => column.WithTypeConverter(new IntConverter());
+}

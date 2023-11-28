@@ -80,3 +80,9 @@ public class DoubleConverter : ITypeConverter, ITextConverter
         return null;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class DoubleConverterFluent
+{
+    public static ReaderColumn AsDouble(this ReaderColumn column) => column.WithTypeConverter(new DoubleConverter());
+}

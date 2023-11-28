@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class TimeConverter : ITypeConverter
+public class TimeSpanConverter : ITypeConverter
 {
     public virtual object Convert(object source)
     {
@@ -25,4 +25,10 @@ public class TimeConverter : ITypeConverter
 
         return null;
     }
+}
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class TimeSpanConverterFluent
+{
+    public static ReaderColumn AsTimeSpan(this ReaderColumn column) => column.WithTypeConverter(new TimeSpanConverter());
 }

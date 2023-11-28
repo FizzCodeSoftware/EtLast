@@ -7,7 +7,7 @@ public sealed class EnumerableImporter : AbstractRowSource
     public required EnumerableImporterDelegate InputGenerator { get; init; }
 
     public Dictionary<string, ReaderColumn> Columns { get; set; }
-    public ReaderDefaultColumn DefaultColumns { get; set; }
+    public ReaderColumn DefaultColumns { get; set; }
 
     /// <summary>
     /// Default false.

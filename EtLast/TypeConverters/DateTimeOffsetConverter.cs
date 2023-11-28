@@ -18,3 +18,9 @@ public class DateTimeOffsetConverter : ITypeConverter
         return null;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class DateTimeOffsetConverterFluent
+{
+    public static ReaderColumn AsDateTimeOffset(this ReaderColumn column) => column.WithTypeConverter(new DateTimeOffsetConverter());
+}

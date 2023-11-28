@@ -76,3 +76,9 @@ public class DateConverter : ITypeConverter, ITextConverter
         return null;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class DateConverterFluent
+{
+    public static ReaderColumn AsDate(this ReaderColumn column) => column.WithTypeConverter(new DateConverter());
+}

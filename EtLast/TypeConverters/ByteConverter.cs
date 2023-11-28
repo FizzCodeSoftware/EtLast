@@ -61,3 +61,9 @@ public class ByteConverter : ITypeConverter
         return null;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class ByteConverterFluent
+{
+    public static ReaderColumn AsByte(this ReaderColumn column) => column.WithTypeConverter(new ByteConverter());
+}

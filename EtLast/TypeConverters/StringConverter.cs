@@ -50,3 +50,10 @@ public class StringConverter : ITypeConverter
         return result;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class StringConverterFluent
+{
+    public static ReaderColumn AsString(this ReaderColumn column, IFormatProvider formatProvider = null) => column.WithTypeConverter(new StringConverter(formatProvider));
+    public static ReaderColumn AsString(this ReaderColumn column, string format, IFormatProvider formatProvider = null) => column.WithTypeConverter(new StringConverter(format, formatProvider));
+}

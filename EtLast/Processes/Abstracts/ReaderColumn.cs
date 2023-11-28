@@ -3,19 +3,26 @@
 public enum FailedTypeConversionAction { SetSpecialValue, WrapError }
 public enum SourceIsNullAction { SetSpecialValue, WrapError }
 
-public class ReaderColumn : ReaderDefaultColumn
+public class ReaderColumn
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
+    protected ITypeConverter Converter { get; private set; }
+
+    protected FailedTypeConversionAction FailedTypeConversionAction { get; private set; } = FailedTypeConversionAction.WrapError;
+    protected object SpecialValueIfTypeConversionFailed { get; private set; }
+
+    protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
+    protected object SpecialValueIfSourceIsNull { get; private set; }
+
     public string SourceColumn { get; private set; }
 
     public ReaderColumn()
-        : base()
     {
     }
 
-    public ReaderColumn(ITypeConverter converter)
-        : base(converter)
+    public ReaderColumn WithTypeConverter(ITypeConverter converter)
     {
+        Converter = converter;
+        return this;
     }
 
     public ReaderColumn FromSource(string sourceColumn)
@@ -24,66 +31,21 @@ public class ReaderColumn : ReaderDefaultColumn
         return this;
     }
 
-    public new ReaderColumn ValueWhenConversionFailed(object value)
-    {
-        base.ValueWhenConversionFailed(value);
-        return this;
-    }
-
-    public new ReaderColumn ValueWhenSourceIsNull(object value)
-    {
-        base.ValueWhenSourceIsNull(value);
-        return this;
-    }
-
-    public new ReaderColumn WrapErrorWhenSourceIsNull()
-    {
-        base.WrapErrorWhenSourceIsNull();
-        return this;
-    }
-
-    public override string ToString()
-    {
-        return SourceColumn != null
-            ? "src:" + SourceColumn
-            : "";
-    }
-}
-
-public class ReaderDefaultColumn
-{
-    protected ITypeConverter Converter { get; }
-
-    protected FailedTypeConversionAction FailedTypeConversionAction { get; private set; } = FailedTypeConversionAction.WrapError;
-    protected object SpecialValueIfTypeConversionFailed { get; private set; }
-
-    protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
-    protected object SpecialValueIfSourceIsNull { get; private set; }
-
-    public ReaderDefaultColumn()
-    {
-    }
-
-    public ReaderDefaultColumn(ITypeConverter converter)
-    {
-        Converter = converter;
-    }
-
-    public ReaderDefaultColumn ValueWhenConversionFailed(object value)
+    public ReaderColumn ValueWhenConversionFailed(object value)
     {
         FailedTypeConversionAction = FailedTypeConversionAction.SetSpecialValue;
         SpecialValueIfTypeConversionFailed = value;
         return this;
     }
 
-    public ReaderDefaultColumn ValueWhenSourceIsNull(object value)
+    public ReaderColumn ValueWhenSourceIsNull(object value)
     {
         SourceIsNullAction = SourceIsNullAction.SetSpecialValue;
         SpecialValueIfSourceIsNull = value;
         return this;
     }
 
-    public ReaderDefaultColumn WrapErrorWhenSourceIsNull()
+    public ReaderColumn WrapErrorWhenSourceIsNull()
     {
         SourceIsNullAction = SourceIsNullAction.WrapError;
         SpecialValueIfSourceIsNull = null;

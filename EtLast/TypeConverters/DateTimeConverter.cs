@@ -70,3 +70,9 @@ public class DateTimeConverter : ITypeConverter, ITextConverter
         return null;
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class DateTimeConverterFluent
+{
+    public static ReaderColumn AsDateTime(this ReaderColumn column) => column.WithTypeConverter(new DateTimeConverter());
+}

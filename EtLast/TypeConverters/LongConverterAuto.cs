@@ -26,3 +26,9 @@ public class LongConverterAuto(IFormatProvider formatProvider, NumberStyles numb
         return base.Convert(source);
     }
 }
+
+[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+public static class LongConverterAutoFluent
+{
+    public static ReaderColumn AsLongAuto(this ReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new LongConverterAuto(formatProvider, numberStyles));
+}
