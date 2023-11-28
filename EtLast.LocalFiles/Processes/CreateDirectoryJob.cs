@@ -16,7 +16,8 @@ public sealed class CreateDirectoryJob : AbstractJob
         }
         catch (Exception ex)
         {
-            var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
+            var exception = new CreateDirectoryException(this, ex);
+            exception.Data["Path"] = Path;
             throw exception;
         }
     }
