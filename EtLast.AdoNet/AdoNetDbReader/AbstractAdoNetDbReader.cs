@@ -120,29 +120,29 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             var columns = new MappedColumn[fieldCount];
             for (var i = 0; i < fieldCount; i++)
             {
-                var name = reader.GetName(i);
+                var fieldName = reader.GetName(i);
 
                 if (DefaultColumn != null)
                 {
-                    columns[i] = columnMap != null && columnMap.TryGetValue(name, out var cc)
+                    columns[i] = columnMap != null && columnMap.TryGetValue(fieldName, out var cc)
                         ? new MappedColumn()
                         {
                             NameInRow = cc.rowColumn,
-                            Config = (cc.config as ReaderColumn) ?? DefaultColumn,
+                            Config = cc.config ?? DefaultColumn,
                         }
                         : new MappedColumn()
                         {
-                            NameInRow = name,
+                            NameInRow = fieldName,
                             Config = DefaultColumn,
                         };
                 }
                 else if (columnMap != null)
                 {
-                    if (columnMap.TryGetValue(name, out var cc))
+                    if (columnMap.TryGetValue(fieldName, out var cc))
                     {
                         columns[i] = new MappedColumn()
                         {
-                            NameInRow = name,
+                            NameInRow = fieldName,
                             Config = cc.config,
                         };
                     }
@@ -151,7 +151,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 {
                     columns[i] = new MappedColumn()
                     {
-                        NameInRow = name,
+                        NameInRow = fieldName,
                         Config = null,
                     };
                 }
