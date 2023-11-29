@@ -6,7 +6,7 @@ public class Row : IRow
     public IEtlContext Context { get; private set; }
     public IProcess CreatorProcess { get; private set; }
     public IProcess CurrentProcess { get; set; }
-    public long Uid { get; private set; }
+    public long Id { get; private set; }
 
     public IEnumerable<KeyValuePair<string, object>> Values => _values;
     public int ValueCount => _values.Count;
@@ -58,8 +58,8 @@ public class Row : IRow
     {
         if (!multiLine)
         {
-            return "UID: "
-                + Uid.ToString("D", CultureInfo.InvariantCulture)
+            return "ID: "
+                + Id.ToString("D", CultureInfo.InvariantCulture)
                 + (Tag != null ? ", tag: " + Tag.ToString() : "")
                 + (_values.Count > 0
                     ? ", " + string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
@@ -67,8 +67,8 @@ public class Row : IRow
         }
         else
         {
-            return "UID: "
-                + Uid.ToString("D", CultureInfo.InvariantCulture)
+            return "ID: "
+                + Id.ToString("D", CultureInfo.InvariantCulture)
                 + (Tag != null ? "\ttag: " + Tag.ToString() : "")
                 + (_values.Count > 0
                     ? "\n" + string.Join("\n", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
@@ -166,12 +166,12 @@ public class Row : IRow
         return (formatter ?? ValueFormatter.Default).Format(value, formatProvider);
     }
 
-    public void Init(IEtlContext context, IProcess creatorProcess, long uid, IEnumerable<KeyValuePair<string, object>> initialValues)
+    public void Init(IEtlContext context, IProcess creatorProcess, long id, IEnumerable<KeyValuePair<string, object>> initialValues)
     {
         Context = context;
         CreatorProcess = creatorProcess;
         CurrentProcess = creatorProcess;
-        Uid = uid;
+        Id = id;
 
         _values = initialValues == null
             ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)

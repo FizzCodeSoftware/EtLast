@@ -12,7 +12,7 @@ internal class ContextFullIoCommandListControl
     public IoCommandActionDelegate OnIoCommandDoubleClicked { get; set; }
 
     private readonly ControlUpdater<IoCommandModel> _updater;
-    private readonly Dictionary<string, Dictionary<long, IoCommandModel>> _itemByUid = [];
+    private readonly Dictionary<string, Dictionary<long, IoCommandModel>> _itemById = [];
 
     public ContextFullIoCommandListControl(Control container, DiagContext context)
     {
@@ -64,7 +64,7 @@ internal class ContextFullIoCommandListControl
         _updater.ListView.Columns.Add(new OLVColumn()
         {
             Text = "ID",
-            AspectGetter = x => (x as IoCommandModel)?.StartEvent.Uid,
+            AspectGetter = x => (x as IoCommandModel)?.StartEvent.Id,
         });
         _updater.ListView.Columns.Add(new OLVColumn()
         {
@@ -193,7 +193,7 @@ internal class ContextFullIoCommandListControl
                     Timestamp = new DateTime(evt.Timestamp),
                     Playbook = playbook,
                     StartEvent = startEvent,
-                    Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationUid],
+                    Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationId],
                     ArgumentsPreview = startEvent.Arguments != null
                         ? string.Join(",", startEvent.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
                         : null,
@@ -201,19 +201,19 @@ internal class ContextFullIoCommandListControl
 
                 _updater.AddItem(item);
 
-                if (!_itemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
+                if (!_itemById.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
                 {
                     itemListByContext = [];
-                    _itemByUid.Add(playbook.DiagContext.Name, itemListByContext);
+                    _itemById.Add(playbook.DiagContext.Name, itemListByContext);
                 }
 
-                itemListByContext.Add(startEvent.Uid, item);
+                itemListByContext.Add(startEvent.Id, item);
             }
             else if (evt is IoCommandEndEvent endEvent)
             {
-                if (_itemByUid.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
+                if (_itemById.TryGetValue(playbook.DiagContext.Name, out var itemListByContext))
                 {
-                    if (itemListByContext.TryGetValue(endEvent.Uid, out var item))
+                    if (itemListByContext.TryGetValue(endEvent.Id, out var item))
                     {
                         item.EndEvent = endEvent;
                         item.Elapsed = new TimeSpan(endEvent.Timestamp - item.StartEvent.Timestamp);

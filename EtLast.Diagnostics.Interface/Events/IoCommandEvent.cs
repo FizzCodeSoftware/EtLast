@@ -2,5 +2,5 @@
 
 public abstract class IoCommandEvent : AbstractEvent
 {
-    public long Uid { get; set; }
+    public long Id { get; set; }
 }

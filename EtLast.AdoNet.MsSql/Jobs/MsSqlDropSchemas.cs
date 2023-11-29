@@ -24,13 +24,13 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var schemaName = SchemaNames[statementIndex];
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(schemaName), command.CommandTimeout, command.CommandText, transactionId, null,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(schemaName), command.CommandTimeout, command.CommandText, transactionId, null,
             "drop schema", null);
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, null);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, ioCommandId, null);
         }
         catch (Exception ex)
         {
@@ -44,7 +44,7 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, ioCommandId, null, exception);
             throw exception;
         }
     }

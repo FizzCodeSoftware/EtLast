@@ -43,7 +43,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
     private DatabaseConnection _connection;
     private SqlBulkCopy _bulkCopy;
     private RowShadowReader _reader;
-    private long? _sinkUid;
+    private long? _sinkId;
     private Stopwatch _lastWrite;
 
     protected override void StartMutator()
@@ -97,9 +97,9 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableName));
+        _sinkId ??= Context.GetSinkId(ConnectionString.Name, ConnectionString.Unescape(TableName));
 
-        Context.RegisterWriteToSink(row, _sinkUid.Value);
+        Context.RegisterWriteToSink(row, _sinkId.Value);
 
         var rc = _reader.RowCount;
         var i = 0;
@@ -140,7 +140,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
         var recordCount = _reader.RowCount;
 
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
             "write to table", null);
 
         try
@@ -149,7 +149,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
             _rowsWritten += recordCount;
 
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBulk, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBulk, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -186,7 +186,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
                 }
             }
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, ioCommandId, recordCount, exception);
             throw exception;
         }
 

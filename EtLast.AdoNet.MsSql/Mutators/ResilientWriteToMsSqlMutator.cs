@@ -52,7 +52,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     private long _rowsWritten;
     private Stopwatch _timer;
     private RowShadowReader _reader;
-    private long? _sinkUid;
+    private long? _sinkId;
     private Stopwatch _lastWrite;
 
     protected override void StartMutator()
@@ -95,9 +95,9 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableName));
+        _sinkId ??= Context.GetSinkId(ConnectionString.Name, ConnectionString.Unescape(TableName));
 
-        Context.RegisterWriteToSink(row, _sinkUid.Value);
+        Context.RegisterWriteToSink(row, _sinkId.Value);
 
         var rc = _reader.RowCount;
         var i = 0;
@@ -164,7 +164,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         bulkCopy.ColumnMappings.Add(column.Key, column.Value ?? column.Key);
                     }
 
-                    var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableName), bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
+                    var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableName), bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
                         "write to table", null);
 
                     var success = false;
@@ -174,7 +174,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         bulkCopy.Close();
                         EtlConnectionManager.ReleaseConnection(this, ref connection);
 
-                        Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBulk, iocUid, recordCount);
+                        Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBulk, ioCommandId, recordCount);
                         success = true;
                     }
                     catch (Exception ex)
@@ -187,7 +187,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         exception.Data["Elapsed"] = _timer.Elapsed;
                         exception.Data["TotalRowsWritten"] = _rowsWritten;
 
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, iocUid, recordCount, exception);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, ioCommandId, recordCount, exception);
 
                         throw; // by design. do not "throw exception"
                     }
@@ -213,7 +213,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 
                 if (retry == 0 && (ex is InvalidOperationException || ex is SqlException))
                 {
-                    var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture) + "-" + InvocationInfo.InvocationUid.ToString("D", CultureInfo.InvariantCulture) + ".tsv";
+                    var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture) + "-" + InvocationInfo.InvocationId.ToString("D", CultureInfo.InvariantCulture) + ".tsv";
                     Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableName) + ", exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
                     Context.LogCustom(fileName, this, string.Join("\t", _reader.ColumnIndexes.Select(kvp => kvp.Key)));
 

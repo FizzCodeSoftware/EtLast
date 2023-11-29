@@ -91,6 +91,8 @@ dotnet_diagnostic.CA1859.severity = none
 
 # IDE0305: Simplify collection initialization
 dotnet_diagnostic.IDE0305.severity = none
+dotnet_style_prefer_collection_expression = true:suggestion
+dotnet_diagnostic.CA1869.severity = none
 
 [*.cs]
 # var preferences

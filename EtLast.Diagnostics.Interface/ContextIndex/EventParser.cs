@@ -6,14 +6,14 @@ public class EventParser
     {
         return new ProcessInvocationStartEvent
         {
-            InvocationUID = reader.Read7BitEncodedInt64(),
-            InstanceUID = reader.Read7BitEncodedInt64(),
+            InvocationId = reader.Read7BitEncodedInt64(),
+            ProcessId = reader.Read7BitEncodedInt64(),
             InvocationCounter = reader.Read7BitEncodedInt64(),
             Type = reader.ReadString(),
             Kind = reader.ReadNullableString(),
             Name = reader.ReadString(),
             Topic = reader.ReadNullableString(),
-            CallerInvocationUID = reader.ReadNullable7BitEncodedInt64()
+            CallerInvocationId = reader.ReadNullable7BitEncodedInt64()
         };
     }
 
@@ -21,7 +21,7 @@ public class EventParser
     {
         return new ProcessInvocationEndEvent
         {
-            InvocationUID = reader.Read7BitEncodedInt64(),
+            InvocationId = reader.Read7BitEncodedInt64(),
             ElapsedMilliseconds = reader.Read7BitEncodedInt64(),
             NetTimeMilliseconds = reader.ReadNullable7BitEncodedInt64(),
         };
@@ -31,8 +31,8 @@ public class EventParser
     {
         var evt = new IoCommandStartEvent
         {
-            Uid = reader.Read7BitEncodedInt64(),
-            ProcessInvocationUid = reader.Read7BitEncodedInt64(),
+            Id = reader.Read7BitEncodedInt64(),
+            ProcessInvocationId = reader.Read7BitEncodedInt64(),
             Kind = (IoCommandKind)reader.ReadByte(),
             Location = reader.ReadNullableString(),
             Path = reader.ReadNullableString(),
@@ -60,7 +60,7 @@ public class EventParser
     {
         var evt = new IoCommandEndEvent
         {
-            Uid = reader.Read7BitEncodedInt64(),
+            Id = reader.Read7BitEncodedInt64(),
             AffectedDataCount = reader.ReadNullable7BitEncodedInt64(),
             ErrorMessage = reader.ReadNullableString(),
         };
@@ -72,8 +72,8 @@ public class EventParser
     {
         var evt = new RowCreatedEvent
         {
-            ProcessInvocationUid = reader.Read7BitEncodedInt64(),
-            RowUid = reader.Read7BitEncodedInt64()
+            ProcessInvocationId = reader.Read7BitEncodedInt64(),
+            RowId = reader.Read7BitEncodedInt64()
         };
 
         var columnCount = reader.Read7BitEncodedInt();
@@ -95,9 +95,9 @@ public class EventParser
     {
         return new RowOwnerChangedEvent
         {
-            RowUid = reader.Read7BitEncodedInt64(),
-            PreviousProcessInvocationUid = reader.Read7BitEncodedInt64(),
-            NewProcessInvocationUid = reader.ReadNullable7BitEncodedInt64()
+            RowId = reader.Read7BitEncodedInt64(),
+            PreviousProcessInvocationId = reader.Read7BitEncodedInt64(),
+            NewProcessInvocationId = reader.ReadNullable7BitEncodedInt64()
         };
     }
 
@@ -105,8 +105,8 @@ public class EventParser
     {
         var evt = new RowValueChangedEvent
         {
-            RowUid = reader.Read7BitEncodedInt64(),
-            ProcessInvocationUID = reader.ReadNullable7BitEncodedInt64()
+            RowId = reader.Read7BitEncodedInt64(),
+            ProcessInvocationId = reader.ReadNullable7BitEncodedInt64()
         };
 
         var columnCount = reader.Read7BitEncodedInt();
@@ -128,7 +128,7 @@ public class EventParser
     {
         var evt = new SinkStartedEvent
         {
-            UID = reader.Read7BitEncodedInt64(),
+            Id = reader.Read7BitEncodedInt64(),
             Location = reader.ReadNullableString(),
             Path = reader.ReadNullableString(),
         };
@@ -140,9 +140,9 @@ public class EventParser
     {
         var evt = new WriteToSinkEvent
         {
-            RowUid = reader.Read7BitEncodedInt64(),
-            ProcessInvocationUID = reader.Read7BitEncodedInt64(),
-            SinkUID = reader.Read7BitEncodedInt64()
+            RowId = reader.Read7BitEncodedInt64(),
+            ProcessInvocationId = reader.Read7BitEncodedInt64(),
+            SinkId = reader.Read7BitEncodedInt64()
         };
 
         var columnCount = reader.Read7BitEncodedInt();
@@ -167,7 +167,7 @@ public class EventParser
             TransactionId = reader.ReadNullableString(),
             Text = reader.ReadString(),
             Severity = (LogSeverity)reader.ReadByte(),
-            ProcessInvocationUID = reader.ReadNullable7BitEncodedInt64()
+            ProcessInvocationId = reader.ReadNullable7BitEncodedInt64()
         };
 
         var argCount = reader.Read7BitEncodedInt();

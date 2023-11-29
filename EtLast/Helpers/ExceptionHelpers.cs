@@ -45,7 +45,7 @@ public static class ExceptionHelpers
                         if (k is "ProcessName" or "ProcessKind" or "ProcessTopic" or "ProcessType" or "ProcessTypeAssembly" or "CallChain" or "OpsMessage" or "Trace" or "Row")
                             continue;
 
-                        if (k.Contains("Row", StringComparison.InvariantCultureIgnoreCase) && cex.Data[key] is string rowStr && rowStr.StartsWith("uid", StringComparison.InvariantCultureIgnoreCase))
+                        if (k.Contains("Row", StringComparison.InvariantCultureIgnoreCase) && cex.Data[key] is string rowStr && rowStr.StartsWith("id", StringComparison.InvariantCultureIgnoreCase))
                             continue;
 
                         if (first)
@@ -76,7 +76,7 @@ public static class ExceptionHelpers
                         if (k == "Row")
                             continue;
 
-                        if (k.Contains("Row", StringComparison.InvariantCultureIgnoreCase) && cex.Data[key] is string rowStr && rowStr.StartsWith("uid", StringComparison.InvariantCultureIgnoreCase))
+                        if (k.Contains("Row", StringComparison.InvariantCultureIgnoreCase) && cex.Data[key] is string rowStr && rowStr.StartsWith("id", StringComparison.InvariantCultureIgnoreCase))
                         {
                             msg += "\n\t" + k.ToUpperInvariant() + ": " + rowStr;
                         }

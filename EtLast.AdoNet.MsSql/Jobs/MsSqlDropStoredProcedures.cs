@@ -84,7 +84,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
 
                     _storedProcedureNames = [];
 
-                    var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.ROUTINES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                    var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.ROUTINES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                         "querying stored procedures names", null);
 
                     try
@@ -96,7 +96,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                                 _storedProcedureNames.Add(ConnectionString.Escape((string)reader["ROUTINE_NAME"], (string)reader["ROUTINE_SCHEMA"]));
                             }
 
-                            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, iocUid, _storedProcedureNames.Count);
+                            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, ioCommandId, _storedProcedureNames.Count);
                         }
 
                         _storedProcedureNames.Sort();
@@ -111,7 +111,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                         exception.Data["Timeout"] = command.CommandTimeout;
                         exception.Data["Elapsed"] = startedOn.Elapsed;
 
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, iocUid, null, exception);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, ioCommandId, null, exception);
                         throw exception;
                     }
                 }
@@ -126,13 +126,13 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var storedProcedureName = _storedProcedureNames[statementIndex];
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(storedProcedureName), command.CommandTimeout, command.CommandText, transactionId, null,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(storedProcedureName), command.CommandTimeout, command.CommandText, transactionId, null,
             "drop strored procedure", null);
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, null);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, ioCommandId, null);
         }
         catch (Exception ex)
         {
@@ -146,7 +146,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, ioCommandId, null, exception);
             throw exception;
         }
     }

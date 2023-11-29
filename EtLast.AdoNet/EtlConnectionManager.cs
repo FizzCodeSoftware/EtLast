@@ -17,18 +17,18 @@ public static class EtlConnectionManager
             throw ex;
         }
 
-        var iocUid = 0L;
+        var ioCommandId = 0L;
 
         return _connectionManager.GetConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                iocUid = process.Context.RegisterIoCommandStartWithLocation(process, IoCommandKind.dbConnection, connectionString.Name, connection.ConnectionTimeout, null, Transaction.Current.ToIdentifierString(), null,
+                ioCommandId = process.Context.RegisterIoCommandStartWithLocation(process, IoCommandKind.dbConnection, connectionString.Name, connection.ConnectionTimeout, null, Transaction.Current.ToIdentifierString(), null,
                     "opening database connection", connectionString.GetFriendlyProviderName());
             },
-            onOpened: (connectionString, connection, retryCount) => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null),
+            onOpened: (connectionString, connection, retryCount) => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, ioCommandId, null),
             onError: (connectionString, connection, retryCount, ex) =>
             {
-                process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, iocUid, null, ex);
+                process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, ioCommandId, null, ex);
 
                 if (retryCount < maxRetryCount)
                 {
@@ -60,18 +60,18 @@ public static class EtlConnectionManager
             throw ex;
         }
 
-        var iocUid = 0L;
+        var ioCommandId = 0L;
 
         var connection = _connectionManager.GetNewConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                iocUid = process.Context.RegisterIoCommandStartWithLocation(process, IoCommandKind.dbConnection, connectionString.Name, connection.ConnectionTimeout, null, Transaction.Current.ToIdentifierString(), null,
+                ioCommandId = process.Context.RegisterIoCommandStartWithLocation(process, IoCommandKind.dbConnection, connectionString.Name, connection.ConnectionTimeout, null, Transaction.Current.ToIdentifierString(), null,
                     "opening database connection", connectionString.GetFriendlyProviderName());
             },
-            onOpened: (connectionString, connection, retryCount) => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null),
+            onOpened: (connectionString, connection, retryCount) => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, ioCommandId, null),
             onError: (connectionString, connection, retryCount, ex) =>
             {
-                process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, iocUid, null, ex);
+                process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, ioCommandId, null, ex);
 
                 if (retryCount < maxRetryCount)
                 {
@@ -97,16 +97,16 @@ public static class EtlConnectionManager
 
     public static void ReleaseConnection(IProcess process, ref DatabaseConnection connection)
     {
-        var iocUid = 0L;
+        var ioCommandId = 0L;
 
         _connectionManager.ReleaseConnection(connection,
         onClosing: connection =>
         {
-            iocUid = process.Context.RegisterIoCommandStartWithLocation(process, IoCommandKind.dbConnection, connection.ConnectionString.Name, null, null, connection.TransactionWhenCreated.ToIdentifierString(), null,
+            ioCommandId = process.Context.RegisterIoCommandStartWithLocation(process, IoCommandKind.dbConnection, connection.ConnectionString.Name, null, null, connection.TransactionWhenCreated.ToIdentifierString(), null,
                 "closing database connection", connection.ConnectionString.GetFriendlyProviderName());
         },
-        onClosed: connection => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, iocUid, null),
-        onError: (connection, ex) => process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, iocUid, null, ex));
+        onClosed: connection => process.Context.RegisterIoCommandSuccess(process, IoCommandKind.dbConnection, ioCommandId, null),
+        onError: (connection, ex) => process.Context.RegisterIoCommandFailed(process, IoCommandKind.dbConnection, ioCommandId, null, ex));
 
         if (connection == null)
             return;

@@ -2,7 +2,7 @@
 
 public class IoCommandStartEvent : IoCommandEvent
 {
-    public long ProcessInvocationUid { get; set; }
+    public long ProcessInvocationId { get; set; }
     public int? TimeoutSeconds { get; set; }
     public string Command { get; set; }
     public string TransactionId { get; set; }

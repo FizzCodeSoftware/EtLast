@@ -163,7 +163,7 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 
         var sinkEntry = GetSinkEntry(partitionKey, row);
 
-        Context.RegisterWriteToSink(row, sinkEntry.Sink.SinkUid);
+        Context.RegisterWriteToSink(row, sinkEntry.Sink.SinkId);
 
         try
         {
@@ -216,7 +216,7 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, sinkEntry.Sink.IoCommandKind, sinkEntry.Sink.IoCommandUid, sinkEntry.Sink.RowsWritten, ex);
+            Context.RegisterIoCommandFailed(this, sinkEntry.Sink.IoCommandKind, sinkEntry.Sink.IoCommandId, sinkEntry.Sink.RowsWritten, ex);
             throw;
         }
 

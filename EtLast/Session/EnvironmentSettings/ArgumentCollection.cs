@@ -2,6 +2,7 @@
 
 public sealed class ArgumentCollection : IArgumentCollection
 {
+    public string Instance { get; }
     public IEnumerable<string> AllKeys => _values.Keys;
 
     private readonly Dictionary<string, object> _values;
@@ -48,8 +49,9 @@ public sealed class ArgumentCollection : IArgumentCollection
 
     public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, string instance)
     {
-        var values = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+        Instance = instance;
 
+        var values = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
         foreach (var provider in defaultProviders)
         {
             var args = provider.Arguments;

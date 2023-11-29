@@ -37,7 +37,7 @@ public class LocalFileSinkProvider : ISinkProvider
     {
         var fileName = FileNameGenerator.Invoke(partitionKey);
 
-        var iocUid = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
+        var ioCommandId = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.fileWrite, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
             "writing to local file", null);
 
         if (ActionWhenFileExists != LocalSinkFileExistsAction.Continue && File.Exists(fileName))
@@ -48,7 +48,7 @@ public class LocalFileSinkProvider : ISinkProvider
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file already exist: {0}",
                     fileName));
 
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, 0, exception);
+                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, ioCommandId, 0, exception);
                 throw exception;
             }
             else if (ActionWhenFileExists == LocalSinkFileExistsAction.DeleteAndContinue)
@@ -64,7 +64,7 @@ public class LocalFileSinkProvider : ISinkProvider
                         fileName, ex.Message));
                     exception.Data["FileName"] = fileName;
 
-                    caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, exception);
+                    caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, ioCommandId, null, exception);
                     throw exception;
                 }
             }
@@ -85,17 +85,17 @@ public class LocalFileSinkProvider : ISinkProvider
                 exception.Data["FileName"] = fileName;
                 exception.Data["Directory"] = directory;
 
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, exception);
+                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, ioCommandId, null, exception);
                 throw exception;
             }
         }
 
         try
         {
-            var sinkUid = caller.Context.GetSinkUid(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
+            var sinkId = caller.Context.GetSinkId(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
 
             var stream = new FileStream(fileName, FileMode, FileAccess, FileShare);
-            return new NamedSink(fileName, stream, iocUid, IoCommandKind.fileWrite, sinkUid);
+            return new NamedSink(fileName, stream, ioCommandId, IoCommandKind.fileWrite, sinkId);
         }
         catch (Exception ex)
         {
@@ -104,7 +104,7 @@ public class LocalFileSinkProvider : ISinkProvider
                 fileName, ex.Message));
             exception.Data["FileName"] = fileName;
 
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, iocUid, null, exception);
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileWrite, ioCommandId, null, exception);
             throw exception;
         }
     }

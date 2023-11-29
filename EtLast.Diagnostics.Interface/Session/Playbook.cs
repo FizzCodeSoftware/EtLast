@@ -3,7 +3,7 @@
 public delegate void OnEventAddedDelegate(Playbook playbook, List<AbstractEvent> abstractEvents);
 public delegate void OnProcessInvokedDelegate(Playbook playbook, TrackedProcessInvocation process);
 public delegate void OnSinkStartedDelegate(Playbook playbook, TrackedSink sink);
-public delegate void OnWriteToSinkDelegate(Playbook playbook, TrackedSink sink, TrackedProcessInvocation process, long rowUid, KeyValuePair<string, object>[] values);
+public delegate void OnWriteToSinkDelegate(Playbook playbook, TrackedSink sink, TrackedProcessInvocation process, long rowId, KeyValuePair<string, object>[] values);
 
 public class Playbook(DiagContext context)
 {
@@ -27,33 +27,33 @@ public class Playbook(DiagContext context)
             {
                 case LogEvent evt:
                     {
-                        if (evt.ProcessInvocationUID != null && !ProcessList.ContainsKey(evt.ProcessInvocationUID.Value))
+                        if (evt.ProcessInvocationId != null && !ProcessList.ContainsKey(evt.ProcessInvocationId.Value))
                             continue;
                     }
                     break;
                 case IoCommandStartEvent evt:
                     {
-                        if (!ProcessList.ContainsKey(evt.ProcessInvocationUid))
+                        if (!ProcessList.ContainsKey(evt.ProcessInvocationId))
                             continue;
                     }
                     break;
                 case ProcessInvocationStartEvent evt:
                     {
-                        if (!ProcessList.ContainsKey(evt.InvocationUID))
+                        if (!ProcessList.ContainsKey(evt.InvocationId))
                         {
                             TrackedProcessInvocation invoker = null;
-                            if (evt.CallerInvocationUID != null && !ProcessList.TryGetValue(evt.CallerInvocationUID.Value, out invoker))
+                            if (evt.CallerInvocationId != null && !ProcessList.TryGetValue(evt.CallerInvocationId.Value, out invoker))
                                 continue;
 
-                            var process = new TrackedProcessInvocation(evt.InvocationUID, evt.InstanceUID, evt.InvocationCounter, invoker, evt.Type, evt.Kind, evt.Name, evt.Topic);
-                            ProcessList.Add(process.InvocationUid, process);
+                            var process = new TrackedProcessInvocation(evt.InvocationId, evt.ProcessId, evt.InvocationCounter, invoker, evt.Type, evt.Kind, evt.Name, evt.Topic);
+                            ProcessList.Add(process.InvocationId, process);
                             OnProcessInvoked?.Invoke(this, process);
                         }
                     }
                     break;
                 case ProcessInvocationEndEvent evt:
                     {
-                        if (!ProcessList.TryGetValue(evt.InvocationUID, out var process))
+                        if (!ProcessList.TryGetValue(evt.InvocationId, out var process))
                             continue;
 
                         process.ElapsedMillisecondsAfterFinished = TimeSpan.FromMilliseconds(evt.ElapsedMilliseconds);
@@ -65,7 +65,7 @@ public class Playbook(DiagContext context)
                     break;
                 case RowCreatedEvent evt:
                     {
-                        if (!ProcessList.TryGetValue(evt.ProcessInvocationUid, out var process))
+                        if (!ProcessList.TryGetValue(evt.ProcessInvocationId, out var process))
                             continue;
 
                         process.CreateRow();
@@ -73,21 +73,21 @@ public class Playbook(DiagContext context)
                     break;
                 case RowOwnerChangedEvent evt:
                     {
-                        if (!ProcessList.TryGetValue(evt.PreviousProcessInvocationUid, out var previousProcess))
+                        if (!ProcessList.TryGetValue(evt.PreviousProcessInvocationId, out var previousProcess))
                             continue;
 
                         TrackedProcessInvocation newProcess = null;
-                        if (evt.NewProcessInvocationUid != null && !ProcessList.TryGetValue(evt.NewProcessInvocationUid.Value, out newProcess))
+                        if (evt.NewProcessInvocationId != null && !ProcessList.TryGetValue(evt.NewProcessInvocationId.Value, out newProcess))
                             continue;
 
                         if (newProcess != null)
                         {
-                            previousProcess.PassedRow(evt.RowUid);
-                            newProcess.InputRow(evt.RowUid, previousProcess);
+                            previousProcess.PassedRow(evt.RowId);
+                            newProcess.InputRow(evt.RowId, previousProcess);
                         }
                         else
                         {
-                            previousProcess.DropRow(evt.RowUid);
+                            previousProcess.DropRow(evt.RowId);
                         }
                     }
                     break;
@@ -95,21 +95,21 @@ public class Playbook(DiagContext context)
                     continue;
                 case SinkStartedEvent evt:
                     {
-                        var sink = new TrackedSink(evt.UID, evt.Location, evt.Path);
-                        SinkList.Add(evt.UID, sink);
+                        var sink = new TrackedSink(evt.Id, evt.Location, evt.Path);
+                        SinkList.Add(evt.Id, sink);
                         OnSinkStarted?.Invoke(this, sink);
                     }
                     break;
                 case WriteToSinkEvent evt:
                     {
-                        if (!ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
+                        if (!ProcessList.TryGetValue(evt.ProcessInvocationId, out var process))
                             continue;
 
-                        if (!SinkList.TryGetValue(evt.SinkUID, out var sink))
+                        if (!SinkList.TryGetValue(evt.SinkId, out var sink))
                             continue;
 
-                        process.WriteRowToSink(evt.RowUid);
-                        OnWriteToSink?.Invoke(this, sink, process, evt.RowUid, evt.Values);
+                        process.WriteRowToSink(evt.RowId);
+                        OnWriteToSink?.Invoke(this, sink, process, evt.RowId, evt.Values);
                         sink.RowCount++;
                     }
                     break;

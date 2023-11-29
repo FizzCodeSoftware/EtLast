@@ -11,7 +11,7 @@ public interface IEtlContext : ICaller
     public void RegisterScopeAction(ScopeAction action);
     public ScopeAction[] GetScopeActions();
 
-    public string Id { get; }
+    public long Id { get; }
     public string Name { get; }
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
@@ -25,6 +25,7 @@ public interface IEtlContext : ICaller
     public bool IsTerminating { get; }
     public CancellationToken CancellationToken { get; }
 
+    public ContextManifest Manifest { get; }
     public List<IEtlContextListener> Listeners { get; }
 
     public IRow CreateRow(IProcess process);
@@ -41,17 +42,17 @@ public interface IEtlContext : ICaller
     public long RegisterIoCommandStart(IProcess process, IoCommandKind kind, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
     public long RegisterIoCommandStartWithLocation(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
     public long RegisterIoCommandStartWithPath(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
-    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, long uid, long? affectedDataCount);
-    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, long uid, long? affectedDataCount, Exception exception);
+    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, long id, long? affectedDataCount);
+    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, long id, long? affectedDataCount, Exception exception);
 
-    public void RegisterWriteToSink(IReadOnlyRow row, long sinkUid);
+    public void RegisterWriteToSink(IReadOnlyRow row, long sinkId);
 
     public void SetRowOwner(IRow row, IProcess currentProcess);
 
     public void RegisterProcessInvocationStart(IProcess process, ICaller caller);
     public void RegisterProcessInvocationEnd(IProcess process);
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
-    public long GetSinkUid(string location, string path);
+    public long GetSinkId(string location, string path);
 
     public void Close();
     public void StopServices();

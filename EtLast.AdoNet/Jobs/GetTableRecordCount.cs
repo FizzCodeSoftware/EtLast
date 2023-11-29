@@ -33,7 +33,7 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
 
     protected override int RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
             "getting record count", null);
 
         try
@@ -45,7 +45,7 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
             Context.Log(transactionId, LogSeverity.Debug, this, "record count in {ConnectionStringName}/{TableName} is {RecordCount}",
                 ConnectionString.Name, ConnectionString.Unescape(TableName), recordCount);
 
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, ioCommandId, recordCount);
             return recordCount;
         }
         catch (Exception ex)
@@ -60,7 +60,7 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, ioCommandId, null, exception);
             throw exception;
         }
     }

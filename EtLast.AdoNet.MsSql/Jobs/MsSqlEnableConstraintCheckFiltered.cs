@@ -13,7 +13,7 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var tableName = ConstraintNames[statementIndex].Key;
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
             "enable constraint check", null);
 
         try
@@ -21,7 +21,7 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
             command.ExecuteNonQuery();
             var time = startedOn.Elapsed;
 
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, null);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, ioCommandId, null);
         }
         catch (Exception ex)
         {
@@ -34,7 +34,7 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, ioCommandId, null, exception);
             throw exception;
         }
     }

@@ -75,13 +75,13 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteCopy, ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteCopy, ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
             "copying records from table", ConnectionString.Unescape(Configuration.SourceTableName));
 
         try
         {
             var recordCount = command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteCopy, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteCopy, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -105,7 +105,7 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteCopy, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteCopy, ioCommandId, null, exception);
             throw exception;
         }
     }

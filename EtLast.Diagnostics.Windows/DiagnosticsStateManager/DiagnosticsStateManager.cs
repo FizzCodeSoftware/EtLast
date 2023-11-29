@@ -11,7 +11,7 @@ internal class DiagnosticsStateManager : IDisposable
     public OnContextCreatedDelegate OnDiagContextCreated { get; set; }
 
     private readonly HttpListener _listener;
-    private readonly Dictionary<string, DiagContext> _contextList = [];
+    private readonly Dictionary<long, DiagContext> _contextList = [];
     public IEnumerable<DiagContext> Contexts => _contextList.Values;
 
     private readonly List<DiagContext> _newContextList = [];
@@ -41,10 +41,11 @@ internal class DiagnosticsStateManager : IDisposable
             var response = listenerContext.Response;
 
             var query = HttpUtility.ParseQueryString(request.Url.Query);
-            var contextId = query?["sid"];
+            var contextIdStr = query?["sid"];
+            var contextId = long.Parse(contextIdStr);
             var contextName = query?["ctx"] ?? "-";
 
-            if (string.IsNullOrEmpty(contextId)
+            if (string.IsNullOrEmpty(contextIdStr)
                 || string.IsNullOrEmpty(contextName)
                 || listenerContext.Request.Url.AbsolutePath != "/diag"
                 || request.HttpMethod != "POST")
@@ -62,13 +63,13 @@ internal class DiagnosticsStateManager : IDisposable
 
             if (!_contextList.TryGetValue(contextId, out var context))
             {
-                var folder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "streams", contextId);
+                var folder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "streams", contextIdStr);
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
 
                 File.WriteAllLines(Path.Combine(folder, "stream-info.txt"),
 [
-                    "id\t" + contextId,
+                    "id\t" + contextIdStr,
                     "name\t" + contextName,
                     "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                 ]);

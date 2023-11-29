@@ -23,13 +23,13 @@ public sealed class TruncateTable : AbstractSqlStatement
 
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + TableName;
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, null,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, null,
             "querying record count", null);
 
         try
         {
             recordCount = (int)command.ExecuteScalar();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -43,18 +43,18 @@ public sealed class TruncateTable : AbstractSqlStatement
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadCount, ioCommandId, null, exception);
             throw exception;
         }
 
         command.CommandText = originalStatement;
-        iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbDelete, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+        ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbDelete, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
             "truncating table", null);
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDelete, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDelete, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -68,7 +68,7 @@ public sealed class TruncateTable : AbstractSqlStatement
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, ioCommandId, null, exception);
             throw exception;
         }
     }

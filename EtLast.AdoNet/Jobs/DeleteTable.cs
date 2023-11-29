@@ -26,13 +26,13 @@ public sealed class DeleteTable : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbDelete, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbDelete, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
             "deleting records", null);
 
         try
         {
             var recordCount = command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDelete, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDelete, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -46,7 +46,7 @@ public sealed class DeleteTable : AbstractSqlStatement
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDelete, ioCommandId, null, exception);
             throw exception;
         }
     }

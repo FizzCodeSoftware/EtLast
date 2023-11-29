@@ -321,14 +321,14 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
         }
     }
 
-    public void OnContextIoCommandStart(long uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
+    public void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
     {
         if (_ioLogger == null)
             return;
 
         var sb = new StringBuilder();
         sb.Append(process?.InvocationName);
-        sb.Append('\t').Append(uid.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(id.ToString("D", CultureInfo.InvariantCulture));
         sb.Append('\t').Append(kind.ToString());
         sb.Append('\t').Append("started");
         sb.Append('\t').Append(""); // affectedDataCount
@@ -346,14 +346,14 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
         _ioLogger.Write(LogEventLevel.Information, sb.ToString());
     }
 
-    public void OnContextIoCommandEnd(IProcess process, long uid, IoCommandKind kind, long? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex)
     {
         if (_ioLogger == null)
             return;
 
         var sb = new StringBuilder();
         sb.Append(process?.InvocationName);
-        sb.Append('\t').Append(uid.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(id.ToString("D", CultureInfo.InvariantCulture));
         sb.Append('\t').Append(kind.ToString());
         sb.Append('\t').Append(ex != null ? "failed" : "succeeded");
 
@@ -387,11 +387,11 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
     {
     }
 
-    public void OnSinkStarted(long sinkUid, string location, string path)
+    public void OnSinkStarted(long sinkId, string location, string path)
     {
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, long sinkUid)
+    public void OnWriteToSink(IReadOnlyRow row, long sinkId)
     {
     }
 
@@ -425,7 +425,7 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
                     var sb = new StringBuilder();
                     sb.Append("Timestamp");
                     sb.Append('\t').Append("ProcessInvocationName");
-                    sb.Append('\t').Append("UID");
+                    sb.Append('\t').Append("Id");
                     sb.Append('\t').Append("Kind");
                     sb.Append('\t').Append("Action");
                     sb.Append('\t').Append("AffectedDataCount");

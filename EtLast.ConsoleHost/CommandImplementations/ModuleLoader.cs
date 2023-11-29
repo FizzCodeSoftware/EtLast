@@ -210,15 +210,19 @@ internal static class ModuleLoader
         var interfaceType = typeof(T);
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            var matchingTypes = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
-
-            foreach (var foundType in matchingTypes)
+            try
             {
-                var instance = (T)Activator.CreateInstance(foundType, []);
-                if (instance != null)
-                    result.Add(instance);
+                var matchingTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
+
+                foreach (var foundType in matchingTypes)
+                {
+                    var instance = (T)Activator.CreateInstance(foundType, []);
+                    if (instance != null)
+                        result.Add(instance);
+                }
             }
+            catch (Exception) { }
         }
 
         return result;
@@ -238,10 +242,13 @@ internal static class ModuleLoader
         var interfaceType = typeof(T);
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            var matchingTypes = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
-
-            result.AddRange(matchingTypes);
+            try
+            {
+                var matchingTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
+                result.AddRange(matchingTypes);
+            }
+            catch (Exception) { }
         }
 
         return result;

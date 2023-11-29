@@ -408,7 +408,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                             exception.Data["StreamName"] = stream.Name;
                                             exception.Data["Column"] = column.NameInSource;
 
-                                            Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+                                            Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandId, 0, exception);
                                             throw exception;
                                         }
                                     }
@@ -456,7 +456,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
             {
                 if (stream != null)
                 {
-                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandUid, resultCount);
+                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandId, resultCount);
                     stream.Dispose();
                     reader?.Dispose();
                 }

@@ -17,15 +17,15 @@ public class MemorySinkProvider : ISinkProvider
 
     public NamedSink GetSink(IProcess caller, string partitionKey)
     {
-        var iocUid = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.memoryWrite, _sinkLocation, _sinkPath, null, null, null, null,
+        var ioCommandId = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.memoryWrite, _sinkLocation, _sinkPath, null, null, null, null,
             "writing to memory stream", null);
 
         try
         {
-            var sinkUid = caller.Context.GetSinkUid(_sinkLocation, _sinkPath);
+            var sinkId = caller.Context.GetSinkId(_sinkLocation, _sinkPath);
 
             var stream = StreamCreator.Invoke();
-            return new NamedSink(_sinkName, stream, iocUid, IoCommandKind.streamWrite, sinkUid);
+            return new NamedSink(_sinkName, stream, ioCommandId, IoCommandKind.streamWrite, sinkId);
         }
         catch (Exception ex)
         {
@@ -34,7 +34,7 @@ public class MemorySinkProvider : ISinkProvider
                 _sinkName, ex.Message));
             exception.Data["SinkName"] = _sinkName;
 
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, exception);
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, ioCommandId, null, exception);
             throw exception;
         }
     }

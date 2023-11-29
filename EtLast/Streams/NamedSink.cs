@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast;
 
-public class NamedSink(string name, Stream stream, long ioCommandUid, IoCommandKind ioCommandKind, long sinkUid) : NamedStream(name, stream, ioCommandUid, ioCommandKind)
+public class NamedSink(string name, Stream stream, long ioCommandId, IoCommandKind ioCommandKind, long sinkId) : NamedStream(name, stream, ioCommandId, ioCommandKind)
 {
-    public long SinkUid { get; } = sinkUid;
+    public long SinkId { get; } = sinkId;
     public long RowsWritten { get; private set; }
 
     public void IncreaseRowsWritten(int count = 1)

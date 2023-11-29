@@ -94,13 +94,13 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteMerge, ConnectionString.Name, ConnectionString.Unescape(TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteMerge, ConnectionString.Name, ConnectionString.Unescape(TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
             "merging to table from table", ConnectionString.Unescape(SourceTableName));
 
         try
         {
             var recordCount = command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteMerge, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteMerge, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -113,7 +113,7 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteMerge, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteMerge, ioCommandId, null, exception);
             throw exception;
         }
     }

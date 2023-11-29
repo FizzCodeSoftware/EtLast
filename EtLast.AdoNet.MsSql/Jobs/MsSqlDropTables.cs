@@ -71,7 +71,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
 
                     _tableNames = [];
 
-                    var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.TABLES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                    var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.TABLES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                         "querying table names", null);
 
                     try
@@ -83,7 +83,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
                                 _tableNames.Add(ConnectionString.Escape((string)reader["TABLE_NAME"], (string)reader["TABLE_SCHEMA"]));
                             }
 
-                            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, iocUid, _tableNames.Count);
+                            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, ioCommandId, _tableNames.Count);
                         }
 
                         _tableNames.Sort();
@@ -98,7 +98,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
                         exception.Data["Timeout"] = command.CommandTimeout;
                         exception.Data["Elapsed"] = startedOn.Elapsed;
 
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, iocUid, null, exception);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, ioCommandId, null, exception);
                         throw exception;
                     }
                 }
@@ -117,26 +117,26 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
 
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + tableName;
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
             "querying record count", null);
         try
         {
             recordCount = (int)command.ExecuteScalar();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, ioCommandId, recordCount);
         }
         catch (Exception)
         {
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, iocUid, null);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, ioCommandId, null);
         }
 
         command.CommandText = originalStatement;
-        iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbDropTable, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
+        ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbDropTable, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
             "drop table", null);
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDropTable, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDropTable, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -150,7 +150,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDropTable, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDropTable, ioCommandId, null, exception);
             throw exception;
         }
     }

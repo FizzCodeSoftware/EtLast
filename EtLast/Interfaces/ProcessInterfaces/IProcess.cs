@@ -8,7 +8,7 @@ public interface IProcess : ICaller
     public FlowState FlowState { get; }
 
     public string Name { get; }
-    public string InvocationName => InvocationInfo.InvocationUid + "~" + Name;
+    public string InvocationName => InvocationInfo.InvocationId + "~" + Name;
 
     public string Kind { get; }
     public string GetTopic();

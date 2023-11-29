@@ -2,7 +2,7 @@
 
 public class ProcessInvocationEndEvent : AbstractEvent
 {
-    public long InvocationUID { get; set; }
+    public long InvocationId { get; set; }
     public long ElapsedMilliseconds { get; set; }
     public long? NetTimeMilliseconds { get; set; }
 }

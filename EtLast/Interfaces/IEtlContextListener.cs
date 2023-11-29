@@ -11,13 +11,13 @@ public interface IEtlContextListener
     void OnRowCreated(IReadOnlyRow row);
     void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess);
     void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values);
-    void OnSinkStarted(long sinkUid, string location, string path);
-    void OnWriteToSink(IReadOnlyRow row, long sinkUid);
+    void OnSinkStarted(long sinkId, string location, string path);
+    void OnWriteToSink(IReadOnlyRow row, long sinkId);
 
     void OnProcessInvocationStart(IProcess process);
     void OnProcessInvocationEnd(IProcess process);
-    void OnContextIoCommandStart(long uid, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
-    void OnContextIoCommandEnd(IProcess process, long uid, IoCommandKind kind, long? affectedDataCount, Exception ex);
+    void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
+    void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex);
 
     void OnContextClosed(); // all pending state must be flushed in this method
 }

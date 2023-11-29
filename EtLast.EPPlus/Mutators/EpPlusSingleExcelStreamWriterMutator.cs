@@ -18,7 +18,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
 
     private TState _state;
     private ExcelPackage _package;
-    private long? _sinkUid;
+    private long? _sinkId;
     private long _rowCount;
 
     protected override void StartMutator()
@@ -35,17 +35,17 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
 
         if (ExistingPackage == null && _package != null)
         {
-            var iocUid = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.streamWrite, Stream.GetType().GetFriendlyTypeName(), null, null, null, null,
+            var ioCommandId = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.streamWrite, Stream.GetType().GetFriendlyTypeName(), null, null, null, null,
                 "saving excel package", null);
 
             try
             {
                 _package.Save();
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.streamWrite, iocUid, _rowCount);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.streamWrite, ioCommandId, _rowCount);
             }
             catch (Exception ex)
             {
-                Context.RegisterIoCommandFailed(this, IoCommandKind.streamWrite, iocUid, null, ex);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.streamWrite, ioCommandId, null, ex);
                 throw;
             }
 
@@ -68,9 +68,9 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
         {
             Action.Invoke(row, _package, _state);
 
-            if (_sinkUid != null)
+            if (_sinkId != null)
             {
-                Context.RegisterWriteToSink(row, _sinkUid.Value);
+                Context.RegisterWriteToSink(row, _sinkId.Value);
                 _rowCount++;
             }
         }
@@ -90,7 +90,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
     public void AddWorkSheet(string name)
     {
         _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-        _sinkUid = Context.GetSinkUid(SinkLocation, name);
+        _sinkId = Context.GetSinkId(SinkLocation, name);
     }
 }
 

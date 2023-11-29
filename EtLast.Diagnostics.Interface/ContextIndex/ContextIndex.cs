@@ -32,14 +32,14 @@ public class ContextIndex(string dataFolder)
         return Path.Combine(DataFolder, "row-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
     }
 
-    private string GetSinkFileName(long sinkUid)
+    private string GetSinkFileName(long sinkId)
     {
-        return Path.Combine(DataFolder, "sink-uid-" + sinkUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
+        return Path.Combine(DataFolder, "sink-id-" + sinkId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
-    private string GetProcessRowMapFileName(long processInvocationUid)
+    private string GetProcessRowMapFileName(long processInvocationId)
     {
-        return Path.Combine(DataFolder, "process-rows-uid-" + processInvocationUid.ToString("D", CultureInfo.InvariantCulture) + ".bin");
+        return Path.Combine(DataFolder, "process-rows-id-" + processInvocationId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
     public List<AbstractEvent> Append(MemoryStream input)
@@ -130,11 +130,11 @@ public class ContextIndex(string dataFolder)
 
                     lock (_openSinkWriterStreamsLock)
                     {
-                        if (!_openSinkWriterStreams.TryGetValue(rse.SinkUID, out var sinkWriterStream))
+                        if (!_openSinkWriterStreams.TryGetValue(rse.SinkId, out var sinkWriterStream))
                         {
-                            var sinkFileName = GetSinkFileName(rse.SinkUID);
+                            var sinkFileName = GetSinkFileName(rse.SinkId);
                             sinkWriterStream = new FileStream(sinkFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
-                            _openSinkWriterStreams.Add(rse.SinkUID, sinkWriterStream);
+                            _openSinkWriterStreams.Add(rse.SinkId, sinkWriterStream);
                         }
 
                         sinkWriterStream.Write(eventBytes, 0, eventBytes.Length);
@@ -168,25 +168,25 @@ public class ContextIndex(string dataFolder)
                     _rowEventStream.Write(eventBytes, 0, eventBytes.Length);
                     _lastRowEventFileSize += eventBytes.Length;
 
-                    var involvedProcessUid = evt is RowCreatedEvent rce
-                        ? rce.ProcessInvocationUid
+                    var involvedProcessId = evt is RowCreatedEvent rce
+                        ? rce.ProcessInvocationId
                         : (evt is RowOwnerChangedEvent roce)
-                            ? roce.NewProcessInvocationUid
+                            ? roce.NewProcessInvocationId
                             : null;
 
-                    if (involvedProcessUid != null)
+                    if (involvedProcessId != null)
                     {
                         lock (_processRowMapWritersLock)
                         {
-                            if (!_processRowMapWriters.TryGetValue(involvedProcessUid.Value, out var writer))
+                            if (!_processRowMapWriters.TryGetValue(involvedProcessId.Value, out var writer))
                             {
-                                var processRowMapFileName = GetProcessRowMapFileName(involvedProcessUid.Value);
+                                var processRowMapFileName = GetProcessRowMapFileName(involvedProcessId.Value);
                                 var stream = new FileStream(processRowMapFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 128 * 1024);
                                 writer = new ExtendedBinaryWriter(stream, Encoding.UTF8);
-                                _processRowMapWriters.Add(involvedProcessUid.Value, writer);
+                                _processRowMapWriters.Add(involvedProcessId.Value, writer);
                             }
 
-                            writer.Write7BitEncodedInt64((evt as AbstractRowEvent).RowUid);
+                            writer.Write7BitEncodedInt64((evt as AbstractRowEvent).RowId);
                         }
                     }
                 }
@@ -196,15 +196,15 @@ public class ContextIndex(string dataFolder)
         return events;
     }
 
-    public void EnumerateThroughSink(long sinkUid, Action<WriteToSinkEvent> callback)
+    public void EnumerateThroughSink(long sinkId, Action<WriteToSinkEvent> callback)
     {
-        var fileName = GetSinkFileName(sinkUid);
+        var fileName = GetSinkFileName(sinkId);
         if (!File.Exists(fileName))
             return;
 
         lock (_openSinkWriterStreamsLock)
         {
-            if (_openSinkWriterStreams.TryGetValue(sinkUid, out var sinkWriterStream))
+            if (_openSinkWriterStreams.TryGetValue(sinkId, out var sinkWriterStream))
             {
                 sinkWriterStream.Flush();
             }
@@ -297,17 +297,17 @@ public class ContextIndex(string dataFolder)
         Debug.WriteLine("events read: " + eventsRead.ToString("D", CultureInfo.InvariantCulture));
     }
 
-    public HashSet<long> GetProcessRowMap(long processInvocationUid)
+    public HashSet<long> GetProcessRowMap(long processInvocationId)
     {
         var result = new HashSet<long>();
 
-        var fileName = GetProcessRowMapFileName(processInvocationUid);
+        var fileName = GetProcessRowMapFileName(processInvocationId);
         if (!File.Exists(fileName))
             return result;
 
         lock (_processRowMapWritersLock)
         {
-            if (_processRowMapWriters.TryGetValue(processInvocationUid, out var writer))
+            if (_processRowMapWriters.TryGetValue(processInvocationId, out var writer))
             {
                 writer.Flush();
             }
@@ -326,8 +326,8 @@ public class ContextIndex(string dataFolder)
                 {
                     try
                     {
-                        var rowUid = reader.Read7BitEncodedInt64();
-                        result.Add(rowUid);
+                        var rowId = reader.Read7BitEncodedInt64();
+                        result.Add(rowId);
                     }
                     catch (Exception)
                     {

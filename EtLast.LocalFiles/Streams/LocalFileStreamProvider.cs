@@ -35,7 +35,7 @@ public class LocalFileStreamProvider : IStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var iocUid = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.fileRead, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
+        var ioCommandId = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.fileRead, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
             "reading from local file", null);
 
         if (!File.Exists(FileName))
@@ -46,11 +46,11 @@ public class LocalFileStreamProvider : IStreamProvider
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file doesn't exist: {0}",
                     FileName));
 
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, 0, exception);
+                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, ioCommandId, 0, exception);
                 throw exception;
             }
 
-            caller.Context.RegisterIoCommandSuccess(caller, IoCommandKind.fileRead, iocUid, 0);
+            caller.Context.RegisterIoCommandSuccess(caller, IoCommandKind.fileRead, ioCommandId, 0);
             return Enumerable.Empty<NamedStream>();
         }
 
@@ -59,7 +59,7 @@ public class LocalFileStreamProvider : IStreamProvider
             var stream = new FileStream(FileName, Options);
             return new[]
             {
-                new NamedStream(FileName, stream, iocUid, IoCommandKind.fileRead),
+                new NamedStream(FileName, stream, ioCommandId, IoCommandKind.fileRead),
             };
         }
         catch (Exception ex)
@@ -69,7 +69,7 @@ public class LocalFileStreamProvider : IStreamProvider
                 FileName, ex.Message));
             exception.Data["FileName"] = FileName;
 
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, iocUid, null, exception);
+            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, ioCommandId, null, exception);
             throw exception;
         }
     }

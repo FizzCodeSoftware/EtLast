@@ -72,7 +72,7 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
                         exception.Data["EntryIndex"] = entryIndex;
                         exception.Data["ResultCount"] = resultCount;
 
-                        Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandUid, 0, exception);
+                        Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandId, 0, exception);
                         throw exception;
                     }
 
@@ -98,7 +98,7 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
                     }
                     catch (Exception) { }
 
-                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandUid, endPos - startPos);
+                    Context.RegisterIoCommandSuccess(this, stream.IoCommandKind, stream.IoCommandId, endPos - startPos);
                     stream.Dispose();
                 }
             }

@@ -14,7 +14,7 @@ internal class ContextInlineIoCommandListControl
     private TrackedProcessInvocation _highlightedProcess;
 
     private readonly ControlUpdater<IoCommandModel> _updater;
-    private readonly Dictionary<long, IoCommandModel> _itemByUid = [];
+    private readonly Dictionary<long, IoCommandModel> _itemById = [];
 
     public TrackedProcessInvocation HighlightedProcess
     {
@@ -79,7 +79,7 @@ internal class ContextInlineIoCommandListControl
         _updater.ListView.Columns.Add(new OLVColumn()
         {
             Text = "ID",
-            AspectGetter = x => (x as IoCommandModel)?.StartEvent.Uid,
+            AspectGetter = x => (x as IoCommandModel)?.StartEvent.Id,
         });
         _updater.ListView.Columns.Add(new OLVColumn()
         {
@@ -212,7 +212,7 @@ internal class ContextInlineIoCommandListControl
                     Timestamp = new DateTime(evt.Timestamp),
                     Playbook = playbook,
                     StartEvent = startEvent,
-                    Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationUid],
+                    Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationId],
                     ArgumentsPreview = startEvent.Arguments != null
                         ? string.Join(",", startEvent.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
                         : null,
@@ -220,11 +220,11 @@ internal class ContextInlineIoCommandListControl
 
                 _updater.AddItem(item);
 
-                _itemByUid.Add(startEvent.Uid, item);
+                _itemById.Add(startEvent.Id, item);
             }
             else if (evt is IoCommandEndEvent endEvent)
             {
-                if (_itemByUid.TryGetValue(endEvent.Uid, out var item))
+                if (_itemById.TryGetValue(endEvent.Id, out var item))
                 {
                     item.EndEvent = endEvent;
                     item.Elapsed = new TimeSpan(endEvent.Timestamp - item.StartEvent.Timestamp);

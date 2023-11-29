@@ -30,13 +30,13 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbIdentityReset, ConnectionString.Name, TableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbIdentityReset, ConnectionString.Name, TableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
             "resetting identity counter on column", IdentityColumnName);
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbIdentityReset, iocUid, null);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbIdentityReset, ioCommandId, null);
         }
         catch (Exception ex)
         {
@@ -51,7 +51,7 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbIdentityReset, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbIdentityReset, ioCommandId, null, exception);
             throw exception;
         }
     }

@@ -4,7 +4,7 @@
 public class RowKeepNullTests
 {
     [TestMethod]
-    public void ToDebugStringStartsWithUid()
+    public void ToDebugStringStartsWithId()
     {
         var context = TestExecuter.GetContext();
         context.SetRowType<Row>();
@@ -18,7 +18,7 @@ public class RowKeepNullTests
         var row = context.CreateRow(null, initialValues);
         var result = row.ToDebugString();
 
-        Assert.IsTrue(result.StartsWith("uid", StringComparison.InvariantCultureIgnoreCase));
+        Assert.IsTrue(result.StartsWith("id", StringComparison.InvariantCultureIgnoreCase));
     }
 
     [TestMethod]

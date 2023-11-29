@@ -4,7 +4,7 @@ public partial class MainForm : Form
 {
     private readonly TabControl ContextTabs;
     private readonly DiagnosticsStateManager _stateManager;
-    private readonly Dictionary<string, ContextControl> _contextControls = [];
+    private readonly Dictionary<long, ContextControl> _contextControls = [];
     private readonly Timer _timer;
 
     public MainForm()
@@ -57,7 +57,7 @@ public partial class MainForm : Form
                 if (MessageBox.Show("...you want to close this stream?", "Are you sure...", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     var page = control.TabPages[i];
-                    var contextId = page.Name;
+                    var contextId = long.Parse(page.Name);
 
                     control.TabPages.Remove(page);
 
@@ -98,10 +98,10 @@ public partial class MainForm : Form
 
     private void ContextCreated(DiagContext context)
     {
-        var container = new TabPage(context.Id)
+        var container = new TabPage(context.Id.ToString("D", CultureInfo.InvariantCulture))
         {
             BorderStyle = BorderStyle.None,
-            Name = context.Id,
+            Name = context.Id.ToString("D", CultureInfo.InvariantCulture),
         };
 
         var control = new ContextControl(context, container);

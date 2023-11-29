@@ -6,7 +6,7 @@ public sealed class TrackedRow(IRow originalRow) : IRow
 
     public IProcess CurrentProcess { get => originalRow.CurrentProcess; set => originalRow.CurrentProcess = value; }
     public IEtlContext Context => originalRow.Context;
-    public long Uid => originalRow.Uid;
+    public long Id => originalRow.Id;
     public IProcess CreatorProcess => originalRow.CreatorProcess;
     public object Tag { get => originalRow.Tag; set => originalRow.Tag = value; }
 
@@ -86,7 +86,7 @@ public sealed class TrackedRow(IRow originalRow) : IRow
         _changes = null;
     }
 
-    public void Init(IEtlContext context, IProcess creatorProcess, long uid, IEnumerable<KeyValuePair<string, object>> initialValues)
+    public void Init(IEtlContext context, IProcess creatorProcess, long id, IEnumerable<KeyValuePair<string, object>> initialValues)
     {
     }
 
@@ -220,8 +220,8 @@ public sealed class TrackedRow(IRow originalRow) : IRow
     {
         if (!multiLine)
         {
-            return "UID: "
-                + Uid.ToString("D", CultureInfo.InvariantCulture)
+            return "ID: "
+                + Id.ToString("D", CultureInfo.InvariantCulture)
                 + (Tag != null ? ", tag: " + Tag.ToString() : "")
                 + (Values.Any()
                     ? ", " + string.Join(", ", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
@@ -229,8 +229,8 @@ public sealed class TrackedRow(IRow originalRow) : IRow
         }
         else
         {
-            return "UID: "
-                + Uid.ToString("D", CultureInfo.InvariantCulture)
+            return "ID: "
+                + Id.ToString("D", CultureInfo.InvariantCulture)
                 + (Tag != null ? "\ntag: " + Tag.ToString() : "")
                 + (Values.Any()
                     ? "\n" + string.Join("\n", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))

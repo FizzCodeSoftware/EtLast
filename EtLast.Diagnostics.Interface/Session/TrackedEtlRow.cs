@@ -1,9 +1,9 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-[DebuggerDisplay("{Uid}")]
+[DebuggerDisplay("{Id}")]
 public class TrackedEtlRow
 {
-    public long Uid { get; set; }
+    public long Id { get; set; }
     public TrackedProcessInvocation CreatorProcess { get; set; }
     public TrackedProcessInvocation PreviousProcess { get; set; }
     public TrackedProcessInvocation NextProcess { get; set; }

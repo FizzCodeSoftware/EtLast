@@ -37,7 +37,7 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var iocUid = MainTableName != null
+        var ioCommandId = MainTableName != null
             ? Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbRead, ConnectionString.Name, MainTableName, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                 "custom SQL statement", null)
             : Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.dbRead, ConnectionString.Name, command.CommandTimeout, command.CommandText, transactionId, () => parameters,
@@ -46,7 +46,7 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
         try
         {
             var recordCount = command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbRead, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbRead, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -59,7 +59,7 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, ioCommandId, null, exception);
             throw exception;
         }
     }

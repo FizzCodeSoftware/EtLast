@@ -77,7 +77,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
 
                     _viewNames = [];
 
-                    var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.VIEWS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
+                    var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.VIEWS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
                         "querying view names", null);
 
                     try
@@ -89,7 +89,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
                                 _viewNames.Add(ConnectionString.Escape((string)reader["TABLE_NAME"], (string)reader["TABLE_SCHEMA"]));
                             }
 
-                            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, iocUid, _viewNames.Count);
+                            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, ioCommandId, _viewNames.Count);
                         }
 
                         _viewNames.Sort();
@@ -104,7 +104,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
                         exception.Data["Timeout"] = command.CommandTimeout;
                         exception.Data["Elapsed"] = startedOn.Elapsed;
 
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, iocUid, null, exception);
+                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, ioCommandId, null, exception);
                         throw exception;
                     }
                 }
@@ -119,13 +119,13 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var viewName = _viewNames[statementIndex];
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(viewName), command.CommandTimeout, command.CommandText, transactionId, null,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(viewName), command.CommandTimeout, command.CommandText, transactionId, null,
             "drop view", null);
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, iocUid, null);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, ioCommandId, null);
         }
         catch (Exception ex)
         {
@@ -139,7 +139,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, ioCommandId, null, exception);
             throw exception;
         }
     }

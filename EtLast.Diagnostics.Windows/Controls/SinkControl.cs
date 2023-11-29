@@ -4,17 +4,17 @@ internal class SinkControl
 {
     public Control Container { get; }
     public DiagContext Context { get; }
-    public TrackedSink Store { get; }
+    public TrackedSink Sink { get; }
     public ObjectListView ListView { get; }
     public TextBox SearchBox { get; }
     private readonly Dictionary<string, int> _columnIndexes = new(StringComparer.OrdinalIgnoreCase);
     private readonly int _fixColumnCount;
 
-    public SinkControl(Control container, DiagContext context, TrackedSink store)
+    public SinkControl(Control container, DiagContext context, TrackedSink sink)
     {
         Container = container;
         Context = context;
-        Store = store;
+        Sink = sink;
 
         SearchBox = new TextBox()
         {
@@ -33,7 +33,7 @@ internal class SinkControl
         ListView.AllColumns.Add(new OLVColumn()
         {
             Text = "ID",
-            AspectGetter = x => (x as StoredRowModel)?.RowUid,
+            AspectGetter = x => (x as StoredRowModel)?.RowId,
         });
         ListView.AllColumns.Add(new OLVColumn()
         {
@@ -70,9 +70,9 @@ internal class SinkControl
 
             var newColumns = new List<OLVColumn>();
 
-            Context.Index.EnumerateThroughSink(Store.UID, evt =>
+            Context.Index.EnumerateThroughSink(Sink.Id, evt =>
             {
-                if (!Context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessInvocationUID, out var process))
+                if (!Context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessInvocationId, out var process))
                     return;
 
                 for (var i = 0; i < evt.Values.Length; i++)
@@ -118,7 +118,7 @@ internal class SinkControl
 
                 var model = new StoredRowModel()
                 {
-                    RowUid = evt.RowUid,
+                    RowId = evt.RowId,
                     ProcessName = process.DisplayName,
                     Values = new object[ListView.AllColumns.Count - _fixColumnCount],
                     Types = new string[ListView.AllColumns.Count - _fixColumnCount],
@@ -149,7 +149,7 @@ internal class SinkControl
 
     private class StoredRowModel
     {
-        public long RowUid { get; set; }
+        public long RowId { get; set; }
         public string ProcessName { get; set; }
         public object[] Values { get; set; }
         public string[] Types { get; set; }

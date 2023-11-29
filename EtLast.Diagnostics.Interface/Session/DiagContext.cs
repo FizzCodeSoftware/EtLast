@@ -3,7 +3,7 @@
 [DebuggerDisplay("{Name}")]
 public class DiagContext
 {
-    public string Id { get; }
+    public long Id { get; }
     public string Name { get; }
 
     public string DataFolder { get; }
@@ -15,7 +15,7 @@ public class DiagContext
     public ContextIndex Index { get; }
     private readonly List<AbstractEvent> _stagedEvents = [];
 
-    public DiagContext(string id, string name, DateTime startedOn, string dataFolder)
+    public DiagContext(long id, string name, DateTime startedOn, string dataFolder)
     {
         Id = id;
         Name = name;

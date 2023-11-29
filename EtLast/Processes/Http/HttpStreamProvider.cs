@@ -24,7 +24,7 @@ public class HttpStreamProvider : IStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var iocUid = caller.Context.RegisterIoCommandStartWithLocation(caller, IoCommandKind.httpGet, Url, null, "GET", null, null,
+        var ioCommandId = caller.Context.RegisterIoCommandStartWithLocation(caller, IoCommandKind.httpGet, Url, null, "GET", null, null,
             "reading from http stream", null);
 
         try
@@ -32,7 +32,7 @@ public class HttpStreamProvider : IStreamProvider
             var cancellationTokenRegistration = caller.Context.CancellationToken.Register(Client.CancelPendingRequests);
 
             var stream = Client.GetStreamAsync(Url).Result;
-            var namedStream = new NamedStream(Url, stream, iocUid, IoCommandKind.httpGet);
+            var namedStream = new NamedStream(Url, stream, ioCommandId, IoCommandKind.httpGet);
             namedStream.OnDispose += (sender, args) => cancellationTokenRegistration.Dispose();
             return new[] { namedStream };
         }
@@ -45,11 +45,11 @@ public class HttpStreamProvider : IStreamProvider
                     Url, ex.Message));
                 exception.Data["Url"] = Url;
 
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.httpGet, iocUid, null, exception);
+                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.httpGet, ioCommandId, null, exception);
                 throw exception;
             }
 
-            caller.Context.RegisterIoCommandSuccess(caller, IoCommandKind.httpGet, iocUid, 0);
+            caller.Context.RegisterIoCommandSuccess(caller, IoCommandKind.httpGet, ioCommandId, 0);
             return Enumerable.Empty<NamedStream>();
         }
     }

@@ -62,7 +62,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         Stopwatch swQuery;
 
         var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
-        long iocUid;
+        long ioCommandId;
 
         using (var scope = Context.BeginTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
         {
@@ -86,7 +86,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
                 : Transaction.Current.ToIdentifierString();
 
-            iocUid = RegisterIoCommandStart(transactionId, cmd.CommandTimeout, sqlStatement);
+            ioCommandId = RegisterIoCommandStart(transactionId, cmd.CommandTimeout, sqlStatement);
 
             swQuery = Stopwatch.StartNew();
             try
@@ -101,7 +101,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 exception.Data["ConnectionStringName"] = ConnectionString.Name;
                 exception.Data["Statement"] = cmd.CommandText;
 
-                Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, null, exception);
+                Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, ioCommandId, null, exception);
                 throw exception;
             }
         }
@@ -174,7 +174,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     exception.Data["RowIndex"] = resultCount;
                     exception.Data["SecondsSinceLastRead"] = LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture);
 
-                    Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, iocUid, resultCount, exception);
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, ioCommandId, resultCount, exception);
                     throw exception;
                 }
 
@@ -219,7 +219,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             }
         }
 
-        Context.RegisterIoCommandSuccess(this, IoCommandKind.dbRead, iocUid, resultCount);
+        Context.RegisterIoCommandSuccess(this, IoCommandKind.dbRead, ioCommandId, resultCount);
 
         if (reader != null)
         {

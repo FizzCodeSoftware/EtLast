@@ -90,7 +90,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
                 try
                 {
                     sink.Package.SaveAs(sink.Sink.Stream);
-                    Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, sink.Sink.IoCommandUid, _rowCounter);
+                    Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, sink.Sink.IoCommandId, _rowCounter);
                 }
                 catch (Exception ex)
                 {
@@ -99,7 +99,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
                     exception.Data["Sink"] = sink.Sink.Name;
                     exception.Data["SheetName"] = SheetName;
 
-                    Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, sink.Sink.IoCommandUid, null, exception);
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, sink.Sink.IoCommandId, null, exception);
                     throw exception;
                 }
 
@@ -127,7 +127,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
         var sink = GetSink(partitionKey);
 
-        Context.RegisterWriteToSink(row, sink.Sink.SinkUid);
+        Context.RegisterWriteToSink(row, sink.Sink.SinkId);
 
         try
         {
@@ -152,7 +152,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
             exception.Data["Sink"] = sink.Sink.Name;
             exception.Data["SheetName"] = SheetName;
 
-            Context.RegisterIoCommandFailed(this, sink.Sink.IoCommandKind, sink.Sink.IoCommandUid, sink.Sink.RowsWritten, exception);
+            Context.RegisterIoCommandFailed(this, sink.Sink.IoCommandKind, sink.Sink.IoCommandId, sink.Sink.RowsWritten, exception);
             throw exception;
         }
 

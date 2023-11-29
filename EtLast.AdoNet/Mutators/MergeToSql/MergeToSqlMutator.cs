@@ -40,7 +40,7 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
     private long _rowsWritten;
 
     private IDbCommand _command;
-    private long? _sinkUid;
+    private long? _sinkId;
     private Stopwatch _lastWrite;
     private bool _prepared = false;
 
@@ -76,9 +76,9 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sinkUid ??= Context.GetSinkUid(ConnectionString.Name, ConnectionString.Unescape(TableName));
+        _sinkId ??= Context.GetSinkId(ConnectionString.Name, ConnectionString.Unescape(TableName));
 
-        Context.RegisterWriteToSink(row, _sinkUid.Value);
+        Context.RegisterWriteToSink(row, _sinkId.Value);
 
         InitConnection();
 
@@ -162,7 +162,7 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
 
         _command.CommandText = sqlStatement;
 
-        var iocUid = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBatch, ConnectionString.Name, ConnectionString.Unescape(TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
+        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBatch, ConnectionString.Name, ConnectionString.Unescape(TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
             "write to table", null);
 
         try
@@ -171,7 +171,7 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
 
             _rowsWritten += recordCount;
 
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBatch, iocUid, recordCount);
+            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBatch, ioCommandId, recordCount);
         }
         catch (Exception ex)
         {
@@ -188,7 +188,7 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
             exception.Data["SqlStatementCreator"] = SqlStatementCreator.GetType().GetFriendlyTypeName();
             exception.Data["TotalRowsWritten"] = _rowsWritten;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBatch, iocUid, recordCount, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBatch, ioCommandId, recordCount, exception);
             throw exception;
         }
 

@@ -39,7 +39,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     {
         var client = ClientCreator.Invoke(this);
 
-        var iocUid = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.serviceRead, client.Endpoint.Address.ToString(), Convert.ToInt32(client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
+        var ioCommandId = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.serviceRead, client.Endpoint.Address.ToString(), Convert.ToInt32(client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
             "sending SOAP request", null);
 
         IEnumerator<SlimRow> enumerator;
@@ -54,7 +54,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                 client.Endpoint.Address.ToString()));
             exception.Data["EndpointAddress"] = client.Endpoint.Address.ToString();
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, ioCommandId, null, exception);
             throw exception;
         }
 
@@ -75,7 +75,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, iocUid, resultCount, ex);
+                    Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, ioCommandId, resultCount, ex);
                     var exception = new EtlException(this, "error while reading data from service", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
                     exception.Data["Endpoint"] = client.Endpoint.Address.ToString();
@@ -123,7 +123,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
             }
         }
 
-        Context.RegisterIoCommandSuccess(this, IoCommandKind.serviceRead, iocUid, resultCount);
+        Context.RegisterIoCommandSuccess(this, IoCommandKind.serviceRead, ioCommandId, resultCount);
     }
 }
 

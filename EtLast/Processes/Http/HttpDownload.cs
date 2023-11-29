@@ -18,12 +18,12 @@ public sealed class HttpDownload : AbstractJob
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
-        var iocUid = 0L;
+        var ioCommandId = 0L;
         try
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                iocUid = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.httpGet, Url, null, "GET", null, null,
+                ioCommandId = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.httpGet, Url, null, "GET", null, null,
                     "downloading file", null);
 
                 var initialSize = OutputStream.Length;
@@ -31,7 +31,7 @@ public sealed class HttpDownload : AbstractJob
                     response.CopyTo(OutputStream);
                 var downloadedBytes = OutputStream.Length - initialSize;
 
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.httpGet, iocUid, downloadedBytes);
+                Context.RegisterIoCommandSuccess(this, IoCommandKind.httpGet, ioCommandId, downloadedBytes);
             }
         }
         catch (Exception ex)
@@ -41,7 +41,7 @@ public sealed class HttpDownload : AbstractJob
                 Url, ex.Message));
             exception.Data["Url"] = Url;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, iocUid, null, exception);
+            Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, ioCommandId, null, exception);
             throw exception;
         }
     }

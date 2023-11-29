@@ -17,7 +17,7 @@ internal class ContextProcessInvocationListControl
     private Color TopicHighlightBackColor { get; } = Color.FromArgb(220, 220, 255);
 
     private readonly List<ListViewItem> _allItems = [];
-    private readonly Dictionary<long, ListViewItem> _itemsByProcessInvocationUid = [];
+    private readonly Dictionary<long, ListViewItem> _itemsByProcessInvocationId = [];
 
     public ContextProcessInvocationListControl(Control container, DiagContext context)
     {
@@ -75,7 +75,7 @@ internal class ContextProcessInvocationListControl
 
         if (info.Item?.Tag is TrackedProcessInvocation process)
         {
-            var relevantRowUids = Context.Index.GetProcessRowMap(process.InvocationUid);
+            var relevantRowIdList = Context.Index.GetProcessRowMap(process.InvocationId);
 
             var finishedRows = new HashSet<long>();
             var currentProcesses = new Dictionary<long, TrackedProcessInvocation>();
@@ -83,14 +83,14 @@ internal class ContextProcessInvocationListControl
             var rows = new Dictionary<long, TrackedEtlRow>();
             Context.Index.EnumerateThroughRowEvents(e =>
             {
-                if (relevantRowUids.Contains(e.RowUid) && !finishedRows.Contains(e.RowUid))
+                if (relevantRowIdList.Contains(e.RowId) && !finishedRows.Contains(e.RowId))
                 {
                     if (e is RowCreatedEvent rce)
                     {
-                        var creatorProc = Context.WholePlaybook.ProcessList[rce.ProcessInvocationUid];
+                        var creatorProc = Context.WholePlaybook.ProcessList[rce.ProcessInvocationId];
                         var row = new TrackedEtlRow()
                         {
-                            Uid = rce.RowUid,
+                            Id = rce.RowId,
                             CreatorProcess = creatorProc,
                             PreviousProcess = null,
                         };
@@ -104,17 +104,17 @@ internal class ContextProcessInvocationListControl
                             row.PreviousValues = new Dictionary<string, object>(rce.Values, StringComparer.OrdinalIgnoreCase);
                         }
 
-                        currentProcesses[row.Uid] = creatorProc;
+                        currentProcesses[row.Id] = creatorProc;
 
                         row.AllEvents.Add(rce);
-                        rows.Add(row.Uid, row);
+                        rows.Add(row.Id, row);
                     }
                     else if (e is RowValueChangedEvent rvce)
                     {
-                        var row = rows[rvce.RowUid];
+                        var row = rows[rvce.RowId];
                         row.AllEvents.Add(rvce);
 
-                        var values = currentProcesses[row.Uid] == process
+                        var values = currentProcesses[row.Id] == process
                             ? row.NewValues
                             : row.PreviousValues;
 
@@ -128,14 +128,14 @@ internal class ContextProcessInvocationListControl
                     }
                     else if (e is RowOwnerChangedEvent roce)
                     {
-                        var newProc = roce.NewProcessInvocationUid != null
-                            ? Context.WholePlaybook.ProcessList[roce.NewProcessInvocationUid.Value]
+                        var newProc = roce.NewProcessInvocationId != null
+                            ? Context.WholePlaybook.ProcessList[roce.NewProcessInvocationId.Value]
                             : null;
 
-                        var row = rows[roce.RowUid];
+                        var row = rows[roce.RowId];
                         row.AllEvents.Add(roce);
 
-                        var currentProcess = currentProcesses[row.Uid];
+                        var currentProcess = currentProcesses[row.Id];
 
                         if (newProc == process)
                         {
@@ -144,14 +144,14 @@ internal class ContextProcessInvocationListControl
                         }
                         else if (currentProcess == process)
                         {
-                            finishedRows.Add(row.Uid);
+                            finishedRows.Add(row.Id);
                             row.NextProcess = newProc;
                         }
 
-                        currentProcesses[row.Uid] = newProc;
+                        currentProcesses[row.Id] = newProc;
                     }
 
-                    return finishedRows.Count < relevantRowUids.Count;
+                    return finishedRows.Count < relevantRowIdList.Count;
                 }
 
                 return true;
@@ -221,8 +221,8 @@ internal class ContextProcessInvocationListControl
                 item.UseItemStyleForSubItems = false;
 
                 var itemIsSelected = itemProcess == selectedProcess;
-                var itemIsInput = itemProcess.InputRowCountByPreviousProcess.ContainsKey(selectedProcess.InvocationUid);
-                var itemIsOutput = selectedProcess.InputRowCountByPreviousProcess.ContainsKey(itemProcess.InvocationUid);
+                var itemIsInput = itemProcess.InputRowCountByPreviousProcess.ContainsKey(selectedProcess.InvocationId);
+                var itemIsOutput = selectedProcess.InputRowCountByPreviousProcess.ContainsKey(itemProcess.InvocationId);
                 var topicHighlight = itemProcess.Topic != null && selectedProcess.Topic == itemProcess.Topic/* || itemProcess.HasParentWithTopic(selectedProcess.Topic)*/;
 
                 for (var i = 0; i < item.SubItems.Count; i++)
@@ -283,7 +283,7 @@ internal class ContextProcessInvocationListControl
 
     private void OnProcessInvoked(Playbook playbook, TrackedProcessInvocation process)
     {
-        var item = new ListViewItem(process.InstanceUID.ToString("D", CultureInfo.InvariantCulture)
+        var item = new ListViewItem(process.ProcessId.ToString("D", CultureInfo.InvariantCulture)
             + (process.InvocationCounter > 1
                 ? "/" + process.InvocationCounter.ToString("D", CultureInfo.InvariantCulture)
                 : ""))
@@ -309,7 +309,7 @@ internal class ContextProcessInvocationListControl
             item.Selected = true;
         }
 
-        if (process.Invoker != null && _itemsByProcessInvocationUid.TryGetValue(process.Invoker.InvocationUid, out var invokerItem))
+        if (process.Invoker != null && _itemsByProcessInvocationId.TryGetValue(process.Invoker.InvocationId, out var invokerItem))
         {
             var nextIndex = invokerItem.Index + 1;
             while (nextIndex < _allItems.Count)
@@ -330,7 +330,7 @@ internal class ContextProcessInvocationListControl
             ListView.Items.Add(item);
         }
 
-        _itemsByProcessInvocationUid.Add(process.InvocationUid, item);
+        _itemsByProcessInvocationId.Add(process.InvocationId, item);
     }
 
     private void UpdateProcessStats()

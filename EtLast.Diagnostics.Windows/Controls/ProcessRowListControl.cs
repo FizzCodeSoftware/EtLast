@@ -81,7 +81,7 @@ internal class ProcessRowListControl
         Updater.ListView.AllColumns.Add(new OLVColumn()
         {
             Text = "ID",
-            AspectGetter = x => (x as ProcessRowModel)?.TrackedRow.Uid,
+            AspectGetter = x => (x as ProcessRowModel)?.TrackedRow.Id,
         });
 
         Updater.ListView.AllColumns.Add(new OLVColumn()

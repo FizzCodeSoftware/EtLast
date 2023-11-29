@@ -34,14 +34,14 @@ public sealed class EtlTransactionScope : IDisposable
 
         var newId = Transaction.Current?.ToIdentifierString();
 
-        var iocUid = 0L;
+        var ioCommandId = 0L;
         switch (kind)
         {
             case TransactionScopeKind.RequiresNew:
                 if (logSeverity != LogSeverity.Verbose)
                     Context.Log(logSeverity, Process, "new transaction started");
 
-                iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, newId, null,
+                ioCommandId = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, newId, null,
                     "new transaction started", null);
 
                 break;
@@ -49,7 +49,7 @@ public sealed class EtlTransactionScope : IDisposable
                 if (logSeverity != LogSeverity.Verbose)
                     Context.Log(logSeverity, Process, "new transaction started" + (previousId != null && newId == previousId ? " and merged with previous" : ""));
 
-                iocUid = previousId == null || newId != previousId
+                ioCommandId = previousId == null || newId != previousId
                     ? Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, newId, null,
                         "new transaction started", null)
                     : Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, newId, () => new[] { new KeyValuePair<string, object>("previous transaction", previousId) },
@@ -60,13 +60,13 @@ public sealed class EtlTransactionScope : IDisposable
                 if (logSeverity != LogSeverity.Verbose)
                     Context.Log(logSeverity, Process, "existing transaction suppressed");
 
-                iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, previousId, null,
+                ioCommandId = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, previousId, null,
                     "existing transaction suppressed", null);
 
                 break;
         }
 
-        Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
+        Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, ioCommandId, null);
     }
 
     public void Complete()
@@ -99,7 +99,7 @@ public sealed class EtlTransactionScope : IDisposable
                         if (Kind != TransactionScopeKind.Suppress)
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            var iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, transactionId, null,
+                            var ioCommandId = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, transactionId, null,
                                 "reverting transaction", null);
 
                             if (LogSeverity != LogSeverity.Verbose)
@@ -110,20 +110,20 @@ public sealed class EtlTransactionScope : IDisposable
                                 _scope.Dispose();
                                 _scope = null;
 
-                                Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
+                                Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, ioCommandId, null);
                                 Context.Log(LogSeverity, Process, "transaction reverted");
                             }
                             catch (Exception ex)
                             {
                                 _scope = null;
-                                Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, iocUid, null, ex);
+                                Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, ioCommandId, null, ex);
                                 throw;
                             }
                         }
                         else
                         {
                             var transactionId = Transaction.Current?.ToIdentifierString();
-                            var iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, transactionId, null,
+                            var ioCommandId = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, null, null, transactionId, null,
                                 "removing transaction suppression", null);
 
                             if (LogSeverity != LogSeverity.Verbose)
@@ -133,13 +133,13 @@ public sealed class EtlTransactionScope : IDisposable
                             {
                                 _scope.Dispose();
                                 _scope = null;
-                                Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
+                                Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, ioCommandId, null);
                                 Context.Log(LogSeverity, Process, "suppression removed");
                             }
                             catch (Exception ex)
                             {
                                 _scope = null;
-                                Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, iocUid, null, ex);
+                                Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, ioCommandId, null, ex);
                                 throw;
                             }
                         }
@@ -149,20 +149,20 @@ public sealed class EtlTransactionScope : IDisposable
                         if (LogSeverity != LogSeverity.Verbose)
                             Context.Log(LogSeverity, Process, "completing transaction");
 
-                        var iocUid = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, Convert.ToInt32(Timeout.TotalSeconds), null, completitionTransactionId, null,
+                        var ioCommandId = Context.RegisterIoCommandStart(Process, IoCommandKind.dbTransaction, Convert.ToInt32(Timeout.TotalSeconds), null, completitionTransactionId, null,
                             "committing transaction", null);
 
                         try
                         {
                             _scope.Dispose();
                             _scope = null;
-                            Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, iocUid, null);
+                            Context.RegisterIoCommandSuccess(Process, IoCommandKind.dbTransaction, ioCommandId, null);
                             Context.Log(LogSeverity, Process, "transaction committed");
                         }
                         catch (Exception ex)
                         {
                             _scope = null;
-                            Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, iocUid, null, ex);
+                            Context.RegisterIoCommandFailed(Process, IoCommandKind.dbTransaction, ioCommandId, null, ex);
                             throw;
                         }
                     }

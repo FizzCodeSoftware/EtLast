@@ -3,8 +3,8 @@
 [DebuggerDisplay("{Name}")]
 public class TrackedProcessInvocation
 {
-    public long InvocationUid { get; }
-    public long InstanceUID { get; }
+    public long InvocationId { get; }
+    public long ProcessId { get; }
     public long InvocationCounter { get; }
 
     public TrackedProcessInvocation Invoker { get; }
@@ -67,10 +67,10 @@ public class TrackedProcessInvocation
     public Dictionary<long, long> InputRowCountByPreviousProcess { get; } = [];
     public long InputRowCount { get; private set; }
 
-    public TrackedProcessInvocation(long invocationUID, long instanceUID, long invocationCounter, TrackedProcessInvocation invoker, string type, string kind, string name, string topic)
+    public TrackedProcessInvocation(long invocationId, long processId, long invocationCounter, TrackedProcessInvocation invoker, string type, string kind, string name, string topic)
     {
-        InvocationUid = invocationUID;
-        InstanceUID = instanceUID;
+        InvocationId = invocationId;
+        ProcessId = processId;
         InvocationCounter = invocationCounter;
 
         Type = type;
@@ -81,7 +81,7 @@ public class TrackedProcessInvocation
 
         Invoker = invoker;
         Invoker?.Children.Add(this);
-        Invoker?.InputRowCountByPreviousProcess.Add(InvocationUid, 0);
+        Invoker?.InputRowCountByPreviousProcess.Add(InvocationId, 0);
 
         ParentInvokerCount = invoker != null
             ? invoker.ParentInvokerCount + 1
@@ -93,7 +93,7 @@ public class TrackedProcessInvocation
         DisplayName = (topic != null
             ? topic + " :: " + Name
             : name)
-            + " (" + instanceUID.ToString("D", CultureInfo.InvariantCulture)
+            + " (" + processId.ToString("D", CultureInfo.InvariantCulture)
             + (InvocationCounter > 1
                 ? "/" + InvocationCounter.ToString("D", CultureInfo.InvariantCulture)
                 : "") + ")";
@@ -238,21 +238,21 @@ public class TrackedProcessInvocation
         };
     }
 
-    public void InputRow(long uid, TrackedProcessInvocation previousProcess)
+    public void InputRow(long id, TrackedProcessInvocation previousProcess)
     {
         AliveRowCount++;
 
-        if (!AliveRowsByPreviousProcess.TryGetValue(previousProcess.InvocationUid, out var list))
+        if (!AliveRowsByPreviousProcess.TryGetValue(previousProcess.InvocationId, out var list))
         {
             list = [];
-            AliveRowsByPreviousProcess.Add(previousProcess.InvocationUid, list);
+            AliveRowsByPreviousProcess.Add(previousProcess.InvocationId, list);
         }
 
-        list.Add(uid);
+        list.Add(id);
 
-        InputRowCountByPreviousProcess.TryGetValue(previousProcess.InvocationUid, out var cnt);
+        InputRowCountByPreviousProcess.TryGetValue(previousProcess.InvocationId, out var cnt);
         cnt++;
-        InputRowCountByPreviousProcess[previousProcess.InvocationUid] = cnt;
+        InputRowCountByPreviousProcess[previousProcess.InvocationId] = cnt;
         InputRowCount++;
     }
 
@@ -262,16 +262,16 @@ public class TrackedProcessInvocation
         CreatedRowCount++;
     }
 
-    public void DropRow(long uid)
+    public void DropRow(long id)
     {
         foreach (var list in AliveRowsByPreviousProcess)
         {
-            if (list.Value.Contains(uid))
+            if (list.Value.Contains(id))
             {
                 DroppedRowCountByPreviousProcess.TryGetValue(list.Key, out var count);
                 DroppedRowCountByPreviousProcess[list.Key] = count + 1;
 
-                list.Value.Remove(uid);
+                list.Value.Remove(id);
             }
         }
 
@@ -279,16 +279,16 @@ public class TrackedProcessInvocation
         DroppedRowCount++;
     }
 
-    public void PassedRow(long uid)
+    public void PassedRow(long id)
     {
         foreach (var list in AliveRowsByPreviousProcess)
         {
-            if (list.Value.Contains(uid))
+            if (list.Value.Contains(id))
             {
                 PassedRowCountByPreviousProcess.TryGetValue(list.Key, out var count);
                 PassedRowCountByPreviousProcess[list.Key] = count + 1;
 
-                list.Value.Remove(uid);
+                list.Value.Remove(id);
             }
         }
 
@@ -296,16 +296,16 @@ public class TrackedProcessInvocation
         PassedRowCount++;
     }
 
-    public void WriteRowToSink(long uid)
+    public void WriteRowToSink(long id)
     {
         foreach (var list in AliveRowsByPreviousProcess)
         {
-            if (list.Value.Contains(uid))
+            if (list.Value.Contains(id))
             {
                 WrittenRowCountByPreviousProcess.TryGetValue(list.Key, out var count);
                 WrittenRowCountByPreviousProcess[list.Key] = count + 1;
 
-                list.Value.Remove(uid);
+                list.Value.Remove(id);
             }
         }
 

@@ -114,8 +114,8 @@ internal class LogListControl
             var item = new LogModel()
             {
                 Event = evt,
-                Process = evt.ProcessInvocationUID != null
-                    ? playbook.DiagContext.WholePlaybook.ProcessList[evt.ProcessInvocationUID.Value]
+                Process = evt.ProcessInvocationId != null
+                    ? playbook.DiagContext.WholePlaybook.ProcessList[evt.ProcessInvocationId.Value]
                     : null,
                 Text = text,
             };
