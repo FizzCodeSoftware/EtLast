@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.EtLast" Version="6.0.56.7122" />
-    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="6.0.56.7122" />
-    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="6.0.56.7122" />
-    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="6.0.56.7122" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.2">
+    <PackageReference Include="FizzCode.EtLast" Version="8.0.22.7154" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="8.0.22.7154" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="8.0.22.7154" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="8.0.22.7154" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
