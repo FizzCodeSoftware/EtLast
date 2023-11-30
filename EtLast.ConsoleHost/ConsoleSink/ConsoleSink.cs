@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.ConsoleHost.SerilogSink;
+﻿namespace FizzCode.EtLast.SerilogSink;
 
 internal class ConsoleSink : ILogEventSink
 {

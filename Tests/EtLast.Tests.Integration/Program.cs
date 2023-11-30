@@ -1,8 +1,7 @@
 ﻿using System;
-using FizzCode.EtLast.ConsoleHost;
-using FizzCode.EtLast.Hosting;
+using FizzCode.EtLast;
 
-return (int)HostBuilder.New("EtLast Integration Tests")
+return (int)ConsoleHostBuilder.New("EtLast Integration Tests")
     .HandleCommandLineArgs(args)
     .UseCommandLineListener(hostArgs =>
     {

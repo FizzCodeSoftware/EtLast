@@ -2,10 +2,11 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-namespace FizzCode.EtLast.ConsoleHost;
+namespace FizzCode.EtLast;
+
 internal static class HostArgumentsLoader
 {
-    public static IArgumentCollection LoadHostArguments(Host host)
+    public static IArgumentCollection LoadHostArguments(ConsoleHost host)
     {
         var argumentsFolder = host.HostArgumentsFolder;
         if (!Directory.Exists(argumentsFolder))

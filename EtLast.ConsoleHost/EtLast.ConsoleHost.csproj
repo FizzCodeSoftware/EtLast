@@ -5,7 +5,7 @@
     <PackageId>FizzCode.EtLast.ConsoleHost</PackageId>
     <Description>Console host for EtLast ETL (Extract, Transform and Load) library</Description>
     <AssemblyName>FizzCode.EtLast.ConsoleHost</AssemblyName>
-    <RootNamespace>FizzCode.EtLast.ConsoleHost</RootNamespace>
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
     <Configurations>Debug;Release</Configurations>

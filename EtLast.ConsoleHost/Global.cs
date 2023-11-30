@@ -13,8 +13,6 @@ global using System.Text.Json;
 global using System.Text.RegularExpressions;
 global using System.Threading;
 global using System.Transactions;
-global using FizzCode.EtLast.ConsoleHost.SerilogSink;
-global using FizzCode.EtLast.Hosting;
 global using Serilog;
 global using Serilog.Core;
 global using Serilog.Events;

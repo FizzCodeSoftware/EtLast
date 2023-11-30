@@ -2,13 +2,13 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-namespace FizzCode.EtLast.ConsoleHost;
+namespace FizzCode.EtLast;
 
 internal static class ModuleLoader
 {
     private static long _moduleAutoincrementId;
 
-    public static ExecutionStatusCode LoadModule(Host host, string moduleName, ModuleCompilationMode compilationMode, out CompiledModule module)
+    public static ExecutionStatusCode LoadModule(ConsoleHost host, string moduleName, ModuleCompilationMode compilationMode, out CompiledModule module)
     {
         module = null;
 
@@ -181,7 +181,7 @@ internal static class ModuleLoader
         }
     }
 
-    public static void UnloadModule(Host host, CompiledModule module)
+    public static void UnloadModule(ConsoleHost host, CompiledModule module)
     {
         host.HostLogger.Debug("unloading module {Module}", module.Name);
 

@@ -1,8 +1,8 @@
-﻿namespace FizzCode.EtLast.ConsoleHost;
+﻿namespace FizzCode.EtLast;
 
 internal static class ModuleLister
 {
-    public static void ListModules(Host host)
+    public static void ListModules(ConsoleHost host)
     {
         var moduleNames = GetAllModules(host.ModulesFolder);
         host.HostLogger.Information("available modules: {ModuleNames}", moduleNames);

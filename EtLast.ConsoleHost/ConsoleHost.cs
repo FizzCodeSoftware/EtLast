@@ -1,6 +1,8 @@
-﻿namespace FizzCode.EtLast.ConsoleHost;
+﻿using FizzCode.EtLast.SerilogSink;
 
-public class Host : IHost
+namespace FizzCode.EtLast;
+
+public class ConsoleHost : IHost
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     public CancellationToken CancellationToken => _cancellationTokenSource.Token;
@@ -56,7 +58,7 @@ public class Host : IHost
 
     private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
-    internal Host(string programName)
+    internal ConsoleHost(string programName)
     {
         ProgramName = programName;
         ModulesFolder = @".\Modules";

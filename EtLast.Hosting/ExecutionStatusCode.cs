@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.Hosting;
+﻿namespace FizzCode.EtLast;
 
 public enum ExecutionStatusCode
 {

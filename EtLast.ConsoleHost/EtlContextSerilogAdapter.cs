@@ -1,6 +1,7 @@
-﻿using Serilog.Sinks.File;
+﻿using FizzCode.EtLast.SerilogSink;
+using Serilog.Sinks.File;
 
-namespace FizzCode.EtLast.ConsoleHost;
+namespace FizzCode.EtLast;
 
 internal class EtlContextSerilogAdapter : IEtlContextListener
 {

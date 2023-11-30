@@ -1,8 +1,8 @@
-﻿namespace FizzCode.EtLast.ConsoleHost;
+﻿namespace FizzCode.EtLast;
 
 internal static class ModuleExecuter
 {
-    public static IExecutionResult Execute(Host host, CompiledModule module, string[] taskNames)
+    public static IExecutionResult Execute(ConsoleHost host, CompiledModule module, string[] taskNames)
     {
         var executionResult = new ExecutionResult();
         var instance = Environment.MachineName;
