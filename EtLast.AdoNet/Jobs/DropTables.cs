@@ -28,26 +28,45 @@ public sealed class DropTables : AbstractSqlStatements
 
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + tableName;
-        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadCount, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "querying record count", null);
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbReadCount,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(tableName),
+            TimeoutSeconds = command.CommandTimeout,
+            Command = command.CommandText,
+            TransactionId = transactionId,
+            Message = "querying record count",
+        });
+
         try
         {
             recordCount = (int)command.ExecuteScalar();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, ioCommandId, recordCount);
+            ioCommand.AffectedDataCount += recordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception)
         {
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadCount, ioCommandId, null);
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
 
         command.CommandText = originalStatement;
-        ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbDropTable, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop table", null);
+        ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbDropTable,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(tableName),
+            TimeoutSeconds = command.CommandTimeout,
+            Command = command.CommandText,
+            TransactionId = transactionId,
+            Message = "drop table",
+        });
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbDropTable, ioCommandId, recordCount);
+            ioCommand.AffectedDataCount += recordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception ex)
         {
@@ -61,7 +80,8 @@ public sealed class DropTables : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbDropTable, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
     }

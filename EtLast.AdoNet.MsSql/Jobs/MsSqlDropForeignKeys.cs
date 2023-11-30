@@ -133,8 +133,16 @@ from
 
             var constraintsByTable = new Dictionary<string, List<string>>();
 
-            var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "SYS.FOREIGN_KEYS", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                "querying foreign key names", null);
+            var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+            {
+                Kind = IoCommandKind.dbReadMeta,
+                Location = ConnectionString.Name,
+                Path = "SYS.FOREIGN_KEYS",
+                TimeoutSeconds = command.CommandTimeout,
+                Command = command.CommandText,
+                TransactionId = transactionId,
+                Message = "querying foreign key names",
+            });
 
             var recordsRead = 0;
             try
@@ -166,7 +174,8 @@ from
                         list.Add(ConnectionString.Escape((string)reader["fkName"]));
                     }
 
-                    Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, ioCommandId, recordsRead);
+                    ioCommand.AffectedDataCount += recordsRead;
+                    Context.RegisterIoCommandEnd(this, ioCommand);
                 }
 
                 _tableNamesAndCounts = [];
@@ -193,7 +202,8 @@ from
                 exception.Data["Timeout"] = command.CommandTimeout;
                 exception.Data["Elapsed"] = startedOn.Elapsed;
 
-                Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, ioCommandId, null, exception);
+                ioCommand.Exception = exception;
+                Context.RegisterIoCommandEnd(this, ioCommand);
                 throw exception;
             }
         }
@@ -202,13 +212,22 @@ from
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var tableName = _tableNamesAndCounts[statementIndex].Item1;
-        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(tableName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop foreign keys", null);
+
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbAlterSchema,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(tableName),
+            TimeoutSeconds = command.CommandTimeout,
+            Command = command.CommandText,
+            TransactionId = transactionId,
+            Message = "drop foreign keys",
+        });
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, ioCommandId, null);
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception ex)
         {
@@ -222,7 +241,8 @@ from
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
     }

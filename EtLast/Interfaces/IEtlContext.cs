@@ -39,11 +39,8 @@ public interface IEtlContext : ICaller
     public void LogCustom(string fileName, IProcess process, string text, params object[] args);
     public void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
-    public long RegisterIoCommandStart(IProcess process, IoCommandKind kind, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
-    public long RegisterIoCommandStartWithLocation(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
-    public long RegisterIoCommandStartWithPath(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
-    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, long id, long? affectedDataCount);
-    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, long id, long? affectedDataCount, Exception exception);
+    public IoCommand RegisterIoCommandStart(IProcess process, IoCommand ioCommand);
+    public void RegisterIoCommandEnd(IProcess process, IoCommand ioCommand);
 
     public void SetRowOwner(IRow row, IProcess currentProcess);
 

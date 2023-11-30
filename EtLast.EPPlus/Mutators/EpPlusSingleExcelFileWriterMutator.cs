@@ -32,13 +32,19 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
 
         if (ExistingPackage == null && _package != null)
         {
-            var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.fileWrite, Path.GetDirectoryName(FileName), Path.GetFileName(FileName), null, null, null, null,
-                "saving excel package", null);
+            var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+            {
+                Kind = IoCommandKind.fileWrite,
+                Location = Path.GetDirectoryName(FileName),
+                Path = Path.GetFileName(FileName),
+                Message = "saving excel package",
+            });
 
             try
             {
                 _package.Save();
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, ioCommandId, _rowCount);
+                ioCommand.AffectedDataCount += _rowCount;
+                Context.RegisterIoCommandEnd(this, ioCommand);
             }
             catch (Exception ex)
             {
@@ -47,7 +53,8 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
                     FileName, ex.Message));
                 exception.Data["FileName"] = FileName;
 
-                Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, ioCommandId, null, exception);
+                ioCommand.Exception = exception;
+                Context.RegisterIoCommandEnd(this, ioCommand);
                 throw exception;
             }
 

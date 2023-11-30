@@ -7,7 +7,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
     public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> IoCommandCounters => _ioCommandCounterCollection.Counters;
 
-    private readonly IoCommandCounterCollection _ioCommandCounterCollection = new();
+    private readonly IoCommandKindCounter _ioCommandCounterCollection = new();
 
     public abstract void Execute(IFlow flow);
 

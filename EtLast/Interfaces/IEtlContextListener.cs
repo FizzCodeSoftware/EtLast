@@ -16,8 +16,8 @@ public interface IEtlContextListener
 
     void OnProcessInvocationStart(IProcess process);
     void OnProcessInvocationEnd(IProcess process);
-    void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra);
-    void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex);
+    void OnContextIoCommandStart(IProcess process, IoCommand ioCommand);
+    void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand);
 
     void OnContextClosed(); // all pending state must be flushed in this method
 }

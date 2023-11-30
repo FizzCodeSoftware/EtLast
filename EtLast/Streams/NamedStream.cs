@@ -1,11 +1,10 @@
 ﻿namespace FizzCode.EtLast;
 
-public class NamedStream(string name, Stream stream, long ioCommandId, IoCommandKind ioCommandKind)
+public class NamedStream(string name, Stream stream, IoCommand ioCommand)
 {
     public string Name { get; } = name;
     public Stream Stream { get; private set; } = stream;
-    public long IoCommandId { get; } = ioCommandId;
-    public IoCommandKind IoCommandKind { get; } = ioCommandKind;
+    public IoCommand IoCommand { get; } = ioCommand;
     public EventHandler OnDispose { get; set; }
 
     public void Dispose()

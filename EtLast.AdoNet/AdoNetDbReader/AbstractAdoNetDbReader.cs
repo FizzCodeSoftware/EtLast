@@ -62,7 +62,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         Stopwatch swQuery;
 
         var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
-        long ioCommandId;
+        IoCommand ioCommand;
 
         using (var scope = Context.BeginTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
         {
@@ -86,7 +86,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
                 : Transaction.Current.ToIdentifierString();
 
-            ioCommandId = RegisterIoCommandStart(transactionId, cmd.CommandTimeout, sqlStatement);
+            ioCommand = RegisterIoCommand(transactionId, cmd.CommandTimeout, sqlStatement);
 
             swQuery = Stopwatch.StartNew();
             try
@@ -101,7 +101,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 exception.Data["ConnectionStringName"] = ConnectionString.Name;
                 exception.Data["Statement"] = cmd.CommandText;
 
-                Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, ioCommandId, null, exception);
+                ioCommand.Exception = exception;
+                Context.RegisterIoCommandEnd(this, ioCommand);
                 throw exception;
             }
         }
@@ -174,7 +175,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     exception.Data["RowIndex"] = resultCount;
                     exception.Data["SecondsSinceLastRead"] = LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture);
 
-                    Context.RegisterIoCommandFailed(this, IoCommandKind.dbRead, ioCommandId, resultCount, exception);
+                    ioCommand.Exception = exception;
+                    ioCommand.AffectedDataCount += resultCount;
+                    Context.RegisterIoCommandEnd(this, ioCommand);
                     throw exception;
                 }
 
@@ -219,7 +222,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             }
         }
 
-        Context.RegisterIoCommandSuccess(this, IoCommandKind.dbRead, ioCommandId, resultCount);
+        ioCommand.AffectedDataCount += resultCount;
+        Context.RegisterIoCommandEnd(this, ioCommand);
 
         if (reader != null)
         {
@@ -343,6 +347,6 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         public ReaderColumn Config { get; init; }
     }
 
-    protected abstract long RegisterIoCommandStart(string transactionId, int timeout, string statement);
+    protected abstract IoCommand RegisterIoCommand(string transactionId, int timeout, string statement);
     protected abstract string CreateSqlStatement();
 }

@@ -162,8 +162,16 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
 
         _command.CommandText = sqlStatement;
 
-        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBatch, ConnectionString.Name, ConnectionString.Unescape(TableName), _command.CommandTimeout, sqlStatement, Transaction.Current.ToIdentifierString(), null,
-            "write to table", null);
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbWriteMerge,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(TableName),
+            TimeoutSeconds = _command.CommandTimeout,
+            Command = _command.CommandText,
+            TransactionId = Transaction.Current.ToIdentifierString(),
+            Message = "merge to table",
+        });
 
         try
         {
@@ -171,7 +179,8 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
 
             _rowsWritten += recordCount;
 
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBatch, ioCommandId, recordCount);
+            ioCommand.AffectedDataCount += recordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception ex)
         {
@@ -188,7 +197,9 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
             exception.Data["SqlStatementCreator"] = SqlStatementCreator.GetType().GetFriendlyTypeName();
             exception.Data["TotalRowsWritten"] = _rowsWritten;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBatch, ioCommandId, recordCount, exception);
+            ioCommand.Exception = exception;
+            ioCommand.AffectedDataCount += recordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
 

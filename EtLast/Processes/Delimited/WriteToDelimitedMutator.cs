@@ -216,7 +216,9 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         }
         catch (Exception ex)
         {
-            Context.RegisterIoCommandFailed(this, sinkEntry.Sink.IoCommandKind, sinkEntry.Sink.IoCommandId, sinkEntry.Sink.RowsWritten, ex);
+            sinkEntry.Sink.IoCommand.Exception = ex;
+            sinkEntry.Sink.IoCommand.AffectedDataCount += sinkEntry.Sink.RowsWritten;
+            Context.RegisterIoCommandEnd(this, sinkEntry.Sink.IoCommand);
             throw;
         }
 

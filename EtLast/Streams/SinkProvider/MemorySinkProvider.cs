@@ -17,24 +17,31 @@ public class MemorySinkProvider : ISinkProvider
 
     public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat)
     {
-        var ioCommandId = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.memoryWrite, _sinkLocation, _sinkPath, null, null, null, null,
-            "writing to memory stream", null);
+        var ioCommand = caller.Context.RegisterIoCommandStart(caller, new IoCommand()
+        {
+            Kind = IoCommandKind.memoryWrite,
+            Location = _sinkLocation,
+            Path = _sinkPath,
+            Message = "writing to memory stream",
+        });
 
         try
         {
             var sinkId = caller.Context.GetSinkId(_sinkLocation, _sinkPath, sinkFormat, caller.GetType());
 
             var stream = StreamCreator.Invoke();
-            return new NamedSink(_sinkName, stream, ioCommandId, IoCommandKind.streamWrite, sinkId);
+            return new NamedSink(_sinkName, stream, ioCommand, sinkId);
         }
         catch (Exception ex)
         {
             var exception = new EtlException(caller, "error while writing memory stream", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing memory stream: {0}, message: {1}",
                 _sinkName, ex.Message));
+
             exception.Data["SinkName"] = _sinkName;
 
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            caller.Context.RegisterIoCommandEnd(caller, ioCommand);
             throw exception;
         }
     }

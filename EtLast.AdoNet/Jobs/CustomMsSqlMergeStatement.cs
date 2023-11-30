@@ -94,13 +94,24 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteMerge, ConnectionString.Name, ConnectionString.Unescape(TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "merging to table from table", ConnectionString.Unescape(SourceTableName));
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbWriteMerge,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(TargetTableName),
+            TimeoutSeconds = command.CommandTimeout,
+            Command = command.CommandText,
+            TransactionId = transactionId,
+            ArgumentListGetter = () => parameters,
+            Message = "merging to table from table",
+            MessageExtra = ConnectionString.Unescape(SourceTableName),
+        });
 
         try
         {
             var recordCount = command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteMerge, ioCommandId, recordCount);
+            ioCommand.AffectedDataCount += recordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception ex)
         {
@@ -113,7 +124,8 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteMerge, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
     }

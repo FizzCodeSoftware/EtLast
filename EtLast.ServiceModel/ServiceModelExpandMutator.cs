@@ -59,12 +59,18 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
                 continue;
             }
 
-            var ioCommandId = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.serviceRead, _client.Endpoint.Address.ToString(), Convert.ToInt32(_client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
-                "sending SOAP request", null);
+            var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+            {
+                Kind = IoCommandKind.serviceRead,
+                Location = _client.Endpoint.Address.ToString(),
+                TimeoutSeconds = Convert.ToInt32(_client.InnerChannel.OperationTimeout.TotalSeconds),
+                Message = "sending SOAP request"
+            });
+
             try
             {
                 var result = ClientInvoker.Invoke(this, row, _client);
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.serviceRead, ioCommandId, null);
+                Context.RegisterIoCommandEnd(this, ioCommand);
 
                 if (result != null)
                 {
@@ -84,7 +90,8 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
 
                 exception.Data["EndpointAddress"] = _client.Endpoint.Address.ToString();
 
-                Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, ioCommandId, null, exception);
+                ioCommand.Exception = exception;
+                Context.RegisterIoCommandEnd(this, ioCommand);
                 throw exception;
             }
         }

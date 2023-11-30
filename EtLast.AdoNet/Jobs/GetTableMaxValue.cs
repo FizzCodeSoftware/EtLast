@@ -27,8 +27,16 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
 
     protected override TableMaxValueResult<TResult> RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadAggregate, ConnectionString.Name, ConnectionString.Unescape(TableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "getting max value from table", null);
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbReadAggregate,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(TableName),
+            TimeoutSeconds = command.CommandTimeout,
+            Command = command.CommandText,
+            TransactionId = transactionId,
+            Message = "getting max value from table",
+        });
 
         try
         {
@@ -47,7 +55,8 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
                 }
             }
 
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadAggregate, ioCommandId, result.RecordCount);
+            ioCommand.AffectedDataCount += result.RecordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             return result;
         }
         catch (Exception ex)
@@ -63,7 +72,8 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadAggregate, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
     }

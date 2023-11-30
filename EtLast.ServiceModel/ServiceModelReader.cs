@@ -39,8 +39,13 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     {
         var client = ClientCreator.Invoke(this);
 
-        var ioCommandId = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.serviceRead, client.Endpoint.Address.ToString(), Convert.ToInt32(client.InnerChannel.OperationTimeout.TotalSeconds), null, null, null,
-            "sending SOAP request", null);
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.serviceRead,
+            Location = client.Endpoint.Address.ToString(),
+            TimeoutSeconds = Convert.ToInt32(client.InnerChannel.OperationTimeout.TotalSeconds),
+            Message = "sending SOAP request"
+        });
 
         IEnumerator<SlimRow> enumerator;
         try
@@ -54,7 +59,8 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                 client.Endpoint.Address.ToString()));
             exception.Data["EndpointAddress"] = client.Endpoint.Address.ToString();
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
 
@@ -75,10 +81,12 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                 }
                 catch (Exception ex)
                 {
-                    Context.RegisterIoCommandFailed(this, IoCommandKind.serviceRead, ioCommandId, resultCount, ex);
                     var exception = new EtlException(this, "error while reading data from service", ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
                     exception.Data["Endpoint"] = client.Endpoint.Address.ToString();
+
+                    ioCommand.AffectedDataCount += resultCount;
+                    Context.RegisterIoCommandEnd(this, ioCommand);
                     throw exception;
                 }
 
@@ -123,7 +131,8 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
             }
         }
 
-        Context.RegisterIoCommandSuccess(this, IoCommandKind.serviceRead, ioCommandId, resultCount);
+        ioCommand.AffectedDataCount += resultCount;
+        Context.RegisterIoCommandEnd(this, ioCommand);
     }
 }
 

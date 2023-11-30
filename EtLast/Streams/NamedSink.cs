@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class NamedSink(string name, Stream stream, long ioCommandId, IoCommandKind ioCommandKind, long sinkId) : NamedStream(name, stream, ioCommandId, ioCommandKind)
+public class NamedSink(string name, Stream stream, IoCommand ioCommand, long sinkId) : NamedStream(name, stream, ioCommand)
 {
     public long SinkId { get; } = sinkId;
     public long RowsWritten { get; private set; }

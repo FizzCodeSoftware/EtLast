@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Net.Http;
+﻿using System.Net.Http;
 
 namespace FizzCode.EtLast;
 
@@ -45,17 +44,26 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
             }
         }
 
-        var ioCommandIdHttpGet = 0L;
-        var ioCommandIdFileWrite = 0L;
+        IoCommand ioCommandHttpGet = null;
+        IoCommand ioCommandFileWrite = null;
         try
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                ioCommandIdHttpGet = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.httpGet, Url, null, "GET", null, null,
-                    "downloading file", null);
+                ioCommandHttpGet = Context.RegisterIoCommandStart(this, new IoCommand()
+                {
+                    Kind = IoCommandKind.httpGet,
+                    Location = Url,
+                    Command = "GET",
+                    Message = "downloading file",
+                });
 
-                ioCommandIdFileWrite = Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.fileWrite, OutputFileName, null, null, null, null,
-                    "writing downloaded content to file", null);
+                ioCommandFileWrite = Context.RegisterIoCommandStart(this, new IoCommand()
+                {
+                    Kind = IoCommandKind.fileWrite,
+                    Location = OutputFileName,
+                    Message = "writing downloaded content to file"
+                });
 
                 var message = new HttpRequestMessage(HttpMethod.Get, Url);
                 if (Headers != null)
@@ -98,8 +106,11 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
                 }
 
                 var size = new FileInfo(OutputFileName).Length;
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.httpGet, ioCommandIdHttpGet, size);
-                Context.RegisterIoCommandSuccess(this, IoCommandKind.fileWrite, ioCommandIdFileWrite, size);
+                ioCommandHttpGet.AffectedDataCount += size;
+                ioCommandFileWrite.AffectedDataCount += size;
+
+                Context.RegisterIoCommandEnd(this, ioCommandHttpGet);
+                Context.RegisterIoCommandEnd(this, ioCommandFileWrite);
             }
         }
         catch (Exception ex)
@@ -110,8 +121,11 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
             exception.Data["Url"] = Url;
             exception.Data["FileName"] = OutputFileName;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.httpGet, ioCommandIdHttpGet, null, exception);
-            Context.RegisterIoCommandFailed(this, IoCommandKind.fileWrite, ioCommandIdFileWrite, null, exception);
+            ioCommandHttpGet.Exception = ex;
+            ioCommandFileWrite.Exception = ex;
+
+            Context.RegisterIoCommandEnd(this, ioCommandHttpGet);
+            Context.RegisterIoCommandEnd(this, ioCommandFileWrite);
             throw exception;
         }
     }

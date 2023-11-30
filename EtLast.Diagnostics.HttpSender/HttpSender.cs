@@ -354,19 +354,19 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    public void OnContextIoCommandStart(IProcess process, IoCommand ioCommand)
     {
         SendDiagnostics(DiagnosticsEventKind.IoCommandStart, writer =>
         {
-            writer.Write7BitEncodedInt64(id);
+            writer.Write7BitEncodedInt64(ioCommand.Id);
             writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationId);
-            writer.Write((byte)kind);
-            writer.WriteNullable(location);
-            writer.WriteNullable(path);
-            writer.WriteNullable7BitEncodedInt32(timeoutSeconds);
-            writer.WriteNullable(command);
-            writer.WriteNullable(transactionId);
-            var arguments = argumentListGetter?.Invoke()?.ToArray();
+            writer.Write((byte)ioCommand.Kind);
+            writer.WriteNullable(ioCommand.Location);
+            writer.WriteNullable(ioCommand.Path);
+            writer.WriteNullable7BitEncodedInt32(ioCommand.TimeoutSeconds);
+            writer.WriteNullable(ioCommand.Command);
+            writer.WriteNullable(ioCommand.TransactionId);
+            var arguments = ioCommand.ArgumentListGetter?.Invoke()?.ToArray();
             if (arguments?.Length > 0)
             {
                 writer.Write7BitEncodedInt(arguments.Length);
@@ -383,13 +383,13 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand)
     {
         SendDiagnostics(DiagnosticsEventKind.IoCommandEnd, writer =>
         {
-            writer.Write7BitEncodedInt64(id);
-            writer.WriteNullable7BitEncodedInt64(affectedDataCount);
-            writer.WriteNullable(ex?.FormatExceptionWithDetails());
+            writer.Write7BitEncodedInt64(ioCommand.Id);
+            writer.WriteNullable7BitEncodedInt64(ioCommand.AffectedDataCount);
+            writer.WriteNullable(ioCommand.Exception?.FormatExceptionWithDetails());
         });
     }
 

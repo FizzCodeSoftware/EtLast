@@ -152,43 +152,20 @@ public sealed class EtlContext : IEtlContext
             listener.OnCustomLog(true, fileName, process, text, args);
     }
 
-    public long RegisterIoCommandStart(IProcess process, IoCommandKind kind, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    public IoCommand RegisterIoCommandStart(IProcess process, IoCommand ioCommand)
     {
-        var id = Interlocked.Increment(ref _nextIoCommandId);
-        foreach (var listener in Listeners)
-            listener.OnContextIoCommandStart(id, kind, null, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageExtra);
+        ioCommand.Id = Interlocked.Increment(ref _nextIoCommandId);
 
-        return id;
+        foreach (var listener in Listeners)
+            listener.OnContextIoCommandStart(process, ioCommand);
+
+        return ioCommand;
     }
 
-    public long RegisterIoCommandStartWithLocation(IProcess process, IoCommandKind kind, string location, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
-    {
-        var id = Interlocked.Increment(ref _nextIoCommandId);
-        foreach (var listener in Listeners)
-            listener.OnContextIoCommandStart(id, kind, location, null, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageExtra);
-
-        return id;
-    }
-
-    public long RegisterIoCommandStartWithPath(IProcess process, IoCommandKind kind, string location, string path, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
-    {
-        var id = Interlocked.Increment(ref _nextIoCommandId);
-        foreach (var listener in Listeners)
-            listener.OnContextIoCommandStart(id, kind, location, path, process, timeoutSeconds, command, transactionId, argumentListGetter, message, messageExtra);
-
-        return id;
-    }
-
-    public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, long id, long? affectedDataCount)
+    public void RegisterIoCommandEnd(IProcess process, IoCommand ioCommand)
     {
         foreach (var listener in Listeners)
-            listener.OnContextIoCommandEnd(process, id, kind, affectedDataCount, null);
-    }
-
-    public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, long id, long? affectedDataCount, Exception exception)
-    {
-        foreach (var listener in Listeners)
-            listener.OnContextIoCommandEnd(process, id, kind, affectedDataCount, exception);
+            listener.OnContextIoCommandEnd(process, ioCommand);
     }
 
     public IRow CreateRow(IProcess process)

@@ -63,7 +63,6 @@ public class ContextManifest : IEtlContextListener
     private Dictionary<long, ContextManifestSink> _sinks = [];
     private Dictionary<long, ContextManifestProcess> _tasks = [];
     private Dictionary<(string, string, string), ContextManifestIoTarget> _ioTargets = [];
-    private readonly Dictionary<long, ContextManifestIoTarget> _ioCommands = [];
 
     private readonly Dictionary<Exception, ContextManifestException> _exceptionMap = [];
 
@@ -176,18 +175,22 @@ public class ContextManifest : IEtlContextListener
         }
     }
 
-    public void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    public void OnContextIoCommandStart(IProcess process, IoCommand ioCommand)
     {
-        if (location == null)
+    }
+
+    public void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand)
+    {
+        if (ioCommand.Location == null)
             return;
 
-        var key = (location, path, kind.ToString());
+        var key = (ioCommand.Location, ioCommand.Path, ioCommand.Kind.ToString());
         if (!_ioTargets.TryGetValue(key, out var target))
         {
             _ioTargets[key] = target = new ContextManifestIoTarget()
             {
-                Location = location,
-                Path = path,
+                Location = ioCommand.Location,
+                Path = ioCommand.Path,
                 Kind = key.Item3,
             };
 
@@ -195,23 +198,15 @@ public class ContextManifest : IEtlContextListener
             ManifestChanged?.Invoke(this);
         }
 
-        _ioCommands[id] = target;
-    }
+        if (ioCommand.AffectedDataCount != null)
+            target.AffectedDataCount += ioCommand.AffectedDataCount.Value;
 
-    public void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex)
-    {
-        if (_ioCommands.TryGetValue(id, out var target))
-        {
-            if (affectedDataCount != null)
-                target.AffectedDataCount += affectedDataCount.Value;
+        target.CommandCount++;
+        if (ioCommand.Exception != null)
+            target.ErrorCount++;
 
-            target.CommandCount++;
-            if (ex != null)
-                target.ErrorCount++;
-
-            ManifestIoTargetChanged?.Invoke(this, target);
-            ManifestChanged?.Invoke(this);
-        }
+        ManifestIoTargetChanged?.Invoke(this, target);
+        ManifestChanged?.Invoke(this);
     }
 
     public void OnCustomLog(bool forOps, string fileName, IProcess process, string text, params object[] args) { }

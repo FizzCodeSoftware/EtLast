@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class IoCommandCounterCollection : IEtlContextListener
+public class IoCommandKindCounter : IEtlContextListener
 {
     public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> Counters => _counters;
     private readonly Dictionary<IoCommandKind, IoCommandCounter> _counters = [];
@@ -9,23 +9,23 @@ public class IoCommandCounterCollection : IEtlContextListener
     {
     }
 
-    public void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
+    public void OnContextIoCommandStart(IProcess process, IoCommand ioCommand)
     {
     }
 
-    public void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand)
     {
-        _counters.TryGetValue(kind, out var counter);
+        _counters.TryGetValue(ioCommand.Kind, out var counter);
         if (counter == null)
         {
-            _counters[kind] = counter = new IoCommandCounter();
+            _counters[ioCommand.Kind] = counter = new IoCommandCounter();
         }
 
         counter.InvocationCount++;
 
-        if (affectedDataCount != null)
+        if (ioCommand.AffectedDataCount != null)
         {
-            var cnt = (counter.AffectedDataCount ?? 0) + affectedDataCount.Value;
+            var cnt = (counter.AffectedDataCount ?? 0) + ioCommand.AffectedDataCount.Value;
             counter.AffectedDataCount = cnt;
         }
     }

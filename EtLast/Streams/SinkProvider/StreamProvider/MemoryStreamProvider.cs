@@ -15,15 +15,18 @@ public class MemoryStreamProvider : IStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var ioCommandId = caller.Context.RegisterIoCommandStart(caller, IoCommandKind.streamRead, null, null, null, null, null,
-            "reading from memory stream");
+        var ioCommand = caller.Context.RegisterIoCommandStart(caller, new IoCommand()
+        {
+            Kind = IoCommandKind.streamRead,
+            Message = "reading from memory stream"
+        });
 
         try
         {
             var stream = StreamCreator.Invoke();
             return new[]
             {
-                new NamedStream(_streamName, stream, ioCommandId, IoCommandKind.streamRead),
+                new NamedStream(_streamName, stream, ioCommand),
             };
         }
         catch (Exception ex)
@@ -33,7 +36,8 @@ public class MemoryStreamProvider : IStreamProvider
                 _streamName, ex.Message));
             exception.Data["StreamName"] = _streamName;
 
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            caller.Context.RegisterIoCommandEnd(caller, ioCommand);
             throw exception;
         }
     }

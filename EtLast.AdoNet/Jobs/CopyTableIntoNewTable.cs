@@ -42,13 +42,25 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteCopy, ConnectionString.Name, ConnectionString.Unescape(Configuration.TargetTableName), command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-            "creating new table and copying records from table", ConnectionString.Unescape(Configuration.SourceTableName));
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbWriteCopy,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(Configuration.TargetTableName),
+            TimeoutSeconds = command.CommandTimeout,
+            Command = command.CommandText,
+            TransactionId = transactionId,
+            ArgumentListGetter = () => parameters,
+            Message = "creating new table and copying records from table",
+            MessageExtra = ConnectionString.Unescape(Configuration.SourceTableName),
+        });
+
         try
         {
             var recordCount = command.ExecuteNonQuery();
 
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteCopy, ioCommandId, recordCount);
+            ioCommand.AffectedDataCount += recordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception ex)
         {
@@ -72,7 +84,8 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteCopy, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
     }

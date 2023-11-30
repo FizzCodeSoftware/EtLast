@@ -140,8 +140,16 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
         var recordCount = _reader.RowCount;
 
-        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableName), _bulkCopy.BulkCopyTimeout, "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records", Transaction.Current.ToIdentifierString(), null,
-            "write to table", null);
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbWriteBulk,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(TableName),
+            TimeoutSeconds = _bulkCopy.BulkCopyTimeout,
+            Command = "BULK COPY " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records",
+            TransactionId = Transaction.Current.ToIdentifierString(),
+            Message = "write to table",
+        });
 
         try
         {
@@ -149,7 +157,8 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
             _rowsWritten += recordCount;
 
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBulk, ioCommandId, recordCount);
+            ioCommand.AffectedDataCount += recordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception ex)
         {
@@ -186,7 +195,9 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
                 }
             }
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, ioCommandId, recordCount, exception);
+            ioCommand.Exception = exception;
+            ioCommand.AffectedDataCount += recordCount;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
 

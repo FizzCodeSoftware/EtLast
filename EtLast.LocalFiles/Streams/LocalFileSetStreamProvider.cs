@@ -43,8 +43,13 @@ public class LocalFileSetStreamProvider : IStreamProvider
 
     private NamedStream GetFileStream(IProcess caller, string fileName)
     {
-        var ioCommandId = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.fileRead, Path.GetDirectoryName(fileName), Path.GetFileName(fileName), null, null, null, null,
-            "reading from local file", null);
+        var ioCommand = caller.Context.RegisterIoCommandStart(caller, new IoCommand()
+        {
+            Kind = IoCommandKind.fileRead,
+            Location = Path.GetDirectoryName(fileName),
+            Path = Path.GetFileName(fileName),
+            Message = "reading from local file",
+        });
 
         if (!File.Exists(fileName))
         {
@@ -54,18 +59,21 @@ public class LocalFileSetStreamProvider : IStreamProvider
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file doesn't exist: {0}",
                     fileName));
 
-                caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, ioCommandId, 0, exception);
+                ioCommand.Exception = exception;
+                ioCommand.AffectedDataCount = 0;
+                caller.Context.RegisterIoCommandEnd(caller, ioCommand);
                 throw exception;
             }
 
-            caller.Context.RegisterIoCommandSuccess(caller, IoCommandKind.fileRead, ioCommandId, 0);
+            ioCommand.AffectedDataCount = 0;
+            caller.Context.RegisterIoCommandEnd(caller, ioCommand);
             return null;
         }
 
         try
         {
             var stream = new FileStream(fileName, Options);
-            return new NamedStream(fileName, stream, ioCommandId, IoCommandKind.fileRead);
+            return new NamedStream(fileName, stream, ioCommand);
         }
         catch (Exception ex)
         {
@@ -73,7 +81,9 @@ public class LocalFileSetStreamProvider : IStreamProvider
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", fileName, ex.Message));
             exception.Data["FileName"] = fileName;
 
-            caller.Context.RegisterIoCommandFailed(caller, IoCommandKind.fileRead, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            ioCommand.AffectedDataCount = 0;
+            caller.Context.RegisterIoCommandEnd(caller, ioCommand);
             throw exception;
         }
     }

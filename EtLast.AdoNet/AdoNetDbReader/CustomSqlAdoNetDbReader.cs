@@ -18,18 +18,21 @@ public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
         return Sql;
     }
 
-    protected override long RegisterIoCommandStart(string transactionId, int timeout, string statement)
+    protected override IoCommand RegisterIoCommand(string transactionId, int timeout, string statement)
     {
-        if (MainTableName != null)
+        return Context.RegisterIoCommandStart(this, new IoCommand()
         {
-            return Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(MainTableName), timeout, statement, transactionId, () => Parameters,
-                "custom query", null);
-        }
-        else
-        {
-            return Context.RegisterIoCommandStartWithLocation(this, IoCommandKind.dbRead, ConnectionString.Name, timeout, statement, transactionId, () => Parameters,
-                "custom query", null);
-        }
+            Kind = IoCommandKind.dbRead,
+            Location = ConnectionString.Name,
+            Path = MainTableName != null
+                ? ConnectionString.Unescape(MainTableName)
+                : null,
+            TimeoutSeconds = timeout,
+            Command = statement,
+            TransactionId = transactionId,
+            ArgumentListGetter = () => Parameters,
+            Message = "read from custom query"
+        });
     }
 }
 

@@ -164,8 +164,16 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         bulkCopy.ColumnMappings.Add(column.Key, column.Value ?? column.Key);
                     }
 
-                    var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbWriteBulk, ConnectionString.Name, ConnectionString.Unescape(TableName), bulkCopy.BulkCopyTimeout, "BULK COPY into " + TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""), Transaction.Current.ToIdentifierString(), null,
-                        "write to table", null);
+                    var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+                    {
+                        Kind = IoCommandKind.dbWriteBulk,
+                        Location = ConnectionString.Name,
+                        Path = ConnectionString.Unescape(TableName),
+                        TimeoutSeconds = bulkCopy.BulkCopyTimeout,
+                        Command = "BULK COPY into " + TableName + ", " + recordCount.ToString("D", CultureInfo.InvariantCulture) + " records" + (retry > 0 ? ", retry #" + retry.ToString("D", CultureInfo.InvariantCulture) : ""),
+                        TransactionId = transactionId,
+                        Message = "write to table",
+                    });
 
                     var success = false;
                     try
@@ -174,7 +182,8 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         bulkCopy.Close();
                         EtlConnectionManager.ReleaseConnection(this, ref connection);
 
-                        Context.RegisterIoCommandSuccess(this, IoCommandKind.dbWriteBulk, ioCommandId, recordCount);
+                        ioCommand.AffectedDataCount += recordCount;
+                        Context.RegisterIoCommandEnd(this, ioCommand);
                         success = true;
                     }
                     catch (Exception ex)
@@ -187,7 +196,9 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         exception.Data["Elapsed"] = _timer.Elapsed;
                         exception.Data["TotalRowsWritten"] = _rowsWritten;
 
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbWriteBulk, ioCommandId, recordCount, exception);
+                        ioCommand.Exception = exception;
+                        ioCommand.AffectedDataCount += recordCount;
+                        Context.RegisterIoCommandEnd(this, ioCommand);
 
                         throw; // by design. do not "throw exception"
                     }

@@ -84,8 +84,16 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
 
                     _storedProcedureNames = [];
 
-                    var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbReadMeta, ConnectionString.Name, "INFORMATION_SCHEMA.ROUTINES", command.CommandTimeout, command.CommandText, transactionId, () => parameters,
-                        "querying stored procedures names", null);
+                    var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+                    {
+                        Kind = IoCommandKind.dbReadMeta,
+                        Location = ConnectionString.Name,
+                        Path = "INFORMATION_SCHEMA.ROUTINES",
+                        TimeoutSeconds = command.CommandTimeout,
+                        Command = command.CommandText,
+                        TransactionId = transactionId,
+                        Message = "querying stored procedures names",
+                    });
 
                     try
                     {
@@ -96,7 +104,8 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                                 _storedProcedureNames.Add(ConnectionString.Escape((string)reader["ROUTINE_NAME"], (string)reader["ROUTINE_SCHEMA"]));
                             }
 
-                            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbReadMeta, ioCommandId, _storedProcedureNames.Count);
+                            ioCommand.AffectedDataCount += _storedProcedureNames.Count;
+                            Context.RegisterIoCommandEnd(this, ioCommand);
                         }
 
                         _storedProcedureNames.Sort();
@@ -111,7 +120,8 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                         exception.Data["Timeout"] = command.CommandTimeout;
                         exception.Data["Elapsed"] = startedOn.Elapsed;
 
-                        Context.RegisterIoCommandFailed(this, IoCommandKind.dbReadMeta, ioCommandId, null, exception);
+                        ioCommand.Exception = exception;
+                        Context.RegisterIoCommandEnd(this, ioCommand);
                         throw exception;
                     }
                 }
@@ -126,13 +136,22 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var storedProcedureName = _storedProcedureNames[statementIndex];
-        var ioCommandId = Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbAlterSchema, ConnectionString.Name, ConnectionString.Unescape(storedProcedureName), command.CommandTimeout, command.CommandText, transactionId, null,
-            "drop strored procedure", null);
+
+        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbAlterSchema,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(storedProcedureName),
+            TimeoutSeconds = command.CommandTimeout,
+            Command = command.CommandText,
+            TransactionId = transactionId,
+            Message = "drop strored procedure",
+        });
 
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandSuccess(this, IoCommandKind.dbAlterSchema, ioCommandId, null);
+            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception ex)
         {
@@ -146,7 +165,8 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            Context.RegisterIoCommandFailed(this, IoCommandKind.dbAlterSchema, ioCommandId, null, exception);
+            ioCommand.Exception = exception;
+            Context.RegisterIoCommandEnd(this, ioCommand);
             throw exception;
         }
     }

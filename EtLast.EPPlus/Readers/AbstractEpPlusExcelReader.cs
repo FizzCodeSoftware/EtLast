@@ -86,7 +86,10 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
                 exception.Data["ExistingSheetNames"] = string.Join(",", workbook?.Worksheets.Select(x => x.Name));
 
                 if (stream != null)
-                    Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandId, 0, exception);
+                {
+                    stream.IoCommand.Exception = exception;
+                    Context.RegisterIoCommandEnd(this, stream.IoCommand);
+                }
 
                 throw exception;
             }
@@ -100,7 +103,10 @@ public abstract class AbstractEpPlusExcelReader : AbstractRowSource
                 exception.Data["ExistingSheetNames"] = string.Join(",", workbook?.Worksheets.Select(x => x.Name));
 
                 if (stream != null)
-                    Context.RegisterIoCommandFailed(this, stream.IoCommandKind, stream.IoCommandId, 0, exception);
+                {
+                    stream.IoCommand.Exception = exception;
+                    Context.RegisterIoCommandEnd(this, stream.IoCommand);
+                }
 
                 throw exception;
             }

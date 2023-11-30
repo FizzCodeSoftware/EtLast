@@ -60,10 +60,19 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
             + (!string.IsNullOrEmpty(postfix) ? " " + postfix : "");
     }
 
-    protected override long RegisterIoCommandStart(string transactionId, int timeout, string statement)
+    protected override IoCommand RegisterIoCommand(string transactionId, int timeout, string statement)
     {
-        return Context.RegisterIoCommandStartWithPath(this, IoCommandKind.dbRead, ConnectionString.Name, ConnectionString.Unescape(TableName), timeout, statement, transactionId, () => Parameters,
-            "querying from table", null);
+        return Context.RegisterIoCommandStart(this, new IoCommand()
+        {
+            Kind = IoCommandKind.dbRead,
+            Location = ConnectionString.Name,
+            Path = ConnectionString.Unescape(TableName),
+            TimeoutSeconds = timeout,
+            Command = statement,
+            TransactionId = transactionId,
+            ArgumentListGetter = () => Parameters,
+            Message = "read from table"
+        });
     }
 }
 

@@ -321,53 +321,53 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
         }
     }
 
-    public void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra = null)
+    public void OnContextIoCommandStart(IProcess process, IoCommand ioCommand)
     {
         if (_ioLogger == null)
             return;
 
         var sb = new StringBuilder();
         sb.Append(process?.InvocationName);
-        sb.Append('\t').Append(id.ToString("D", CultureInfo.InvariantCulture));
-        sb.Append('\t').Append(kind.ToString());
+        sb.Append('\t').Append(ioCommand.Id.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(ioCommand.Kind.ToString());
         sb.Append('\t').Append("started");
         sb.Append('\t').Append(""); // affectedDataCount
-        sb.Append('\t').Append(timeoutSeconds != null ? timeoutSeconds.Value.ToString("D", CultureInfo.InvariantCulture) : "");
-        sb.Append('\t').Append(transactionId);
-        sb.Append('\t').Append(location);
-        sb.Append('\t').Append(path);
+        sb.Append('\t').Append(ioCommand.TimeoutSeconds != null ? ioCommand.TimeoutSeconds.Value.ToString("D", CultureInfo.InvariantCulture) : "");
+        sb.Append('\t').Append(ioCommand.TransactionId);
+        sb.Append('\t').Append(ioCommand.Location);
+        sb.Append('\t').Append(ioCommand.Path);
 
-        sb.Append('\t').Append(message?.ReplaceLineEndings("\\n"));
-        sb.Append('\t').Append(messageExtra?.ReplaceLineEndings("\\n"));
+        sb.Append('\t').Append(ioCommand.Message?.ReplaceLineEndings("\\n"));
+        sb.Append('\t').Append(ioCommand.MessageExtra?.ReplaceLineEndings("\\n"));
 
-        sb.Append('\t').Append(command?.ReplaceLineEndings("\\n"));
+        sb.Append('\t').Append(ioCommand.Command?.ReplaceLineEndings("\\n"));
         sb.Append('\t').Append(process?.GetTopic()?.ReplaceLineEndings("\\n"));
 
         _ioLogger.Write(LogEventLevel.Information, sb.ToString());
     }
 
-    public void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex)
+    public void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand)
     {
         if (_ioLogger == null)
             return;
 
         var sb = new StringBuilder();
         sb.Append(process?.InvocationName);
-        sb.Append('\t').Append(id.ToString("D", CultureInfo.InvariantCulture));
-        sb.Append('\t').Append(kind.ToString());
-        sb.Append('\t').Append(ex != null ? "failed" : "succeeded");
+        sb.Append('\t').Append(ioCommand.Id.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(ioCommand.Kind.ToString());
+        sb.Append('\t').Append(ioCommand.Exception != null ? "failed" : "succeeded");
 
-        sb.Append('\t').Append(affectedDataCount?.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(ioCommand.AffectedDataCount?.ToString("D", CultureInfo.InvariantCulture));
 
         sb.Append('\t').Append(""); // timeoutSeconds
         sb.Append('\t').Append(""); // transactionId
         sb.Append('\t').Append(""); // location
         sb.Append('\t').Append(""); // path
 
-        if (ex != null)
+        if (ioCommand.Exception != null)
         {
             sb.Append('\t').Append("exception"); // message
-            sb.Append(ex.FormatExceptionWithDetails().ReplaceLineEndings("\\n")); // messageExtra
+            sb.Append(ioCommand.Exception.FormatExceptionWithDetails().ReplaceLineEndings("\\n")); // messageExtra
         }
 
         // topic
