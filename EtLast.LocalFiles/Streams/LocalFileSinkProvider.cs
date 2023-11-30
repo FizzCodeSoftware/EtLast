@@ -103,10 +103,10 @@ public class LocalFileSinkProvider : ISinkProvider
 
         try
         {
-            var sinkId = caller.Context.GetSinkId(Path.GetDirectoryName(fileName), Path.GetFileName(fileName), sinkFormat, caller.GetType());
+            var sink = caller.Context.GetSink(Path.GetDirectoryName(fileName), Path.GetFileName(fileName), sinkFormat, caller.GetType());
 
             var stream = new FileStream(fileName, FileMode, FileAccess, FileShare);
-            return new NamedSink(fileName, stream, ioCommand, sinkId);
+            return new NamedSink(fileName, stream, ioCommand, sink);
         }
         catch (Exception ex)
         {

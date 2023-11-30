@@ -37,7 +37,7 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
     private long _rowsWritten;
 
     private IDbCommand _command;
-    private long? _sinkId;
+    private Sink _sink;
     private Stopwatch _lastWrite;
     private bool _prepared = false;
 
@@ -73,9 +73,9 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sinkId ??= Context.GetSinkId(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", GetType());
+        _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", GetType());
 
-        Context.RegisterWriteToSink(row, _sinkId.Value);
+        Context.RegisterWriteToSink(row, _sink);
 
         InitConnection();
 

@@ -96,30 +96,30 @@ public class ContextManifest : IEtlContextListener
         _exceptionMap[exception] = manifestException;
     }
 
-    public void OnSinkStarted(long sinkId, string location, string path, string sinkFormat, Type sinkWriter)
+    public void OnSinkStarted(Sink sink)
     {
-        var sink = new ContextManifestSink()
+        var manifestSink = new ContextManifestSink()
         {
-            Id = sinkId,
-            Location = location,
-            Path = path,
-            Format = sinkFormat,
-            WriterType = sinkWriter.GetFriendlyTypeName(),
+            Id = sink.Id,
+            Location = sink.Location,
+            Path = sink.Path,
+            Format = sink.Format,
+            WriterType = sink.WriterType.GetFriendlyTypeName(),
         };
 
-        _sinks[sinkId] = sink;
+        _sinks[sink.Id] = manifestSink;
 
-        ManifestSinkCreated?.Invoke(this, sink);
+        ManifestSinkCreated?.Invoke(this, manifestSink);
         ManifestChanged?.Invoke(this);
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, long sinkId)
+    public void OnWriteToSink(IReadOnlyRow row, Sink sink)
     {
-        if (_sinks.TryGetValue(sinkId, out var sink))
+        if (_sinks.TryGetValue(sink.Id, out var manifestSink))
         {
-            sink.RowsWritten++;
+            manifestSink.RowsWritten = sink.RowsWritten;
 
-            ManifestSinkChanged?.Invoke(this, sink);
+            ManifestSinkChanged?.Invoke(this, manifestSink);
             ManifestChanged?.Invoke(this);
         }
     }

@@ -131,6 +131,8 @@ public class EventParser
             Id = reader.Read7BitEncodedInt64(),
             Location = reader.ReadNullableString(),
             Path = reader.ReadNullableString(),
+            Format = reader.ReadNullableString(),
+            WriterType = reader.ReadNullableString(),
         };
 
         return evt;

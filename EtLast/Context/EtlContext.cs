@@ -47,7 +47,7 @@ public sealed class EtlContext : IEtlContext
     private long _nextInvocationId;
     private long _nextSinkId;
     private long _nextIoCommandId;
-    private readonly Dictionary<string, long> _sinks = [];
+    private readonly Dictionary<string, Sink> _sinks = [];
 
     private readonly List<ScopeAction> _scopeActions = [];
 
@@ -259,24 +259,35 @@ public sealed class EtlContext : IEtlContext
             listener.OnProcessInvocationEnd(process);
     }
 
-    public long GetSinkId(string location, string path, string sinkFormat, Type sinkWriter)
+    public Sink GetSink(string location, string path, string sinkFormat, Type sinkWriter)
     {
         var key = location + " / " + path;
-        if (!_sinks.TryGetValue(key, out var sinkId))
+        if (!_sinks.TryGetValue(key, out var sink))
         {
-            sinkId = Interlocked.Increment(ref _nextSinkId);
-            _sinks.Add(key, sinkId);
+            sink = new Sink()
+            {
+                Id = Interlocked.Increment(ref _nextSinkId),
+                Location = location,
+                Path = path,
+                Format = sinkFormat,
+                WriterType = sinkWriter,
+            };
+
+            _sinks[key] = sink;
+
             foreach (var listener in Listeners)
-                listener.OnSinkStarted(sinkId, location, path, sinkFormat, sinkWriter);
+                listener.OnSinkStarted(sink);
         }
 
-        return sinkId;
+        return sink;
     }
 
-    public void RegisterWriteToSink(IReadOnlyRow row, long sinkId)
+    public void RegisterWriteToSink(IReadOnlyRow row, Sink sink)
     {
+        sink.RowsWritten++;
+
         foreach (var listener in Listeners)
-            listener.OnWriteToSink(row, sinkId);
+            listener.OnWriteToSink(row, sink);
     }
 
     public void Close()

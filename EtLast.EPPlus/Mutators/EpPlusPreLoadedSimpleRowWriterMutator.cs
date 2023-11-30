@@ -17,14 +17,14 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
     public Action<ExcelPackage, SimpleExcelWriterState> Finalize { get; init; }
 
     private SimpleExcelWriterState _state;
-    private long? _sinkId;
+    private Sink _sink;
     private string _fileName;
 
     protected override void StartMutator()
     {
         _state = new SimpleExcelWriterState();
         _fileName = PreLoadedFile?.File?.Name ?? "preloaded";
-        _sinkId ??= Context.GetSinkId(_fileName, SheetName, "spreadsheet", GetType());
+        _sink = Context.GetSink(_fileName, SheetName, "spreadsheet", GetType());
     }
 
     protected override void CloseMutator()
@@ -39,7 +39,7 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        Context.RegisterWriteToSink(row, _sinkId.Value);
+        Context.RegisterWriteToSink(row, _sink);
 
         _state.Worksheet = PreLoadedFile.Workbook.Worksheets.Add(SheetName);
         _state.NextRow = 1;

@@ -163,7 +163,7 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 
         var sinkEntry = GetSinkEntry(partitionKey, row);
 
-        Context.RegisterWriteToSink(row, sinkEntry.Sink.SinkId);
+        Context.RegisterWriteToSink(row, sinkEntry.Sink.Sink);
 
         try
         {

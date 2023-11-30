@@ -387,11 +387,11 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
     {
     }
 
-    public void OnSinkStarted(long sinkId, string location, string path, string sinkFormat, Type sinkWriter)
+    public void OnSinkStarted(Sink sink)
     {
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, long sinkId)
+    public void OnWriteToSink(IReadOnlyRow row, Sink sink)
     {
     }
 

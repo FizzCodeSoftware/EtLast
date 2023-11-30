@@ -32,6 +32,7 @@ public sealed class TruncateTable : AbstractSqlStatement
             TimeoutSeconds = command.CommandTimeout,
             Command = command.CommandText,
             TransactionId = transactionId,
+            ArgumentListGetter = () => parameters,
             Message = "getting record count",
         });
 

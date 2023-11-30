@@ -129,7 +129,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
         var sink = GetSink(partitionKey);
 
-        Context.RegisterWriteToSink(row, sink.Sink.SinkId);
+        Context.RegisterWriteToSink(row, sink.Sink.Sink);
 
         try
         {

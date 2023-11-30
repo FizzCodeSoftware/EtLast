@@ -27,10 +27,10 @@ public class MemorySinkProvider : ISinkProvider
 
         try
         {
-            var sinkId = caller.Context.GetSinkId(_sinkLocation, _sinkPath, sinkFormat, caller.GetType());
+            var sink = caller.Context.GetSink(_sinkLocation, _sinkPath, sinkFormat, caller.GetType());
 
             var stream = StreamCreator.Invoke();
-            return new NamedSink(_sinkName, stream, ioCommand, sinkId);
+            return new NamedSink(_sinkName, stream, ioCommand, sink);
         }
         catch (Exception ex)
         {

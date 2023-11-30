@@ -15,7 +15,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
 
     private TState _state;
     private ExcelPackage _package;
-    private long? _sinkId;
+    private Sink _sink;
     private long _rowCount;
 
     protected override void StartMutator()
@@ -77,9 +77,9 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
         {
             Action.Invoke(row, _package, _state);
 
-            if (_sinkId != null)
+            if (_sink != null)
             {
-                Context.RegisterWriteToSink(row, _sinkId.Value);
+                Context.RegisterWriteToSink(row, _sink);
                 _rowCount++;
             }
         }
@@ -98,7 +98,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
     public void AddWorkSheet(string name)
     {
         _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-        _sinkId = Context.GetSinkId(FileName, name, "spreadsheet", GetType());
+        _sink = Context.GetSink(FileName, name, "spreadsheet", GetType());
     }
 }
 

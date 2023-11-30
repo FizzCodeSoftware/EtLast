@@ -165,7 +165,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
         var sinkEntry = GetSinkEntry(partitionKey);
 
-        Context.RegisterWriteToSink(row, sinkEntry.Sink.SinkId);
+        Context.RegisterWriteToSink(row, sinkEntry.Sink.Sink);
 
         try
         {

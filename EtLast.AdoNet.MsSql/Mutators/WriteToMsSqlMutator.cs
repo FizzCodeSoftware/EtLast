@@ -43,7 +43,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
     private DatabaseConnection _connection;
     private SqlBulkCopy _bulkCopy;
     private RowShadowReader _reader;
-    private long? _sinkId;
+    private Sink _sink;
     private Stopwatch _lastWrite;
 
     protected override void StartMutator()
@@ -97,9 +97,9 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sinkId ??= Context.GetSinkId(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", GetType());
+        _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", GetType());
 
-        Context.RegisterWriteToSink(row, _sinkId.Value);
+        Context.RegisterWriteToSink(row, _sink);
 
         var rc = _reader.RowCount;
         var i = 0;

@@ -303,23 +303,25 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnSinkStarted(long sinkId, string location, string path, string sinkFormat, Type sinkWriter)
+    public void OnSinkStarted(Sink sink)
     {
         SendDiagnostics(DiagnosticsEventKind.SinkStarted, writer =>
         {
-            writer.Write7BitEncodedInt64(sinkId);
-            writer.WriteNullable(location);
-            writer.WriteNullable(path);
+            writer.Write7BitEncodedInt64(sink.Id);
+            writer.WriteNullable(sink.Location);
+            writer.WriteNullable(sink.Path);
+            writer.WriteNullable(sink.Format);
+            writer.WriteNullable(sink.WriterType.GetFriendlyTypeName());
         });
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, long sinkId)
+    public void OnWriteToSink(IReadOnlyRow row, Sink sink)
     {
         SendDiagnostics(DiagnosticsEventKind.WriteToSink, writer =>
         {
             writer.Write7BitEncodedInt64(row.Id);
             writer.Write7BitEncodedInt64(row.CurrentProcess.InvocationInfo.InvocationId);
-            writer.Write7BitEncodedInt64(sinkId);
+            writer.Write7BitEncodedInt64(sink.Id);
             writer.Write7BitEncodedInt(row.ValueCount);
             foreach (var kvp in row.Values)
             {

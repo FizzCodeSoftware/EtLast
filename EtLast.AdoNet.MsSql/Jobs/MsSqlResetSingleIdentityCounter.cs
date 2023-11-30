@@ -38,6 +38,7 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
             TimeoutSeconds = command.CommandTimeout,
             Command = command.CommandText,
             TransactionId = transactionId,
+            ArgumentListGetter = () => parameters,
             Message = "resetting identity counter on column",
             MessageExtra = IdentityColumnName,
         });

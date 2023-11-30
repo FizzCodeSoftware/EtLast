@@ -48,8 +48,8 @@ public interface IEtlContext : ICaller
     public void RegisterProcessInvocationEnd(IProcess process);
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
 
-    public long GetSinkId(string location, string path, string sinkFormat, Type sinkWriter);
-    public void RegisterWriteToSink(IReadOnlyRow row, long sinkId);
+    public Sink GetSink(string location, string path, string sinkFormat, Type sinkWriter);
+    public void RegisterWriteToSink(IReadOnlyRow row, Sink sink);
 
     public void Close();
     public void StopServices();
