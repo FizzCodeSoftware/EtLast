@@ -50,7 +50,7 @@ public class Host : IHost
     }
 
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    public List<Func<ArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; } = [];
+    public List<Func<IArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; } = [];
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = [];
     public string[] CommandLineArgs { get; set; }
 
@@ -117,7 +117,7 @@ public class Host : IHost
         DisplayHelp();
         ModuleLister.ListModules(this);
 
-        ArgumentCollection hostArguments = null;
+        IArgumentCollection hostArguments = null;
         try
         {
             hostArguments = HostArgumentsLoader.LoadHostArguments(this);

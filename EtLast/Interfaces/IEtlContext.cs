@@ -4,7 +4,7 @@ public interface IEtlContext : ICaller
 {
     public void SetRowType<T>() where T : IRow;
 
-    public ArgumentCollection Arguments { get; }
+    public IArgumentCollection Arguments { get; }
     public T Service<T>() where T : IEtlService, new();
     public AdditionalData AdditionalData { get; }
 

@@ -30,6 +30,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast.AdoNet.MsSql\EtLast.AdoNet.MsSql.csproj" />
     <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
+    <ProjectReference Include="..\..\EtLast.Hosting\EtLast.Hosting.csproj" />
+    <ProjectReference Include="..\..\EtLast.LocalFiles\EtLast.LocalFiles.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
     <ProjectReference Include="..\EtLast.Tests.Base\EtLast.Tests.Base.csproj" />
   </ItemGroup>

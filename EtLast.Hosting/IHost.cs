@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.ConsoleHost;
+﻿namespace FizzCode.EtLast.Hosting;
 
 public interface IHost
 {
@@ -12,7 +12,7 @@ public interface IHost
     public ExecutionStatusCode Run();
 
     public string[] CommandLineArgs { get; set; }
-    public List<Func<ArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; }
+    public List<Func<IArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; }
     public Dictionary<string, string> CommandAliases { get; }
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; }
     public string HostArgumentsFolder { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.ConsoleHost;
+﻿namespace FizzCode.EtLast.Hosting;
 
 public interface IHostBuilder
 {

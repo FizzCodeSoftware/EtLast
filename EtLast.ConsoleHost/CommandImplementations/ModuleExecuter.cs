@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace FizzCode.EtLast.ConsoleHost;
+﻿namespace FizzCode.EtLast.ConsoleHost;
 
 internal static class ModuleExecuter
 {
@@ -10,14 +8,43 @@ internal static class ModuleExecuter
         var instance = Environment.MachineName;
         var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance);
 
-        var environmentSettings = new EnvironmentSettings();
+        string currentDevLogFolder = null;
+        string currentOpsLogFolder = null;
+        {
+            var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
+            var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
+
+            currentDevLogFolder = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName);
+            currentOpsLogFolder = Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName);
+        }
+
+        var environmentSettings = new EnvironmentSettings()
+        {
+            DevLogFolder = currentDevLogFolder,
+            OpsLogFolder = currentOpsLogFolder,
+        };
+
         module.Startup?.Configure(environmentSettings);
+
+        if (environmentSettings.LocalManifestLogSettings.Enabled)
+        {
+            environmentSettings.ManifestProcessors.Add(new ConsoleHostJsonManifestProcessor()
+            {
+                Folder = Path.Combine(currentDevLogFolder, "manifest"),
+                FileNameFunc = manifest => manifest.CreatedOnUtc.ToString("yyyyMMhh-hhmmssfff", CultureInfo.InvariantCulture) + ".json",
+            });
+        }
 
         var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName)
         {
             TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout,
         };
+
+        foreach (var manifestProcessor in environmentSettings.ManifestProcessors)
+        {
+            manifestProcessor.RegisterToManifestEvents(context.Manifest);
+        }
 
         try
         {
@@ -42,25 +69,9 @@ internal static class ModuleExecuter
         {
             if (environmentSettings.FileLogSettings.Enabled || environmentSettings.ConsoleLogSettings.Enabled || !string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
             {
-                var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
-                var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
-
-                var serilogAdapter = new EtlContextSerilogAdapter(environmentSettings, Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName), Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName));
+                var serilogAdapter = new EtlContextSerilogAdapter(environmentSettings, currentDevLogFolder, currentOpsLogFolder);
                 context.Listeners.Add(serilogAdapter);
             }
-        }
-
-        if (true)
-        {
-            var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
-            var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
-            var dir = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName, "manifest");
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            var manifestFile = Path.Combine(dir, context.Manifest.ContextId.ToString("D", CultureInfo.InvariantCulture) + ".json");
-            context.Manifest.ManifestChanged += manifest => SaveManifest(manifest, manifestFile);
-            ;
         }
 
         if (module.Startup == null)
@@ -190,11 +201,6 @@ internal static class ModuleExecuter
         }
 
         return executionResult;
-    }
-
-    private static void SaveManifest(ContextManifest manifest, string fileName)
-    {
-        File.WriteAllText(fileName, JsonSerializer.Serialize(manifest, new JsonSerializerOptions() { WriteIndented = true }), Encoding.UTF8);
     }
 
     private static void LogTaskCounters(IEtlContext context, IEtlTask task)

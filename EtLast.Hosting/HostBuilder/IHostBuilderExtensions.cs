@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.ConsoleHost;
+﻿namespace FizzCode.EtLast.Hosting;
 
 public static class IHostBuilderExtensions
 {
@@ -8,7 +8,7 @@ public static class IHostBuilderExtensions
         return builder;
     }
 
-    public static IHostBuilder UseCommandLineListener(this IHostBuilder builder, Func<ArgumentCollection, ICommandLineListener> listenerCreator)
+    public static IHostBuilder UseCommandLineListener(this IHostBuilder builder, Func<IArgumentCollection, ICommandLineListener> listenerCreator)
     {
         builder.Result.CommandLineListenerCreators.Add(listenerCreator);
         return builder;

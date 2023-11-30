@@ -26,6 +26,9 @@ public class ContextManifest : IEtlContextListener
     public long TickCount { get; set; }
     public DateTimeOffset CreatedOnUtc { get; set; }
     public DateTimeOffset CreatedOnLocal { get; set; }
+    public DateTimeOffset? ClosedOnUtc { get; private set; }
+    public DateTimeOffset? ClosedOnLocal { get; private set; }
+    public long? RunMilliseconds { get; private set; }
     public Dictionary<string, string> Arguments { get; set; }
 
     public IReadOnlyList<ContextManifestSink> Sinks
@@ -40,8 +43,6 @@ public class ContextManifest : IEtlContextListener
         set { _tasks = value.ToDictionary(x => x.ProcessId, x => x); }
     }
 
-    public DateTimeOffset? ClosedOnUtc { get; private set; }
-
     public List<ContextManifestException> AllExceptions { get; } = [];
 
     public IReadOnlyList<ContextManifestIoTarget> IoTargets
@@ -50,8 +51,6 @@ public class ContextManifest : IEtlContextListener
         set { _ioTargets = value.ToDictionary(x => (x.Location, x.Path, x.Kind), x => x); }
     }
 
-    public event ContextManifestChangedEvent ManifestChanged;
-    public event ContextManifestClosedEvent ManifestClosed;
     public event ContextManifestTaskStartedEvent ManifestTaskStarted;
     public event ContextManifestTaskFinishedEvent ManifestTaskFinished;
     public event ContextManifestSinkCreatedEvent ManifestSinkCreated;
@@ -59,6 +58,10 @@ public class ContextManifest : IEtlContextListener
     public event ContextManifestExceptionAddedEvent ManifestExceptionAdded;
     public event ContextManifestIoTargetCreatedEvent ManifestIoTargetCreated;
     public event ContextManifestIoTargetChangedEvent ManifestIoTargetChanged;
+
+    public event ContextManifestChangedEvent ManifestChanged;
+
+    public event ContextManifestClosedEvent ManifestClosed;
 
     private Dictionary<long, ContextManifestSink> _sinks = [];
     private Dictionary<long, ContextManifestProcess> _tasks = [];
@@ -73,8 +76,9 @@ public class ContextManifest : IEtlContextListener
     public void OnContextClosed()
     {
         ClosedOnUtc = DateTimeOffset.UtcNow;
+        ClosedOnLocal = ClosedOnUtc.Value.ToLocalTime();
+        RunMilliseconds = Convert.ToInt64(ClosedOnUtc.Value.Subtract(CreatedOnUtc).TotalMilliseconds);
         ManifestClosed?.Invoke(this);
-        ManifestChanged?.Invoke(this);
     }
 
     public void OnException(IProcess process, Exception exception)

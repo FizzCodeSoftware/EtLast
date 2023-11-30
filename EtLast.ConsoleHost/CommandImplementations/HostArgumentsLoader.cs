@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace FizzCode.EtLast.ConsoleHost;
 internal static class HostArgumentsLoader
 {
-    public static ArgumentCollection LoadHostArguments(Host host)
+    public static IArgumentCollection LoadHostArguments(Host host)
     {
         var argumentsFolder = host.HostArgumentsFolder;
         if (!Directory.Exists(argumentsFolder))

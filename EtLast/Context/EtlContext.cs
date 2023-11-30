@@ -5,7 +5,7 @@ public sealed class EtlContext : IEtlContext
     public Type RowType { get; private set; }
 
     public AdditionalData AdditionalData { get; } = new AdditionalData();
-    public ArgumentCollection Arguments { get; }
+    public IArgumentCollection Arguments { get; }
 
     public IEtlContext Context => this;
     public FlowState GetFlowState() => new(this);
@@ -53,7 +53,7 @@ public sealed class EtlContext : IEtlContext
 
     public ContextManifest Manifest { get; }
 
-    public EtlContext(ArgumentCollection arguments, string customName = null)
+    public EtlContext(IArgumentCollection arguments, string customName = null)
     {
         SetRowType<Row>();
 

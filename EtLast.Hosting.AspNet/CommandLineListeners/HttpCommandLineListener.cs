@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 
-namespace FizzCode.EtLast.ConsoleHost;
+namespace FizzCode.EtLast.Hosting;
 
 public abstract class HttpCommandLineListener : ICommandLineListener
 {
