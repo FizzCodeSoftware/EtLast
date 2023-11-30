@@ -191,12 +191,6 @@ public sealed class EtlContext : IEtlContext
             listener.OnContextIoCommandEnd(process, id, kind, affectedDataCount, exception);
     }
 
-    public void RegisterWriteToSink(IReadOnlyRow row, long sinkId)
-    {
-        foreach (var listener in Listeners)
-            listener.OnWriteToSink(row, sinkId);
-    }
-
     public IRow CreateRow(IProcess process)
     {
         var row = (IRow)Activator.CreateInstance(RowType);
@@ -265,10 +259,11 @@ public sealed class EtlContext : IEtlContext
 
     public void RegisterProcessInvocationEnd(IProcess process)
     {
-        if (process.InvocationInfo.LastInvocationFinished != null)
+        if (process.InvocationInfo.LastInvocationFinishedLocal != null)
             Debugger.Break();
 
-        process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
+        process.InvocationInfo.LastInvocationFinishedLocal = DateTimeOffset.Now;
+        process.InvocationInfo.LastInvocationFinishedUtc = process.InvocationInfo.LastInvocationFinishedLocal.Value.ToLocalTime();
 
         foreach (var listener in Listeners)
             listener.OnProcessInvocationEnd(process);
@@ -279,14 +274,15 @@ public sealed class EtlContext : IEtlContext
         /*if (process.InvocationInfo.LastInvocationFinished != null)
             Debugger.Break();*/
 
-        process.InvocationInfo.LastInvocationFinished = DateTimeOffset.Now;
+        process.InvocationInfo.LastInvocationFinishedLocal = DateTimeOffset.Now;
+        process.InvocationInfo.LastInvocationFinishedUtc = process.InvocationInfo.LastInvocationFinishedLocal.Value.ToLocalTime();
         process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;
 
         foreach (var listener in Listeners)
             listener.OnProcessInvocationEnd(process);
     }
 
-    public long GetSinkId(string location, string path)
+    public long GetSinkId(string location, string path, string sinkFormat, Type sinkWriter)
     {
         var key = location + " / " + path;
         if (!_sinks.TryGetValue(key, out var sinkId))
@@ -294,10 +290,16 @@ public sealed class EtlContext : IEtlContext
             sinkId = Interlocked.Increment(ref _nextSinkId);
             _sinks.Add(key, sinkId);
             foreach (var listener in Listeners)
-                listener.OnSinkStarted(sinkId, location, path);
+                listener.OnSinkStarted(sinkId, location, path, sinkFormat, sinkWriter);
         }
 
         return sinkId;
+    }
+
+    public void RegisterWriteToSink(IReadOnlyRow row, long sinkId)
+    {
+        foreach (var listener in Listeners)
+            listener.OnWriteToSink(row, sinkId);
     }
 
     public void Close()

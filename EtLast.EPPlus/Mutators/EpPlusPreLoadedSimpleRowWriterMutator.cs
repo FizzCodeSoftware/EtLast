@@ -24,7 +24,7 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
     {
         _state = new SimpleExcelWriterState();
         _fileName = PreLoadedFile?.File?.Name ?? "preloaded";
-        _sinkId ??= Context.GetSinkId(_fileName, SheetName);
+        _sinkId ??= Context.GetSinkId(_fileName, SheetName, "spreadsheet", GetType());
     }
 
     protected override void CloseMutator()

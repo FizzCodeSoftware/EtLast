@@ -80,7 +80,7 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 
         sinkEntry = new SinkEntry()
         {
-            Sink = SinkProvider.GetSink(this, partitionKey),
+            Sink = SinkProvider.GetSink(this, partitionKey, "delimited"),
             Buffer = new MemoryStream(),
             Columns = firstRow.Values.Select(x => x.Key).ToArray(),
         };

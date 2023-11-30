@@ -50,8 +50,6 @@ internal static class ModuleExecuter
             }
         }
 
-        //var m = JsonSerializer.Deserialize<ContextManifest>(File.ReadAllText(@"h:\dev\EtLast\Tests\EtLast.Tests.Integration\bin\X64\Debug\log-manifest\638368724351244511.json", Encoding.UTF8));
-
         if (true)
         {
             var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));

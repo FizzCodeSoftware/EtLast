@@ -66,7 +66,7 @@ public class IoCommandCounterCollection : IEtlContextListener
     {
     }
 
-    public void OnSinkStarted(long sinkId, string location, string path)
+    public void OnSinkStarted(long sinkId, string location, string path, string sinkFormat, Type sinkWriter)
     {
     }
 

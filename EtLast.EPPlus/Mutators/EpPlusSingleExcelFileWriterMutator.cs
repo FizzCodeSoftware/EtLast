@@ -91,7 +91,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
     public void AddWorkSheet(string name)
     {
         _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-        _sinkId = Context.GetSinkId(FileName, name);
+        _sinkId = Context.GetSinkId(FileName, name, "spreadsheet", GetType());
     }
 }
 

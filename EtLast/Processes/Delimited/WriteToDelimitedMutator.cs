@@ -84,7 +84,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
         sinkEntry = new SinkEntry()
         {
-            Sink = SinkProvider.GetSink(this, partitionKey),
+            Sink = SinkProvider.GetSink(this, partitionKey, "delimited"),
             Buffer = new MemoryStream(),
         };
 

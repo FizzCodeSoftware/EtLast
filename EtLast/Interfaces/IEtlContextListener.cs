@@ -11,7 +11,7 @@ public interface IEtlContextListener
     void OnRowCreated(IReadOnlyRow row);
     void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess);
     void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values);
-    void OnSinkStarted(long sinkId, string location, string path);
+    void OnSinkStarted(long sinkId, string location, string path, string sinkFormat, Type sinkWriter);
     void OnWriteToSink(IReadOnlyRow row, long sinkId);
 
     void OnProcessInvocationStart(IProcess process);

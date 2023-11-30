@@ -8,6 +8,8 @@ public delegate void ContextManifestTaskFinishedEvent(ContextManifest manifest, 
 public delegate void ContextManifestSinkCreatedEvent(ContextManifest manifest, ContextManifestSink sink);
 public delegate void ContextManifestSinkChangedEvent(ContextManifest manifest, ContextManifestSink sink);
 public delegate void ContextManifestExceptionAddedEvent(ContextManifest manifest, ContextManifestException exception);
+public delegate void ContextManifestIoTargetCreatedEvent(ContextManifest manifest, ContextManifestIoTarget target);
+public delegate void ContextManifestIoTargetChangedEvent(ContextManifest manifest, ContextManifestIoTarget target);
 
 public class ContextManifest : IEtlContextListener
 {
@@ -38,9 +40,15 @@ public class ContextManifest : IEtlContextListener
         set { _tasks = value.ToDictionary(x => x.ProcessId, x => x); }
     }
 
-    public DateTimeOffset? ClosedOn { get; private set; }
+    public DateTimeOffset? ClosedOnUtc { get; private set; }
 
     public List<ContextManifestException> AllExceptions { get; } = [];
+
+    public IReadOnlyList<ContextManifestIoTarget> IoTargets
+    {
+        get => _ioTargets.Values.ToList();
+        set { _ioTargets = value.ToDictionary(x => (x.Location, x.Path, x.Kind), x => x); }
+    }
 
     public event ContextManifestChangedEvent ManifestChanged;
     public event ContextManifestClosedEvent ManifestClosed;
@@ -49,9 +57,13 @@ public class ContextManifest : IEtlContextListener
     public event ContextManifestSinkCreatedEvent ManifestSinkCreated;
     public event ContextManifestSinkChangedEvent ManifestSinkChanged;
     public event ContextManifestExceptionAddedEvent ManifestExceptionAdded;
+    public event ContextManifestIoTargetCreatedEvent ManifestIoTargetCreated;
+    public event ContextManifestIoTargetChangedEvent ManifestIoTargetChanged;
 
     private Dictionary<long, ContextManifestSink> _sinks = [];
     private Dictionary<long, ContextManifestProcess> _tasks = [];
+    private Dictionary<(string, string, string), ContextManifestIoTarget> _ioTargets = [];
+    private readonly Dictionary<long, ContextManifestIoTarget> _ioCommands = [];
 
     private readonly Dictionary<Exception, ContextManifestException> _exceptionMap = [];
 
@@ -61,7 +73,7 @@ public class ContextManifest : IEtlContextListener
 
     public void OnContextClosed()
     {
-        ClosedOn = DateTimeOffset.UtcNow;
+        ClosedOnUtc = DateTimeOffset.UtcNow;
         ManifestClosed?.Invoke(this);
         ManifestChanged?.Invoke(this);
     }
@@ -85,13 +97,15 @@ public class ContextManifest : IEtlContextListener
         _exceptionMap[exception] = manifestException;
     }
 
-    public void OnSinkStarted(long sinkId, string location, string path)
+    public void OnSinkStarted(long sinkId, string location, string path, string sinkFormat, Type sinkWriter)
     {
         var sink = new ContextManifestSink()
         {
             Id = sinkId,
             Location = location,
             Path = path,
+            Format = sinkFormat,
+            WriterType = sinkWriter.GetFriendlyTypeName(),
         };
 
         _sinks[sinkId] = sink;
@@ -130,7 +144,7 @@ public class ContextManifest : IEtlContextListener
 
             var manifestInvocation = new ContextManifestProcessInvocation()
             {
-                StartedOn = DateTimeOffset.UtcNow,
+                StartedOnUtc = DateTimeOffset.UtcNow,
                 InvocationId = task.InvocationInfo.InvocationId,
                 ProcessInvocationCount = task.InvocationInfo.ProcessInvocationCount,
             };
@@ -148,7 +162,7 @@ public class ContextManifest : IEtlContextListener
         {
             var manifestInvocation = manifestTask.Invocations[(int)process.InvocationInfo.ProcessInvocationCount - 1];
 
-            manifestInvocation.FinishedOn = process.InvocationInfo.LastInvocationFinished;
+            manifestInvocation.FinishedOnUtc = DateTimeOffset.UtcNow;
             manifestInvocation.Success = !process.FlowState.Failed;
 
             manifestInvocation.FailureExceptions.AddRange(process.FlowState.Exceptions.Select(ex =>
@@ -162,8 +176,44 @@ public class ContextManifest : IEtlContextListener
         }
     }
 
-    public void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex) { }
-    public void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra) { }
+    public void OnContextIoCommandStart(long id, IoCommandKind kind, string location, string path, IProcess process, int? timeoutSeconds, string command, string transactionId, Func<IEnumerable<KeyValuePair<string, object>>> argumentListGetter, string message, string messageExtra)
+    {
+        if (location == null)
+            return;
+
+        var key = (location, path, kind.ToString());
+        if (!_ioTargets.TryGetValue(key, out var target))
+        {
+            _ioTargets[key] = target = new ContextManifestIoTarget()
+            {
+                Location = location,
+                Path = path,
+                Kind = key.Item3,
+            };
+
+            ManifestIoTargetCreated?.Invoke(this, target);
+            ManifestChanged?.Invoke(this);
+        }
+
+        _ioCommands[id] = target;
+    }
+
+    public void OnContextIoCommandEnd(IProcess process, long id, IoCommandKind kind, long? affectedDataCount, Exception ex)
+    {
+        if (_ioCommands.TryGetValue(id, out var target))
+        {
+            if (affectedDataCount != null)
+                target.AffectedDataCount += affectedDataCount.Value;
+
+            target.CommandCount++;
+            if (ex != null)
+                target.ErrorCount++;
+
+            ManifestIoTargetChanged?.Invoke(this, target);
+            ManifestChanged?.Invoke(this);
+        }
+    }
+
     public void OnCustomLog(bool forOps, string fileName, IProcess process, string text, params object[] args) { }
     public void OnLog(LogSeverity severity, bool forOps, string transactionId, IProcess process, string text, params object[] args) { }
     public void OnRowCreated(IReadOnlyRow row) { }
@@ -174,10 +224,23 @@ public class ContextManifest : IEtlContextListener
 public class ContextManifestSink
 {
     public long Id { get; set; }
+    public string Format { get; set; }
+    public string WriterType { get; set; }
     public string Location { get; set; }
     public string Path { get; set; }
 
     public long RowsWritten { get; set; }
+}
+
+public class ContextManifestIoTarget
+{
+    public string Location { get; set; }
+    public string Path { get; set; }
+    public string Kind { get; set; }
+
+    public int CommandCount { get; set; }
+    public int ErrorCount { get; set; }
+    public long AffectedDataCount { get; set; }
 }
 
 public class ContextManifestException
@@ -201,11 +264,11 @@ public class ContextManifestProcess
 
 public class ContextManifestProcessInvocation
 {
-    public DateTimeOffset StartedOn { get; set; }
+    public DateTimeOffset StartedOnUtc { get; set; }
     public long InvocationId { get; set; }
     public long ProcessInvocationCount { get; set; }
 
-    public DateTimeOffset? FinishedOn { get; set; }
+    public DateTimeOffset? FinishedOnUtc { get; set; }
     public bool? Success { get; set; }
     public List<ContextManifestException> FailureExceptions { get; } = [];
 }

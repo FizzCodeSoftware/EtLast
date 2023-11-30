@@ -303,7 +303,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnSinkStarted(long sinkId, string location, string path)
+    public void OnSinkStarted(long sinkId, string location, string path, string sinkFormat, Type sinkWriter)
     {
         SendDiagnostics(DiagnosticsEventKind.SinkStarted, writer =>
         {

@@ -33,7 +33,7 @@ public class LocalFileSinkProvider : ISinkProvider
 
     public bool AutomaticallyDispose => true;
 
-    public NamedSink GetSink(IProcess caller, string partitionKey)
+    public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat)
     {
         var fileName = FileNameGenerator.Invoke(partitionKey);
 
@@ -92,7 +92,7 @@ public class LocalFileSinkProvider : ISinkProvider
 
         try
         {
-            var sinkId = caller.Context.GetSinkId(Path.GetDirectoryName(fileName), Path.GetFileName(fileName));
+            var sinkId = caller.Context.GetSinkId(Path.GetDirectoryName(fileName), Path.GetFileName(fileName), sinkFormat, caller.GetType());
 
             var stream = new FileStream(fileName, FileMode, FileAccess, FileShare);
             return new NamedSink(fileName, stream, ioCommandId, IoCommandKind.fileWrite, sinkId);

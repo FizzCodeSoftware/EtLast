@@ -90,7 +90,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
     public void AddWorkSheet(string name)
     {
         _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-        _sinkId = Context.GetSinkId(SinkLocation, name);
+        _sinkId = Context.GetSinkId(SinkLocation, name, "spreadsheet", GetType());
     }
 }
 

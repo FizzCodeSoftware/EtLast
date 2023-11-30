@@ -15,14 +15,14 @@ public class MemorySinkProvider : ISinkProvider
     /// </summary>
     public required bool AutomaticallyDispose { get; init; }
 
-    public NamedSink GetSink(IProcess caller, string partitionKey)
+    public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat)
     {
         var ioCommandId = caller.Context.RegisterIoCommandStartWithPath(caller, IoCommandKind.memoryWrite, _sinkLocation, _sinkPath, null, null, null, null,
             "writing to memory stream", null);
 
         try
         {
-            var sinkId = caller.Context.GetSinkId(_sinkLocation, _sinkPath);
+            var sinkId = caller.Context.GetSinkId(_sinkLocation, _sinkPath, sinkFormat, caller.GetType());
 
             var stream = StreamCreator.Invoke();
             return new NamedSink(_sinkName, stream, ioCommandId, IoCommandKind.streamWrite, sinkId);

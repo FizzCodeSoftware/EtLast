@@ -8,6 +8,7 @@ public sealed class ProcessInvocationInfo
     public required ICaller Caller { get; init; }
     public required Stopwatch InvocationStarted { get; init; }
 
-    public DateTimeOffset? LastInvocationFinished { get; set; }
+    public DateTimeOffset? LastInvocationFinishedUtc { get; set; }
+    public DateTimeOffset? LastInvocationFinishedLocal { get; set; }
     public long? LastInvocationNetTimeMilliseconds { get; set; }
 }

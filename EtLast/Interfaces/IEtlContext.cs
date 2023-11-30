@@ -45,14 +45,14 @@ public interface IEtlContext : ICaller
     public void RegisterIoCommandSuccess(IProcess process, IoCommandKind kind, long id, long? affectedDataCount);
     public void RegisterIoCommandFailed(IProcess process, IoCommandKind kind, long id, long? affectedDataCount, Exception exception);
 
-    public void RegisterWriteToSink(IReadOnlyRow row, long sinkId);
-
     public void SetRowOwner(IRow row, IProcess currentProcess);
 
     public void RegisterProcessInvocationStart(IProcess process, ICaller caller);
     public void RegisterProcessInvocationEnd(IProcess process);
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
-    public long GetSinkId(string location, string path);
+
+    public long GetSinkId(string location, string path, string sinkFormat, Type sinkWriter);
+    public void RegisterWriteToSink(IReadOnlyRow row, long sinkId);
 
     public void Close();
     public void StopServices();
