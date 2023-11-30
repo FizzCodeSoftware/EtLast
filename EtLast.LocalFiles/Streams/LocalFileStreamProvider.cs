@@ -35,8 +35,9 @@ public class LocalFileStreamProvider : IStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var ioCommand = caller.Context.RegisterIoCommandStart(caller, new IoCommand()
+        var ioCommand = caller.Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = caller,
             Kind = IoCommandKind.fileRead,
             Location = Path.GetDirectoryName(FileName),
             Path = Path.GetFileName(FileName),
@@ -51,14 +52,13 @@ public class LocalFileStreamProvider : IStreamProvider
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file doesn't exist: {0}",
                     FileName));
 
-                ioCommand.Exception = exception;
                 ioCommand.AffectedDataCount = 0;
-                caller.Context.RegisterIoCommandEnd(caller, ioCommand);
+                ioCommand.Failed(exception);
                 throw exception;
             }
 
             ioCommand.AffectedDataCount = 0;
-            caller.Context.RegisterIoCommandEnd(caller, ioCommand);
+            ioCommand.End();
             return Enumerable.Empty<NamedStream>();
         }
 
@@ -77,9 +77,8 @@ public class LocalFileStreamProvider : IStreamProvider
                 FileName, ex.Message));
             exception.Data["FileName"] = FileName;
 
-            ioCommand.Exception = exception;
             ioCommand.AffectedDataCount = 0;
-            caller.Context.RegisterIoCommandEnd(caller, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

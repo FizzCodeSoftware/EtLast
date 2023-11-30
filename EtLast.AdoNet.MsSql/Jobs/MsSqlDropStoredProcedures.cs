@@ -84,8 +84,9 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
 
                     _storedProcedureNames = [];
 
-                    var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+                    var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
                     {
+                        Process = this,
                         Kind = IoCommandKind.dbReadMeta,
                         Location = ConnectionString.Name,
                         Path = "INFORMATION_SCHEMA.ROUTINES",
@@ -105,7 +106,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                             }
 
                             ioCommand.AffectedDataCount += _storedProcedureNames.Count;
-                            Context.RegisterIoCommandEnd(this, ioCommand);
+                            ioCommand.End();
                         }
 
                         _storedProcedureNames.Sort();
@@ -120,8 +121,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                         exception.Data["Timeout"] = command.CommandTimeout;
                         exception.Data["Elapsed"] = startedOn.Elapsed;
 
-                        ioCommand.Exception = exception;
-                        Context.RegisterIoCommandEnd(this, ioCommand);
+                        ioCommand.Failed(exception);
                         throw exception;
                     }
                 }
@@ -137,8 +137,9 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     {
         var storedProcedureName = _storedProcedureNames[statementIndex];
 
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbAlterSchema,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(storedProcedureName),
@@ -151,7 +152,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -165,8 +166,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

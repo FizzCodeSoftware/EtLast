@@ -175,11 +175,11 @@ public class ContextManifest : IEtlContextListener
         }
     }
 
-    public void OnContextIoCommandStart(IProcess process, IoCommand ioCommand)
+    public void OnContextIoCommandStart(IoCommand ioCommand)
     {
     }
 
-    public void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand)
+    public void OnContextIoCommandEnd(IoCommand ioCommand)
     {
         if (ioCommand.Location == null)
             return;

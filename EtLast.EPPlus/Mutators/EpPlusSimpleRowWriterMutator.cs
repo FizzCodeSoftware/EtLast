@@ -53,7 +53,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
         var newSink = new InternalSink()
         {
-            Sink = sink,
+            NamedSink = sink,
             Package = package,
             State = new SimpleExcelWriterState()
             {
@@ -89,19 +89,18 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
             {
                 try
                 {
-                    sink.Package.SaveAs(sink.Sink.Stream);
-                    sink.Sink.IoCommand.AffectedDataCount += _rowCounter;
-                    Context.RegisterIoCommandEnd(this, sink.Sink.IoCommand);
+                    sink.Package.SaveAs(sink.NamedSink.Stream);
+                    sink.NamedSink.IoCommand.AffectedDataCount += _rowCounter;
+                    sink.NamedSink.IoCommand.End();
                 }
                 catch (Exception ex)
                 {
                     var exception = new ProcessExecutionException(this, "error raised during writing an excel file", ex);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel sink: {0}", sink.Sink.Name));
-                    exception.Data["Sink"] = sink.Sink.Name;
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel sink: {0}", sink.NamedSink.Name));
+                    exception.Data["Sink"] = sink.NamedSink.Name;
                     exception.Data["SheetName"] = SheetName;
 
-                    sink.Sink.IoCommand.Exception = exception;
-                    Context.RegisterIoCommandEnd(this, sink.Sink.IoCommand);
+                    sink.NamedSink.IoCommand.Failed(exception);
                     throw exception;
                 }
 
@@ -113,9 +112,9 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
         {
             foreach (var sink in _sinks.Values)
             {
-                sink.Sink.Stream.Flush();
-                sink.Sink.Stream.Close();
-                sink.Sink.Stream.Dispose();
+                sink.NamedSink.Stream.Flush();
+                sink.NamedSink.Stream.Close();
+                sink.NamedSink.Stream.Dispose();
             }
         }
 
@@ -127,36 +126,35 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
         var partitionKey = PartitionKeyGenerator?.Invoke(row, _rowCounter);
         _rowCounter++;
 
-        var sink = GetSink(partitionKey);
+        var sinkEntry = GetSink(partitionKey);
 
-        Context.RegisterWriteToSink(row, sink.Sink.Sink);
+        sinkEntry.NamedSink.Sink.RegisterRow(row);
 
         try
         {
             foreach (var col in Columns)
             {
-                var range = sink.State.Worksheet.Cells[sink.State.NextRow, sink.State.NextCol];
+                var range = sinkEntry.State.Worksheet.Cells[sinkEntry.State.NextRow, sinkEntry.State.NextCol];
                 range.Value = row[col.Value?.SourceColumn ?? col.Key];
                 if (col.Value?.NumberFormat != null)
                     range.Style.Numberformat.Format = col.Value.NumberFormat;
 
-                sink.State.NextCol++;
+                sinkEntry.State.NextCol++;
             }
 
-            sink.State.NextRow++;
-            sink.State.NextCol = 1;
-            sink.Sink.IncreaseRowsWritten();
+            sinkEntry.State.NextRow++;
+            sinkEntry.State.NextCol = 1;
+            sinkEntry.NamedSink.IncreaseRowsWritten();
         }
         catch (Exception ex)
         {
             var exception = new ProcessExecutionException(this, row, "error raised during writing an excel file", ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel sink: {0}", sink.Sink.Name));
-            exception.Data["Sink"] = sink.Sink.Name;
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel sink: {0}", sinkEntry.NamedSink.Name));
+            exception.Data["Sink"] = sinkEntry.NamedSink.Name;
             exception.Data["SheetName"] = SheetName;
 
-            sink.Sink.IoCommand.AffectedDataCount += sink.Sink.RowsWritten;
-            sink.Sink.IoCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, sink.Sink.IoCommand);
+            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.RowsWritten;
+            sinkEntry.NamedSink.IoCommand.Failed(exception);
             throw exception;
         }
 
@@ -165,7 +163,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
     private class InternalSink
     {
-        public NamedSink Sink { get; init; }
+        public NamedSink NamedSink { get; init; }
         public ExcelPackage Package { get; init; }
         public SimpleExcelWriterState State { get; init; }
     }

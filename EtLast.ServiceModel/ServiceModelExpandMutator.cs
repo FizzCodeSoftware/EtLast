@@ -59,8 +59,9 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
                 continue;
             }
 
-            var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+            var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
             {
+                Process = this,
                 Kind = IoCommandKind.serviceRead,
                 Location = _client.Endpoint.Address.ToString(),
                 TimeoutSeconds = Convert.ToInt32(_client.InnerChannel.OperationTimeout.TotalSeconds),
@@ -70,12 +71,10 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
             try
             {
                 var result = ClientInvoker.Invoke(this, row, _client);
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.End();
 
                 if (result != null)
-                {
                     row[TargetColumn] = result;
-                }
 
                 success = true;
                 break;
@@ -90,8 +89,7 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
 
                 exception.Data["EndpointAddress"] = _client.Endpoint.Address.ToString();
 
-                ioCommand.Exception = exception;
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.Failed(exception);
                 throw exception;
             }
         }

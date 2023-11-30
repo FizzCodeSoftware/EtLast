@@ -71,8 +71,9 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
 
                     _tableNames = [];
 
-                    var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+                    var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
                     {
+                        Process = this,
                         Kind = IoCommandKind.dbReadMeta,
                         Location = ConnectionString.Name,
                         Path = "INFORMATION_SCHEMA.TABLES",
@@ -92,7 +93,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
                             }
 
                             ioCommand.AffectedDataCount += _tableNames.Count;
-                            Context.RegisterIoCommandEnd(this, ioCommand);
+                            ioCommand.End();
                         }
 
                         _tableNames.Sort();
@@ -107,8 +108,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
                         exception.Data["Timeout"] = command.CommandTimeout;
                         exception.Data["Elapsed"] = startedOn.Elapsed;
 
-                        ioCommand.Exception = exception;
-                        Context.RegisterIoCommandEnd(this, ioCommand);
+                        ioCommand.Failed(exception);
                         throw exception;
                     }
                 }
@@ -128,8 +128,9 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + tableName;
 
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbReadCount,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(tableName),
@@ -143,17 +144,18 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
         {
             recordCount = (int)command.ExecuteScalar();
             ioCommand.AffectedDataCount += recordCount;
-            Context.RegisterIoCommandEnd(this, ioCommand);
         }
         catch (Exception)
         {
-            Context.RegisterIoCommandEnd(this, ioCommand);
         }
+
+        ioCommand.End();
 
         command.CommandText = originalStatement;
 
-        ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbDropTable,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(tableName),
@@ -167,7 +169,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
         {
             command.ExecuteNonQuery();
             ioCommand.AffectedDataCount += recordCount;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -181,8 +183,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

@@ -27,8 +27,9 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
 
     protected override TableMaxValueResult<TResult> RunCommandAndGetResult(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbReadAggregate,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(TableName),
@@ -56,7 +57,7 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
             }
 
             ioCommand.AffectedDataCount += result.RecordCount;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
             return result;
         }
         catch (Exception ex)
@@ -72,8 +73,7 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

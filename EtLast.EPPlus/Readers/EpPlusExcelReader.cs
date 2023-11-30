@@ -55,8 +55,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
                     stream.Name, ex.Message));
                 exception.Data["StreamName"] = stream.Name;
 
-                stream.IoCommand.Exception = exception;
-                Context.RegisterIoCommandEnd(this, stream.IoCommand);
+                stream.IoCommand.Failed(exception);
                 throw exception;
             }
 
@@ -71,7 +70,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
             finally
             {
                 stream.IoCommand.AffectedDataCount += rowCount;
-                Context.RegisterIoCommandEnd(this, stream.IoCommand);
+                stream.IoCommand.End();
                 stream.Dispose();
                 package.Dispose();
             }

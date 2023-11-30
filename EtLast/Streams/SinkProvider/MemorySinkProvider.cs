@@ -17,8 +17,9 @@ public class MemorySinkProvider : ISinkProvider
 
     public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat)
     {
-        var ioCommand = caller.Context.RegisterIoCommandStart(caller, new IoCommand()
+        var ioCommand = caller.Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = caller,
             Kind = IoCommandKind.memoryWrite,
             Location = _sinkLocation,
             Path = _sinkPath,
@@ -40,8 +41,7 @@ public class MemorySinkProvider : ISinkProvider
 
             exception.Data["SinkName"] = _sinkName;
 
-            ioCommand.Exception = exception;
-            caller.Context.RegisterIoCommandEnd(caller, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

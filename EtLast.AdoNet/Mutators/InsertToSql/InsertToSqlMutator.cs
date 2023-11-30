@@ -75,7 +75,7 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
     {
         _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", GetType());
 
-        Context.RegisterWriteToSink(row, _sink);
+        _sink.RegisterRow(row);
 
         InitConnection();
 
@@ -158,8 +158,9 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
 
         _command.CommandText = sqlStatement;
 
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbWriteBatch,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(TableName),
@@ -176,7 +177,7 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
             _rowsWritten += recordCount;
 
             ioCommand.AffectedDataCount += recordCount;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -192,9 +193,8 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
             exception.Data["SqlStatementCreator"] = SqlStatementCreator.GetType().GetFriendlyTypeName();
             exception.Data["TotalRowsWritten"] = _rowsWritten;
 
-            ioCommand.Exception = exception;
             ioCommand.AffectedDataCount += recordCount;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
 

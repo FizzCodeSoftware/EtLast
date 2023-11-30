@@ -22,8 +22,9 @@ public static class EtlConnectionManager
         return _connectionManager.GetConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                ioCommand = process.Context.RegisterIoCommandStart(process, new IoCommand()
+                ioCommand = process.Context.RegisterIoCommandStart(new IoCommand()
                 {
+                    Process = process,
                     Kind = IoCommandKind.dbConnection,
                     Location = connectionString.Name,
                     TimeoutSeconds = connection.ConnectionTimeout,
@@ -32,11 +33,10 @@ public static class EtlConnectionManager
                     MessageExtra = connectionString.GetFriendlyProviderName(),
                 });
             },
-            onOpened: (connectionString, connection, retryCount) => process.Context.RegisterIoCommandEnd(process, ioCommand),
+            onOpened: (connectionString, connection, retryCount) => ioCommand.End(),
             onError: (connectionString, connection, retryCount, ex) =>
             {
-                ioCommand.Exception = ex;
-                process.Context.RegisterIoCommandEnd(process, ioCommand);
+                ioCommand.Failed(ex);
 
                 if (retryCount < maxRetryCount)
                 {
@@ -73,8 +73,9 @@ public static class EtlConnectionManager
         var connection = _connectionManager.GetNewConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                ioCommand = process.Context.RegisterIoCommandStart(process, new IoCommand()
+                ioCommand = process.Context.RegisterIoCommandStart(new IoCommand()
                 {
+                    Process = process,
                     Kind = IoCommandKind.dbConnection,
                     Location = connectionString.Name,
                     TimeoutSeconds = connection.ConnectionTimeout,
@@ -83,11 +84,10 @@ public static class EtlConnectionManager
                     MessageExtra = connectionString.GetFriendlyProviderName(),
                 });
             },
-            onOpened: (connectionString, connection, retryCount) => process.Context.RegisterIoCommandEnd(process, ioCommand),
+            onOpened: (connectionString, connection, retryCount) => ioCommand.End(),
             onError: (connectionString, connection, retryCount, ex) =>
             {
-                ioCommand.Exception = ex;
-                process.Context.RegisterIoCommandEnd(process, ioCommand);
+                ioCommand.Failed(ex);
 
                 if (retryCount < maxRetryCount)
                 {
@@ -118,8 +118,9 @@ public static class EtlConnectionManager
         _connectionManager.ReleaseConnection(connection,
         onClosing: connection =>
         {
-            ioCommand = process.Context.RegisterIoCommandStart(process, new IoCommand()
+            ioCommand = process.Context.RegisterIoCommandStart(new IoCommand()
             {
+                Process = process,
                 Kind = IoCommandKind.dbConnection,
                 Location = connection.ConnectionString.Name,
                 TransactionId = connection.TransactionWhenCreated.ToIdentifierString(),
@@ -127,11 +128,10 @@ public static class EtlConnectionManager
                 MessageExtra = connection.ConnectionString.GetFriendlyProviderName(),
             });
         },
-        onClosed: connection => process.Context.RegisterIoCommandEnd(process, ioCommand),
+        onClosed: connection => ioCommand.End(),
         onError: (connection, ex) =>
         {
-            ioCommand.Exception = ex;
-            process.Context.RegisterIoCommandEnd(process, ioCommand);
+            ioCommand.Failed(ex);
         });
 
         if (connection == null)

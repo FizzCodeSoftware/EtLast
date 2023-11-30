@@ -152,20 +152,15 @@ public sealed class EtlContext : IEtlContext
             listener.OnCustomLog(true, fileName, process, text, args);
     }
 
-    public IoCommand RegisterIoCommandStart(IProcess process, IoCommand ioCommand)
+    public IoCommand RegisterIoCommandStart(IoCommand ioCommand)
     {
         ioCommand.Id = Interlocked.Increment(ref _nextIoCommandId);
+        ioCommand.Context = this;
 
         foreach (var listener in Listeners)
-            listener.OnContextIoCommandStart(process, ioCommand);
+            listener.OnContextIoCommandStart(ioCommand);
 
         return ioCommand;
-    }
-
-    public void RegisterIoCommandEnd(IProcess process, IoCommand ioCommand)
-    {
-        foreach (var listener in Listeners)
-            listener.OnContextIoCommandEnd(process, ioCommand);
     }
 
     public IRow CreateRow(IProcess process)
@@ -264,30 +259,21 @@ public sealed class EtlContext : IEtlContext
         var key = location + " / " + path;
         if (!_sinks.TryGetValue(key, out var sink))
         {
-            sink = new Sink()
+            _sinks[key] = sink = new Sink()
             {
                 Id = Interlocked.Increment(ref _nextSinkId),
+                Context = this,
                 Location = location,
                 Path = path,
                 Format = sinkFormat,
                 WriterType = sinkWriter,
             };
 
-            _sinks[key] = sink;
-
             foreach (var listener in Listeners)
                 listener.OnSinkStarted(sink);
         }
 
         return sink;
-    }
-
-    public void RegisterWriteToSink(IReadOnlyRow row, Sink sink)
-    {
-        sink.RowsWritten++;
-
-        foreach (var listener in Listeners)
-            listener.OnWriteToSink(row, sink);
     }
 
     public void Close()

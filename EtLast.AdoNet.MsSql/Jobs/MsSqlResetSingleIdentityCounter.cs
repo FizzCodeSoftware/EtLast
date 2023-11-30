@@ -30,8 +30,9 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbIdentityReset,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(TableName),
@@ -46,7 +47,7 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -61,8 +62,7 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

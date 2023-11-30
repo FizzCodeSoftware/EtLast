@@ -42,8 +42,9 @@ public sealed class CopyTableStructure : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var config = Configuration[statementIndex];
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbAlterSchema,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(config.TargetTableName),
@@ -57,7 +58,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -77,8 +78,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

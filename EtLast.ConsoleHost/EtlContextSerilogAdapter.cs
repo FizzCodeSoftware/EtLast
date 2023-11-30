@@ -321,13 +321,13 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
         }
     }
 
-    public void OnContextIoCommandStart(IProcess process, IoCommand ioCommand)
+    public void OnContextIoCommandStart(IoCommand ioCommand)
     {
         if (_ioLogger == null)
             return;
 
         var sb = new StringBuilder();
-        sb.Append(process?.InvocationName);
+        sb.Append(ioCommand.Process?.InvocationName);
         sb.Append('\t').Append(ioCommand.Id.ToString("D", CultureInfo.InvariantCulture));
         sb.Append('\t').Append(ioCommand.Kind.ToString());
         sb.Append('\t').Append("started");
@@ -341,18 +341,18 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
         sb.Append('\t').Append(ioCommand.MessageExtra?.ReplaceLineEndings("\\n"));
 
         sb.Append('\t').Append(ioCommand.Command?.ReplaceLineEndings("\\n"));
-        sb.Append('\t').Append(process?.GetTopic()?.ReplaceLineEndings("\\n"));
+        sb.Append('\t').Append(ioCommand.Process?.GetTopic()?.ReplaceLineEndings("\\n"));
 
         _ioLogger.Write(LogEventLevel.Information, sb.ToString());
     }
 
-    public void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand)
+    public void OnContextIoCommandEnd(IoCommand ioCommand)
     {
         if (_ioLogger == null)
             return;
 
         var sb = new StringBuilder();
-        sb.Append(process?.InvocationName);
+        sb.Append(ioCommand.Process?.InvocationName);
         sb.Append('\t').Append(ioCommand.Id.ToString("D", CultureInfo.InvariantCulture));
         sb.Append('\t').Append(ioCommand.Kind.ToString());
         sb.Append('\t').Append(ioCommand.Exception != null ? "failed" : "succeeded");

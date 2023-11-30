@@ -45,8 +45,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
                     stream.Name, ex.Message));
                 exception.Data["StreamName"] = stream.Name;
 
-                stream.IoCommand.Exception = exception;
-                Context.RegisterIoCommandEnd(this, stream.IoCommand);
+                stream.IoCommand.Failed(exception);
                 throw exception;
             }
 
@@ -60,8 +59,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
                     stream.Name));
                 exception.Data["StreamName"] = stream.Name;
 
-                stream.IoCommand.Exception = exception;
-                Context.RegisterIoCommandEnd(this, stream.IoCommand);
+                stream.IoCommand.Failed(exception);
                 throw exception;
             }
 
@@ -95,7 +93,7 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
             }
 
             stream.IoCommand.AffectedDataCount += rowCount;
-            Context.RegisterIoCommandEnd(this, stream.IoCommand);
+            stream.IoCommand.End();
         }
     }
 }

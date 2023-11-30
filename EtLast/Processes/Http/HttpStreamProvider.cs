@@ -24,8 +24,9 @@ public class HttpStreamProvider : IStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var ioCommand = caller.Context.RegisterIoCommandStart(caller, new IoCommand()
+        var ioCommand = caller.Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = caller,
             Kind = IoCommandKind.httpGet,
             Location = Url,
             Command = "GET",
@@ -50,13 +51,12 @@ public class HttpStreamProvider : IStreamProvider
                     Url, ex.Message));
                 exception.Data["Url"] = Url;
 
-                ioCommand.Exception = exception;
-                caller.Context.RegisterIoCommandEnd(caller, ioCommand);
+                ioCommand.Failed(exception);
                 throw exception;
             }
 
             ioCommand.AffectedDataCount = 0;
-            caller.Context.RegisterIoCommandEnd(caller, ioCommand);
+            ioCommand.End();
             return Enumerable.Empty<NamedStream>();
         }
     }

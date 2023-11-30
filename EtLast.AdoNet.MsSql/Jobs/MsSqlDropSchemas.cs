@@ -25,8 +25,9 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
     {
         var schemaName = SchemaNames[statementIndex];
 
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbAlterSchema,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(schemaName),
@@ -39,7 +40,7 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -53,8 +54,7 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

@@ -39,8 +39,7 @@ public interface IEtlContext : ICaller
     public void LogCustom(string fileName, IProcess process, string text, params object[] args);
     public void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
-    public IoCommand RegisterIoCommandStart(IProcess process, IoCommand ioCommand);
-    public void RegisterIoCommandEnd(IProcess process, IoCommand ioCommand);
+    public IoCommand RegisterIoCommandStart(IoCommand ioCommand);
 
     public void SetRowOwner(IRow row, IProcess currentProcess);
 
@@ -49,7 +48,6 @@ public interface IEtlContext : ICaller
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
 
     public Sink GetSink(string location, string path, string sinkFormat, Type sinkWriter);
-    public void RegisterWriteToSink(IReadOnlyRow row, Sink sink);
 
     public void Close();
     public void StopServices();

@@ -50,16 +50,18 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                ioCommandHttpGet = Context.RegisterIoCommandStart(this, new IoCommand()
+                ioCommandHttpGet = Context.RegisterIoCommandStart(new IoCommand()
                 {
+                    Process = this,
                     Kind = IoCommandKind.httpGet,
                     Location = Url,
                     Command = "GET",
                     Message = "downloading file",
                 });
 
-                ioCommandFileWrite = Context.RegisterIoCommandStart(this, new IoCommand()
+                ioCommandFileWrite = Context.RegisterIoCommandStart(new IoCommand()
                 {
+                    Process = this,
                     Kind = IoCommandKind.fileWrite,
                     Location = OutputFileName,
                     Message = "writing downloaded content to file"
@@ -109,8 +111,8 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
                 ioCommandHttpGet.AffectedDataCount += size;
                 ioCommandFileWrite.AffectedDataCount += size;
 
-                Context.RegisterIoCommandEnd(this, ioCommandHttpGet);
-                Context.RegisterIoCommandEnd(this, ioCommandFileWrite);
+                ioCommandHttpGet.End();
+                ioCommandFileWrite.End();
             }
         }
         catch (Exception ex)
@@ -121,11 +123,8 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
             exception.Data["Url"] = Url;
             exception.Data["FileName"] = OutputFileName;
 
-            ioCommandHttpGet.Exception = ex;
-            ioCommandFileWrite.Exception = ex;
-
-            Context.RegisterIoCommandEnd(this, ioCommandHttpGet);
-            Context.RegisterIoCommandEnd(this, ioCommandFileWrite);
+            ioCommandHttpGet.Failed(exception);
+            ioCommandFileWrite.Failed(exception);
             throw exception;
         }
     }

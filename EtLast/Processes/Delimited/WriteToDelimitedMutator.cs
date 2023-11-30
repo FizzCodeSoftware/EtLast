@@ -165,7 +165,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
         var sinkEntry = GetSinkEntry(partitionKey);
 
-        Context.RegisterWriteToSink(row, sinkEntry.Sink.Sink);
+        sinkEntry.Sink.Sink.RegisterRow(row);
 
         try
         {
@@ -216,9 +216,8 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         }
         catch (Exception ex)
         {
-            sinkEntry.Sink.IoCommand.Exception = ex;
             sinkEntry.Sink.IoCommand.AffectedDataCount += sinkEntry.Sink.RowsWritten;
-            Context.RegisterIoCommandEnd(this, sinkEntry.Sink.IoCommand);
+            sinkEntry.Sink.IoCommand.Failed(ex);
             throw;
         }
 

@@ -23,8 +23,9 @@ public sealed class HttpDownload : AbstractJob
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+                ioCommand = Context.RegisterIoCommandStart(new IoCommand()
                 {
+                    Process = this,
                     Kind = IoCommandKind.httpGet,
                     Location = Url,
                     Command = "GET",
@@ -37,8 +38,7 @@ public sealed class HttpDownload : AbstractJob
 
                 var downloadedBytes = OutputStream.Length - initialSize;
                 ioCommand.AffectedDataCount += downloadedBytes;
-
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.End();
             }
         }
         catch (Exception ex)
@@ -48,8 +48,7 @@ public sealed class HttpDownload : AbstractJob
                 Url, ex.Message));
             exception.Data["Url"] = Url;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

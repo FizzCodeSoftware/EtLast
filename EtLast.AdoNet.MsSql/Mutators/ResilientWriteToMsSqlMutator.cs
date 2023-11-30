@@ -97,7 +97,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     {
         _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", GetType());
 
-        Context.RegisterWriteToSink(row, _sink);
+        _sink.RegisterRow(row);
 
         var rc = _reader.RowCount;
         var i = 0;
@@ -164,8 +164,9 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         bulkCopy.ColumnMappings.Add(column.Key, column.Value ?? column.Key);
                     }
 
-                    var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+                    var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
                     {
+                        Process = this,
                         Kind = IoCommandKind.dbWriteBulk,
                         Location = ConnectionString.Name,
                         Path = ConnectionString.Unescape(TableName),
@@ -183,7 +184,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         EtlConnectionManager.ReleaseConnection(this, ref connection);
 
                         ioCommand.AffectedDataCount += recordCount;
-                        Context.RegisterIoCommandEnd(this, ioCommand);
+                        ioCommand.End();
                         success = true;
                     }
                     catch (Exception ex)
@@ -196,9 +197,8 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
                         exception.Data["Elapsed"] = _timer.Elapsed;
                         exception.Data["TotalRowsWritten"] = _rowsWritten;
 
-                        ioCommand.Exception = exception;
                         ioCommand.AffectedDataCount += recordCount;
-                        Context.RegisterIoCommandEnd(this, ioCommand);
+                        ioCommand.Failed(exception);
 
                         throw; // by design. do not "throw exception"
                     }

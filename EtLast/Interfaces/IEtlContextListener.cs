@@ -16,8 +16,8 @@ public interface IEtlContextListener
 
     void OnProcessInvocationStart(IProcess process);
     void OnProcessInvocationEnd(IProcess process);
-    void OnContextIoCommandStart(IProcess process, IoCommand ioCommand);
-    void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand);
+    void OnContextIoCommandStart(IoCommand ioCommand);
+    void OnContextIoCommandEnd(IoCommand ioCommand);
 
     void OnContextClosed(); // all pending state must be flushed in this method
 }

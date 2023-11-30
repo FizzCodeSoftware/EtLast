@@ -39,7 +39,7 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        Context.RegisterWriteToSink(row, _sink);
+        _sink.RegisterRow(row);
 
         _state.Worksheet = PreLoadedFile.Workbook.Worksheets.Add(SheetName);
         _state.NextRow = 1;

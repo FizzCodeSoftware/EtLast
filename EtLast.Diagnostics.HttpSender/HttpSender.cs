@@ -356,12 +356,12 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnContextIoCommandStart(IProcess process, IoCommand ioCommand)
+    public void OnContextIoCommandStart(IoCommand ioCommand)
     {
         SendDiagnostics(DiagnosticsEventKind.IoCommandStart, writer =>
         {
             writer.Write7BitEncodedInt64(ioCommand.Id);
-            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationId);
+            writer.Write7BitEncodedInt64(ioCommand.Process.InvocationInfo.InvocationId);
             writer.Write((byte)ioCommand.Kind);
             writer.WriteNullable(ioCommand.Location);
             writer.WriteNullable(ioCommand.Path);
@@ -385,7 +385,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand)
+    public void OnContextIoCommandEnd(IoCommand ioCommand)
     {
         SendDiagnostics(DiagnosticsEventKind.IoCommandEnd, writer =>
         {

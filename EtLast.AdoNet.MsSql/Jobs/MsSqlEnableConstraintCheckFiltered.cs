@@ -14,8 +14,9 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
     {
         var tableName = ConstraintNames[statementIndex].Key;
 
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbAlterSchema,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(tableName),
@@ -28,9 +29,7 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
         try
         {
             command.ExecuteNonQuery();
-            var time = startedOn.Elapsed;
-
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -43,8 +42,7 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

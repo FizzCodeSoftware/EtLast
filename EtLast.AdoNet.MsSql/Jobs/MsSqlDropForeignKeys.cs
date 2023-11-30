@@ -133,8 +133,9 @@ from
 
             var constraintsByTable = new Dictionary<string, List<string>>();
 
-            var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+            var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
             {
+                Process = this,
                 Kind = IoCommandKind.dbReadMeta,
                 Location = ConnectionString.Name,
                 Path = "SYS.FOREIGN_KEYS",
@@ -175,7 +176,7 @@ from
                     }
 
                     ioCommand.AffectedDataCount += recordsRead;
-                    Context.RegisterIoCommandEnd(this, ioCommand);
+                    ioCommand.End();
                 }
 
                 _tableNamesAndCounts = [];
@@ -202,8 +203,7 @@ from
                 exception.Data["Timeout"] = command.CommandTimeout;
                 exception.Data["Elapsed"] = startedOn.Elapsed;
 
-                ioCommand.Exception = exception;
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.Failed(exception);
                 throw exception;
             }
         }
@@ -213,8 +213,9 @@ from
     {
         var tableName = _tableNamesAndCounts[statementIndex].Item1;
 
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbAlterSchema,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(tableName),
@@ -227,7 +228,7 @@ from
         try
         {
             command.ExecuteNonQuery();
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -241,8 +242,7 @@ from
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = startedOn.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

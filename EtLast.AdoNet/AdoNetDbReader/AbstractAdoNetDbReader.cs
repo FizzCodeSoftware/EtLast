@@ -101,8 +101,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 exception.Data["ConnectionStringName"] = ConnectionString.Name;
                 exception.Data["Statement"] = cmd.CommandText;
 
-                ioCommand.Exception = exception;
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.Failed(exception);
                 throw exception;
             }
         }
@@ -175,9 +174,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     exception.Data["RowIndex"] = resultCount;
                     exception.Data["SecondsSinceLastRead"] = LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture);
 
-                    ioCommand.Exception = exception;
                     ioCommand.AffectedDataCount += resultCount;
-                    Context.RegisterIoCommandEnd(this, ioCommand);
+                    ioCommand.Failed(exception);
                     throw exception;
                 }
 
@@ -223,7 +221,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         }
 
         ioCommand.AffectedDataCount += resultCount;
-        Context.RegisterIoCommandEnd(this, ioCommand);
+        ioCommand.End();
 
         if (reader != null)
         {

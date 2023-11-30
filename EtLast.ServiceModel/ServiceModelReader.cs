@@ -39,8 +39,9 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     {
         var client = ClientCreator.Invoke(this);
 
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.serviceRead,
             Location = client.Endpoint.Address.ToString(),
             TimeoutSeconds = Convert.ToInt32(client.InnerChannel.OperationTimeout.TotalSeconds),
@@ -59,8 +60,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                 client.Endpoint.Address.ToString()));
             exception.Data["EndpointAddress"] = client.Endpoint.Address.ToString();
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
 
@@ -86,7 +86,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
                     exception.Data["Endpoint"] = client.Endpoint.Address.ToString();
 
                     ioCommand.AffectedDataCount += resultCount;
-                    Context.RegisterIoCommandEnd(this, ioCommand);
+                    ioCommand.End();
                     throw exception;
                 }
 
@@ -132,7 +132,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
         }
 
         ioCommand.AffectedDataCount += resultCount;
-        Context.RegisterIoCommandEnd(this, ioCommand);
+        ioCommand.End();
     }
 }
 

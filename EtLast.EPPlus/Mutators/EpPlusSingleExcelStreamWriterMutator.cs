@@ -35,8 +35,9 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
 
         if (ExistingPackage == null && _package != null)
         {
-            var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+            var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
             {
+                Process = this,
                 Kind = IoCommandKind.streamWrite,
                 Location = Stream.GetType().GetFriendlyTypeName(),
                 Message = "saving excel package",
@@ -46,13 +47,12 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
             {
                 _package.Save();
                 ioCommand.AffectedDataCount += _rowCount;
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.End();
             }
             catch (Exception ex)
             {
                 // todo: enrich exception
-                ioCommand.Exception = ex;
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.Failed(ex);
                 throw;
             }
 
@@ -77,7 +77,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
 
             if (_sink != null)
             {
-                Context.RegisterWriteToSink(row, _sink);
+                _sink.RegisterRow(row);
                 _rowCount++;
             }
         }

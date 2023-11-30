@@ -9,11 +9,11 @@ public class IoCommandKindCounter : IEtlContextListener
     {
     }
 
-    public void OnContextIoCommandStart(IProcess process, IoCommand ioCommand)
+    public void OnContextIoCommandStart(IoCommand ioCommand)
     {
     }
 
-    public void OnContextIoCommandEnd(IProcess process, IoCommand ioCommand)
+    public void OnContextIoCommandEnd(IoCommand ioCommand)
     {
         _counters.TryGetValue(ioCommand.Kind, out var counter);
         if (counter == null)

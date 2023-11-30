@@ -24,8 +24,9 @@ public sealed class TruncateTable : AbstractSqlStatement
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + TableName;
 
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbReadCount,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(TableName),
@@ -40,7 +41,7 @@ public sealed class TruncateTable : AbstractSqlStatement
         {
             recordCount = (int)command.ExecuteScalar();
             ioCommand.AffectedDataCount += recordCount;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -54,15 +55,15 @@ public sealed class TruncateTable : AbstractSqlStatement
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
 
         command.CommandText = originalStatement;
 
-        ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbDelete,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(TableName),
@@ -77,7 +78,7 @@ public sealed class TruncateTable : AbstractSqlStatement
         {
             command.ExecuteNonQuery();
             ioCommand.AffectedDataCount += recordCount;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -91,8 +92,7 @@ public sealed class TruncateTable : AbstractSqlStatement
             exception.Data["Timeout"] = CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

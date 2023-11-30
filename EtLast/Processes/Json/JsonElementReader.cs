@@ -64,7 +64,7 @@ public sealed class JsonElementReader<T> : AbstractRowSource
                     catch (Exception) { }
 
                     stream.IoCommand.AffectedDataCount += endPos - startPos;
-                    Context.RegisterIoCommandEnd(this, stream.IoCommand);
+                    stream.IoCommand.End();
                     stream.Dispose();
                 }
             }

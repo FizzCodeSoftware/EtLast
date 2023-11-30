@@ -42,8 +42,9 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbWriteCopy,
             Location = ConnectionString.Name,
             Path = ConnectionString.Unescape(Configuration.TargetTableName),
@@ -60,7 +61,7 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
             var recordCount = command.ExecuteNonQuery();
 
             ioCommand.AffectedDataCount += recordCount;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.End();
         }
         catch (Exception ex)
         {
@@ -84,8 +85,7 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
             exception.Data["Timeout"] = command.CommandTimeout;
             exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
 
-            ioCommand.Exception = exception;
-            Context.RegisterIoCommandEnd(this, ioCommand);
+            ioCommand.Failed(exception);
             throw exception;
         }
     }

@@ -32,8 +32,9 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
 
         if (ExistingPackage == null && _package != null)
         {
-            var ioCommand = Context.RegisterIoCommandStart(this, new IoCommand()
+            var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
             {
+                Process = this,
                 Kind = IoCommandKind.fileWrite,
                 Location = Path.GetDirectoryName(FileName),
                 Path = Path.GetFileName(FileName),
@@ -44,7 +45,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
             {
                 _package.Save();
                 ioCommand.AffectedDataCount += _rowCount;
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.End();
             }
             catch (Exception ex)
             {
@@ -53,8 +54,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
                     FileName, ex.Message));
                 exception.Data["FileName"] = FileName;
 
-                ioCommand.Exception = exception;
-                Context.RegisterIoCommandEnd(this, ioCommand);
+                ioCommand.Failed(exception);
                 throw exception;
             }
 
@@ -79,7 +79,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
 
             if (_sink != null)
             {
-                Context.RegisterWriteToSink(row, _sink);
+                _sink.RegisterRow(row);
                 _rowCount++;
             }
         }

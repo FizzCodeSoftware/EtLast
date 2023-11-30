@@ -20,8 +20,9 @@ public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
 
     protected override IoCommand RegisterIoCommand(string transactionId, int timeout, string statement)
     {
-        return Context.RegisterIoCommandStart(this, new IoCommand()
+        return Context.RegisterIoCommandStart(new IoCommand()
         {
+            Process = this,
             Kind = IoCommandKind.dbRead,
             Location = ConnectionString.Name,
             Path = MainTableName != null
