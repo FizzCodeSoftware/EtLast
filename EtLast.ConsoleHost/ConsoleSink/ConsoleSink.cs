@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.SerilogSink;
+﻿namespace FizzCode.EtLast;
 
 internal class ConsoleSink : ILogEventSink
 {
@@ -122,7 +122,7 @@ internal class ConsoleSink : ILogEventSink
                         }
                         else
                         {
-                            ValueFormatter.Format(logEvent, value, builder, pt.Format, pt.PropertyName);
+                            SinkValueFormatter.Format(logEvent, value, builder, pt.Format, pt.PropertyName);
                         }
 
                         break;
@@ -168,7 +168,7 @@ internal class ConsoleSink : ILogEventSink
         if (properties.Count == 0)
             return;
 
-        ValueFormatter.FormatStructureValue(logEvent, builder, new StructureValue(properties));
+        SinkValueFormatter.FormatStructureValue(logEvent, builder, new StructureValue(properties));
     }
 
     private static void WriteProperty(LogEvent logEvent, TextWriter builder, string propertyName, string format)

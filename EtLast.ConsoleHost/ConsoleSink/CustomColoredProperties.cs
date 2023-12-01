@@ -1,4 +1,4 @@
-﻿namespace FizzCode.EtLast.SerilogSink;
+﻿namespace FizzCode.EtLast;
 
 internal static class CustomColoredProperties
 {

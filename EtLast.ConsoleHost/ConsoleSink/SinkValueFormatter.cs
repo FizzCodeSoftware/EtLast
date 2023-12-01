@@ -1,6 +1,6 @@
-﻿namespace FizzCode.EtLast.SerilogSink;
+﻿namespace FizzCode.EtLast;
 
-internal static class ValueFormatter
+internal static class SinkValueFormatter
 {
     public static void Format(LogEvent logEvent, LogEventPropertyValue value, TextWriter builder, string format, string propertyName)
     {
@@ -18,8 +18,6 @@ internal static class ValueFormatter
             case DictionaryValue dictv:
                 FormatDictionaryValue(logEvent, builder, dictv, propertyName);
                 break;
-            default:
-                throw new NotSupportedException($"The value {value} is not of a type supported by this visitor.");
         }
     }
 
@@ -84,13 +82,9 @@ internal static class ValueFormatter
                     using (ColorCodeContext.StartOverridden(builder, logEvent, colorCode))
                     {
                         if (string.IsNullOrEmpty(format))
-                        {
                             value.Render(builder, DefaultIntegerFormat, CultureInfo.InvariantCulture);
-                        }
                         else
-                        {
                             value.Render(builder, format, CultureInfo.InvariantCulture);
-                        }
                     }
                 }
                 break;
@@ -100,13 +94,9 @@ internal static class ValueFormatter
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.NumberValue))
                 {
                     if (string.IsNullOrEmpty(format))
-                    {
                         value.Render(builder, "#,0.#", CultureInfo.InvariantCulture);
-                    }
                     else
-                    {
                         value.Render(builder, format, CultureInfo.InvariantCulture);
-                    }
 
                     break;
                 }
@@ -116,25 +106,15 @@ internal static class ValueFormatter
                     if (string.IsNullOrEmpty(format))
                     {
                         if (ts.Days > 0)
-                        {
                             value.Render(builder, @"d\.hh\:mm", CultureInfo.InvariantCulture);
-                        }
                         else if (ts.Hours > 0)
-                        {
                             value.Render(builder, @"h\:mm\:ss", CultureInfo.InvariantCulture);
-                        }
                         else if (ts.Minutes > 0)
-                        {
                             value.Render(builder, @"m\:ss", CultureInfo.InvariantCulture);
-                        }
                         else if (ts.Seconds > 0)
-                        {
                             value.Render(builder, @"s\.f", CultureInfo.InvariantCulture);
-                        }
                         else
-                        {
                             value.Render(builder, @"\.fff", CultureInfo.InvariantCulture);
-                        }
                     }
                     else
                     {
@@ -145,23 +125,17 @@ internal static class ValueFormatter
                 }
             case DateTime:
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
-                {
                     value.Render(builder, "yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
-                }
 
                 break;
             case DateTimeOffset:
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
-                {
                     value.Render(builder, "yyyy.MM.dd HH:mm:ss.fff zzz", CultureInfo.InvariantCulture);
-                }
 
                 break;
             default:
                 using (ColorCodeContext.StartOverridden(builder, logEvent, ColorCode.ScalarValue))
-                {
                     value.Render(builder, format, CultureInfo.InvariantCulture);
-                }
 
                 break;
         }

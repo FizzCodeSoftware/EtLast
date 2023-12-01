@@ -1,6 +1,4 @@
-﻿using FizzCode.EtLast.SerilogSink;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public class ConsoleHost : IHost
 {

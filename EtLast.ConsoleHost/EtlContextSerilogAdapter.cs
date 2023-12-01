@@ -1,5 +1,4 @@
-﻿using FizzCode.EtLast.SerilogSink;
-using Serilog.Sinks.File;
+﻿using Serilog.Sinks.File;
 
 namespace FizzCode.EtLast;
 

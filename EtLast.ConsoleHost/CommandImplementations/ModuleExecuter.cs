@@ -213,7 +213,7 @@ internal static class ModuleExecuter
         const string affected = "affected";
 
         var maxKeyLength = Math.Max(kind.Length, task.IoCommandCounters.Max(x => x.Key.ToString().Length));
-        var maxInvocationLength = Math.Max(invocation.Length, task.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(SerilogSink.ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length));
+        var maxInvocationLength = Math.Max(invocation.Length, task.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length));
 
         context.Log(LogSeverity.Debug, task, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kind,
             "".PadRight(maxKeyLength - kind.Length, ' '),
@@ -228,7 +228,7 @@ internal static class ModuleExecuter
                 context.Log(LogSeverity.Debug, task, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kvp.Key.ToString(),
                     "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                     kvp.Value.InvocationCount,
-                    "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(SerilogSink.ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                    "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
                     kvp.Value.AffectedDataCount);
             }
             else
@@ -258,7 +258,7 @@ internal static class ModuleExecuter
         if (result.IoCommandCounters.Count > 0)
         {
             var maxKeyLength = result.IoCommandCounters.Max(x => x.Key.ToString().Length);
-            var maxInvocationLength = result.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(SerilogSink.ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
+            var maxInvocationLength = result.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
 
             foreach (var kvp in result.IoCommandCounters.OrderBy(kvp => kvp.Key.ToString()))
             {
@@ -268,7 +268,7 @@ internal static class ModuleExecuter
                         kvp.Key.ToString(),
                         "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
                         kvp.Value.InvocationCount,
-                        "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(SerilogSink.ValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                        "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
                         kvp.Value.AffectedDataCount);
                 }
                 else
