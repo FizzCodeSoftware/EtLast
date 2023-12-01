@@ -8,15 +8,12 @@ public sealed class EtlContext : IEtlContext
     public IEtlContext Context => this;
     public FlowState FlowState => new(this);
 
-    public DateTimeOffset CreatedOnUtc { get; }
-    public DateTimeOffset CreatedOnLocal { get; }
-
     public List<IEtlContextListener> Listeners { get; }
 
     /// <summary>
     /// Default value: 4 hours, but .NET maximizes the timeout in 10 minutes.
     /// </summary>
-    public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromHours(4);
+    public TimeSpan TransactionScopeTimeout { get; init; } = TimeSpan.FromHours(4);
 
     /// <summary>
     /// Default value: 1000
@@ -48,6 +45,8 @@ public sealed class EtlContext : IEtlContext
 
         Arguments = arguments;
 
+        var nowUtc = DateTimeOffset.UtcNow;
+
         Manifest = new ContextManifest()
         {
             ContextId = DateTime.UtcNow.Ticks,
@@ -61,8 +60,8 @@ public sealed class EtlContext : IEtlContext
             Is64Bit = Environment.Is64BitProcess,
             IsPrivileged = Environment.IsPrivilegedProcess,
             TickCountSinceStartup = Environment.TickCount64,
-            CreatedOnUtc = CreatedOnLocal.ToUniversalTime(),
-            CreatedOnLocal = DateTimeOffset.Now,
+            CreatedOnUtc = nowUtc,
+            CreatedOnLocal = nowUtc.ToLocalTime(),
             Arguments = arguments?.AllKeys.ToDictionary(key => key, key => arguments.Get(key)?.ToString()),
         };
 

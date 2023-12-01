@@ -11,7 +11,7 @@ public interface IEtlContext : ICaller
 
     public int ElapsedMillisecondsLimitToLog { get; set; }
 
-    public TimeSpan TransactionScopeTimeout { get; set; }
+    public TimeSpan TransactionScopeTimeout { get; init; }
 
     public void Terminate();
     public bool IsTerminating { get; }

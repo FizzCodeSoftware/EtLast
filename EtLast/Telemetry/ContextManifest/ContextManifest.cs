@@ -3,8 +3,8 @@
 public delegate void ContextManifestChangedEvent(ContextManifest manifest);
 
 public delegate void ContextManifestClosedEvent(ContextManifest manifest);
-public delegate void ContextManifestTaskStartedEvent(ContextManifest manifest, ContextManifestProcess task);
-public delegate void ContextManifestTaskFinishedEvent(ContextManifest manifest, ContextManifestProcess task);
+public delegate void ContextManifestProcessStartedEvent(ContextManifest manifest, ContextManifestProcess task);
+public delegate void ContextManifestProcessFinishedEvent(ContextManifest manifest, ContextManifestProcess task);
 public delegate void ContextManifestSinkCreatedEvent(ContextManifest manifest, ContextManifestSink sink);
 public delegate void ContextManifestSinkChangedEvent(ContextManifest manifest, ContextManifestSink sink);
 public delegate void ContextManifestExceptionAddedEvent(ContextManifest manifest, ContextManifestException exception);
@@ -37,10 +37,10 @@ public class ContextManifest : IEtlContextListener
         set { _sinks = value.ToDictionary(x => x.Id, x => x); }
     }
 
-    public IReadOnlyList<ContextManifestProcess> TopLevelTasks
+    public IReadOnlyList<ContextManifestProcess> RootProcesses
     {
-        get => _tasks.Values.ToList();
-        set { _tasks = value.ToDictionary(x => x.ProcessId, x => x); }
+        get => _processes.Values.ToList();
+        set { _processes = value.ToDictionary(x => x.ProcessId, x => x); }
     }
 
     public List<ContextManifestException> AllExceptions { get; } = [];
@@ -51,8 +51,8 @@ public class ContextManifest : IEtlContextListener
         set { _ioTargets = value.ToDictionary(x => (x.Location, x.Path, x.Kind), x => x); }
     }
 
-    public event ContextManifestTaskStartedEvent ManifestTaskStarted;
-    public event ContextManifestTaskFinishedEvent ManifestTaskFinished;
+    public event ContextManifestProcessStartedEvent ManifestProcessStarted;
+    public event ContextManifestProcessFinishedEvent ManifestProcessFinished;
     public event ContextManifestSinkCreatedEvent ManifestSinkCreated;
     public event ContextManifestSinkChangedEvent ManifestSinkChanged;
     public event ContextManifestExceptionAddedEvent ManifestExceptionAdded;
@@ -64,7 +64,7 @@ public class ContextManifest : IEtlContextListener
     public event ContextManifestClosedEvent ManifestClosed;
 
     private Dictionary<long, ContextManifestSink> _sinks = [];
-    private Dictionary<long, ContextManifestProcess> _tasks = [];
+    private Dictionary<long, ContextManifestProcess> _processes = [];
     private Dictionary<(string, string, string), ContextManifestIoTarget> _ioTargets = [];
 
     private readonly Dictionary<Exception, ContextManifestException> _exceptionMap = [];
@@ -130,40 +130,40 @@ public class ContextManifest : IEtlContextListener
 
     public void OnProcessInvocationStart(IProcess process)
     {
-        if (process is IEtlTask task && process.InvocationInfo.Caller is IEtlContext)
+        if (process.InvocationInfo.Caller is IEtlContext)
         {
-            if (!_tasks.TryGetValue(task.InvocationInfo.ProcessId, out var manifestTask))
-
+            if (!_processes.TryGetValue(process.InvocationInfo.ProcessId, out var manifestProcess))
             {
-                manifestTask = new ContextManifestProcess()
+                manifestProcess = new ContextManifestProcess()
                 {
-                    ProcessId = task.InvocationInfo.ProcessId,
-                    Name = task.Name,
-                    TypeName = task.GetType().GetFriendlyTypeName(),
+                    ProcessId = process.InvocationInfo.ProcessId,
+                    Name = process.Name,
+                    TypeName = process.GetType().GetFriendlyTypeName(),
+                    Kind = process.Kind,
                 };
 
-                _tasks[manifestTask.ProcessId] = manifestTask;
+                _processes[manifestProcess.ProcessId] = manifestProcess;
             }
 
             var manifestInvocation = new ContextManifestProcessInvocation()
             {
                 StartedOnUtc = DateTimeOffset.UtcNow,
-                InvocationId = task.InvocationInfo.InvocationId,
-                ProcessInvocationCount = task.InvocationInfo.ProcessInvocationCount,
+                InvocationId = process.InvocationInfo.InvocationId,
+                ProcessInvocationCount = process.InvocationInfo.ProcessInvocationCount,
             };
 
-            manifestTask.Invocations.Add(manifestInvocation);
+            manifestProcess.Invocations.Add(manifestInvocation);
 
-            ManifestTaskStarted?.Invoke(this, manifestTask);
+            ManifestProcessStarted?.Invoke(this, manifestProcess);
             ManifestChanged?.Invoke(this);
         }
     }
 
     public void OnProcessInvocationEnd(IProcess process)
     {
-        if (_tasks.TryGetValue(process.InvocationInfo.InvocationId, out var manifestTask))
+        if (_processes.TryGetValue(process.InvocationInfo.InvocationId, out var manifestProcess))
         {
-            var manifestInvocation = manifestTask.Invocations[(int)process.InvocationInfo.ProcessInvocationCount - 1];
+            var manifestInvocation = manifestProcess.Invocations[(int)process.InvocationInfo.ProcessInvocationCount - 1];
 
             manifestInvocation.FinishedOnUtc = DateTimeOffset.UtcNow;
             manifestInvocation.Success = !process.FlowState.Failed;
@@ -174,7 +174,7 @@ public class ContextManifest : IEtlContextListener
                 return manifestException;
             }).Where(x => x != null));
 
-            ManifestTaskFinished?.Invoke(this, manifestTask);
+            ManifestProcessFinished?.Invoke(this, manifestProcess);
             ManifestChanged?.Invoke(this);
         }
     }
@@ -257,6 +257,7 @@ public class ContextManifestProcess
     public long ProcessId { get; set; }
     public string Name { get; set; }
     public string TypeName { get; set; }
+    public string Kind { get; set; }
 
     public List<ContextManifestProcessInvocation> Invocations { get; } = [];
 }
