@@ -18,8 +18,7 @@ public class HttpSender : IDisposable, IEtlContextListener
     private Uri _uri;
     private HttpClient _client;
     private Thread _workerThread;
-    private readonly long _contextId;
-    private readonly string _contextName;
+    private readonly IEtlContext _context;
     private ExtendedBinaryWriter _currentWriter;
     private readonly ExtendedBinaryWriter _eventWriter = new(new MemoryStream(), Encoding.UTF8);
     private readonly ExtendedBinaryWriter _dictWriter = new(new MemoryStream(), Encoding.UTF8);
@@ -33,8 +32,7 @@ public class HttpSender : IDisposable, IEtlContextListener
 
     public HttpSender(IEtlContext context)
     {
-        _contextId = context.Id;
-        _contextName = context.Name;
+        _context = context;
 
         _client = new HttpClient
         {
@@ -92,7 +90,7 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         writer?.Flush();
 
-        var fullUri = new Uri(_uri, "diag?sid=" + _contextId.ToString("D", CultureInfo.InvariantCulture) + (_contextName != null ? "&ctx=" + HttpUtility.UrlEncode(_contextName) : ""));
+        var fullUri = new Uri(_uri, "diag?sid=" + _context.Manifest.ContextId.ToString("D", CultureInfo.InvariantCulture) + (_context.Manifest.ContextName != null ? "&ctx=" + HttpUtility.UrlEncode(_context.Manifest.ContextName) : ""));
 
         var binaryContent = writer != null
             ? (writer.BaseStream as MemoryStream).ToArray()
@@ -266,7 +264,7 @@ public class HttpSender : IDisposable, IEtlContextListener
     {
         SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
         {
-            writer.Write7BitEncodedInt64(row.CurrentProcess.InvocationInfo.InvocationId);
+            writer.Write7BitEncodedInt64(row.Owner.InvocationInfo.InvocationId);
             writer.Write7BitEncodedInt64(row.Id);
             writer.Write7BitEncodedInt(row.ValueCount);
             foreach (var kvp in row.Values)
@@ -292,7 +290,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
         {
             writer.Write7BitEncodedInt64(row.Id);
-            writer.WriteNullable7BitEncodedInt64(row.CurrentProcess?.InvocationInfo?.InvocationId);
+            writer.WriteNullable7BitEncodedInt64(row.Owner?.InvocationInfo?.InvocationId);
 
             writer.Write7BitEncodedInt(values.Length);
             foreach (var kvp in values)
@@ -320,7 +318,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         SendDiagnostics(DiagnosticsEventKind.WriteToSink, writer =>
         {
             writer.Write7BitEncodedInt64(row.Id);
-            writer.Write7BitEncodedInt64(row.CurrentProcess.InvocationInfo.InvocationId);
+            writer.Write7BitEncodedInt64(row.Owner.InvocationInfo.InvocationId);
             writer.Write7BitEncodedInt64(sink.Id);
             writer.Write7BitEncodedInt(row.ValueCount);
             foreach (var kvp in row.Values)

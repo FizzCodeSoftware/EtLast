@@ -140,7 +140,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
 
         var recordCount = _reader.RowCount;
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbWriteBulk,
@@ -177,7 +177,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
             exception.Data["TotalRowsWritten"] = _rowsWritten;
             if (ex is InvalidOperationException or SqlException)
             {
-                var fileName = "bulk-copy-error-" + Context.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
+                var fileName = "bulk-copy-error-" + Context.Manifest.CreatedOnLocal.ToString("yyyy-MM-dd HH-mm-ss", CultureInfo.InvariantCulture) + ".tsv";
                 exception.Data["DetailedRowLogFileName"] = fileName;
                 Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableName) + "] = exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
                 Context.LogCustom(fileName, this, string.Join("\t", _reader.ColumnIndexes.Select(kvp => kvp.Key)));

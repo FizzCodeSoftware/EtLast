@@ -43,7 +43,7 @@ public class LocalFileSetStreamProvider : IStreamProvider
 
     private NamedStream GetFileStream(IProcess caller, string fileName)
     {
-        var ioCommand = caller.Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
             Process = caller,
             Kind = IoCommandKind.fileRead,

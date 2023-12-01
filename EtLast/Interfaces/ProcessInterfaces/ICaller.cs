@@ -2,6 +2,6 @@
 
 public interface ICaller
 {
-    FlowState GetFlowState();
+    FlowState FlowState { get; }
     IEtlContext Context { get; }
 }

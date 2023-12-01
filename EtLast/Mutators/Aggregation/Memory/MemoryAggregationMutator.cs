@@ -130,9 +130,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
             }
 
             foreach (var row in groupRows)
-            {
-                Context.SetRowOwner(row as IRow, null);
-            }
+                (row as IRow).SetOwner(null);
 
             foreach (var aggregate in aggregates)
             {

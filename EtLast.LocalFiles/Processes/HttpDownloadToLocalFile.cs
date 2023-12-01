@@ -50,7 +50,7 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                ioCommandHttpGet = Context.RegisterIoCommandStart(new IoCommand()
+                ioCommandHttpGet = Context.RegisterIoCommand(new IoCommand()
                 {
                     Process = this,
                     Kind = IoCommandKind.httpGet,
@@ -59,7 +59,7 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
                     Message = "downloading file",
                 });
 
-                ioCommandFileWrite = Context.RegisterIoCommandStart(new IoCommand()
+                ioCommandFileWrite = Context.RegisterIoCommand(new IoCommand()
                 {
                     Process = this,
                     Kind = IoCommandKind.fileWrite,

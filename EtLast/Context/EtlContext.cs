@@ -2,23 +2,11 @@
 
 public sealed class EtlContext : IEtlContext
 {
-    public Type RowType { get; private set; }
-
     public AdditionalData AdditionalData { get; } = new AdditionalData();
     public IArgumentCollection Arguments { get; }
 
     public IEtlContext Context => this;
-    public FlowState GetFlowState() => new(this);
-
-    /// <summary>
-    /// Returns the identifier of the context, uniqueness is not guaranteed. Example: s220530-123059-993.
-    /// </summary>
-    public long Id { get; } = DateTime.UtcNow.Ticks;
-
-    /// <summary>
-    /// Returns the name of the context.
-    /// </summary>
-    public string Name { get; init; }
+    public FlowState FlowState => new(this);
 
     public DateTimeOffset CreatedOnUtc { get; }
     public DateTimeOffset CreatedOnLocal { get; }
@@ -55,22 +43,15 @@ public sealed class EtlContext : IEtlContext
 
     public EtlContext(IArgumentCollection arguments, string customName = null)
     {
-        SetRowType<Row>();
-
         _cancellationTokenSource = new CancellationTokenSource();
         CancellationToken = _cancellationTokenSource.Token;
 
         Arguments = arguments;
 
-        CreatedOnLocal = DateTimeOffset.Now;
-        CreatedOnUtc = CreatedOnLocal.ToUniversalTime();
-
-        Name = customName ?? Guid.NewGuid().ToString("D");
-
         Manifest = new ContextManifest()
         {
-            ContextId = Id,
-            ContextName = Name,
+            ContextId = DateTime.UtcNow.Ticks,
+            ContextName = customName ?? Guid.NewGuid().ToString("D"),
             Instance = arguments?.Instance ?? Environment.MachineName,
             UserName = Environment.UserName,
             UserDomainName = Environment.UserDomainName,
@@ -79,9 +60,9 @@ public sealed class EtlContext : IEtlContext
             UserInteractive = Environment.UserInteractive,
             Is64Bit = Environment.Is64BitProcess,
             IsPrivileged = Environment.IsPrivilegedProcess,
-            TickCount = Environment.TickCount64,
-            CreatedOnUtc = CreatedOnUtc,
-            CreatedOnLocal = CreatedOnLocal,
+            TickCountSinceStartup = Environment.TickCount64,
+            CreatedOnUtc = CreatedOnLocal.ToUniversalTime(),
+            CreatedOnLocal = DateTimeOffset.Now,
             Arguments = arguments?.AllKeys.ToDictionary(key => key, key => arguments.Get(key)?.ToString()),
         };
 
@@ -117,11 +98,6 @@ public sealed class EtlContext : IEtlContext
         IsTerminating = true;
     }
 
-    public void SetRowType<T>() where T : IRow
-    {
-        RowType = typeof(T);
-    }
-
     public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args)
     {
         foreach (var listener in Listeners)
@@ -152,7 +128,7 @@ public sealed class EtlContext : IEtlContext
             listener.OnCustomLog(true, fileName, process, text, args);
     }
 
-    public IoCommand RegisterIoCommandStart(IoCommand ioCommand)
+    public IoCommand RegisterIoCommand(IoCommand ioCommand)
     {
         ioCommand.Id = Interlocked.Increment(ref _nextIoCommandId);
         ioCommand.Context = this;
@@ -165,8 +141,7 @@ public sealed class EtlContext : IEtlContext
 
     public IRow CreateRow(IProcess process)
     {
-        var row = (IRow)Activator.CreateInstance(RowType);
-        row.Init(this, process, Interlocked.Increment(ref _nextRowId), null);
+        var row = new Row(this, process, Interlocked.Increment(ref _nextRowId), null);
 
         foreach (var listener in Listeners)
             listener.OnRowCreated(row);
@@ -176,8 +151,7 @@ public sealed class EtlContext : IEtlContext
 
     public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
     {
-        var row = (IRow)Activator.CreateInstance(RowType);
-        row.Init(this, process, Interlocked.Increment(ref _nextRowId), initialValues);
+        var row = new Row(this, process, Interlocked.Increment(ref _nextRowId), initialValues);
 
         foreach (var listener in Listeners)
             listener.OnRowCreated(row);
@@ -187,31 +161,15 @@ public sealed class EtlContext : IEtlContext
 
     public IRow CreateRow(IProcess process, IReadOnlySlimRow source)
     {
-        var row = (IRow)Activator.CreateInstance(RowType);
-        row.Init(this, process, Interlocked.Increment(ref _nextRowId), source.Values);
-        row.Tag = source.Tag;
+        var row = new Row(this, process, Interlocked.Increment(ref _nextRowId), source.Values)
+        {
+            Tag = source.Tag
+        };
 
         foreach (var listener in Listeners)
             listener.OnRowCreated(row);
 
         return row;
-    }
-
-    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity, TimeSpan? timeoutOverride = null)
-    {
-        return new EtlTransactionScope(this, process, kind, timeoutOverride ?? TransactionScopeTimeout, logSeverity);
-    }
-
-    public void SetRowOwner(IRow row, IProcess currentProcess)
-    {
-        if (row.CurrentProcess == currentProcess)
-            return;
-
-        var previousProcess = row.CurrentProcess;
-        row.CurrentProcess = currentProcess;
-
-        foreach (var listener in Listeners)
-            listener.OnRowOwnerChanged(row, previousProcess, currentProcess);
     }
 
     public void RegisterProcessInvocationStart(IProcess process, ICaller caller)
@@ -243,9 +201,6 @@ public sealed class EtlContext : IEtlContext
 
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds)
     {
-        /*if (process.InvocationInfo.LastInvocationFinished != null)
-            Debugger.Break();*/
-
         process.InvocationInfo.LastInvocationFinishedLocal = DateTimeOffset.Now;
         process.InvocationInfo.LastInvocationFinishedUtc = process.InvocationInfo.LastInvocationFinishedLocal.Value.ToLocalTime();
         process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;

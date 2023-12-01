@@ -21,7 +21,7 @@ public sealed class MsSqlDisableConstraintCheck : AbstractSqlStatements
     {
         var tableName = TableNames[statementIndex];
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

@@ -79,7 +79,7 @@ internal static class ModuleExecuter
             context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing " + nameof(IStartup) + ".");
         }
 
-        context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Name, context.Id);
+        context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Manifest.ContextName, context.Manifest.ContextId);
 
         if (!string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
         {

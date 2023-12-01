@@ -136,7 +136,7 @@ public abstract class AbstractProcess : IProcess
     protected void BeginExecution(ICaller caller, FlowState flowState, bool overwriteArguments = true)
     {
         ArgumentNullException.ThrowIfNull(caller);
-        FlowState = flowState ?? caller.GetFlowState();
+        FlowState = flowState ?? caller.FlowState;
         Context.RegisterProcessInvocationStart(this, caller);
         LogCall(caller);
 

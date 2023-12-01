@@ -163,7 +163,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
             foreach (var groupRow in group)
             {
                 if (groupRow != resultRow)
-                    Context.SetRowOwner(groupRow, null);
+                    groupRow.SetOwner(null);
             }
         }
         else

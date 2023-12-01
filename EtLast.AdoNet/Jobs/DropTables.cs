@@ -28,7 +28,7 @@ public sealed class DropTables : AbstractSqlStatements
 
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + tableName;
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbReadCount,
@@ -52,7 +52,7 @@ public sealed class DropTables : AbstractSqlStatements
         }
 
         command.CommandText = originalStatement;
-        ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbDropTable,

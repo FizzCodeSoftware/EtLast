@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class DelimitedReadException : EtlException
+public class DelimitedReadException(IProcess process, string message) : EtlException(process, message)
 {
-    public DelimitedReadException(IProcess process, string message)
-        : base(process, message)
-    {
-    }
 }

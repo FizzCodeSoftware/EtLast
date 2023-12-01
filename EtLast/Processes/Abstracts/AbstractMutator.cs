@@ -169,7 +169,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
                         addedRowCount++;
                     }
 
-                    if (mutatedRow.CurrentProcess != this)
+                    if (mutatedRow.Owner != this)
                     {
                         FlowState.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                         break;
@@ -187,7 +187,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
             if (!kept)
             {
                 removedRowCount++;
-                Context.SetRowOwner(row, null);
+                row.SetOwner(null);
             }
 
             netTimeStopwatch.Stop();
@@ -230,7 +230,7 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
     {
         foreach (var row in Evaluate(caller, flowState))
         {
-            row.Context.SetRowOwner(row, caller as IProcess);
+            row.SetOwner(caller as IProcess);
             yield return row;
         }
     }
@@ -240,9 +240,9 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         foreach (var row in Evaluate(caller, flowState))
         {
             if (caller is IProcess callerProcess)
-                row.Context.SetRowOwner(row, callerProcess);
+                row.SetOwner(callerProcess);
 
-            row.Context.SetRowOwner(row, null);
+            row.SetOwner(null);
 
             yield return row;
         }
@@ -253,8 +253,8 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         var count = 0;
         foreach (var row in Evaluate(caller, flowState))
         {
-            row.Context.SetRowOwner(row, caller as IProcess);
-            row.Context.SetRowOwner(row, null);
+            row.SetOwner(caller as IProcess);
+            row.SetOwner(null);
 
             count++;
         }

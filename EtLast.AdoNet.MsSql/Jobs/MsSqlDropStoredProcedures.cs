@@ -84,7 +84,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
 
                     _storedProcedureNames = [];
 
-                    var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+                    var ioCommand = Context.RegisterIoCommand(new IoCommand()
                     {
                         Process = this,
                         Kind = IoCommandKind.dbReadMeta,
@@ -137,7 +137,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
     {
         var storedProcedureName = _storedProcedureNames[statementIndex];
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

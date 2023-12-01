@@ -17,7 +17,7 @@ public class MemorySinkProvider : ISinkProvider
 
     public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat)
     {
-        var ioCommand = caller.Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
             Process = caller,
             Kind = IoCommandKind.memoryWrite,

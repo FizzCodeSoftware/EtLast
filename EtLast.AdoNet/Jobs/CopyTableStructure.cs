@@ -42,7 +42,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var config = Configuration[statementIndex];
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

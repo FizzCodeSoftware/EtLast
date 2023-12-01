@@ -13,19 +13,19 @@ public delegate void ContextManifestIoTargetChangedEvent(ContextManifest manifes
 
 public class ContextManifest : IEtlContextListener
 {
-    public long ContextId { get; set; }
-    public string ContextName { get; set; }
-    public string Instance { get; set; }
-    public string UserName { get; set; }
-    public string UserDomainName { get; set; }
-    public string OSVersion { get; set; }
-    public int ProcessorCount { get; set; }
-    public bool UserInteractive { get; set; }
-    public bool Is64Bit { get; set; }
-    public bool IsPrivileged { get; set; }
-    public long TickCount { get; set; }
-    public DateTimeOffset CreatedOnUtc { get; set; }
-    public DateTimeOffset CreatedOnLocal { get; set; }
+    public long ContextId { get; init; }
+    public string ContextName { get; init; }
+    public string Instance { get; init; }
+    public string UserName { get; init; }
+    public string UserDomainName { get; init; }
+    public string OSVersion { get; init; }
+    public int ProcessorCount { get; init; }
+    public bool UserInteractive { get; init; }
+    public bool Is64Bit { get; init; }
+    public bool IsPrivileged { get; init; }
+    public long TickCountSinceStartup { get; init; }
+    public DateTimeOffset CreatedOnUtc { get; init; }
+    public DateTimeOffset CreatedOnLocal { get; init; }
     public DateTimeOffset? ClosedOnUtc { get; private set; }
     public DateTimeOffset? ClosedOnLocal { get; private set; }
     public long? RunMilliseconds { get; private set; }

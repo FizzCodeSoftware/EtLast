@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class InvalidValuesException : EtlException
+public class InvalidValuesException(IProcess process) : EtlException(process, "invalid values found")
 {
-    public InvalidValuesException(IProcess process)
-        : base(process, "invalid values found")
-    {
-    }
 }

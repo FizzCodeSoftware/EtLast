@@ -15,7 +15,7 @@ public class MemoryStreamProvider : IStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var ioCommand = caller.Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
             Process = caller,
             Kind = IoCommandKind.streamRead,

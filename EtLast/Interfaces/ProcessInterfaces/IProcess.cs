@@ -5,8 +5,6 @@ public interface IProcess : ICaller
     [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
-    public FlowState FlowState { get; }
-
     public string Name { get; }
     public string InvocationName => InvocationInfo.InvocationId + "~" + Name;
 

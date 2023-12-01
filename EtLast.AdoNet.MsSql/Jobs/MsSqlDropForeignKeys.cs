@@ -133,7 +133,7 @@ from
 
             var constraintsByTable = new Dictionary<string, List<string>>();
 
-            var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+            var ioCommand = Context.RegisterIoCommand(new IoCommand()
             {
                 Process = this,
                 Kind = IoCommandKind.dbReadMeta,
@@ -213,7 +213,7 @@ from
     {
         var tableName = _tableNamesAndCounts[statementIndex].Item1;
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

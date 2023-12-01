@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class TooManyMatchActionDelegateException : EtlException
+public class TooManyMatchActionDelegateException(IProcess process, Exception innerException) : EtlException(process, "error during the execution of a " + nameof(TooManyMatchAction) + "." + nameof(TooManyMatchAction.CustomAction) + " delegate", innerException)
 {
-    public TooManyMatchActionDelegateException(IProcess process, Exception innerException)
-        : base(process, "error during the execution of a " + nameof(TooManyMatchAction) + "." + nameof(TooManyMatchAction.CustomAction) + " delegate", innerException)
-    {
-    }
 }

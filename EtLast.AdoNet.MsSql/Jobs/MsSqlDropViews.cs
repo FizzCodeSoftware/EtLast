@@ -77,7 +77,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
 
                     _viewNames = [];
 
-                    var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+                    var ioCommand = Context.RegisterIoCommand(new IoCommand()
                     {
                         Process = this,
                         Kind = IoCommandKind.dbReadMeta,
@@ -130,7 +130,7 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
     {
         var viewName = _viewNames[statementIndex];
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

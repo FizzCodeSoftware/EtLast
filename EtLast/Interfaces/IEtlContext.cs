@@ -2,8 +2,6 @@
 
 public interface IEtlContext : ICaller
 {
-    public void SetRowType<T>() where T : IRow;
-
     public IArgumentCollection Arguments { get; }
     public T Service<T>() where T : IEtlService, new();
     public AdditionalData AdditionalData { get; }
@@ -11,15 +9,9 @@ public interface IEtlContext : ICaller
     public void RegisterScopeAction(ScopeAction action);
     public ScopeAction[] GetScopeActions();
 
-    public long Id { get; }
-    public string Name { get; }
-    public DateTimeOffset CreatedOnUtc { get; }
-    public DateTimeOffset CreatedOnLocal { get; }
-
     public int ElapsedMillisecondsLimitToLog { get; set; }
 
     public TimeSpan TransactionScopeTimeout { get; set; }
-    public EtlTransactionScope BeginTransactionScope(IProcess process, TransactionScopeKind kind, LogSeverity logSeverity, TimeSpan? timeoutOverride = null);
 
     public void Terminate();
     public bool IsTerminating { get; }
@@ -39,9 +31,7 @@ public interface IEtlContext : ICaller
     public void LogCustom(string fileName, IProcess process, string text, params object[] args);
     public void LogCustomOps(string fileName, IProcess process, string text, params object[] args);
 
-    public IoCommand RegisterIoCommandStart(IoCommand ioCommand);
-
-    public void SetRowOwner(IRow row, IProcess currentProcess);
+    public IoCommand RegisterIoCommand(IoCommand ioCommand);
 
     public void RegisterProcessInvocationStart(IProcess process, ICaller caller);
     public void RegisterProcessInvocationEnd(IProcess process);

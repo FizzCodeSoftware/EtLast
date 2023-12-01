@@ -158,7 +158,7 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
 
         _command.CommandText = sqlStatement;
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbWriteBatch,

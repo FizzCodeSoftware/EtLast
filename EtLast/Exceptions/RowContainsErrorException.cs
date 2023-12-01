@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class RowContainsErrorException : EtlException
+public class RowContainsErrorException(IProcess process) : EtlException(process, "error found in a row")
 {
-    public RowContainsErrorException(IProcess process)
-        : base(process, "error found in a row")
-    {
-    }
 }

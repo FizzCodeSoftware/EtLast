@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class DuplicateKeyException : EtlException
+public class DuplicateKeyException(IProcess process) : EtlException(process, "duplicate keys found")
 {
-    public DuplicateKeyException(IProcess process)
-        : base(process, "duplicate keys found")
-    {
-    }
 }

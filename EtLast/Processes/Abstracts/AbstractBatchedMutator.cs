@@ -125,15 +125,13 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
             if (mutationHappened)
             {
                 if (removeOriginal)
-                {
-                    Context.SetRowOwner(row, null);
-                }
+                    row.SetOwner(null);
 
                 netTimeStopwatch.Stop();
 
                 foreach (var mutatedRow in mutatedRows)
                 {
-                    if (mutatedRow.CurrentProcess != this)
+                    if (mutatedRow.Owner != this)
                     {
                         FlowState.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                         failed = true;
@@ -181,14 +179,12 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
                     }
 
                     foreach (var removedRow in removedRows)
-                    {
-                        Context.SetRowOwner(removedRow, null);
-                    }
+                        removedRow.SetOwner(null);
 
                     netTimeStopwatch.Stop();
                     foreach (var mutatedRow in mutatedRows)
                     {
-                        if (mutatedRow.CurrentProcess != this)
+                        if (mutatedRow.Owner != this)
                         {
                             FlowState.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                             failed = true;
@@ -227,14 +223,12 @@ public abstract class AbstractBatchedMutator : AbstractSequence, IMutator
             if (!failed)
             {
                 foreach (var removedRow in removedRows)
-                {
-                    Context.SetRowOwner(removedRow, null);
-                }
+                    removedRow.SetOwner(null);
 
                 netTimeStopwatch.Stop();
                 foreach (var mutatedRow in mutatedRows)
                 {
-                    if (mutatedRow.CurrentProcess != this)
+                    if (mutatedRow.Owner != this)
                     {
                         FlowState.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
                         failed = true;

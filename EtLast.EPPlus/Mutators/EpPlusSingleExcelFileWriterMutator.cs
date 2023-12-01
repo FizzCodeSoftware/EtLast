@@ -32,7 +32,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
 
         if (ExistingPackage == null && _package != null)
         {
-            var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+            var ioCommand = Context.RegisterIoCommand(new IoCommand()
             {
                 Process = this,
                 Kind = IoCommandKind.fileWrite,

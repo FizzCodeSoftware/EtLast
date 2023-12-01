@@ -25,7 +25,7 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
     {
         var schemaName = SchemaNames[statementIndex];
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

@@ -37,7 +37,7 @@ public class LocalFileSinkProvider : ISinkProvider
     {
         var fileName = FileNameGenerator.Invoke(partitionKey);
 
-        var ioCommand = caller.Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
             Process = caller,
             Kind = IoCommandKind.fileWrite,

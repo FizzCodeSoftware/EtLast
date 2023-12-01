@@ -2,9 +2,8 @@
 
 public interface IRow : IReadOnlyRow, ISlimRow
 {
-    new IProcess CurrentProcess { get; set; }
-
-    void Init(IEtlContext context, IProcess creatorProcess, long id, IEnumerable<KeyValuePair<string, object>> initialValues); // called right after creation
+    new IProcess Owner { get; }
+    void SetOwner(IProcess currentProcess);
 
     void MergeWith(IEnumerable<KeyValuePair<string, object>> values);
 }

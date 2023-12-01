@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class TooManyMatchException : EtlException
+public class TooManyMatchException(IProcess process) : EtlException(process, "too many match")
 {
-    public TooManyMatchException(IProcess process)
-        : base(process, "too many match")
-    {
-    }
 }

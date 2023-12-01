@@ -39,7 +39,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     {
         var client = ClientCreator.Invoke(this);
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.serviceRead,

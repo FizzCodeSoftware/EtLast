@@ -7,7 +7,6 @@ public class TrackedRowTests
     public void ToDebugStringStartsWithId()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -25,7 +24,6 @@ public class TrackedRowTests
     public void KeyCaseIgnored()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -41,7 +39,6 @@ public class TrackedRowTests
     public void SingleNullColumnResultsNullKey()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>();
 
@@ -54,7 +51,6 @@ public class TrackedRowTests
     public void MultipleNullColumnsResultsNonNullKey()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>();
 
@@ -67,7 +63,6 @@ public class TrackedRowTests
     public void DateTimeKeyIsInvariantWithMilliseconds()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -83,7 +78,6 @@ public class TrackedRowTests
     public void DateTimeOffsetKeyIsInvariantWithMilliseconds()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -99,7 +93,6 @@ public class TrackedRowTests
     public void TimeSpanKeyIsInvariantWithDaysAndMilliseconds()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -115,7 +108,6 @@ public class TrackedRowTests
     public void IntKeyIsInvariant()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -133,7 +125,6 @@ public class TrackedRowTests
     public void HasErrorFalse()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -149,7 +140,6 @@ public class TrackedRowTests
     public void HasErrorTrue()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -166,7 +156,6 @@ public class TrackedRowTests
     public void NullValuesAreStored1()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -183,7 +172,6 @@ public class TrackedRowTests
     public void NullValuesAreStored2()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -205,7 +193,6 @@ public class TrackedRowTests
     public void IsNullOrEmptyTrue1()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var row = new TrackedRow(context.CreateRow(null));
         Assert.AreEqual(true, row.IsNullOrEmpty());
@@ -215,7 +202,6 @@ public class TrackedRowTests
     public void IsNullOrEmptyTrue2()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var row = new TrackedRow(context.CreateRow(null));
         row["a"] = "";
@@ -226,7 +212,6 @@ public class TrackedRowTests
     public void IsNullOrEmptyTrue3()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var row = new TrackedRow(context.CreateRow(null));
         row["a"] = "";
@@ -239,7 +224,6 @@ public class TrackedRowTests
     public void IsNullOrEmptyFalse()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var row = new TrackedRow(context.CreateRow(null));
         row["a"] = 5;
@@ -250,7 +234,6 @@ public class TrackedRowTests
     public void MergeTestWithRow()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var row = new TrackedRow(context.CreateRow(null));
         row["a"] = 1;
@@ -277,7 +260,6 @@ public class TrackedRowTests
     public void MergeTestWithValues()
     {
         var context = TestExecuter.GetContext();
-        context.SetRowType<Row>();
 
         var row = new TrackedRow(context.CreateRow(null));
         row["a"] = 1;

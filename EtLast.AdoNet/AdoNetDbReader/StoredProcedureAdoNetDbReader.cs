@@ -23,7 +23,7 @@ public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
 
     protected override IoCommand RegisterIoCommand(string transactionId, int timeout, string statement)
     {
-        return Context.RegisterIoCommandStart(new IoCommand()
+        return Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbRead,

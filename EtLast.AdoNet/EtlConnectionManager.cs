@@ -22,7 +22,7 @@ public static class EtlConnectionManager
         return _connectionManager.GetConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                ioCommand = process.Context.RegisterIoCommandStart(new IoCommand()
+                ioCommand = process.Context.RegisterIoCommand(new IoCommand()
                 {
                     Process = process,
                     Kind = IoCommandKind.dbConnection,
@@ -73,7 +73,7 @@ public static class EtlConnectionManager
         var connection = _connectionManager.GetNewConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                ioCommand = process.Context.RegisterIoCommandStart(new IoCommand()
+                ioCommand = process.Context.RegisterIoCommand(new IoCommand()
                 {
                     Process = process,
                     Kind = IoCommandKind.dbConnection,
@@ -118,7 +118,7 @@ public static class EtlConnectionManager
         _connectionManager.ReleaseConnection(connection,
         onClosing: connection =>
         {
-            ioCommand = process.Context.RegisterIoCommandStart(new IoCommand()
+            ioCommand = process.Context.RegisterIoCommand(new IoCommand()
             {
                 Process = process,
                 Kind = IoCommandKind.dbConnection,

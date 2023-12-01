@@ -64,7 +64,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
         IoCommand ioCommand;
 
-        using (var scope = Context.BeginTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
+        using (var scope = new EtlTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
         {
             if (CustomConnectionCreator != null)
             {

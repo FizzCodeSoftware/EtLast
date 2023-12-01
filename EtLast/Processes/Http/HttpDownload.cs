@@ -23,7 +23,7 @@ public sealed class HttpDownload : AbstractJob
         {
             using (Context.CancellationToken.Register(Client.CancelPendingRequests))
             {
-                ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+                ioCommand = Context.RegisterIoCommand(new IoCommand()
                 {
                     Process = this,
                     Kind = IoCommandKind.httpGet,

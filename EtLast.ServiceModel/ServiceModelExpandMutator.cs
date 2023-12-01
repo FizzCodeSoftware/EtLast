@@ -59,7 +59,7 @@ public sealed class ServiceModelExpandMutator<TChannel, TClient> : AbstractMutat
                 continue;
             }
 
-            var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+            var ioCommand = Context.RegisterIoCommand(new IoCommand()
             {
                 Process = this,
                 Kind = IoCommandKind.serviceRead,

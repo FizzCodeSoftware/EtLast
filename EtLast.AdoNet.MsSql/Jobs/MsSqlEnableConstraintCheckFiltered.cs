@@ -14,7 +14,7 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
     {
         var tableName = ConstraintNames[statementIndex].Key;
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

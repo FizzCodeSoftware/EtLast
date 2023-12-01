@@ -1,13 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
+[DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class TrackedRow(IRow originalRow) : IRow
 {
     public bool KeepNulls { get => true; set { } }
 
-    public IProcess CurrentProcess { get => originalRow.CurrentProcess; set => originalRow.CurrentProcess = value; }
-    public IEtlContext Context => originalRow.Context;
+    public IProcess Owner => originalRow.Owner;
     public long Id => originalRow.Id;
-    public IProcess CreatorProcess => originalRow.CreatorProcess;
     public object Tag { get => originalRow.Tag; set => originalRow.Tag = value; }
 
     public IEnumerable<KeyValuePair<string, object>> Values
@@ -252,5 +252,10 @@ public sealed class TrackedRow(IRow originalRow) : IRow
         {
             _changes.Remove(col);
         }
+    }
+
+    public void SetOwner(IProcess currentProcess)
+    {
+        originalRow.SetOwner(currentProcess);
     }
 }

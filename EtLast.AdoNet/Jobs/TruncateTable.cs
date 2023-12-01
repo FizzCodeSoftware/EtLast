@@ -24,7 +24,7 @@ public sealed class TruncateTable : AbstractSqlStatement
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + TableName;
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbReadCount,
@@ -61,7 +61,7 @@ public sealed class TruncateTable : AbstractSqlStatement
 
         command.CommandText = originalStatement;
 
-        ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbDelete,

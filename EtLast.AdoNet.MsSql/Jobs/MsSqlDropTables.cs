@@ -71,7 +71,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
 
                     _tableNames = [];
 
-                    var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+                    var ioCommand = Context.RegisterIoCommand(new IoCommand()
                     {
                         Process = this,
                         Kind = IoCommandKind.dbReadMeta,
@@ -128,7 +128,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
         var recordCount = 0;
         command.CommandText = "SELECT COUNT(*) FROM " + tableName;
 
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbReadCount,
@@ -153,7 +153,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
 
         command.CommandText = originalStatement;
 
-        ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbDropTable,

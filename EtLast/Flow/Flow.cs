@@ -189,7 +189,7 @@ public sealed class Flow : IFlow
 
     public IFlow TransactionScope(TransactionScopeKind kind, Action builder, LogSeverity logSeverity = LogSeverity.Information)
     {
-        using (var scope = Context.BeginTransactionScope(_caller, kind, logSeverity))
+        using (var scope = new EtlTransactionScope(_caller, kind, logSeverity))
         {
             try
             {

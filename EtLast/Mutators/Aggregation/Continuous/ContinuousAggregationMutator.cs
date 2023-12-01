@@ -145,7 +145,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
             aggregate.RowsInGroup++;
 
-            Context.SetRowOwner(row, null);
+            row.SetOwner(null);
         }
 
         netTimeStopwatch.Start();

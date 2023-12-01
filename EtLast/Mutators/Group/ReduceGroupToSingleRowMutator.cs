@@ -171,7 +171,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
             foreach (var row in list)
             {
                 if (row != resultRow)
-                    Context.SetRowOwner(row, null);
+                    row.SetOwner(null);
             }
 
             if (resultRow != null)

@@ -23,7 +23,7 @@ public sealed class DropViews : AbstractSqlStatements
     protected override void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId)
     {
         var viewName = TableNames[statementIndex];
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

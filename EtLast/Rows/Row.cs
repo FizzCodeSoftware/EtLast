@@ -1,21 +1,35 @@
 ﻿namespace FizzCode.EtLast;
 
 [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
-public class Row : IRow
+[EditorBrowsable(EditorBrowsableState.Never)]
+public sealed class Row(IEtlContext context, IProcess process, long id, IEnumerable<KeyValuePair<string, object>> initialValues) : IRow
 {
-    public IEtlContext Context { get; private set; }
-    public IProcess CreatorProcess { get; private set; }
-    public IProcess CurrentProcess { get; set; }
-    public long Id { get; private set; }
+    public IProcess Owner { get; private set; } = process;
+    public long Id { get; private set; } = id;
 
     public IEnumerable<KeyValuePair<string, object>> Values => _values;
     public int ValueCount => _values.Count;
 
     public IEnumerable<KeyValuePair<string, object>> NotNullValues => _values.Where(x => x.Value != null);
-
-    internal Dictionary<string, object> _values;
-
     public object Tag { get; set; }
+
+    internal Dictionary<string, object> _values = initialValues == null
+            ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            : new Dictionary<string, object>(initialValues, StringComparer.OrdinalIgnoreCase);
+
+    private readonly IEtlContext _context = context;
+
+    public void SetOwner(IProcess newOwner)
+    {
+        if (Owner == newOwner)
+            return;
+
+        var previousOwner = Owner;
+        Owner = newOwner;
+
+        foreach (var listener in _context.Listeners)
+            listener.OnRowOwnerChanged(this, previousOwner, newOwner);
+    }
 
     public object this[string column]
     {
@@ -27,7 +41,7 @@ public class Row : IRow
             {
                 if (previousValue != null)
                 {
-                    foreach (var listener in Context.Listeners)
+                    foreach (var listener in _context.Listeners)
                         listener.OnRowValueChanged(this, [new KeyValuePair<string, object>(column, null)]);
                 }
 
@@ -38,13 +52,13 @@ public class Row : IRow
                 if (stored)
                 {
                     _values.Remove(column);
-                    foreach (var listener in Context.Listeners)
+                    foreach (var listener in _context.Listeners)
                         listener.OnRowValueChanged(this, [new KeyValuePair<string, object>(column, value)]);
                 }
             }
             else if (previousValue == null || value != previousValue)
             {
-                foreach (var listener in Context.Listeners)
+                foreach (var listener in _context.Listeners)
                 {
                     listener.OnRowValueChanged(this, new KeyValuePair<string, object>(column, value));
                 }
@@ -166,18 +180,6 @@ public class Row : IRow
         return (formatter ?? ValueFormatter.Default).Format(value, formatProvider);
     }
 
-    public void Init(IEtlContext context, IProcess creatorProcess, long id, IEnumerable<KeyValuePair<string, object>> initialValues)
-    {
-        Context = context;
-        CreatorProcess = creatorProcess;
-        CurrentProcess = creatorProcess;
-        Id = id;
-
-        _values = initialValues == null
-            ? new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
-            : new Dictionary<string, object>(initialValues, StringComparer.OrdinalIgnoreCase);
-    }
-
     public bool HasValue(string column)
     {
         return _values.TryGetValue(column, out var value) && value != null;
@@ -241,7 +243,7 @@ public class Row : IRow
 
         if (changedValues != null)
         {
-            foreach (var listener in Context.Listeners)
+            foreach (var listener in _context.Listeners)
             {
                 listener.OnRowValueChanged(this, changedValues.ToArray());
             }
@@ -267,7 +269,7 @@ public class Row : IRow
 
         if (changedValues != null)
         {
-            foreach (var listener in Context.Listeners)
+            foreach (var listener in _context.Listeners)
             {
                 listener.OnRowValueChanged(this, changedValues.ToArray());
             }
@@ -289,7 +291,7 @@ public class Row : IRow
 
         if (changedValues != null)
         {
-            foreach (var listener in Context.Listeners)
+            foreach (var listener in _context.Listeners)
             {
                 listener.OnRowValueChanged(this, changedValues.ToArray());
             }

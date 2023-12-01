@@ -25,7 +25,7 @@ public sealed class CreatePrimaryKeyConstraint : AbstractSqlStatement
 
     protected override void RunCommand(IDbCommand command, string transactionId, Dictionary<string, object> parameters)
     {
-        var ioCommand = Context.RegisterIoCommandStart(new IoCommand()
+        var ioCommand = Context.RegisterIoCommand(new IoCommand()
         {
             Process = this,
             Kind = IoCommandKind.dbAlterSchema,

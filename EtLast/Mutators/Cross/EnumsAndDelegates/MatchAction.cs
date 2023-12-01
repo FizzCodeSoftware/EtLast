@@ -17,7 +17,7 @@ public sealed class MatchAction(MatchMode mode)
         }
         catch (Exception ex)
         {
-            throw new MatchActionDelegateException(row.CurrentProcess, row, ex);
+            throw new MatchActionDelegateException(row.Owner, row, ex);
         }
     }
 }

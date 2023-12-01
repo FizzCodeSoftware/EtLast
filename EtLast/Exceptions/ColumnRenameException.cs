@@ -2,10 +2,6 @@
 
 [ComVisible(true)]
 [Serializable]
-public class ColumnRenameException : EtlException
+public class ColumnRenameException(IProcess process) : EtlException(process, "specified target column already exists")
 {
-    public ColumnRenameException(IProcess process)
-        : base(process, "specified target column already exists")
-    {
-    }
 }
