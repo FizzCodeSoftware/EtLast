@@ -10,18 +10,19 @@ internal static class ModuleExecuter
 
         string currentDevLogFolder = null;
         string currentOpsLogFolder = null;
-        {
-            var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
-            var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
+        var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
+        var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
 
-            currentDevLogFolder = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName);
-            currentOpsLogFolder = Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName);
-        }
+        currentDevLogFolder = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName);
+        currentOpsLogFolder = Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName);
 
         var environmentSettings = new EnvironmentSettings()
         {
+            ModuleFolderName = moduleFolderName,
+            TasksFolderName = tasksFolderName,
             DevLogFolder = currentDevLogFolder,
             OpsLogFolder = currentOpsLogFolder,
+            TaskNames = taskNames,
         };
 
         module.Startup?.Configure(environmentSettings, arguments);

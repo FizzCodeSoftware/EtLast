@@ -271,6 +271,16 @@ public class ConsoleHost : IHost
         if (loadResult != ExecutionStatusCode.Success)
             return new ExecutionResult(loadResult);
 
+        foreach (var taskName in taskNames)
+        {
+            var taskType = module.TaskTypes.Find(x => string.Equals(x.Name, taskName, StringComparison.InvariantCultureIgnoreCase));
+            if (taskType == null)
+            {
+                HostLogger.Warning("unknown task type: " + taskName);
+                break;
+            }
+        }
+
         var executionResult = ModuleExecuter.Execute(this, module, taskNames.ToArray());
 
         ModuleLoader.UnloadModule(this, module);

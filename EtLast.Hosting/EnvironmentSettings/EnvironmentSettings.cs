@@ -2,8 +2,11 @@
 
 public sealed class EnvironmentSettings
 {
+    public required string ModuleFolderName { get; init; }
+    public required string TasksFolderName { get; init; }
     public required string DevLogFolder { get; init; }
     public required string OpsLogFolder { get; init; }
+    public required string[] TaskNames { get; init; }
 
     public SeqSettings SeqSettings { get; } = new SeqSettings();
     public FileLogSettings FileLogSettings { get; } = new FileLogSettings();
