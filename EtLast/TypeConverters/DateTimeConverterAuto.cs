@@ -45,4 +45,6 @@ public static class DateTimeConverterAutoFluent
 {
     public static ReaderColumn AsDateTimeAuto(this ReaderColumn column, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new DateTimeConverterAuto(formatProvider, dateTimeStyles));
     public static ReaderColumn AsDateTimeAuto(this ReaderColumn column, string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new DateTimeConverterAuto(format, formatProvider, dateTimeStyles));
+    public static IConvertMutatorBuilder_NullStrategy ToDateTimeAuto(this IConvertMutatorBuilder_WithTypeConverter builder, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => builder.WithTypeConverter(new DateTimeConverterAuto(formatProvider, dateTimeStyles));
+    public static IConvertMutatorBuilder_NullStrategy ToDateTimeAuto(this IConvertMutatorBuilder_WithTypeConverter builder, string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => builder.WithTypeConverter(new DateTimeConverterAuto(format, formatProvider, dateTimeStyles));
 }

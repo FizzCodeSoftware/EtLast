@@ -75,4 +75,5 @@ public class DateTimeConverter : ITypeConverter, ITextConverter
 public static class DateTimeConverterFluent
 {
     public static ReaderColumn AsDateTime(this ReaderColumn column) => column.WithTypeConverter(new DateTimeConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToDateTime(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new DateTimeConverter());
 }

@@ -85,4 +85,5 @@ public class DecimalConverter : ITypeConverter, ITextConverter
 public static class DecimalConverterFluent
 {
     public static ReaderColumn AsDecimal(this ReaderColumn column) => column.WithTypeConverter(new DecimalConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToDecimal(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new DecimalConverter());
 }

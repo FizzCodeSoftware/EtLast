@@ -11,12 +11,7 @@ public class DataContractXmlDeSerializerConverterTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
         .ReadFrom(TestData.Person())
-        .ConvertValue(new InPlaceConvertMutator()
-        {
-            Columns = ["birthDate"],
-            TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU")),
-            ActionIfInvalid = InvalidValueAction.Throw,
-        })
+        .ConvertInPlace("birthDate").ToDateAuto(new CultureInfo("hu-HU")).KeepNull().ThrowIfInvalid()
         .Explode("ReplaceWithModel", row =>
         {
             var newRow = new SlimRow
@@ -32,18 +27,9 @@ public class DataContractXmlDeSerializerConverterTests
 
             return new[] { newRow };
         })
-        .SerializeToXml(new DataContractXmlSerializerMutator<PersonModel>()
-        {
-            SourceColumn = "personModel",
-            TargetColumn = "personModelXml",
-            ActionIfFailed = InvalidValueAction.Keep,
-        })
+        .Convert("personModel").Into("personModelXml").SerializeToDataContract().KeepNull().KeepInvalid()
         .RemoveColumn("personModel")
-        .ConvertValue(new InPlaceConvertMutator()
-        {
-            Columns = ["personModelXml"],
-            TypeConverter = new DataContractXmlDeSerializerConverter<PersonModel>(),
-        })
+        .ConvertInPlace("personModelXml").DeserializeDataContractTo<PersonModel>().KeepNull().ThrowIfInvalid()
         .RenameColumn("personModelXml", "personModel")
         .Explode("ReplaceWithColumns", row =>
         {

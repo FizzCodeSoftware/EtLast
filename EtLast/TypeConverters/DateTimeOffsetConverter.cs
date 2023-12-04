@@ -23,4 +23,5 @@ public class DateTimeOffsetConverter : ITypeConverter
 public static class DateTimeOffsetConverterFluent
 {
     public static ReaderColumn AsDateTimeOffset(this ReaderColumn column) => column.WithTypeConverter(new DateTimeOffsetConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToDateTimeOffset(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new DateTimeOffsetConverter());
 }

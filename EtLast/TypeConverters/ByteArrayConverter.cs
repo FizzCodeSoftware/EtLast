@@ -15,4 +15,5 @@ public class ByteArrayConverter : ITypeConverter
 public static class ByteArrayConverterFluent
 {
     public static ReaderColumn AsByteArray(this ReaderColumn column) => column.WithTypeConverter(new ByteArrayConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToByteArray(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new ByteArrayConverter());
 }

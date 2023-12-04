@@ -15,11 +15,7 @@ public class ReduceGroupToSingleRowMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person())
-            .ConvertValue(new InPlaceConvertMutator()
-            {
-                Columns = ["age"],
-                TypeConverter = new DecimalConverter(),
-            })
+            .ConvertInPlace("age").ToDecimal().KeepNull().KeepInvalid()
             .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator()
             {
                 KeyGenerator = row => row.GenerateKey("name"),
@@ -49,11 +45,7 @@ public class ReduceGroupToSingleRowMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person())
-            .ConvertValue(new InPlaceConvertMutator()
-            {
-                Columns = ["age"],
-                TypeConverter = new DecimalConverter(),
-            })
+            .ConvertInPlace("age").ToDecimal().KeepNull().KeepInvalid()
             .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator()
             {
                 IgnoreSelectorForSingleRowGroups = true,
@@ -87,11 +79,7 @@ public class ReduceGroupToSingleRowMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person())
-            .ConvertValue(new InPlaceConvertMutator()
-            {
-                Columns = ["age"],
-                TypeConverter = new DecimalConverter(),
-            })
+            .ConvertInPlace("age").ToDecimal().KeepNull().KeepInvalid()
             .ReduceGroupToSingleRow(new ReduceGroupToSingleRowMutator()
             {
                 KeyGenerator = row => row.GenerateKey("name"),

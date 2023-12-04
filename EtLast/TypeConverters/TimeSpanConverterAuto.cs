@@ -50,4 +50,6 @@ public static class TimeSpanConverterAutoFluent
 {
     public static ReaderColumn AsTimeSpanAuto(this ReaderColumn column, IFormatProvider formatProvider = null, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new TimeSpanConverterAuto(formatProvider, dateTimeStyles));
     public static ReaderColumn AsTimeSpanAuto(this ReaderColumn column, string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new TimeSpanConverterAuto(format, formatProvider, dateTimeStyles));
+    public static IConvertMutatorBuilder_NullStrategy ToTimeSpanAuto(this IConvertMutatorBuilder_WithTypeConverter builder, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => builder.WithTypeConverter(new TimeSpanConverterAuto(formatProvider, dateTimeStyles));
+    public static IConvertMutatorBuilder_NullStrategy ToTimeSpanAuto(this IConvertMutatorBuilder_WithTypeConverter builder, string format, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => builder.WithTypeConverter(new TimeSpanConverterAuto(format, formatProvider, dateTimeStyles));
 }

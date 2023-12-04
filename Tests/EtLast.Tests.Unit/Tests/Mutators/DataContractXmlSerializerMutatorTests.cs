@@ -9,15 +9,7 @@ public class DataContractXmlSerializerMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person())
-            .ConvertValue(new InPlaceConvertMutator()
-            {
-                Columns = ["birthDate"],
-                TypeConverter = new DateConverterAuto(new CultureInfo("hu-HU"))
-                {
-                    EpochDate = null,
-                },
-                ActionIfInvalid = InvalidValueAction.Throw,
-            })
+            .ConvertInPlace("birthDate").ToDateAuto(new CultureInfo("hu-HU")).KeepNull().ThrowIfInvalid()
             .Explode(new ExplodeMutator()
             {
                 RemoveOriginalRow = true,
@@ -37,22 +29,9 @@ public class DataContractXmlSerializerMutatorTests
                     return new[] { newRow };
                 },
             })
-            .SerializeToXml(new DataContractXmlSerializerMutator<TestData.PersonModel>()
-            {
-                SourceColumn = "personModel",
-                TargetColumn = "personModelXml",
-                ActionIfFailed = InvalidValueAction.Keep,
-            })
-            .RemoveColumn(new RemoveColumnMutator()
-            {
-                Columns = ["personModel"],
-            })
-            .DeSerializeFromXml(new DataContractXmlDeSerializerMutator<TestData.PersonModel>()
-            {
-                SourceColumn = "personModelXml",
-                TargetColumn = "personModel",
-                ActionIfFailed = InvalidValueAction.Keep,
-            })
+            .Convert("personModel").Into("personModelXml").SerializeToDataContract().KeepNull().KeepInvalid()
+            .RemoveColumn("personModel")
+            .Convert("personModelXml").Into("personModel").DeserializeDataContractTo<TestData.PersonModel>().KeepNull().KeepInvalid()
             .Explode(new ExplodeMutator()
             {
                 RemoveOriginalRow = true,

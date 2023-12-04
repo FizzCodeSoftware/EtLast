@@ -31,4 +31,5 @@ public class TimeSpanConverter : ITypeConverter
 public static class TimeSpanConverterFluent
 {
     public static ReaderColumn AsTimeSpan(this ReaderColumn column) => column.WithTypeConverter(new TimeSpanConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToTimeSpan(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new TimeSpanConverter());
 }

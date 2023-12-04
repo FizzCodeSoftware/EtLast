@@ -62,4 +62,5 @@ public class BoolConverterAuto : BoolConverter
 public static class BoolConverterAutoFluent
 {
     public static ReaderColumn AsBoolAuto(this ReaderColumn column) => column.WithTypeConverter(new BoolConverterAuto());
+    public static IConvertMutatorBuilder_NullStrategy ToBoolAuto(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new BoolConverterAuto());
 }

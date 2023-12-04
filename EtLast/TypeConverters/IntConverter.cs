@@ -89,4 +89,5 @@ public class IntConverter : ITypeConverter, ITextConverter
 public static class IntConverterFluent
 {
     public static ReaderColumn AsInt(this ReaderColumn column) => column.WithTypeConverter(new IntConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToInt(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new IntConverter());
 }

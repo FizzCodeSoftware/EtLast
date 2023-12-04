@@ -11,11 +11,7 @@ public class SortedMemoryAggregationMutatorTests
         if (converter != null)
         {
             builder = builder
-                .ConvertValue(new InPlaceConvertMutator()
-                {
-                    Columns = ["age", "height"],
-                    TypeConverter = converter,
-                });
+                .ConvertInPlace("age", "height").WithTypeConverter(converter).KeepNull().KeepInvalid();
         }
 
         return builder

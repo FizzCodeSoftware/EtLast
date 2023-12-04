@@ -59,4 +59,5 @@ public class BoolConverter : ITypeConverter, ITextConverter
 public static class BoolConverterFluent
 {
     public static ReaderColumn AsBool(this ReaderColumn column) => column.WithTypeConverter(new BoolConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToBool(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new BoolConverter());
 }

@@ -85,4 +85,6 @@ public class DoubleConverter : ITypeConverter, ITextConverter
 public static class DoubleConverterFluent
 {
     public static ReaderColumn AsDouble(this ReaderColumn column) => column.WithTypeConverter(new DoubleConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToDouble(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new DoubleConverter());
+
 }

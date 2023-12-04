@@ -51,8 +51,11 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
             }
             catch (Exception ex)
             {
-                // todo: enrich exception
-                ioCommand.Failed(ex);
+                var exception = new ProcessExecutionException(this, "error raised during writing an excel file", ex);
+                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel stream, message: {0}",
+                    ex.Message));
+
+                ioCommand.Failed(exception);
                 throw;
             }
 

@@ -66,4 +66,5 @@ public class ByteConverter : ITypeConverter
 public static class ByteConverterFluent
 {
     public static ReaderColumn AsByte(this ReaderColumn column) => column.WithTypeConverter(new ByteConverter());
+    public static IConvertMutatorBuilder_NullStrategy ToByte(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new ByteConverter());
 }

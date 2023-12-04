@@ -70,10 +70,8 @@ public class MultiplyWithTagsMutatorTests
                         return true;
                     }
                 })
-                .RemoveColumn(new RemoveColumnMutator()
-                {
-                    Columns = ["name"],
-                }));
+                .RemoveColumn("name")
+                );
 
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(14, result.MutatedRows.Count);

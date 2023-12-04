@@ -7,7 +7,13 @@ public class DataContractXmlDeSerializerConverter<T> : ITypeConverter
 {
     public virtual object Convert(object source)
     {
-        if (source is not byte[] sourceByteArray)
+        byte[] sourceByteArray = null;
+        if (source is byte[] sb)
+            sourceByteArray = sb;
+        else if (source is string str)
+            sourceByteArray = Encoding.UTF8.GetBytes(str);
+
+        if (sourceByteArray == null)
             return null;
 
         try
@@ -34,5 +40,6 @@ public class DataContractXmlDeSerializerConverter<T> : ITypeConverter
 [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
 public static class DataContractXmlDeSerializerConverterFluent
 {
-    public static ReaderColumn DeserializeDataContractAs<T>(this ReaderColumn column) => column.WithTypeConverter(new DataContractXmlDeSerializerConverter<T>());
+    public static ReaderColumn DeserializeDataContract<T>(this ReaderColumn column) => column.WithTypeConverter(new DataContractXmlDeSerializerConverter<T>());
+    public static IConvertMutatorBuilder_NullStrategy DeserializeDataContractTo<T>(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new DataContractXmlDeSerializerConverter<T>());
 }

@@ -40,7 +40,6 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
     {
         Transaction.Current = tran;
 
-        // todo: multiple caller invocation contexts vs 1 input invocation context
         var rows = InputProcess.TakeRowsAndTransferOwnership(this);
 
         foreach (var row in rows)

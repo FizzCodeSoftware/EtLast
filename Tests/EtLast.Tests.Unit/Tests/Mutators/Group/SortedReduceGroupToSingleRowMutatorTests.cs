@@ -15,11 +15,7 @@ public class SortedReduceGroupToSingleRowMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.PersonSortedByName())
-            .ConvertValue(new InPlaceConvertMutator()
-            {
-                Columns = ["age"],
-                TypeConverter = new DecimalConverter(),
-            })
+            .ConvertInPlace("age").ToDecimal().KeepNull().KeepInvalid()
             .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator()
             {
                 KeyGenerator = row => row.GenerateKey("name"),
@@ -49,11 +45,7 @@ public class SortedReduceGroupToSingleRowMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.PersonSortedByName())
-            .ConvertValue(new InPlaceConvertMutator()
-            {
-                Columns = ["age"],
-                TypeConverter = new DecimalConverter(),
-            })
+            .ConvertInPlace("age").ToDecimal().KeepNull().KeepInvalid()
             .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator()
             {
                 IgnoreSelectorForSingleRowGroups = true,
@@ -87,11 +79,7 @@ public class SortedReduceGroupToSingleRowMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.PersonSortedByName())
-            .ConvertValue(new InPlaceConvertMutator()
-            {
-                Columns = ["age"],
-                TypeConverter = new DecimalConverter(),
-            })
+            .ConvertInPlace("age").ToDecimal().KeepNull().KeepInvalid()
             .ReduceGroupToSingleRowOrdered(new SortedReduceGroupToSingleRowMutator()
             {
                 KeyGenerator = row => row.GenerateKey("name"),

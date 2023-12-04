@@ -122,11 +122,7 @@ public class ResolveHierarchyMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
         .ReadFrom(TestData.RoleHierarchy())
-        .ConvertValue(new InPlaceConvertMutator()
-        {
-            Columns = ["id"],
-            TypeConverter = new StringConverter(),
-        })
+        .ConvertInPlace("id").ToString(null).KeepNull().KeepInvalid()
         .ResolveHierarchy(new ResolveHierarchyMutator()
         {
             IdentityColumn = "id",

@@ -14,11 +14,8 @@ public class RemoveColumnMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person())
-        .RemoveColumn(new RemoveColumnMutator()
-        {
-            Columns = TestData.PersonColumns,
-        });
+            .ReadFrom(TestData.Person())
+            .RemoveColumn(TestData.PersonColumns);
 
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(0, result.MutatedRows.Sum(x => x.ValueCount));
@@ -30,11 +27,8 @@ public class RemoveColumnMutatorTests
     {
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person())
-        .RemoveColumn(new RemoveColumnMutator()
-        {
-            Columns = ["name", "eyeColor"],
-        });
+            .ReadFrom(TestData.Person())
+            .RemoveColumn("name", "eyeColor");
 
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(7, result.MutatedRows.Count);

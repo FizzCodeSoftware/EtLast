@@ -31,4 +31,5 @@ public class IntConverterAuto(IFormatProvider formatProvider, NumberStyles numbe
 public static class IntConverterAutoFluent
 {
     public static ReaderColumn AsIntAuto(this ReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new IntConverterAuto(formatProvider, numberStyles));
+    public static IConvertMutatorBuilder_NullStrategy ToIntAuto(this IConvertMutatorBuilder_WithTypeConverter builder, IFormatProvider formatProvider, NumberStyles numberStyles) => builder.WithTypeConverter(new IntConverterAuto(formatProvider, numberStyles));
 }

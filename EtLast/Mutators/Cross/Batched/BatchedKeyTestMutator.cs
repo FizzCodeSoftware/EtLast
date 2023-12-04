@@ -5,8 +5,6 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
     public NoMatchAction NoMatchAction { get; init; }
     public MatchAction MatchAction { get; init; }
 
-    // todo: separate to new class... completely different behavior
-
     /// <summary>
     /// Default true. If <see cref="MatchAction.CustomAction"/> is used then setting this to false results in significantly less memory usage.
     /// </summary>

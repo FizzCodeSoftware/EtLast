@@ -31,4 +31,5 @@ public class LongConverterAuto(IFormatProvider formatProvider, NumberStyles numb
 public static class LongConverterAutoFluent
 {
     public static ReaderColumn AsLongAuto(this ReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new LongConverterAuto(formatProvider, numberStyles));
+    public static IConvertMutatorBuilder_NullStrategy ToLongAuto(this IConvertMutatorBuilder_WithTypeConverter builder, IFormatProvider formatProvider, NumberStyles numberStyles) => builder.WithTypeConverter(new LongConverterAuto(formatProvider, numberStyles));
 }
