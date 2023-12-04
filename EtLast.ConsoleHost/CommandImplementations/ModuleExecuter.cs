@@ -28,10 +28,13 @@ internal static class ModuleExecuter
 
         if (environmentSettings.LocalManifestLogSettings.Enabled)
         {
+            var folder = Path.Combine(currentDevLogFolder, "manifest");
+            CleanupManifestFolder(environmentSettings.LocalManifestLogSettings, folder);
+
             environmentSettings.ManifestProcessors.Add(new ConsoleHostJsonManifestProcessor()
             {
-                Folder = Path.Combine(currentDevLogFolder, "manifest"),
-                FileNameFunc = manifest => manifest.CreatedOnUtc.ToString("yyyyMMhh-hhmmssfff", CultureInfo.InvariantCulture) + ".json",
+                Folder = folder,
+                FileNameFunc = manifest => manifest.CreatedOnUtc.Ticks.ToString("D", CultureInfo.InvariantCulture) + ".json",
             });
         }
 
@@ -201,6 +204,46 @@ internal static class ModuleExecuter
         }
 
         return executionResult;
+    }
+
+    private static void CleanupManifestFolder(LocalManifestLogSettings settings, string folder)
+    {
+        if (settings.MaxFileCount == null && settings.MaxSizeOnDisk == null)
+            return;
+
+        if (!Directory.Exists(folder))
+            return;
+
+        if (settings.MaxFileCount != null)
+        {
+            var files = Directory.GetFiles(folder)
+                .OrderBy(x => x)
+                .ToArray();
+
+            if (files.Length >= settings.MaxFileCount.Value)
+            {
+                foreach (var file in files.Take(files.Length - settings.MaxFileCount.Value + 1))
+                    File.Delete(file);
+            }
+        }
+
+        if (settings.MaxSizeOnDisk != null)
+        {
+            var files = Directory.GetFiles(folder)
+                .OrderByDescending(x => x)
+                .Select(x => (File: x, Info: new FileInfo(x)))
+                .ToList();
+
+            while (files.Count > 0)
+            {
+                var totalSize = files.Sum(x => x.Info.Length);
+                if (totalSize < settings.MaxSizeOnDisk.Value)
+                    break;
+
+                File.Delete(files.Last().File);
+                files.RemoveAt(files.Count - 1);
+            }
+        }
     }
 
     private static void LogTaskCounters(IEtlContext context, IEtlTask task)
