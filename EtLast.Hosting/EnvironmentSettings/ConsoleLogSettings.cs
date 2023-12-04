@@ -8,7 +8,7 @@ public sealed class ConsoleLogSettings
     public bool Enabled { get; set; } = true;
 
     /// <summary>
-    /// Default value is <see cref="LogSeverity.Debug"/>.
+    /// Default value is <see cref="LogSeverity.Information"/>.
     /// </summary>
-    public LogSeverity MinimumLogLevel { get; set; } = LogSeverity.Debug;
+    public LogSeverity MinimumLogLevel { get; set; } = LogSeverity.Information;
 }
