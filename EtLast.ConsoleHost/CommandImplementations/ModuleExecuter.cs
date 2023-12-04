@@ -24,7 +24,7 @@ internal static class ModuleExecuter
             OpsLogFolder = currentOpsLogFolder,
         };
 
-        module.Startup?.Configure(environmentSettings);
+        module.Startup?.Configure(environmentSettings, arguments);
 
         if (environmentSettings.LocalManifestLogSettings.Enabled)
         {

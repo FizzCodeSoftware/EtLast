@@ -2,5 +2,5 @@
 
 public interface IStartup
 {
-    public void Configure(EnvironmentSettings settings);
+    public void Configure(EnvironmentSettings settings, IArgumentCollection arguments);
 }
