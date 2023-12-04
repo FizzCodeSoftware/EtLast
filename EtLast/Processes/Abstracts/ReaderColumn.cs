@@ -13,6 +13,7 @@ public class ReaderColumn
     protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
     protected object SpecialValueIfSourceIsNull { get; private set; }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string SourceColumn { get; private set; }
 
     public ReaderColumn()

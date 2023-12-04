@@ -31,5 +31,6 @@ public class DecimalConverterAuto(IFormatProvider formatProvider, NumberStyles n
 public static class DecimalConverterAutoFluent
 {
     public static ReaderColumn AsDecimalAuto(this ReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new DecimalConverterAuto(formatProvider, numberStyles));
+    public static TextReaderColumn AsDecimalAuto(this TextReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new DecimalConverterAuto(formatProvider, numberStyles));
     public static IConvertMutatorBuilder_NullStrategy ToDecimalAuto(this IConvertMutatorBuilder_WithTypeConverter builder, IFormatProvider formatProvider, NumberStyles numberStyles) => builder.WithTypeConverter(new DecimalConverterAuto(formatProvider, numberStyles));
 }

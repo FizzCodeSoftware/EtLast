@@ -13,12 +13,12 @@ public class DelimitedLineReaderTests
             },
             Columns = new()
             {
-                ["Id"] = new TextReaderColumn(new IntConverter()),
+                ["Id"] = new TextReaderColumn().AsInt(),
                 ["Name"] = new TextReaderColumn(),
                 ["ValueString"] = new TextReaderColumn().FromSource("Value1"),
-                ["ValueInt"] = new TextReaderColumn(new IntConverter()).FromSource("Value2"),
-                ["ValueDate"] = new TextReaderColumn(new DateConverter()).FromSource("Value3"),
-                ["ValueDouble"] = new TextReaderColumn(new DoubleConverter()).FromSource("Value4"),
+                ["ValueInt"] = new TextReaderColumn().AsInt().FromSource("Value2"),
+                ["ValueDate"] = new TextReaderColumn().AsDate().FromSource("Value3"),
+                ["ValueDouble"] = new TextReaderColumn().AsDouble().FromSource("Value4"),
             },
             Header = DelimitedLineHeader.HasHeader,
             Delimiter = ';',
@@ -36,7 +36,7 @@ public class DelimitedLineReaderTests
             },
             Columns = new()
             {
-                ["Id"] = new TextReaderColumn(new IntConverter()),
+                ["Id"] = new TextReaderColumn().AsInt(),
                 ["Name"] = new TextReaderColumn(),
                 ["Value"] = new TextReaderColumn()
             },
@@ -78,9 +78,9 @@ public class DelimitedLineReaderTests
                 },
                 Columns = new()
                 {
-                    ["Id"] = new TextReaderColumn(new IntConverter()),
+                    ["Id"] = new TextReaderColumn().AsInt(),
                     ["Name"] = new TextReaderColumn(),
-                    ["ValueDouble"] = new TextReaderColumn(new DoubleConverter()).FromSource("Value4"),
+                    ["ValueDouble"] = new TextReaderColumn().AsDouble().FromSource("Value4"),
                 },
                 Header = DelimitedLineHeader.HasHeader,
                 Delimiter = ';',
@@ -112,9 +112,9 @@ public class DelimitedLineReaderTests
                 },
                 Columns = new()
                 {
-                    ["Id"] = new TextReaderColumn(new IntConverter()),
+                    ["Id"] = new TextReaderColumn().AsInt(),
                 },
-                DefaultColumns = new TextReaderDefaultColumn(),
+                DefaultColumns = new TextReaderColumn(),
                 Header = DelimitedLineHeader.HasHeader,
                 Delimiter = ';',
             });
@@ -269,10 +269,10 @@ public class DelimitedLineReaderTests
                 },
                 Columns = new()
                 {
-                    ["Id"] = new TextReaderColumn(new IntConverter()),
+                    ["Id"] = new TextReaderColumn().AsInt(),
                     ["Name"] = new TextReaderColumn(),
                     ["Value1"] = new TextReaderColumn(),
-                    ["Value2"] = new TextReaderColumn(new IntConverter()),
+                    ["Value2"] = new TextReaderColumn().AsInt(),
                     ["Value3"] = new TextReaderColumn(),
                     ["Value4"] = new TextReaderColumn(),
                 },
@@ -302,10 +302,10 @@ public class DelimitedLineReaderTests
                 ColumnNames = ["Id", "Name", "Value1", "Value2", "Value3", "Value4"],
                 Columns = new()
                 {
-                    ["Id"] = new TextReaderColumn(new IntConverter()),
+                    ["Id"] = new TextReaderColumn().AsInt(),
                     ["Name"] = new TextReaderColumn(),
                     ["Value1"] = new TextReaderColumn(),
-                    ["Value2"] = new TextReaderColumn(new IntConverter()),
+                    ["Value2"] = new TextReaderColumn().AsInt(),
                     ["Value3"] = new TextReaderColumn(),
                     ["Value4"] = new TextReaderColumn(),
                 },

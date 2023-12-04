@@ -8,7 +8,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
     public required IStreamProvider StreamProvider { get; init; }
 
     public Dictionary<string, TextReaderColumn> Columns { get; init; }
-    public TextReaderDefaultColumn DefaultColumns { get; init; }
+    public TextReaderColumn DefaultColumns { get; init; }
 
     /// <summary>
     /// Default <see cref="DelimitedLineHeader.NoHeader"/>.
@@ -119,7 +119,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                 foreach (var c in ColumnNames)
                 {
                     var colName = c;
-                    TextReaderDefaultColumn column = null;
+                    TextReaderColumn column = null;
                     if (columnMap != null)
                     {
                         if (columnMap.TryGetValue(c, out var col))
@@ -471,7 +471,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
     {
         public string NameInSource { get; set; }
         public string NameInRow { get; set; }
-        public TextReaderDefaultColumn Column { get; set; }
+        public TextReaderColumn Column { get; set; }
     }
 
     private void NewMethod(Dictionary<string, (string rowColumn, TextReaderColumn config)> columnMap, Dictionary<string, object> initialValues, int columnCount, TextBuilder builder, bool removeSurroundingDoubleQuotes, List<MappedColumn> columns, bool hasColumnNames)
@@ -502,7 +502,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
             var originalName = builder.GetContentAsString();
             var colName = originalName;
 
-            TextReaderDefaultColumn column;
+            TextReaderColumn column;
             if (columnMap != null)
             {
                 if (columnMap.TryGetValue(colName, out var col))

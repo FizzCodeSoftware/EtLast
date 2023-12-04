@@ -81,5 +81,6 @@ public class DateConverter : ITypeConverter, ITextConverter
 public static class DateConverterFluent
 {
     public static ReaderColumn AsDate(this ReaderColumn column) => column.WithTypeConverter(new DateConverter());
+    public static TextReaderColumn AsDate(this TextReaderColumn column) => column.WithTypeConverter(new DateConverter());
     public static IConvertMutatorBuilder_NullStrategy ToDate(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new DateConverter());
 }

@@ -89,5 +89,6 @@ public class LongConverter : ITypeConverter, ITextConverter
 public static class LongConverterFluent
 {
     public static ReaderColumn AsLong(this ReaderColumn column) => column.WithTypeConverter(new LongConverter());
+    public static TextReaderColumn AsLong(this TextReaderColumn column) => column.WithTypeConverter(new LongConverter());
     public static IConvertMutatorBuilder_NullStrategy ToLong(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new LongConverter());
 }

@@ -31,5 +31,6 @@ public class DoubleConverterAuto(IFormatProvider formatProvider, NumberStyles nu
 public static class DoubleConverterAutoFluent
 {
     public static ReaderColumn AsDoubleAuto(this ReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new DoubleConverterAuto(formatProvider, numberStyles));
+    public static TextReaderColumn AsDoubleAuto(this TextReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new DoubleConverterAuto(formatProvider, numberStyles));
     public static IConvertMutatorBuilder_NullStrategy ToDoubleAuto(this IConvertMutatorBuilder_WithTypeConverter builder, IFormatProvider formatProvider, NumberStyles numberStyles) => builder.WithTypeConverter(new DoubleConverterAuto(formatProvider, numberStyles));
 }

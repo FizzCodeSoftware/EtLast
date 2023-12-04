@@ -1,18 +1,26 @@
 ﻿namespace FizzCode.EtLast;
 
-public class TextReaderColumn : TextReaderDefaultColumn
+public class TextReaderColumn
 {
+    protected ITextConverter Converter { get; private set; }
+
+    protected FailedTypeConversionAction FailedTypeConversionAction { get; private set; } = FailedTypeConversionAction.WrapError;
+    protected object SpecialValueIfTypeConversionFailed { get; private set; }
+
+    protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
+    protected object SpecialValueIfSourceIsNull { get; private set; }
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public string SourceColumn { get; private set; }
 
     public TextReaderColumn()
-        : base()
     {
     }
 
-    public TextReaderColumn(ITextConverter converter)
-        : base(converter)
+    public TextReaderColumn WithTypeConverter(ITextConverter converter)
     {
+        Converter = converter;
+        return this;
     }
 
     public TextReaderColumn FromSource(string sourceColumn)
@@ -21,66 +29,21 @@ public class TextReaderColumn : TextReaderDefaultColumn
         return this;
     }
 
-    public new TextReaderColumn ValueWhenConversionFailed(object value)
-    {
-        base.ValueWhenConversionFailed(value);
-        return this;
-    }
-
-    public new TextReaderColumn ValueWhenSourceIsNull(object value)
-    {
-        base.ValueWhenSourceIsNull(value);
-        return this;
-    }
-
-    public new TextReaderColumn WrapErrorWhenSourceIsNull()
-    {
-        base.WrapErrorWhenSourceIsNull();
-        return this;
-    }
-
-    public override string ToString()
-    {
-        return SourceColumn != null
-            ? "src:" + SourceColumn
-            : "";
-    }
-}
-
-public class TextReaderDefaultColumn
-{
-    protected ITextConverter Converter { get; }
-
-    protected FailedTypeConversionAction FailedTypeConversionAction { get; private set; } = FailedTypeConversionAction.WrapError;
-    protected object SpecialValueIfTypeConversionFailed { get; private set; }
-
-    protected SourceIsNullAction SourceIsNullAction { get; private set; } = SourceIsNullAction.SetSpecialValue;
-    protected object SpecialValueIfSourceIsNull { get; private set; }
-
-    public TextReaderDefaultColumn()
-    {
-    }
-
-    public TextReaderDefaultColumn(ITextConverter converter)
-    {
-        Converter = converter;
-    }
-
-    public TextReaderDefaultColumn ValueWhenConversionFailed(object value)
+    public TextReaderColumn ValueWhenConversionFailed(object value)
     {
         FailedTypeConversionAction = FailedTypeConversionAction.SetSpecialValue;
         SpecialValueIfTypeConversionFailed = value;
         return this;
     }
 
-    public TextReaderDefaultColumn ValueWhenSourceIsNull(object value)
+    public TextReaderColumn ValueWhenSourceIsNull(object value)
     {
         SourceIsNullAction = SourceIsNullAction.SetSpecialValue;
         SpecialValueIfSourceIsNull = value;
         return this;
     }
 
-    public TextReaderDefaultColumn WrapErrorWhenSourceIsNull()
+    public TextReaderColumn WrapErrorWhenSourceIsNull()
     {
         SourceIsNullAction = SourceIsNullAction.WrapError;
         SpecialValueIfSourceIsNull = null;
