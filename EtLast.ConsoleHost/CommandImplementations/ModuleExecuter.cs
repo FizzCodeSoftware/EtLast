@@ -34,7 +34,7 @@ internal static class ModuleExecuter
             environmentSettings.ManifestProcessors.Add(new ConsoleHostJsonManifestProcessor()
             {
                 Folder = folder,
-                FileNameFunc = manifest => manifest.CreatedOnUtc.Ticks.ToString("D", CultureInfo.InvariantCulture) + ".json",
+                FileNameFunc = manifest => manifest.CreatedOnUtc.ToString("yyyyMMdd-HHmmssfff", CultureInfo.InvariantCulture) + ".json",
             });
         }
 
