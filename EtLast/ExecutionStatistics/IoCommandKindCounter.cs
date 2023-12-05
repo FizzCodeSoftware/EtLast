@@ -62,11 +62,11 @@ public class IoCommandKindCounter : IEtlContextListener
     {
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, Sink sink)
+    public void OnWriteToSink(Sink sink, IReadOnlyRow row)
     {
     }
 
-    public void OnSinkStarted(Sink sink)
+    public void OnSinkStarted(IProcess process, Sink sink)
     {
     }
 

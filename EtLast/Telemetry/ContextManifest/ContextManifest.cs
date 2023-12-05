@@ -100,7 +100,7 @@ public class ContextManifest : IEtlContextListener
         _exceptionMap[exception] = manifestException;
     }
 
-    public void OnSinkStarted(Sink sink)
+    public void OnSinkStarted(IProcess process, Sink sink)
     {
         var manifestSink = new ContextManifestSink()
         {
@@ -108,7 +108,9 @@ public class ContextManifest : IEtlContextListener
             Location = sink.Location,
             Path = sink.Path,
             Format = sink.Format,
-            WriterType = sink.WriterType.GetFriendlyTypeName(),
+            ProcessInvocationId = process.InvocationInfo.InvocationId,
+            ProcessType = process.GetType().GetFriendlyTypeName(),
+            Columns = [.. sink.Columns],
         };
 
         _sinks[sink.Id] = manifestSink;
@@ -117,7 +119,7 @@ public class ContextManifest : IEtlContextListener
         ManifestChanged?.Invoke(this);
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, Sink sink)
+    public void OnWriteToSink(Sink sink, IReadOnlyRow row)
     {
         if (_sinks.TryGetValue(sink.Id, out var manifestSink))
         {
@@ -223,12 +225,14 @@ public class ContextManifest : IEtlContextListener
 public class ContextManifestSink
 {
     public long Id { get; set; }
-    public string Format { get; set; }
-    public string WriterType { get; set; }
     public string Location { get; set; }
     public string Path { get; set; }
+    public string Format { get; set; }
+    public long ProcessInvocationId { get; set; }
+    public string ProcessType { get; set; }
 
     public long RowsWritten { get; set; }
+    public List<string> Columns { get; set; }
 }
 
 public class ContextManifestIoTarget

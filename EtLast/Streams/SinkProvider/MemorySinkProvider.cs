@@ -15,7 +15,7 @@ public class MemorySinkProvider : ISinkProvider
     /// </summary>
     public required bool AutomaticallyDispose { get; init; }
 
-    public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat)
+    public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat, string[] columns)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
@@ -28,7 +28,7 @@ public class MemorySinkProvider : ISinkProvider
 
         try
         {
-            var sink = caller.Context.GetSink(_sinkLocation, _sinkPath, sinkFormat, caller.GetType());
+            var sink = caller.Context.GetSink(_sinkLocation, _sinkPath, sinkFormat, caller, columns);
 
             var stream = StreamCreator.Invoke();
             return new NamedSink(_sinkName, stream, ioCommand, sink);

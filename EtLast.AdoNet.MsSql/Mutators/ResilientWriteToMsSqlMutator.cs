@@ -95,9 +95,10 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", GetType());
+        _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", this,
+            Columns.Select(x => x.Value ?? x.Key).ToArray());
 
-        _sink.RegisterRow(row);
+        _sink.RegisterWrite(row);
 
         var rc = _reader.RowCount;
         var i = 0;

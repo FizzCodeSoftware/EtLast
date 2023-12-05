@@ -79,7 +79,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
 
             if (_sink != null)
             {
-                _sink.RegisterRow(row);
+                _sink.RegisterWrite(row);
                 _rowCount++;
             }
         }
@@ -98,7 +98,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
     public void AddWorkSheet(string name)
     {
         _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-        _sink = Context.GetSink(FileName, name, "spreadsheet", GetType());
+        _sink = Context.GetSink(FileName, name, "spreadsheet", this, []);
     }
 }
 

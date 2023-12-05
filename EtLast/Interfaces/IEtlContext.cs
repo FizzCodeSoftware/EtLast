@@ -37,7 +37,7 @@ public interface IEtlContext : ICaller
     public void RegisterProcessInvocationEnd(IProcess process);
     public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
 
-    public Sink GetSink(string location, string path, string sinkFormat, Type sinkWriter);
+    public Sink GetSink(string location, string path, string format, IProcess process, string[] columns);
 
     public void Close();
     public void StopServices();

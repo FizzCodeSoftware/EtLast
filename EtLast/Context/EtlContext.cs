@@ -208,9 +208,9 @@ public sealed class EtlContext : IEtlContext
             listener.OnProcessInvocationEnd(process);
     }
 
-    public Sink GetSink(string location, string path, string sinkFormat, Type sinkWriter)
+    public Sink GetSink(string location, string path, string format, IProcess process, string[] columns)
     {
-        var key = location + " / " + path;
+        var key = location + " / " + path + " / " + format + " / " + process.InvocationInfo.InvocationId.ToString("D", CultureInfo.InvariantCulture);
         if (!_sinks.TryGetValue(key, out var sink))
         {
             _sinks[key] = sink = new Sink()
@@ -219,12 +219,13 @@ public sealed class EtlContext : IEtlContext
                 Context = this,
                 Location = location,
                 Path = path,
-                Format = sinkFormat,
-                WriterType = sinkWriter,
+                Format = format,
+                ProcessInvocationId = process.InvocationInfo.InvocationId,
+                Columns = columns,
             };
 
             foreach (var listener in Listeners)
-                listener.OnSinkStarted(sink);
+                listener.OnSinkStarted(process, sink);
         }
 
         return sink;

@@ -6,5 +6,5 @@ public class SinkStartedEvent : AbstractRowEvent
     public string Location { get; set; }
     public string Path { get; set; }
     public string Format { get; set; }
-    public string WriterType { get; set; }
+    public long ProcessInvocationId { get; set; }
 }

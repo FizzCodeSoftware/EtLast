@@ -34,7 +34,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
         ExcelPackage package;
 
-        var sink = SinkProvider.GetSink(this, partitionKey, "spreadsheet");
+        var sink = SinkProvider.GetSink(this, partitionKey, "spreadsheet", Columns.Select(x => x.Key).ToArray());
         if (sink.Stream.Length == 0)
         {
             package = new ExcelPackage(sink.Stream);
@@ -127,8 +127,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
         _rowCounter++;
 
         var sinkEntry = GetSink(partitionKey);
-
-        sinkEntry.NamedSink.Sink.RegisterRow(row);
+        sinkEntry.NamedSink.Sink.RegisterWrite(row);
 
         try
         {

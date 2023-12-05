@@ -80,7 +80,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
 
             if (_sink != null)
             {
-                _sink.RegisterRow(row);
+                _sink.RegisterWrite(row);
                 _rowCount++;
             }
         }
@@ -100,7 +100,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
     public void AddWorkSheet(string name)
     {
         _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-        _sink = Context.GetSink(SinkLocation, name, "spreadsheet", GetType());
+        _sink = Context.GetSink(SinkLocation, name, "spreadsheet", this, []);
     }
 }
 

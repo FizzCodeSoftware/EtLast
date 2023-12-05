@@ -76,9 +76,10 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", GetType());
+        _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", this,
+            KeyColumns.Concat(ValueColumns).Distinct().Select(x => x.NameInDatabase).ToArray());
 
-        _sink.RegisterRow(row);
+        _sink.RegisterWrite(row);
 
         InitConnection();
 

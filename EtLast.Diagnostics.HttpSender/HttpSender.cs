@@ -301,7 +301,7 @@ public class HttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnSinkStarted(Sink sink)
+    public void OnSinkStarted(IProcess process, Sink sink)
     {
         SendDiagnostics(DiagnosticsEventKind.SinkStarted, writer =>
         {
@@ -309,11 +309,11 @@ public class HttpSender : IDisposable, IEtlContextListener
             writer.WriteNullable(sink.Location);
             writer.WriteNullable(sink.Path);
             writer.WriteNullable(sink.Format);
-            writer.WriteNullable(sink.WriterType.GetFriendlyTypeName());
+            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationId);
         });
     }
 
-    public void OnWriteToSink(IReadOnlyRow row, Sink sink)
+    public void OnWriteToSink(Sink sink, IReadOnlyRow row)
     {
         SendDiagnostics(DiagnosticsEventKind.WriteToSink, writer =>
         {
