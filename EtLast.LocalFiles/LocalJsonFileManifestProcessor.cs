@@ -6,7 +6,7 @@ namespace FizzCode.EtLast;
 public class LocalJsonFileManifestProcessor : IManifestProcessor
 {
     public required string Folder { get; init; }
-    public required Func<ContextManifest, string> FileNameFunc { get; init; }
+    public required Func<ContextManifest, string> FileNameGenerator { get; init; }
     public int BufferTimeoutMilliseconds { get; init; } = 2000;
     public JsonSerializerOptions JsonSerializerOptions { get; init; } = new()
     {
@@ -42,7 +42,7 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
         if (!Directory.Exists(Folder))
             Directory.CreateDirectory(Folder);
 
-        var fileName = Path.Combine(Folder, FileNameFunc.Invoke(manifest));
+        var fileName = Path.Combine(Folder, FileNameGenerator.Invoke(manifest));
         var content = JsonSerializer.Serialize(manifest, JsonSerializerOptions);
         try
         {
