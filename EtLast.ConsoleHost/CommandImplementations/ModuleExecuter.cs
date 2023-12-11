@@ -45,6 +45,9 @@ internal static class ModuleExecuter
             TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout,
         };
 
+        context.Manifest.Extra["ModuleName"] = module.Name;
+        context.Manifest.Extra["TaskNames"] = taskNames;
+
         foreach (var manifestProcessor in environmentSettings.ManifestProcessors)
         {
             manifestProcessor.RegisterToManifestEvents(context.Manifest);

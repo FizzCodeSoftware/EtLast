@@ -31,6 +31,8 @@ public class ContextManifest : IEtlContextListener
     public long? RunMilliseconds { get; private set; }
     public Dictionary<string, string> Arguments { get; set; }
 
+    public Dictionary<string, object> Extra { get; init; } = [];
+
     public IReadOnlyList<ContextManifestSink> Sinks
     {
         get => _sinks.Values.ToList();
