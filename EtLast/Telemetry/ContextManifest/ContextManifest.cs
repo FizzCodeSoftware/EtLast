@@ -33,12 +33,14 @@ public class ContextManifest : IEtlContextListener
 
     public Dictionary<string, object> Extra { get; init; } = [];
 
+    public long TotalSinkRowsWritten { get; set; }
     public IReadOnlyList<ContextManifestSink> Sinks
     {
         get => _sinks.Values.ToList();
         set { _sinks = value.ToDictionary(x => x.Id, x => x); }
     }
 
+    public bool AnyRootProcessFailed { get; set; }
     public IReadOnlyList<ContextManifestProcess> RootProcesses
     {
         get => _processes.Values.ToList();
@@ -125,7 +127,8 @@ public class ContextManifest : IEtlContextListener
     {
         if (_sinks.TryGetValue(sink.Id, out var manifestSink))
         {
-            manifestSink.RowsWritten = sink.RowsWritten;
+            manifestSink.RowsWritten++;
+            TotalSinkRowsWritten++;
 
             ManifestSinkChanged?.Invoke(this, manifestSink);
             ManifestChanged?.Invoke(this);
@@ -171,6 +174,9 @@ public class ContextManifest : IEtlContextListener
 
             manifestInvocation.FinishedOnUtc = DateTimeOffset.UtcNow;
             manifestInvocation.Success = !process.FlowState.Failed;
+
+            if (process.FlowState.Failed)
+                AnyRootProcessFailed = true;
 
             manifestInvocation.FailureExceptions.AddRange(process.FlowState.Exceptions.Select(ex =>
             {
