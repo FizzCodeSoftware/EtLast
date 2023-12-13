@@ -39,6 +39,7 @@ internal static class SinkValueFormatter
     }
 
     public static string DefaultIntegerFormat { get; } = "#,0";
+    public static string IdentityIntegerFormat { get; } = "D";
 
     public static void FormatScalarValue(LogEvent logEvent, TextWriter builder, ScalarValue value, string format, string propertyName)
     {
@@ -82,9 +83,20 @@ internal static class SinkValueFormatter
                     using (ColorCodeContext.StartOverridden(builder, logEvent, colorCode))
                     {
                         if (string.IsNullOrEmpty(format))
-                            value.Render(builder, DefaultIntegerFormat, CultureInfo.InvariantCulture);
+                        {
+                            if (propertyName.EndsWith("Id") || propertyName.EndsWith("ID"))
+                            {
+                                value.Render(builder, IdentityIntegerFormat, CultureInfo.InvariantCulture);
+                            }
+                            else
+                            {
+                                value.Render(builder, DefaultIntegerFormat, CultureInfo.InvariantCulture);
+                            }
+                        }
                         else
+                        {
                             value.Render(builder, format, CultureInfo.InvariantCulture);
+                        }
                     }
                 }
                 break;
