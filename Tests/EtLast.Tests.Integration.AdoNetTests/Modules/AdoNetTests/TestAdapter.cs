@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 
 namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
@@ -13,12 +14,14 @@ public class TestAdapter
 
     public void RunImpl(string arguments, bool shouldAllowErrExitCode, int maxRunTimeMilliseconds)
     {
+        Debug.WriteLine("--------" + AppContext.BaseDirectory);
+
         using (var process = new Process())
         {
 #if DEBUG
-            process.StartInfo.FileName = "../../../../EtLast.Tests.Integration/bin/x64/debug/FizzCode.EtLast.Tests.Integration.exe";
+            process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "..", "..", "EtLast.Tests.Integration", "debug_net8.0", "FizzCode.EtLast.Tests.Integration.exe");
 #else
-            process.StartInfo.FileName = "../../../../EtLast.Tests.Integration/bin/x64/release/FizzCode.EtLast.Tests.Integration.exe";
+            process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "..", "..", "EtLast.Tests.Integration", "release_net8.0", "FizzCode.EtLast.Tests.Integration.exe");
 #endif
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;

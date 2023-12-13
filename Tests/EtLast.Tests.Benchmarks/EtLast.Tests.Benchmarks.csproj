@@ -7,6 +7,7 @@
     <AssemblyName>EtLast.Tests.Benchmarks</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Benchmarks</RootNamespace>
     <NoWarn>1701;1702;8032</NoWarn>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
