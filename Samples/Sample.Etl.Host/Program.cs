@@ -1,6 +1,6 @@
-﻿using FizzCode.EtLast.ConsoleHost;
+﻿using FizzCode.EtLast;
 
-return (int)HostBuilder.New("Sample ETL Host")
+return (int)ConsoleHostBuilder.New("Sample ETL Host")
     .HandleCommandLineArgs(args)
     .UseCommandLineListener(hostArguments => new ConsoleCommandLineListener())
     .SetAlias("test", "test-modules -a")

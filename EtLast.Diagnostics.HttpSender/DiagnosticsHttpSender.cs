@@ -1,9 +1,9 @@
 ﻿using System.Globalization;
 using System.Web;
 
-namespace FizzCode.EtLast.Diagnostics;
+namespace FizzCode.EtLast;
 
-public class HttpSender : IDisposable, IEtlContextListener
+public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
 {
     /// <summary>
     /// Default value is 2.
@@ -30,7 +30,7 @@ public class HttpSender : IDisposable, IEtlContextListener
     private readonly object _messageTemplateCacheLock = new();
     private readonly MessageTemplateParser _messageTemplateParser = new();
 
-    public HttpSender(IEtlContext context)
+    public DiagnosticsHttpSender(IEtlContext context)
     {
         _context = context;
 

@@ -62,6 +62,22 @@ public static class IHostBuilderExtensions
         return builder;
     }
 
+    public static IHostBuilder IfInstanceIs(this IHostBuilder builder, string instanceName, Func<IHostBuilder, IHostBuilder> builderAction)
+    {
+        if (Environment.MachineName.Equals(instanceName, StringComparison.InvariantCultureIgnoreCase))
+            return builderAction.Invoke(builder);
+
+        return builder;
+    }
+
+    public static IHostBuilder IfDebuggerAttached(this IHostBuilder builder, Func<IHostBuilder, IHostBuilder> builderAction)
+    {
+        if (Debugger.IsAttached)
+            return builderAction.Invoke(builder);
+
+        return builder;
+    }
+
     /// <summary>
     /// .NET allows maximum 10 minute long transactions, but each <see cref="IHost"/> automatically apply a hack with 4 hours, which can be overwritten by using this method.
     /// </summary>

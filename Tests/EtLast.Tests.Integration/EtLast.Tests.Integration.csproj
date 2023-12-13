@@ -4,8 +4,6 @@
     <TargetFrameworks>net8.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
-    <PackageId>FizzCode.EtLast.Tests.Integration</PackageId>
-    <Description>Integration tests using the EtLast Console host library</Description>
     <AssemblyName>FizzCode.EtLast.Tests.Integration</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.Integration</RootNamespace>
     <Configurations>Debug;Release</Configurations>
@@ -17,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="FizzCode.DbTools.Configuration" Version="2.0.25.6662" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.6.4">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.7.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
