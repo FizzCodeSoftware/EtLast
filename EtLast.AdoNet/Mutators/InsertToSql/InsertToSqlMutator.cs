@@ -73,16 +73,16 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", this,
-            Columns.Select(x => x.NameInDatabase).ToArray());
-
-        _sink.RegisterWrite(row);
-
         InitConnection();
 
         Columns ??= row.Values
             .Select(x => new DbColumn(x.Key, ConnectionString.Escape(x.Key)))
             .ToArray();
+
+        _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", this,
+            Columns.Select(x => x.NameInDatabase).ToArray());
+
+        _sink.RegisterWrite(row);
 
         if (!_prepared)
         {
