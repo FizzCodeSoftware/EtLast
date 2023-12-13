@@ -4,7 +4,6 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <Platforms>x64</Platforms>
 
     <Authors>FizzCode Ltd.</Authors>
     <Company>FizzCode Ltd.</Company>

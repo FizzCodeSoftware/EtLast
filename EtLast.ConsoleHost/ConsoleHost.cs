@@ -97,7 +97,21 @@ public class ConsoleHost : IHost
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
         Console.WriteLine();
-        HostLogger.Information("{ProgramName} {ProgramVersion} started on {EtLast} {EtLastVersion}", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString(), "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
+        HostLogger.Information("{ProgramName} {ProgramVersion} started", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString());
+
+        Console.WriteLine();
+        Console.WriteLine("Environment:");
+        Console.WriteLine("  {0,-23} = {1}", "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
+        Console.WriteLine("  {0,-23} = {1}", "Instance", Environment.MachineName);
+        Console.WriteLine("  {0,-23} = {1}", "UserName", Environment.UserName);
+        Console.WriteLine("  {0,-23} = {1}", "UserDomainName", Environment.UserDomainName);
+        Console.WriteLine("  {0,-23} = {1}", "OSVersion", Environment.OSVersion);
+        Console.WriteLine("  {0,-23} = {1}", "ProcessorCount", Environment.ProcessorCount);
+        Console.WriteLine("  {0,-23} = {1}", "UserInteractive", Environment.UserInteractive);
+        Console.WriteLine("  {0,-23} = {1}", "Is64Bit", Environment.Is64BitProcess);
+        Console.WriteLine("  {0,-23} = {1}", "IsPrivileged", Environment.IsPrivilegedProcess);
+        Console.WriteLine("  {0,-23} = {1}", "TickCountSinceStartup", Environment.TickCount64);
+        Console.WriteLine();
 
         if (CommandLineArgs?.Length > 0)
         {
