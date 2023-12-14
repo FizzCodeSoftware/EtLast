@@ -37,8 +37,4 @@
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>
