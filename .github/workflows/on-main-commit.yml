@@ -22,7 +22,7 @@ jobs:
       run: dotnet restore
     
     - name: Build
-      run: dotnet build --no-restore /p:Version=${{ vars.MAJORVERSION }}.${{ vars.MINORVERSION }}.${{ github.run_number }}.${{ vars.REVISION }}
+      run: dotnet build --configuration Release --no-restore /p:Version=${{ vars.MAJORVERSION }}.${{ vars.MINORVERSION }}.${{ github.run_number }}.${{ vars.REVISION }}
     
     - name: Test
       run: dotnet test --no-build --verbosity normal
