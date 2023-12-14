@@ -9,12 +9,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Extract Version
-      if: ${{ github.ref_type == 'tag' }}
-      env:
-        TAG: ${{ github.ref_name }}
-      run: echo "VERSION=${TAG#v}" >> $GITHUB_ENV
-
     - name: Checkout
       uses: actions/checkout@v4
       
@@ -28,7 +22,7 @@ jobs:
       run: dotnet restore
     
     - name: Build
-      run: dotnet build --no-restore /p:Version=$VERSION
+      run: dotnet build --no-restore /p:Version=${{ vars.MAJORVERSION }}.${{ vars.MINORVERSION }}.${{ vars.GITHUB_RUN_NUMBER }}.${{ vars.REVISION }}
     
     - name: Test
       run: dotnet test --no-build --verbosity normal
