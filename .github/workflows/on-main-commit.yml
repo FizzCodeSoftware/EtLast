@@ -1,8 +1,8 @@
-name: on-master-commit
+name: on-main-commit
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
