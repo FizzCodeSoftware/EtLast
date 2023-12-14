@@ -23,10 +23,10 @@ jobs:
         dotnet-quality: 'preview'
     
     - name: Restore
-      run: dotnet restore --configuration ${{ env.Configuration }}
+      run: dotnet restore /p:Configuration=${{ env.Configuration }}
     
     - name: Build
       run: dotnet build --configuration ${{ env.Configuration }} --no-restore /p:Version=${{ env.Version }}
     
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --configuration ${{ env.Configuration }} --no-build --verbosity normal
