@@ -3,7 +3,9 @@ name: on-main-commit
 on:
   push:
     branches: [ "main" ]
-
+  pull_request:
+    types: [opened, reopened]
+    
 jobs:
   build:
     runs-on: windows-latest
