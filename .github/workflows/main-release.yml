@@ -31,10 +31,10 @@ jobs:
       run: dotnet build --configuration ${{ env.Configuration }} --no-restore /p:Version=${{ env.Version }} --verbosity normal
     
     - name: Test
-      run: dotnet test --configuration ${{ env.Configuration }} --no-build  /p:Version=${VERSION} --verbosity normal
+      run: dotnet test --configuration ${{ env.Configuration }} --no-build  /p:Version=${{ env.Version }} --verbosity normal
 
     - name: Pack
-      run: dotnet pack --configuration ${{ env.Configuration }} --no-build /p:Version=${VERSION} --verbosity normal --output .packages
+      run: dotnet pack --configuration ${{ env.Configuration }} --no-build /p:Version=${{ env.Version }} --verbosity normal --output .packages
 
     - name: Push to GitHub Packages
       run: dotnet nuget push .packages\*.nupkg --source https://nuget.pkg.github.com/FizzcodeSoftware/index.json --api-key ${{ secrets.GITHUB_TOKEN }}
