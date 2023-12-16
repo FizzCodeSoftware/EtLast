@@ -52,3 +52,8 @@ jobs:
             ref: 'refs/tags/v${{ env.Version }}',
             sha: context.sha
           })
+
+    - name: PR to dev
+      run: gh pr create -B main -H dev --title 'merge main into dev' --body 'created automatically by a release workflow'
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
