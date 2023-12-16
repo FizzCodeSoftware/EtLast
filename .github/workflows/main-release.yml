@@ -54,6 +54,7 @@ jobs:
           })
 
     - name: PR to dev
-      run: gh pr create -B main -H dev --title 'merge main into dev' --body 'created automatically by a release workflow'
+      run: gh pr create -B dev -H main --title 'merge main into dev' --body 'created automatically by a release workflow'
+      continue-on-error: true
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
