@@ -6,19 +6,32 @@ namespace FizzCode.EtLast.HostBuilder;
 public abstract class AbstractHost : IHost
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public ILogger Logger { get; private set; }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string Name { get; }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public bool SerilogForModulesDisabled { get; set; } = true;
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public bool SerilogForHostEnabled { get; set; } = true;
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public TimeSpan MaxTransactionTimeout { get; set; } = TimeSpan.FromHours(4);
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; } = [];
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = [];
 
     private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
