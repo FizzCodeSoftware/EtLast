@@ -1,5 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractEtlService : IEtlService
 {
     public IEtlContext Context { get; private set; }

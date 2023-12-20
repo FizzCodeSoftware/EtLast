@@ -131,7 +131,7 @@ public sealed class BatchedCompareWithRowMutator : AbstractBatchedCrossMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class BatchedCompareWithRowMutatorFluent
 {
     /// <summary>

@@ -2,7 +2,7 @@
 
 public interface IProcess : ICaller
 {
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
     public string Name { get; }

@@ -161,7 +161,7 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class InMemoryExplodeMutatorFluent
 {
     /// <summary>

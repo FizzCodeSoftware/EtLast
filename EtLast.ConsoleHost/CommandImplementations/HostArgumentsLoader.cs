@@ -10,15 +10,15 @@ internal static class HostArgumentsLoader
     {
         var argumentsFolder = host.HostArgumentsFolder;
         if (!Directory.Exists(argumentsFolder))
-            return new ArgumentCollection(null);
+            return new ArgumentCollection();
 
         var startedOn = Stopwatch.StartNew();
 
         var csFileNames = Directory.GetFiles(argumentsFolder, "*.cs", SearchOption.AllDirectories).ToList();
         if (csFileNames.Count == 0)
-            return new ArgumentCollection(null);
+            return new ArgumentCollection();
 
-        host.HostLogger.Information("compiling host arguments from {Folder}", PathHelpers.GetFriendlyPathName(argumentsFolder));
+        host.Logger.Information("compiling host arguments from {Folder}", PathHelpers.GetFriendlyPathName(argumentsFolder));
 
         var metadataReferences = host.GetReferenceAssemblyFileNames()
             .Select(fn => MetadataReference.CreateFromFile(fn))
@@ -43,7 +43,7 @@ internal static class HostArgumentsLoader
                 var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
                 foreach (var error in failures)
                 {
-                    host.HostLogger.Write(LogEventLevel.Fatal, "syntax error in module: {ErrorMessage}", error.ToString());
+                    host.Logger.Write(LogEventLevel.Fatal, "syntax error in module: {ErrorMessage}", error.ToString());
                 }
 
                 return null;
@@ -56,7 +56,7 @@ internal static class HostArgumentsLoader
 
             var instanceConfigurationProviders = LoadInstancesFromAssembly<IInstanceArgumentProvider>(assembly);
             var defaultConfigurationProviders = LoadInstancesFromAssembly<IDefaultArgumentProvider>(assembly);
-            host.HostLogger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
+            host.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
             var instanceArgumentProviders = instanceConfigurationProviders;
             var defaultArgumentProviders = defaultConfigurationProviders;

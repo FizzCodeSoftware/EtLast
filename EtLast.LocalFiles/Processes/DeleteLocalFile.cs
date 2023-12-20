@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public sealed class DeleteLocalFile : AbstractJob
 {
@@ -33,7 +31,7 @@ public sealed class DeleteLocalFile : AbstractJob
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DeleteLocalFileFluent
 {
     public static IFlow DeleteLocalFile(this IFlow builder, Func<DeleteLocalFile> processCreator)

@@ -2,7 +2,7 @@
 
 public enum EpPlusExcelHeaderCellMode { Join, KeepFirst, KeepLast }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractEpPlusExcelReader : AbstractRowSource
 {
     [ProcessParameterMustHaveValue]

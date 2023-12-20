@@ -13,7 +13,7 @@ public sealed class EtlContext : IEtlContext
     /// <summary>
     /// Default value: 4 hours, but .NET maximizes the timeout in 10 minutes.
     /// </summary>
-    public TimeSpan TransactionScopeTimeout { get; init; } = TimeSpan.FromHours(4);
+    public TimeSpan TransactionScopeTimeout { get; set; } = TimeSpan.FromHours(4);
 
     /// <summary>
     /// Default value: 1000

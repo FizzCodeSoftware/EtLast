@@ -5,7 +5,7 @@ internal static class ModuleLister
     public static void ListModules(ConsoleHost host)
     {
         var moduleNames = GetAllModules(host.ModulesFolder);
-        host.HostLogger.Information("available modules: {ModuleNames}", moduleNames);
+        host.Logger.Information("available modules: {ModuleNames}", moduleNames);
     }
 
     public static List<string> GetAllModules(string folder)

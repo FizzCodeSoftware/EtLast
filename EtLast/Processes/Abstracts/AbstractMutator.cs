@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractMutator : AbstractProcess, IMutator
 {
     public Action<ISequence> Initializer { get; init; }

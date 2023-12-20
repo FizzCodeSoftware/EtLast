@@ -2,10 +2,13 @@
 
 public class Startup : IStartup
 {
-    public void Configure(EnvironmentSettings settings, IArgumentCollection arguments)
+    public void BuildSession(ISessionBuilder session, IArgumentCollection arguments)
     {
-        DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
-        settings.FileLogSettings.MinimumLogLevel = LogSeverity.Information;
-        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Debug;
+        session
+            .EnableSqlClient()
+            .LogToConsole(LogSeverity.Debug)
+            .LogDevToFile()
+            .LogOpsToFile()
+            .LogIoToFile();
     }
 }

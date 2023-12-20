@@ -93,7 +93,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class CopyTableStructureFluent
 {
     public static IFlow CopyTableStructure(this IFlow builder, Func<CopyTableStructure> processCreator)

@@ -67,7 +67,7 @@ public sealed class DropViews : AbstractSqlStatements
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DropViewsFluent
 {
     public static IFlow DropViews(this IFlow builder, Func<DropViews> processCreator)

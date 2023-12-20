@@ -75,7 +75,7 @@ public sealed class JsonElementReader<T> : AbstractRowSource
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class JsonOneReaderFluent
 {
     /// <summary>

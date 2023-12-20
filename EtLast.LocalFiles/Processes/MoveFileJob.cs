@@ -35,7 +35,7 @@ public sealed class MoveFileJob : AbstractJob
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MoveFileJobFluent
 {
     public static IFlow MoveFile(this IFlow builder, string sourceFileName, string targetFileName, bool overwrite)

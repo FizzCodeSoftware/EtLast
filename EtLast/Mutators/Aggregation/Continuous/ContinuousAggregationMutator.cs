@@ -193,7 +193,7 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ContinuousAggregationMutatorFluent
 {
     /// <summary>

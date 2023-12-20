@@ -210,7 +210,7 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
 
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MergeToSqlMutatorFluent
 {
     /// <summary>

@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public class ContinuousAggregate
 {
     public SlimRow ResultRow { get; }

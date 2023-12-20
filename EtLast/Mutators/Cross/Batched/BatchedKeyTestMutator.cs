@@ -202,7 +202,7 @@ public sealed class BatchedKeyTestMutator : AbstractBatchedCrossMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class BatchedKeyTestMutatorFluent
 {
     /// <summary>

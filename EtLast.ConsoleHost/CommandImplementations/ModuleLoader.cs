@@ -15,7 +15,7 @@ internal static class ModuleLoader
         var moduleFolder = Path.Combine(host.ModulesFolder, moduleName);
         if (!Directory.Exists(moduleFolder))
         {
-            host.HostLogger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
+            host.Logger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
             return ExecutionStatusCode.ModuleLoadError;
         }
 
@@ -32,7 +32,7 @@ internal static class ModuleLoader
 
         if (useAppDomain)
         {
-            host.HostLogger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
+            host.Logger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
 
             ForceLoadLocalDllsToAppDomain();
 
@@ -40,7 +40,7 @@ internal static class ModuleLoader
             var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
             var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
-            host.HostLogger.Debug("finished in {Elapsed}", startedOn.Elapsed);
+            host.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()
             {
@@ -55,13 +55,13 @@ internal static class ModuleLoader
 
             var tasks = module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlTask)));
 
-            host.HostLogger.Debug("{TaskCount} task(s) found: {Task}",
+            host.Logger.Debug("{TaskCount} task(s) found: {Task}",
                 tasks.Count(), tasks.Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
         }
 
-        host.HostLogger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
+        host.Logger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
 
         var metadataReferences = host.GetReferenceAssemblyFileNames()
             .Select(fn => MetadataReference.CreateFromFile(fn))
@@ -92,7 +92,7 @@ internal static class ModuleLoader
                 var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
                 foreach (var error in failures)
                 {
-                    host.HostLogger.Write(LogEventLevel.Fatal, "syntax error in module: {ErrorMessage}", error.ToString());
+                    host.Logger.Write(LogEventLevel.Fatal, "syntax error in module: {ErrorMessage}", error.ToString());
                 }
 
                 return ExecutionStatusCode.ModuleLoadError;
@@ -107,7 +107,7 @@ internal static class ModuleLoader
             var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAssembly<IInstanceArgumentProvider>(assembly);
             var defaultConfigurationProviders = LoadInstancesFromAssembly<IDefaultArgumentProvider>(assembly);
-            host.HostLogger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
+            host.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()
             {
@@ -122,7 +122,7 @@ internal static class ModuleLoader
 
             var tasks = module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlTask)));
 
-            host.HostLogger.Debug("{TaskCount} task(s) found: {Task}",
+            host.Logger.Debug("{TaskCount} task(s) found: {Task}",
                 tasks.Count(), tasks.Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
@@ -183,7 +183,7 @@ internal static class ModuleLoader
 
     public static void UnloadModule(ConsoleHost host, CompiledModule module)
     {
-        host.HostLogger.Debug("unloading module {Module}", module.Name);
+        host.Logger.Debug("unloading module {Module}", module.Name);
 
         module.TaskTypes.Clear();
 

@@ -11,7 +11,7 @@ public class ByteArrayConverter : ITypeConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ByteArrayConverterFluent
 {
     public static ReaderColumn AsByteArray(this ReaderColumn column) => column.WithTypeConverter(new ByteArrayConverter());

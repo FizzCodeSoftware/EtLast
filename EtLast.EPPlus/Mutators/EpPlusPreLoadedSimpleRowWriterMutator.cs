@@ -81,7 +81,7 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class EpPlusPreLoadedSimpleRowWriterMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder WriteRowToExcelSimple(this IFluentSequenceMutatorBuilder builder, EpPlusPreLoadedSimpleRowWriterMutator mutator)

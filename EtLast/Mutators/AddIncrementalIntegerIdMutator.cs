@@ -22,7 +22,7 @@ public sealed class AddIncrementalIntegerIdMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class AddIncrementalIdMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder AddIncrementalIntegerId(this IFluentSequenceMutatorBuilder builder, AddIncrementalIntegerIdMutator mutator)

@@ -129,7 +129,7 @@ public sealed class KeyTestMutator : AbstractCrossMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class KeyTestMutatorFluent
 {
     /// <summary>

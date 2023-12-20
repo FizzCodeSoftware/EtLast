@@ -186,7 +186,7 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class SortedReduceGroupToSingleRowMutatorFluent
 {
     /// <summary>

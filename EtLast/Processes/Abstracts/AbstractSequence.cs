@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSequence : AbstractProcess, ISequence
 {
     public Action<ISequence> Initializer { get; init; }

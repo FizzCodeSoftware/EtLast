@@ -70,7 +70,7 @@ public sealed class ParallelMerger : AbstractMerger
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ParallelMergerFluent
 {
     public static IFluentSequenceMutatorBuilder ProcessOnMultipleThreads(this IFluentSequenceMutatorBuilder builder, int threadCount, Action<int, IFluentSequenceMutatorBuilder> mutatorBuilder)

@@ -27,7 +27,7 @@ public class DecimalConverterAuto(IFormatProvider formatProvider, NumberStyles n
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DecimalConverterAutoFluent
 {
     public static ReaderColumn AsDecimalAuto(this ReaderColumn column, IFormatProvider formatProvider, NumberStyles numberStyles) => column.WithTypeConverter(new DecimalConverterAuto(formatProvider, numberStyles));

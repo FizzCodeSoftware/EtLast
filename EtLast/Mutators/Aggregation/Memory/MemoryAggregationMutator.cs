@@ -153,7 +153,7 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MemoryAggregationMutatorFluent
 {
     /// <summary>

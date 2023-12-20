@@ -2,7 +2,7 @@
 
 public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, out DatabaseConnection connection, out IDbTransaction transaction);
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractAdoNetDbReader : AbstractRowSource
 {
     [ProcessParameterMustHaveValue]

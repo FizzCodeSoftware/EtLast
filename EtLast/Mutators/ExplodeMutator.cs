@@ -26,7 +26,7 @@ public sealed class ExplodeMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ExplodeMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder Explode(this IFluentSequenceMutatorBuilder builder, ExplodeMutator mutator)

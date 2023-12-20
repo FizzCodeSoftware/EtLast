@@ -204,7 +204,7 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class InsertToSqlMutatorFluent
 {
     /// <summary>

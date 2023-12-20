@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public class MemorySortMutator : AbstractSequence, IMutator
 {
     public ISequence Input { get; set; }
@@ -146,7 +146,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MemorySortMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder SortInMemory(this IFluentSequenceMutatorBuilder builder, MemorySortMutator mutator)

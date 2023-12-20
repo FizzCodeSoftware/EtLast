@@ -59,7 +59,7 @@ public sealed class InMemoryRowCache : AbstractRowSource
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class InMemoryRowCacheFluent
 {
     public static IFluentSequenceMutatorBuilder ReadFromInMemoryRowCache(this IFluentSequenceBuilder builder, InMemoryRowCache cache)

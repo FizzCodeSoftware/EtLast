@@ -40,7 +40,7 @@ public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class StoredProcedureAdoNetDbReaderFluent
 {
     public static IFluentSequenceMutatorBuilder ReadFromStoredProcedure(this IFluentSequenceBuilder builder, StoredProcedureAdoNetDbReader reader)

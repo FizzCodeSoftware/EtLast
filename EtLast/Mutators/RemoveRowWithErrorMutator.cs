@@ -9,7 +9,7 @@ public sealed class RemoveRowWithErrorMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class RemoveRowWithErrorMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder RemoveRow(this IFluentSequenceMutatorBuilder builder, RemoveRowWithErrorMutator mutator)

@@ -85,7 +85,7 @@ public class TableMaxValueResult<T>
     public int RecordCount { get; set; }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class GetTableMaxValueFluent
 {
     public static IFlow GetTableMaxValue<TResult>(this IFlow builder, out TableMaxValueResult<TResult> maxValue, Func<GetTableMaxValue<TResult>> processCreator)

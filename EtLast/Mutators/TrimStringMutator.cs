@@ -42,7 +42,7 @@ public sealed class TrimStringMutator : AbstractSimpleChangeMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class TrimStringMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder TrimString(this IFluentSequenceMutatorBuilder builder, TrimStringMutator mutator)

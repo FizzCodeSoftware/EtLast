@@ -93,7 +93,7 @@ public sealed class ConvertToNewColumnMutator : AbstractSimpleChangeMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ConvertToNewColumnMutatorFluent
 {
     public static IConvertToNewColumnMutatorBuilder_As Convert(this IFluentSequenceMutatorBuilder builder, string sourceColumn)

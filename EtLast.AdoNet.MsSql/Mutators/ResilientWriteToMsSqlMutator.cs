@@ -279,7 +279,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MsSqlWriteWithMicroTransactionsMutatorFluent
 {
     /// <summary>

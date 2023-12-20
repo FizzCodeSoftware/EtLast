@@ -31,7 +31,7 @@ public sealed class ThrowExceptionOnDuplicateKeyMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ThrowExceptionOnDuplicateKeyMutatorFluent
 {
     /// <summary>

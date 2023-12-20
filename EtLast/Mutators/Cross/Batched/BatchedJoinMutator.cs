@@ -159,7 +159,7 @@ public sealed class BatchedJoinMutator : AbstractBatchedCrossMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class BatchedJoinMutatorFluent
 {
     /// <summary>
