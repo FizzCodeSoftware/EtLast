@@ -7,11 +7,14 @@ public sealed class ArgumentCollection : IArgumentCollection
 
     private readonly Dictionary<string, object> _values;
 
+    public ArgumentCollection()
+    {
+        _values = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+    }
+
     public ArgumentCollection(Dictionary<string, object> values)
     {
-        _values = values != null
-            ? new Dictionary<string, object>(values, StringComparer.InvariantCultureIgnoreCase)
-            : new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+        _values = new Dictionary<string, object>(values, StringComparer.InvariantCultureIgnoreCase);
     }
 
     public T GetAs<T>(string key, T defaultValue = default)

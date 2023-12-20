@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public sealed class DeleteLocalFile : AbstractJob
 {

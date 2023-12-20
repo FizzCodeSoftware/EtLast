@@ -16,7 +16,7 @@ internal static class ModuleExecuter
         currentDevLogFolder = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName);
         currentOpsLogFolder = Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName);
 
-        var environmentSettings = new EnvironmentSettings()
+        var sessionSettings = new HostSessionSettings()
         {
             ModuleFolderName = moduleFolderName,
             TasksFolderName = tasksFolderName,
@@ -25,14 +25,14 @@ internal static class ModuleExecuter
             TaskNames = taskNames,
         };
 
-        module.Startup?.Configure(environmentSettings, arguments);
+        module.Startup?.Configure(sessionSettings, arguments);
 
-        if (environmentSettings.LocalManifestLogSettings.Enabled)
+        if (sessionSettings.LocalManifestLogSettings.Enabled)
         {
-            var folder = Path.Combine(currentDevLogFolder, "manifest");
-            CleanupManifestFolder(environmentSettings.LocalManifestLogSettings, folder);
+            var folder = Path.Combine(sessionSettings.DevLogFolder, "manifest");
+            CleanupManifestFolder(sessionSettings.LocalManifestLogSettings, folder);
 
-            environmentSettings.ManifestProcessors.Add(new ConsoleHostJsonManifestProcessor()
+            sessionSettings.ManifestProcessors.Add(new ConsoleHostJsonManifestProcessor()
             {
                 Folder = folder,
                 FileNameFunc = manifest => manifest.CreatedOnUtc.ToString("yyyyMMdd-HHmmssfff", CultureInfo.InvariantCulture) + ".json",
@@ -42,13 +42,13 @@ internal static class ModuleExecuter
         var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName)
         {
-            TransactionScopeTimeout = environmentSettings.TransactionScopeTimeout,
+            TransactionScopeTimeout = sessionSettings.TransactionScopeTimeout,
         };
 
         context.Manifest.Extra["ModuleName"] = module.Name;
         context.Manifest.Extra["TaskNames"] = taskNames;
 
-        foreach (var manifestProcessor in environmentSettings.ManifestProcessors)
+        foreach (var manifestProcessor in sessionSettings.ManifestProcessors)
         {
             manifestProcessor.RegisterToManifestEvents(context.Manifest);
         }
@@ -74,9 +74,9 @@ internal static class ModuleExecuter
 
         if (host.SerilogForModulesEnabled)
         {
-            if (environmentSettings.FileLogSettings.Enabled || environmentSettings.ConsoleLogSettings.Enabled || !string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
+            if (sessionSettings.FileLogSettings.Enabled || sessionSettings.ConsoleLogSettings.Enabled || !string.IsNullOrEmpty(sessionSettings.SeqSettings.Url))
             {
-                var serilogAdapter = new EtlContextSerilogAdapter(environmentSettings, currentDevLogFolder, currentOpsLogFolder);
+                var serilogAdapter = new EtlContextSerilogAdapter(sessionSettings, currentDevLogFolder, currentOpsLogFolder);
                 context.Listeners.Add(serilogAdapter);
             }
         }
@@ -88,9 +88,9 @@ internal static class ModuleExecuter
 
         context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Manifest.ContextName, context.Manifest.ContextId);
 
-        if (!string.IsNullOrEmpty(environmentSettings.SeqSettings.Url))
+        if (!string.IsNullOrEmpty(sessionSettings.SeqSettings.Url))
         {
-            context.Log(LogSeverity.Debug, null, "all context logs will be sent to SEQ listening on {SeqUrl}", environmentSettings.SeqSettings.Url);
+            context.Log(LogSeverity.Debug, null, "all context logs will be sent to SEQ listening on {SeqUrl}", sessionSettings.SeqSettings.Url);
         }
 
         var startedOn = Stopwatch.StartNew();

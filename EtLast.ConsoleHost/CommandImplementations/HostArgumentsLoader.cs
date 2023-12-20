@@ -10,13 +10,13 @@ internal static class HostArgumentsLoader
     {
         var argumentsFolder = host.HostArgumentsFolder;
         if (!Directory.Exists(argumentsFolder))
-            return new ArgumentCollection(null);
+            return new ArgumentCollection();
 
         var startedOn = Stopwatch.StartNew();
 
         var csFileNames = Directory.GetFiles(argumentsFolder, "*.cs", SearchOption.AllDirectories).ToList();
         if (csFileNames.Count == 0)
-            return new ArgumentCollection(null);
+            return new ArgumentCollection();
 
         host.HostLogger.Information("compiling host arguments from {Folder}", PathHelpers.GetFriendlyPathName(argumentsFolder));
 

@@ -16,6 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Properties\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <None Remove="Properties\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FizzCode.LightWeight.Configuration" Version="2.0.42.7056" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
@@ -36,10 +42,6 @@
     <ProjectReference Include="..\EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj" />
     <ProjectReference Include="..\EtLast.Hosting\EtLast.Hosting.csproj" />
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

@@ -11,7 +11,7 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
     private readonly string _opsLogFolder;
     private readonly object _customFileLock = new();
 
-    public EtlContextSerilogAdapter(EnvironmentSettings environmentSettings, string devLogFolder, string opsLogFolder)
+    public EtlContextSerilogAdapter(HostSessionSettings environmentSettings, string devLogFolder, string opsLogFolder)
     {
         _logger = CreateLogger(environmentSettings, devLogFolder);
         _opsLogger = CreateOpsLogger(environmentSettings, opsLogFolder);
@@ -25,7 +25,7 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
     {
     }
 
-    private ILogger CreateLogger(EnvironmentSettings settings, string folder)
+    private ILogger CreateLogger(HostSessionSettings settings, string folder)
     {
         var config = new LoggerConfiguration();
 
@@ -119,7 +119,7 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
         return config.CreateLogger();
     }
 
-    private ILogger CreateOpsLogger(EnvironmentSettings settings, string folder)
+    private ILogger CreateOpsLogger(HostSessionSettings settings, string folder)
     {
         var config = new LoggerConfiguration();
 
@@ -164,7 +164,7 @@ internal class EtlContextSerilogAdapter : IEtlContextListener
         return config.CreateLogger();
     }
 
-    private ILogger CreateIoLogger(EnvironmentSettings settings, string folder)
+    private ILogger CreateIoLogger(HostSessionSettings settings, string folder)
     {
         if (!settings.FileLogSettings.Enabled)
             return null;
