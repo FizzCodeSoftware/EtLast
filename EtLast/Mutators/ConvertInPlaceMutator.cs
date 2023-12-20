@@ -95,7 +95,7 @@ public sealed class ConvertInPlaceMutator : AbstractSimpleChangeMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class InPlaceConvertMutatorFluent
 {
     public static IConvertMutatorBuilder_WithTypeConverter ConvertInPlace(this IFluentSequenceMutatorBuilder builder, params string[] columns)

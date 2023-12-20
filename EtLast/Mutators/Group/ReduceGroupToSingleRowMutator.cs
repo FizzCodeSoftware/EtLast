@@ -199,7 +199,7 @@ public sealed class ReduceGroupToSingleRowMutator : AbstractSequence, IMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ReduceGroupToSingleRowMutatorFluent
 {
     /// <summary>

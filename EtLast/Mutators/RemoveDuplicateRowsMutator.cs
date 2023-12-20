@@ -27,7 +27,7 @@ public sealed class RemoveDuplicateRowsMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class RemoveDuplicateRowsMutatorFluent
 {
     /// <summary>

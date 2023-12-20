@@ -123,7 +123,7 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class CopyTableIntoExistingTableFluent
 {
     public static IFlow CopyTableIntoExistingTable(this IFlow builder, Func<CopyTableIntoExistingTable> processCreator)

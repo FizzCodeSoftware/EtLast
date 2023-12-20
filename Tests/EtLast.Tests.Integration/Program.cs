@@ -2,8 +2,7 @@
 using FizzCode.EtLast;
 
 return (int)ConsoleHostBuilder.New("EtLast Integration Tests")
-    .HandleCommandLineArgs(args)
-    .UseCommandLineListener(hostArgs =>
+    .UseCommandListener(hostArgs =>
     {
         Console.WriteLine("list of automatically compiled host argument values:");
         foreach (var key in hostArgs.AllKeys)
@@ -13,7 +12,7 @@ return (int)ConsoleHostBuilder.New("EtLast Integration Tests")
                 Console.WriteLine("[" + key + "] = [" + v + "]");
         }
 
-        return new ConsoleCommandLineListener();
+        return new ConsoleCommandListener();
     })
     .SetAlias("test", "test-modules AdoNetTests FlowTests")
     .SetAlias("ado", "run AdoNetTests Main")

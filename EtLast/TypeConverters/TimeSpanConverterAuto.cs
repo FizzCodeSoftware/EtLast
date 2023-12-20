@@ -45,7 +45,7 @@ public class TimeSpanConverterAuto : TimeSpanConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class TimeSpanConverterAutoFluent
 {
     public static ReaderColumn AsTimeSpanAuto(this ReaderColumn column, IFormatProvider formatProvider = null, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new TimeSpanConverterAuto(formatProvider, dateTimeStyles));

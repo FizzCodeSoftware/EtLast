@@ -2,10 +2,10 @@
 
 namespace FizzCode.EtLast;
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractProcess : IProcess
 {
-    [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
     public IEtlContext Context => FlowState.Context;

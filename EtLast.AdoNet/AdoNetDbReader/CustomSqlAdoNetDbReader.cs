@@ -37,7 +37,7 @@ public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class CustomSqlAdoNetDbReaderFluent
 {
     public static IFluentSequenceMutatorBuilder ReadFromCustomSql(this IFluentSequenceBuilder builder, CustomSqlAdoNetDbReader reader)

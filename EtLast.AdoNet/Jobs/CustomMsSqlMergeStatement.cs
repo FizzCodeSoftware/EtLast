@@ -177,7 +177,7 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class CustomMsSqlMergeStatementFluent
 {
     public static IFlow CustomMsSqlMergeStatement(this IFlow builder, Func<CustomMsSqlMergeStatement> processCreator)

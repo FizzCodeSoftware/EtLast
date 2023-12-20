@@ -81,7 +81,7 @@ public class DecimalConverter : ITypeConverter, ITextConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DecimalConverterFluent
 {
     public static ReaderColumn AsDecimal(this ReaderColumn column) => column.WithTypeConverter(new DecimalConverter());

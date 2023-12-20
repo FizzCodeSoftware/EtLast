@@ -24,7 +24,7 @@ public sealed class MultiplyByTagsMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MultiplyWithTagsMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder CreateTaggedVersions(this IFluentSequenceMutatorBuilder builder, MultiplyByTagsMutator mutator)

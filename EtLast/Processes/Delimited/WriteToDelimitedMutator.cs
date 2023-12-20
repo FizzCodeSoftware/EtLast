@@ -244,7 +244,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class WriteToDelimitedMutatorFluent
 {
     /// <summary>

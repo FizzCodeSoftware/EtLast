@@ -132,7 +132,7 @@ public sealed class CompareWithRowMutator : AbstractCrossMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class CompareWithRowMutatorFluent
 {
     /// <summary>

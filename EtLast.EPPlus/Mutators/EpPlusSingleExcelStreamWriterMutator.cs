@@ -104,7 +104,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class EpPlusSingleExcelStreamWriterMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder WriteRowToExcelStreamCustom<TState>(this IFluentSequenceMutatorBuilder builder, EpPlusSingleExcelStreamWriterMutator<TState> mutator)

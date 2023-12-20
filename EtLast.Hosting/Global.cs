@@ -1,6 +1,15 @@
 ﻿global using System;
 global using System.Collections.Generic;
+global using System.ComponentModel;
 global using System.Diagnostics;
+global using System.Globalization;
+global using System.IO;
 global using System.Linq;
+global using System.Runtime.InteropServices;
+global using System.Text;
 global using System.Threading;
 global using Serilog;
+global using Serilog.Core;
+global using Serilog.Events;
+global using Serilog.Formatting.Display;
+global using Serilog.Parsing;

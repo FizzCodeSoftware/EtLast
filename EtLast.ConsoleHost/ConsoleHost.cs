@@ -8,13 +8,13 @@ public class ConsoleHost : IHost
     public string HostLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
     public string DevLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
     public string OpsLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
-    public ILogger HostLogger { get; private set; }
+    public ILogger Logger { get; private set; }
 
     public string ProgramName { get; }
 
     public List<string> ReferenceAssemblyFolders { get; } = [];
 
-    public bool SerilogForModulesEnabled { get; set; } = true;
+    public bool SerilogForModulesDisabled { get; set; } = true;
     public bool SerilogForHostEnabled { get; set; } = true;
 
     public TimeSpan MaxTransactionTimeout { get; set; } = TimeSpan.FromHours(4);
@@ -50,9 +50,8 @@ public class ConsoleHost : IHost
     }
 
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    public List<Func<IArgumentCollection, ICommandLineListener>> CommandLineListenerCreators { get; } = [];
+    public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; } = [];
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = [];
-    public string[] CommandLineArgs { get; set; }
 
     private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
@@ -90,14 +89,14 @@ public class ConsoleHost : IHost
 
     public ExecutionStatusCode Run()
     {
-        HostLogger = CreateHostLogger();
+        Logger = CreateHostLogger();
 
         AppDomain.MonitoringIsEnabled = true;
         AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
         Console.WriteLine();
-        HostLogger.Information("{ProgramName} {ProgramVersion} started", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString());
+        Logger.Information("{ProgramName} {ProgramVersion} started", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString());
 
         Console.WriteLine();
         Console.WriteLine("Environment:");
@@ -113,10 +112,11 @@ public class ConsoleHost : IHost
         Console.WriteLine("  {0,-23} = {1}", "TickCountSinceStartup", Environment.TickCount64);
         Console.WriteLine();
 
-        if (CommandLineArgs?.Length > 0)
+        var commandLineArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
+        if (commandLineArgs.Length > 0)
         {
-            HostLogger.Debug("command line arguments: {CommandLineArguments}", CommandLineArgs);
-            var result = RunCommandLine(CommandLineArgs).Status;
+            Logger.Debug("command line arguments: {CommandLineArguments}", commandLineArgs);
+            var result = RunCommand(commandLineArgs).Status;
 
             if (Debugger.IsAttached)
             {
@@ -137,20 +137,20 @@ public class ConsoleHost : IHost
             hostArguments = HostArgumentsLoader.LoadHostArguments(this);
             if (hostArguments == null)
             {
-                HostLogger.Write(LogEventLevel.Fatal, "unexpected exception while compiling host arguments");
+                Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling host arguments");
                 return ExecutionStatusCode.HostArgumentError;
             }
         }
         catch (Exception ex)
         {
-            HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
+            Logger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
             return ExecutionStatusCode.HostArgumentError;
         }
 
         SetMaxTransactionTimeout(MaxTransactionTimeout);
 
         var threads = new List<Thread>();
-        foreach (var creator in CommandLineListenerCreators)
+        foreach (var creator in CommandListenerCreators)
         {
             var listener = creator.Invoke(hostArguments);
             if (listener == null)
@@ -164,7 +164,7 @@ public class ConsoleHost : IHost
                 }
                 catch (Exception ex)
                 {
-                    HostLogger.Write(LogEventLevel.Fatal, ex, "unexpected exception happened in command line listener");
+                    Logger.Write(LogEventLevel.Fatal, ex, "unexpected exception happened in command line listener");
                 }
             });
 
@@ -178,14 +178,14 @@ public class ConsoleHost : IHost
         return ExecutionStatusCode.Success;
     }
 
-    public IExecutionResult RunCommandLine(string commandLine)
+    public IExecutionResult RunCommand(string command)
     {
-        var commandLineParts = _regEx
-            .Matches(commandLine.Trim())
+        var commandParts = _regEx
+            .Matches(command.Trim())
             .Select(x => x.Value)
             .ToArray();
 
-        return RunCommandLine(commandLineParts);
+        return RunCommand(commandParts);
     }
 
     public void Terminate()
@@ -193,20 +193,20 @@ public class ConsoleHost : IHost
         _cancellationTokenSource.Cancel();
     }
 
-    public IExecutionResult RunCommandLine(string[] commandLineParts)
+    public IExecutionResult RunCommand(string[] commandParts)
     {
-        if (commandLineParts?.Length >= 1 && CommandAliases.TryGetValue(commandLineParts[0], out var alias))
+        if (commandParts?.Length >= 1 && CommandAliases.TryGetValue(commandParts[0], out var alias))
         {
-            commandLineParts = _regEx
+            commandParts = _regEx
                 .Matches(alias.Trim())
                 .Select(x => x.Value)
-                .Concat(commandLineParts.Skip(1))
+                .Concat(commandParts.Skip(1))
                 .ToArray();
         }
 
         try
         {
-            switch (commandLineParts[0].ToLowerInvariant())
+            switch (commandParts[0].ToLowerInvariant())
             {
                 case "exit":
                     Terminate();
@@ -216,14 +216,14 @@ public class ConsoleHost : IHost
                     break;
                 case "run":
                     {
-                        var moduleName = commandLineParts.Skip(1).FirstOrDefault();
+                        var moduleName = commandParts.Skip(1).FirstOrDefault();
                         if (string.IsNullOrEmpty(moduleName))
                         {
                             Console.WriteLine("Missing module name. Usage: `run <moduleName> <taskNames>`");
                             return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
                         }
 
-                        var taskNames = commandLineParts.Skip(2).ToList();
+                        var taskNames = commandParts.Skip(2).ToList();
                         if (taskNames.Count == 0)
                         {
                             Console.WriteLine("Missing task name(s). Usage: `run <moduleName> <taskNames>`");
@@ -236,7 +236,7 @@ public class ConsoleHost : IHost
                     ModuleLister.ListModules(this);
                     return new ExecutionResult(ExecutionStatusCode.Success);
                 case "test-modules":
-                    var moduleNames = commandLineParts.Skip(2).ToList();
+                    var moduleNames = commandParts.Skip(2).ToList();
                     if (moduleNames.Count == 0)
                         moduleNames = ModuleLister.GetAllModules(ModulesFolder);
 
@@ -248,7 +248,7 @@ public class ConsoleHost : IHost
         catch (Exception ex)
         {
             var formattedMessage = ex.FormatExceptionWithDetails();
-            HostLogger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
 
             return new ExecutionResult(ExecutionStatusCode.UnexpectedError);
         }
@@ -259,17 +259,17 @@ public class ConsoleHost : IHost
         var result = new ExecutionResult();
         foreach (var moduleName in moduleNames)
         {
-            HostLogger.Information("loading module {Module}", moduleName);
+            Logger.Information("loading module {Module}", moduleName);
 
             ModuleLoader.LoadModule(this, moduleName, ModuleCompilationMode.ForceCompilation, out var module);
             if (module != null)
             {
                 ModuleLoader.UnloadModule(this, module);
-                HostLogger.Information("validation {ValidationResult} for {Module}", "PASSED", moduleName);
+                Logger.Information("validation {ValidationResult} for {Module}", "PASSED", moduleName);
             }
             else
             {
-                HostLogger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
+                Logger.Information("validation {ValidationResult} for {Module}", "FAILED", moduleName);
                 result.Status = ExecutionStatusCode.ModuleLoadError;
             }
         }
@@ -279,7 +279,7 @@ public class ConsoleHost : IHost
 
     private IExecutionResult RunModule(string moduleName, List<string> taskNames)
     {
-        HostLogger.Information("loading module {Module}", moduleName);
+        Logger.Information("loading module {Module}", moduleName);
 
         var loadResult = ModuleLoader.LoadModule(this, moduleName, ModuleCompilationMode, out var module);
         if (loadResult != ExecutionStatusCode.Success)
@@ -290,7 +290,7 @@ public class ConsoleHost : IHost
             var taskType = module.TaskTypes.Find(x => string.Equals(x.Name, taskName, StringComparison.InvariantCultureIgnoreCase));
             if (taskType == null)
             {
-                HostLogger.Warning("unknown task type: " + taskName);
+                Logger.Warning("unknown task type: " + taskName);
                 break;
             }
         }
@@ -308,9 +308,9 @@ public class ConsoleHost : IHost
 
         var formattedMessage = ex.FormatExceptionWithDetails();
 
-        if (HostLogger != null)
+        if (Logger != null)
         {
-            HostLogger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
         }
         else
         {
@@ -364,7 +364,7 @@ public class ConsoleHost : IHost
                 .FirstOrDefault();
 #endif
 
-            HostLogger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
+            Logger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
 
             referenceDllFileNames.AddRange(Directory.GetFiles(folder, "System*.dll", SearchOption.TopDirectoryOnly));
             referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
@@ -406,7 +406,7 @@ public class ConsoleHost : IHost
         if (TransactionManager.MaximumTimeout == maxValue)
             return;
 
-        HostLogger.Write(LogEventLevel.Information, "maximum transaction timeout is set to {MaxTransactionTimeout}", maxValue);
+        Logger.Write(LogEventLevel.Information, "maximum transaction timeout is set to {MaxTransactionTimeout}", maxValue);
 
         var field = typeof(TransactionManager).GetField("s_cachedMaxTimeout", BindingFlags.NonPublic | BindingFlags.Static);
         field.SetValue(null, true);

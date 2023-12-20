@@ -97,7 +97,7 @@ public sealed class DropTables : AbstractSqlStatements
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DropTablesFluent
 {
     public static IFlow DropTables(this IFlow builder, Func<DropTables> processCreator)

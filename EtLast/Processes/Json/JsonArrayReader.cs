@@ -112,7 +112,7 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class JsonArrayReaderFluent
 {
     /// <summary>

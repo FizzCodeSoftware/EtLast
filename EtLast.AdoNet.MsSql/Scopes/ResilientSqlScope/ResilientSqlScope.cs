@@ -281,7 +281,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
 }
 
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ResilientSqlScopeFluent
 {
     public static IFlow ResilientSqlScope(this IFlow builder, Func<ResilientSqlScope> processCreator)

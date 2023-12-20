@@ -60,7 +60,7 @@ public sealed class RenameColumnMutator : AbstractSimpleChangeMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class RenameColumnMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder RenameColumn(this IFluentSequenceMutatorBuilder builder, RenameColumnMutator mutator)

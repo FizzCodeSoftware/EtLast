@@ -122,7 +122,7 @@ public sealed class EnumerableImporter : AbstractRowSource
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class EnumerableImporterFluent
 {
     public static IFluentSequenceMutatorBuilder ImportEnumerable(this IFluentSequenceBuilder builder, EnumerableImporter importer)

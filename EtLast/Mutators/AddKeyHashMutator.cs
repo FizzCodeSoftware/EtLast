@@ -66,7 +66,7 @@ public sealed class AddKeyHashMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class AddHashMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder AddKeyHash(this IFluentSequenceMutatorBuilder builder, AddKeyHashMutator mutator)

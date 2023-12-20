@@ -51,7 +51,7 @@ public class StringConverter : ITypeConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class StringConverterFluent
 {
     public static ReaderColumn AsString(this ReaderColumn column, IFormatProvider formatProvider = null) => column.WithTypeConverter(new StringConverter(formatProvider));

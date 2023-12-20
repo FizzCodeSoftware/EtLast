@@ -16,8 +16,12 @@ internal static class ModuleExecuter
         currentDevLogFolder = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName);
         currentOpsLogFolder = Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName);
 
-        var sessionSettings = new HostSessionSettings()
+        var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
+        var context = new EtlContext(arguments, contextName);
+
+        var sessionBuilder = new SessionBuilder()
         {
+            Context = context,
             ModuleFolderName = moduleFolderName,
             TasksFolderName = tasksFolderName,
             DevLogFolder = currentDevLogFolder,
@@ -25,30 +29,12 @@ internal static class ModuleExecuter
             TaskNames = taskNames,
         };
 
-        module.Startup?.Configure(sessionSettings, arguments);
-
-        if (sessionSettings.LocalManifestLogSettings.Enabled)
-        {
-            var folder = Path.Combine(sessionSettings.DevLogFolder, "manifest");
-            CleanupManifestFolder(sessionSettings.LocalManifestLogSettings, folder);
-
-            sessionSettings.ManifestProcessors.Add(new ConsoleHostJsonManifestProcessor()
-            {
-                Folder = folder,
-                FileNameFunc = manifest => manifest.CreatedOnUtc.ToString("yyyyMMdd-HHmmssfff", CultureInfo.InvariantCulture) + ".json",
-            });
-        }
-
-        var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
-        var context = new EtlContext(arguments, contextName)
-        {
-            TransactionScopeTimeout = sessionSettings.TransactionScopeTimeout,
-        };
+        module.Startup?.BuildSession(sessionBuilder, arguments);
 
         context.Manifest.Extra["ModuleName"] = module.Name;
         context.Manifest.Extra["TaskNames"] = taskNames;
 
-        foreach (var manifestProcessor in sessionSettings.ManifestProcessors)
+        foreach (var manifestProcessor in sessionBuilder.ManifestProcessors)
         {
             manifestProcessor.RegisterToManifestEvents(context.Manifest);
         }
@@ -72,15 +58,6 @@ internal static class ModuleExecuter
             context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
         }
 
-        if (host.SerilogForModulesEnabled)
-        {
-            if (sessionSettings.FileLogSettings.Enabled || sessionSettings.ConsoleLogSettings.Enabled || !string.IsNullOrEmpty(sessionSettings.SeqSettings.Url))
-            {
-                var serilogAdapter = new EtlContextSerilogAdapter(sessionSettings, currentDevLogFolder, currentOpsLogFolder);
-                context.Listeners.Add(serilogAdapter);
-            }
-        }
-
         if (module.Startup == null)
         {
             context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing " + nameof(IStartup) + ".");
@@ -88,15 +65,8 @@ internal static class ModuleExecuter
 
         context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Manifest.ContextName, context.Manifest.ContextId);
 
-        if (!string.IsNullOrEmpty(sessionSettings.SeqSettings.Url))
-        {
-            context.Log(LogSeverity.Debug, null, "all context logs will be sent to SEQ listening on {SeqUrl}", sessionSettings.SeqSettings.Url);
-        }
-
         var startedOn = Stopwatch.StartNew();
-
         var taskResults = new List<TaskExectionResult>();
-
         var flowState = new FlowState(context);
 
         try
@@ -208,46 +178,6 @@ internal static class ModuleExecuter
         }
 
         return executionResult;
-    }
-
-    private static void CleanupManifestFolder(LocalManifestLogSettings settings, string folder)
-    {
-        if (settings.MaxFileCount == null && settings.MaxSizeOnDisk == null)
-            return;
-
-        if (!Directory.Exists(folder))
-            return;
-
-        if (settings.MaxFileCount != null)
-        {
-            var files = Directory.GetFiles(folder)
-                .OrderBy(x => x)
-                .ToArray();
-
-            if (files.Length >= settings.MaxFileCount.Value)
-            {
-                foreach (var file in files.Take(files.Length - settings.MaxFileCount.Value + 1))
-                    File.Delete(file);
-            }
-        }
-
-        if (settings.MaxSizeOnDisk != null)
-        {
-            var files = Directory.GetFiles(folder)
-                .OrderByDescending(x => x)
-                .Select(x => (File: x, Info: new FileInfo(x)))
-                .ToList();
-
-            while (files.Count > 0)
-            {
-                var totalSize = files.Sum(x => x.Info.Length);
-                if (totalSize < settings.MaxSizeOnDisk.Value)
-                    break;
-
-                File.Delete(files.Last().File);
-                files.RemoveAt(files.Count - 1);
-            }
-        }
     }
 
     private static void LogTaskCounters(IEtlContext context, IEtlTask task)

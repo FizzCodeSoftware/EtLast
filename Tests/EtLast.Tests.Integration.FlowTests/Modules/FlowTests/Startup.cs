@@ -4,9 +4,10 @@ public class Startup : IStartup
 {
     public Dictionary<string, Func<IArgumentCollection, IEtlTask>> CustomTasks => [];
 
-    public void Configure(HostSessionSettings settings, IArgumentCollection arguments)
+    public void BuildSession(ISessionBuilder builder, IArgumentCollection arguments)
     {
-        settings.FileLogSettings.MinimumLogLevel = LogSeverity.Verbose;
-        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Verbose;
+        builder
+            .LogToConsole(LogSeverity.Verbose)
+            .LogDevToFile(LogSeverity.Verbose);
     }
 }

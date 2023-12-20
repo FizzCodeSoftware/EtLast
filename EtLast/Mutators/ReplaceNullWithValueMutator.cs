@@ -31,7 +31,7 @@ public sealed class ReplaceNullWithValueMutator : AbstractSimpleChangeMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ReplaceNullWithValueMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder ReplaceNullWithValue(this IFluentSequenceMutatorBuilder builder, ReplaceNullWithValueMutator mutator)

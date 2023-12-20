@@ -130,7 +130,7 @@ public sealed class HttpDownloadToLocalFile : AbstractJob
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class HttpDownloadToLocalFileFluent
 {
     public static IFlow HttpDownloadToLocalFile(this IFlow builder, Func<HttpDownloadToLocalFile> processCreator)

@@ -27,7 +27,7 @@ public class TimeSpanConverter : ITypeConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class TimeSpanConverterFluent
 {
     public static ReaderColumn AsTimeSpan(this ReaderColumn column) => column.WithTypeConverter(new TimeSpanConverter());

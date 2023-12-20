@@ -1,16 +1,11 @@
 ﻿namespace FizzCode.EtLast;
 
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class IHostBuilderExtensions
 {
-    public static IHostBuilder HandleCommandLineArgs(this IHostBuilder builder, string[] startupArguments)
+    public static IHostBuilder UseCommandListener(this IHostBuilder builder, Func<IArgumentCollection, ICommandListener> listenerCreator)
     {
-        builder.Result.CommandLineArgs = startupArguments;
-        return builder;
-    }
-
-    public static IHostBuilder UseCommandLineListener(this IHostBuilder builder, Func<IArgumentCollection, ICommandLineListener> listenerCreator)
-    {
-        builder.Result.CommandLineListenerCreators.Add(listenerCreator);
+        builder.Result.CommandListenerCreators.Add(listenerCreator);
         return builder;
     }
 
@@ -52,7 +47,7 @@ public static class IHostBuilderExtensions
 
     public static IHostBuilder DisableSerilogForModules(this IHostBuilder builder)
     {
-        builder.Result.SerilogForModulesEnabled = false;
+        builder.Result.SerilogForModulesDisabled = false;
         return builder;
     }
 

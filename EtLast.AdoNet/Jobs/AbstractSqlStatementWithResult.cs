@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSqlStatementWithResult<T> : AbstractProcessWithResult<T>
 {
     public required NamedConnectionString ConnectionString { get; set; }

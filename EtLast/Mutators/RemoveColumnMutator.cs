@@ -30,7 +30,7 @@ public sealed class RemoveColumnMutator : AbstractSimpleChangeMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class RemoveColumnMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder RemoveColumn(this IFluentSequenceMutatorBuilder builder, RemoveColumnMutator mutator)

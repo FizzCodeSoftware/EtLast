@@ -2,10 +2,13 @@
 
 public class Startup : IStartup
 {
-    public void Configure(HostSessionSettings settings, IArgumentCollection arguments)
+    public void BuildSession(ISessionBuilder session, IArgumentCollection arguments)
     {
-        settings.UseSqlClient();
-        settings.FileLogSettings.MinimumLogLevel = LogSeverity.Information;
-        settings.ConsoleLogSettings.MinimumLogLevel = LogSeverity.Debug;
+        session
+            .EnableSqlClient()
+            .LogToConsole(LogSeverity.Debug)
+            .LogDevToFile()
+            .LogOpsToFile()
+            .LogIoToFile();
     }
 }

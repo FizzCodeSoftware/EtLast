@@ -23,7 +23,7 @@ public sealed class CreateDirectoryJob : AbstractJob
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class CreateDirectoryJobFluent
 {
     public static IFlow CreateDirectory(this IFlow builder, string path)

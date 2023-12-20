@@ -136,7 +136,7 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ServiceModelReaderFluent
 {
     public static IFluentSequenceMutatorBuilder ReadFromService<TChannel, TClient>(this IFluentSequenceBuilder builder, ServiceModelReader<TChannel, TClient> reader)

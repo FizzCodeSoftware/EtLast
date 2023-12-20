@@ -241,7 +241,7 @@ public sealed class WriteToMsSqlMutator : AbstractMutator, IRowSink
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MsSqlWriteMutatorFluent
 {
     /// <summary>

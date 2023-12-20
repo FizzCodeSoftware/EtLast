@@ -36,7 +36,7 @@ public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ThrowExceptionOnRowErrorMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder ThrowExceptionOnRowError(this IFluentSequenceMutatorBuilder builder, ThrowExceptionOnRowErrorMutator mutator)

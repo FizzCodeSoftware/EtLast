@@ -36,7 +36,7 @@ public sealed class ReplaceErrorWithValueMutator : AbstractSimpleChangeMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ReplaceErrorWithValueMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder ReplaceErrorWithValue(this IFluentSequenceMutatorBuilder builder, ReplaceErrorWithValueMutator mutator)

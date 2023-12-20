@@ -19,7 +19,7 @@ public sealed class CustomJob : AbstractJob
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class CustomJobFluent
 {
     public static IFlow CustomJob(this IFlow builder, Func<CustomJob> processCreator)

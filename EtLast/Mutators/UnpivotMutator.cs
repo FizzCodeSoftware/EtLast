@@ -100,7 +100,7 @@ public sealed class UnpivotMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class UnpivotMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder Unpivot(this IFluentSequenceMutatorBuilder builder, UnpivotMutator mutator)

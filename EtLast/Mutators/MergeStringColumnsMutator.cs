@@ -43,7 +43,7 @@ public sealed class MergeStringColumnsMutator : AbstractSimpleChangeMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class MergeStringColumnsMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder MergeStringColumns(this IFluentSequenceMutatorBuilder builder, MergeStringColumnsMutator mutator)

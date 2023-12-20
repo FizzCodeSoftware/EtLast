@@ -154,7 +154,7 @@ public sealed class JoinMutator : AbstractCrossMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class JoinMutatorFluent
 {
     /// <summary>

@@ -79,7 +79,7 @@ public sealed class ExpandFromLookupMutator : AbstractCrossMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ExpandFromLookupMutatorFluent
 {
     /// <summary>

@@ -58,7 +58,7 @@ public class BoolConverterAuto : BoolConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class BoolConverterAutoFluent
 {
     public static ReaderColumn AsBoolAuto(this ReaderColumn column) => column.WithTypeConverter(new BoolConverterAuto());

@@ -25,7 +25,7 @@ public sealed class SequentialMerger : AbstractMerger
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class SequentialMergerFluent
 {
     public static IFluentSequenceMutatorBuilder SequentialMerge(this IFluentSequenceBuilder builder, string name, Action<SequentialMergerBuilder> merger)

@@ -77,7 +77,7 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class AdoNetDbReaderFluent
 {
     public static IFluentSequenceMutatorBuilder ReadFromSql(this IFluentSequenceBuilder builder, AdoNetDbReader reader)

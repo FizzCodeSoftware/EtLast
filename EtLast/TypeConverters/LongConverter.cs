@@ -85,7 +85,7 @@ public class LongConverter : ITypeConverter, ITextConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class LongConverterFluent
 {
     public static ReaderColumn AsLong(this ReaderColumn column) => column.WithTypeConverter(new LongConverter());

@@ -27,7 +27,7 @@ public sealed class ReplaceStringMutator : AbstractMutator
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ReplaceStringMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder ReplaceString(this IFluentSequenceMutatorBuilder builder, ReplaceStringMutator mutator)

@@ -40,7 +40,7 @@ public class DateTimeConverterAuto : DateTimeConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DateTimeConverterAutoFluent
 {
     public static ReaderColumn AsDateTimeAuto(this ReaderColumn column, IFormatProvider formatProvider, DateTimeStyles dateTimeStyles = DateTimeStyles.AllowWhiteSpaces) => column.WithTypeConverter(new DateTimeConverterAuto(formatProvider, dateTimeStyles));

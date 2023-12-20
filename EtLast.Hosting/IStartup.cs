@@ -2,5 +2,5 @@
 
 public interface IStartup
 {
-    public void Configure(HostSessionSettings settings, IArgumentCollection arguments);
+    public void BuildSession(ISessionBuilder builder, IArgumentCollection arguments);
 }

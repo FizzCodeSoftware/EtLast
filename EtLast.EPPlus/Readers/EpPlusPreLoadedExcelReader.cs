@@ -33,7 +33,7 @@ public sealed class EpPlusPreLoadedExcelReader : AbstractEpPlusExcelReader
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class EpPlusPreLoadedExcelReaderFluent
 {
     public static IFluentSequenceMutatorBuilder ReadFromPreLoadedExcel(this IFluentSequenceBuilder builder, EpPlusPreLoadedExcelReader reader)

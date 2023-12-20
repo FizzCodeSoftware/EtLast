@@ -35,7 +35,7 @@ public sealed class ReplaceEmptyStringWithNullMutator : AbstractSimpleChangeMuta
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class ReplaceEmptyStringWithNullMutatorFluent
 {
     public static IFluentSequenceMutatorBuilder ReplaceEmptyStringWithNull(this IFluentSequenceMutatorBuilder builder, ReplaceEmptyStringWithNullMutator mutator)

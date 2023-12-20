@@ -37,7 +37,7 @@ public class DataContractXmlDeSerializerConverter<T> : ITypeConverter
     }
 }
 
-[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class DataContractXmlDeSerializerConverterFluent
 {
     public static ReaderColumn DeserializeDataContract<T>(this ReaderColumn column) => column.WithTypeConverter(new DataContractXmlDeSerializerConverter<T>());
