@@ -1,7 +1,7 @@
 ﻿using System;
 using FizzCode.EtLast;
 
-return (int)ConsoleHostBuilder.New("EtLast Integration Tests")
+return (int)new ConsoleHost("EtLast Integration Tests")
     .UseCommandListener(hostArgs =>
     {
         Console.WriteLine("list of automatically compiled host argument values:");
@@ -19,11 +19,10 @@ return (int)ConsoleHostBuilder.New("EtLast Integration Tests")
     .SetAlias("flow", "run FlowTests Main")
     //.DisableSerilogForModules()
     //.DisableSerilogForCommands()
-    .IfDebuggerAttached(b => b
+    .IfDebuggerAttached(host => host
         .RegisterEtlContextListener(context => new DiagnosticsHttpSender(context)
         {
             MaxCommunicationErrorCount = 2,
             Url = "http://localhost:8642",
         }))
-    .Build()
     .Run();

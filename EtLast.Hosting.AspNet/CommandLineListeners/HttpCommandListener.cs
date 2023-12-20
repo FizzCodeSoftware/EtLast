@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FizzCode.EtLast.Host;
 using Microsoft.AspNetCore.Builder;
 
 namespace FizzCode.EtLast;

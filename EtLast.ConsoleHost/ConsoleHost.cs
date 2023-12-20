@@ -1,25 +1,17 @@
-﻿namespace FizzCode.EtLast;
+﻿using FizzCode.EtLast.HostBuilder;
 
-public class ConsoleHost : IHost
+namespace FizzCode.EtLast;
+
+public class ConsoleHost : AbstractHost
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
-    public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
     public string HostLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
     public string DevLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
     public string OpsLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
-    public ILogger Logger { get; private set; }
-
-    public string ProgramName { get; }
 
     public List<string> ReferenceAssemblyFolders { get; } = [];
-
-    public bool SerilogForModulesDisabled { get; set; } = true;
-    public bool SerilogForHostEnabled { get; set; } = true;
-
-    public TimeSpan MaxTransactionTimeout { get; set; } = TimeSpan.FromHours(4);
-
-    public ModuleCompilationMode ModuleCompilationMode { get; set; } = ModuleCompilationMode.Dynamic;
+    public ModuleCompilationMode ModuleCompilationMode { get; internal set; } = ModuleCompilationMode.Dynamic;
 
     private string _modulesFolder;
     public string ModulesFolder
@@ -49,22 +41,18 @@ public class ConsoleHost : IHost
         }
     }
 
-    public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; } = [];
-    public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = [];
-
     private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
-    internal ConsoleHost(string programName)
+    public ConsoleHost(string name)
+        : base(name)
     {
-        ProgramName = programName;
         ModulesFolder = @".\Modules";
         HostArgumentsFolder = @".\HostArguments";
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\");
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
     }
 
-    private ILogger CreateHostLogger()
+    protected override ILogger CreateHostLogger()
     {
         var config = new LoggerConfiguration();
 
@@ -87,171 +75,47 @@ public class ConsoleHost : IHost
         return config.CreateLogger();
     }
 
-    public ExecutionStatusCode Run()
+    protected override void ListModules()
     {
-        Logger = CreateHostLogger();
-
-        AppDomain.MonitoringIsEnabled = true;
-        AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
-        AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
-
-        Console.WriteLine();
-        Logger.Information("{ProgramName} {ProgramVersion} started", ProgramName, Assembly.GetEntryAssembly().GetName().Version.ToString());
-
-        Console.WriteLine();
-        Console.WriteLine("Environment:");
-        Console.WriteLine("  {0,-23} = {1}", "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
-        Console.WriteLine("  {0,-23} = {1}", "Instance", Environment.MachineName);
-        Console.WriteLine("  {0,-23} = {1}", "UserName", Environment.UserName);
-        Console.WriteLine("  {0,-23} = {1}", "UserDomainName", Environment.UserDomainName);
-        Console.WriteLine("  {0,-23} = {1}", "OSVersion", Environment.OSVersion);
-        Console.WriteLine("  {0,-23} = {1}", "ProcessorCount", Environment.ProcessorCount);
-        Console.WriteLine("  {0,-23} = {1}", "UserInteractive", Environment.UserInteractive);
-        Console.WriteLine("  {0,-23} = {1}", "Is64Bit", Environment.Is64BitProcess);
-        Console.WriteLine("  {0,-23} = {1}", "IsPrivileged", Environment.IsPrivilegedProcess);
-        Console.WriteLine("  {0,-23} = {1}", "TickCountSinceStartup", Environment.TickCount64);
-        Console.WriteLine();
-
-        var commandLineArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
-        if (commandLineArgs.Length > 0)
-        {
-            Logger.Debug("command line arguments: {CommandLineArguments}", commandLineArgs);
-            var result = RunCommand(commandLineArgs).Status;
-
-            if (Debugger.IsAttached)
-            {
-                Console.WriteLine();
-                Console.WriteLine("done, press any key to continue");
-                Console.ReadKey();
-            }
-
-            return result;
-        }
-
-        DisplayHelp();
         ModuleLister.ListModules(this);
+    }
 
-        IArgumentCollection hostArguments = null;
-        try
+    protected override IArgumentCollection LoadHostArguments()
+    {
+        return HostArgumentsLoader.LoadHostArguments(this);
+    }
+
+    protected override IExecutionResult RunCustomCommand(string[] commandParts)
+    {
+        switch (commandParts[0].ToLowerInvariant())
         {
-            hostArguments = HostArgumentsLoader.LoadHostArguments(this);
-            if (hostArguments == null)
-            {
-                Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling host arguments");
-                return ExecutionStatusCode.HostArgumentError;
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
-            return ExecutionStatusCode.HostArgumentError;
-        }
-
-        SetMaxTransactionTimeout(MaxTransactionTimeout);
-
-        var threads = new List<Thread>();
-        foreach (var creator in CommandListenerCreators)
-        {
-            var listener = creator.Invoke(hostArguments);
-            if (listener == null)
-                continue;
-
-            var thread = new Thread(() =>
-            {
-                try
+            case "run":
                 {
-                    listener.Listen(this);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Write(LogEventLevel.Fatal, ex, "unexpected exception happened in command line listener");
-                }
-            });
-
-            threads.Add(thread);
-            thread.Start();
-        }
-
-        foreach (var thread in threads)
-            thread.Join();
-
-        return ExecutionStatusCode.Success;
-    }
-
-    public IExecutionResult RunCommand(string command)
-    {
-        var commandParts = _regEx
-            .Matches(command.Trim())
-            .Select(x => x.Value)
-            .ToArray();
-
-        return RunCommand(commandParts);
-    }
-
-    public void Terminate()
-    {
-        _cancellationTokenSource.Cancel();
-    }
-
-    public IExecutionResult RunCommand(string[] commandParts)
-    {
-        if (commandParts?.Length >= 1 && CommandAliases.TryGetValue(commandParts[0], out var alias))
-        {
-            commandParts = _regEx
-                .Matches(alias.Trim())
-                .Select(x => x.Value)
-                .Concat(commandParts.Skip(1))
-                .ToArray();
-        }
-
-        try
-        {
-            switch (commandParts[0].ToLowerInvariant())
-            {
-                case "exit":
-                    Terminate();
-                    break;
-                case "help":
-                    DisplayHelp();
-                    break;
-                case "run":
+                    var moduleName = commandParts.Skip(1).FirstOrDefault();
+                    if (string.IsNullOrEmpty(moduleName))
                     {
-                        var moduleName = commandParts.Skip(1).FirstOrDefault();
-                        if (string.IsNullOrEmpty(moduleName))
-                        {
-                            Console.WriteLine("Missing module name. Usage: `run <moduleName> <taskNames>`");
-                            return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
-                        }
-
-                        var taskNames = commandParts.Skip(2).ToList();
-                        if (taskNames.Count == 0)
-                        {
-                            Console.WriteLine("Missing task name(s). Usage: `run <moduleName> <taskNames>`");
-                            return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
-                        }
-
-                        return RunModule(moduleName, taskNames);
+                        Console.WriteLine("Missing module name. Usage: `run <moduleName> <taskNames>`");
+                        return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
                     }
-                case "list-modules":
-                    ModuleLister.ListModules(this);
-                    return new ExecutionResult(ExecutionStatusCode.Success);
-                case "test-modules":
-                    var moduleNames = commandParts.Skip(2).ToList();
-                    if (moduleNames.Count == 0)
-                        moduleNames = ModuleLister.GetAllModules(ModulesFolder);
 
-                    return TestModules(moduleNames);
-            }
+                    var taskNames = commandParts.Skip(2).ToList();
+                    if (taskNames.Count == 0)
+                    {
+                        Console.WriteLine("Missing task name(s). Usage: `run <moduleName> <taskNames>`");
+                        return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
+                    }
 
-            return new ExecutionResult(ExecutionStatusCode.Success);
+                    return RunModule(moduleName, taskNames);
+                }
+            case "test-modules":
+                var moduleNames = commandParts.Skip(2).ToList();
+                if (moduleNames.Count == 0)
+                    moduleNames = ModuleLister.GetAllModules(ModulesFolder);
+
+                return TestModules(moduleNames);
         }
-        catch (Exception ex)
-        {
-            var formattedMessage = ex.FormatExceptionWithDetails();
-            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
 
-            return new ExecutionResult(ExecutionStatusCode.UnexpectedError);
-        }
+        return new ExecutionResult(ExecutionStatusCode.Success);
     }
 
     private IExecutionResult TestModules(List<string> moduleNames)
@@ -320,7 +184,7 @@ public class ConsoleHost : IHost
         Environment.Exit(-1);
     }
 
-    internal void DisplayHelp()
+    protected override void ListCommands()
     {
         Console.WriteLine("Commands:");
         Console.WriteLine("  run          <moduleName> <taskNames>");
@@ -401,17 +265,38 @@ public class ConsoleHost : IHost
             .ToList();
     }
 
-    private void SetMaxTransactionTimeout(TimeSpan maxValue)
+    public T SetModuleCompilationMode<T>(ModuleCompilationMode moduleCompilationMode)
+        where T : ConsoleHost
     {
-        if (TransactionManager.MaximumTimeout == maxValue)
-            return;
+        ModuleCompilationMode = moduleCompilationMode;
+        return (T)this;
+    }
 
-        Logger.Write(LogEventLevel.Information, "maximum transaction timeout is set to {MaxTransactionTimeout}", maxValue);
+    public T ClearReferenceAssemblyFolder<T>()
+        where T : ConsoleHost
+    {
+        ReferenceAssemblyFolders.Clear();
+        return (T)this;
+    }
 
-        var field = typeof(TransactionManager).GetField("s_cachedMaxTimeout", BindingFlags.NonPublic | BindingFlags.Static);
-        field.SetValue(null, true);
+    public T AddReferenceAssemblyFolder<T>(string path)
+        where T : ConsoleHost
+    {
+        ReferenceAssemblyFolders.Add(path);
+        return (T)this;
+    }
 
-        field = typeof(TransactionManager).GetField("s_maximumTimeout", BindingFlags.NonPublic | BindingFlags.Static);
-        field.SetValue(null, maxValue);
+    public T UseHostArgumentsFolder<T>(string path)
+        where T : ConsoleHost
+    {
+        HostArgumentsFolder = path;
+        return (T)this;
+    }
+
+    public T UseModulesFolder<T>(string path)
+        where T : ConsoleHost
+    {
+        ModulesFolder = path;
+        return (T)this;
     }
 }

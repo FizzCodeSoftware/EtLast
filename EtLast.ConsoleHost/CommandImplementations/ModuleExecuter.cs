@@ -8,13 +8,11 @@ internal static class ModuleExecuter
         var instance = Environment.MachineName;
         var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance);
 
-        string currentDevLogFolder = null;
-        string currentOpsLogFolder = null;
         var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
         var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
 
-        currentDevLogFolder = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName);
-        currentOpsLogFolder = Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName);
+        var currentDevLogFolder = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName);
+        var currentOpsLogFolder = Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName);
 
         var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName);

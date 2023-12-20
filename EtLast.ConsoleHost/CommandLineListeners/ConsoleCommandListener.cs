@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using FizzCode.EtLast.Host;
+
+namespace FizzCode.EtLast;
 
 public class ConsoleCommandListener : ICommandListener
 {
