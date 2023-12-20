@@ -4,10 +4,13 @@ namespace FizzCode.EtLast;
 
 public class ConsoleHost : AbstractHost
 {
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
-
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string HostLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string DevLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public string OpsLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
 
     public List<string> ReferenceAssemblyFolders { get; } = [];
@@ -40,8 +43,6 @@ public class ConsoleHost : AbstractHost
             }
         }
     }
-
-    private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
     public ConsoleHost(string name)
         : base(name)
@@ -263,40 +264,5 @@ public class ConsoleHost : AbstractHost
                 }
             })
             .ToList();
-    }
-
-    public T SetModuleCompilationMode<T>(ModuleCompilationMode moduleCompilationMode)
-        where T : ConsoleHost
-    {
-        ModuleCompilationMode = moduleCompilationMode;
-        return (T)this;
-    }
-
-    public T ClearReferenceAssemblyFolder<T>()
-        where T : ConsoleHost
-    {
-        ReferenceAssemblyFolders.Clear();
-        return (T)this;
-    }
-
-    public T AddReferenceAssemblyFolder<T>(string path)
-        where T : ConsoleHost
-    {
-        ReferenceAssemblyFolders.Add(path);
-        return (T)this;
-    }
-
-    public T UseHostArgumentsFolder<T>(string path)
-        where T : ConsoleHost
-    {
-        HostArgumentsFolder = path;
-        return (T)this;
-    }
-
-    public T UseModulesFolder<T>(string path)
-        where T : ConsoleHost
-    {
-        ModulesFolder = path;
-        return (T)this;
     }
 }

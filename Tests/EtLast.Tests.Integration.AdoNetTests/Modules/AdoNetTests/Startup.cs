@@ -5,7 +5,7 @@ public class Startup : IStartup
     public void BuildSession(ISessionBuilder session, IArgumentCollection arguments)
     {
         session
-            .EnableSqlClient()
+            .EnableMicrosoftSqlClient()
             .LogToConsole(LogSeverity.Debug)
             .LogDevToFile()
             .LogOpsToFile()
