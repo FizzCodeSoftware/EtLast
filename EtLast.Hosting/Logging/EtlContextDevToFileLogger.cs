@@ -12,39 +12,39 @@ internal class EtlContextDevToFileLogger : IEtlContextListener
         var config = new LoggerConfiguration()
             .WriteTo.File(new Serilog.Formatting.Compact.CompactJsonFormatter(), Path.Combine(folder, "events-.json"),
                 restrictedToMinimumLevel: (LogEventLevel)minimumLogLevel,
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: infoFileCount,
                 buffered: true,
                 flushToDiskInterval: TimeSpan.FromSeconds(1),
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: infoFileCount,
                 encoding: Encoding.UTF8)
 
             .WriteTo.File(Path.Combine(folder, "2-info-.txt"),
-                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 restrictedToMinimumLevel: LogEventLevel.Information,
+                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: infoFileCount,
                 encoding: Encoding.UTF8)
 
             .WriteTo.File(Path.Combine(folder, "3-warning-.txt"),
-                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 restrictedToMinimumLevel: LogEventLevel.Warning,
+                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: importantFileCount,
                 encoding: Encoding.UTF8)
 
             .WriteTo.File(Path.Combine(folder, "4-error-.txt"),
-                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 restrictedToMinimumLevel: LogEventLevel.Error,
+                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: importantFileCount,
                 encoding: Encoding.UTF8)
 
             .WriteTo.File(Path.Combine(folder, "5-fatal-.txt"),
-                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 restrictedToMinimumLevel: LogEventLevel.Fatal,
+                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: importantFileCount,
@@ -57,10 +57,10 @@ internal class EtlContextDevToFileLogger : IEtlContextListener
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     formatProvider: CultureInfo.InvariantCulture,
-                    rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: lowFileCount,
                     buffered: true,
                     flushToDiskInterval: TimeSpan.FromSeconds(1),
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: lowFileCount,
                     encoding: Encoding.UTF8);
         }
 
@@ -71,10 +71,10 @@ internal class EtlContextDevToFileLogger : IEtlContextListener
                     restrictedToMinimumLevel: LogEventLevel.Verbose,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     formatProvider: CultureInfo.InvariantCulture,
-                    rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: lowFileCount,
                     buffered: true,
                     flushToDiskInterval: TimeSpan.FromSeconds(1),
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: lowFileCount,
                     encoding: Encoding.UTF8);
         }
 

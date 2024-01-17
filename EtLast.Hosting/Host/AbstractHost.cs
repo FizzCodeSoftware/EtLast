@@ -199,7 +199,9 @@ public abstract class AbstractHost : IHost
         var formattedMessage = ex.FormatExceptionWithDetails();
 
         if (Logger != null)
+        {
             Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+        }
         else
         {
             Console.WriteLine("unexpected error during execution: " + formattedMessage);

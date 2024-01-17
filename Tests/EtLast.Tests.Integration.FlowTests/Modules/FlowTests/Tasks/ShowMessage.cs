@@ -8,9 +8,6 @@ public class ShowMessage : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomJob("ShowMessageJob", job =>
-            {
-                Context.Log(LogSeverity.Warning, job, Message);
-            });
+            .CustomJob("ShowMessageJob", job => Context.Log(LogSeverity.Warning, job, Message));
     }
 }

@@ -41,10 +41,7 @@ public class CustomMutatorTests
             .ReadFrom(TestData.Person())
             .CustomCode(new CustomMutator()
             {
-                Action = row =>
-                {
-                    return row.GetAs<int>("id") < 4;
-                }
+                Action = row => row.GetAs<int>("id") < 4
             });
 
         var result = TestExecuter.Execute(context, builder);

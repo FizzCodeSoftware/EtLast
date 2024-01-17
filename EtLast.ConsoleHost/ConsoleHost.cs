@@ -51,6 +51,8 @@ public class ConsoleHost : AbstractHost
         HostArgumentsFolder = @".\HostArguments";
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\");
         ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
+
+        AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
     }
 
     protected override ILogger CreateHostLogger()

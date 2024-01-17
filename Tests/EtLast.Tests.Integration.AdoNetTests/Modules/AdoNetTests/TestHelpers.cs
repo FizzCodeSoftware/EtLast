@@ -8,10 +8,7 @@ public static class TestHelpers
         return new CustomJob()
         {
             Name = "ReadAndCheck" + table + "Table",
-            Action = job =>
-            {
-                ReadSqlTableAndAssertExactMacth(job, connectionString, table, expectedRowsList);
-            }
+            Action = job => ReadSqlTableAndAssertExactMacth(job, connectionString, table, expectedRowsList)
         };
     }
 
