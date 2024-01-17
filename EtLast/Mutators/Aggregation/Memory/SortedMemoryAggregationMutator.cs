@@ -125,7 +125,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
                     }
 
                     foreach (var groupRow in groupRows)
-                        (groupRow as IRow).SetOwner(null);
+                        (groupRow as IRow)?.SetOwner(null);
 
                     groupRows.Clear();
 
@@ -175,7 +175,7 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
             }
 
             foreach (var groupRow in groupRows)
-                (groupRow as IRow).SetOwner(null);
+                (groupRow as IRow)?.SetOwner(null);
 
             groupRows.Clear();
 

@@ -150,7 +150,7 @@ public abstract class AbstractProcess : IProcess
             .ToHashSet();
 
         var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-            .Where(p => p.SetMethod != null && p.SetMethod.IsPrivate != true && !baseProperties.Contains(p.Name) && p.GetIndexParameters().Length == 0)
+            .Where(p => p.SetMethod?.IsPrivate == false && !baseProperties.Contains(p.Name) && p.GetIndexParameters().Length == 0)
             .ToList();
 
         foreach (var property in properties)
@@ -178,7 +178,7 @@ public abstract class AbstractProcess : IProcess
     public static void ValidateParameterAnnotations(IProcess process, object instance)
     {
         var properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-          .Where(p => p.SetMethod != null && p.SetMethod.IsPrivate != true && p.GetIndexParameters().Length == 0)
+          .Where(p => p.SetMethod?.IsPrivate == false && p.GetIndexParameters().Length == 0)
           .ToList();
 
         foreach (var property in properties)

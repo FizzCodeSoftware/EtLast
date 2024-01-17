@@ -191,6 +191,9 @@ dotnet_diagnostic.RCS1194.severity = none
 # RCS1163: Unused parameter.
 dotnet_diagnostic.RCS1163.severity = silent
 
+# RCS1097: Remove redundant 'ToString' call
+dotnet_diagnostic.RCS1097.severity = silent
+
 # RCS1239: Use 'for' statement instead of 'while' statement.
 dotnet_diagnostic.RCS1239.severity = silent
 csharp_style_prefer_primary_constructors = true:suggestion

@@ -155,7 +155,6 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
                     writer.Flush();
                     underlyingStream.Flush();
                 }
-
             }
 
             return base.OnFileOpened(path, underlyingStream, encoding);

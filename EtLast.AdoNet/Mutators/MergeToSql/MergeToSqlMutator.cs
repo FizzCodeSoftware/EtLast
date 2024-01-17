@@ -207,7 +207,6 @@ public sealed class MergeToSqlMutator : AbstractMutator, IRowSink
         _command = null;
         _statements.Clear();
     }
-
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]

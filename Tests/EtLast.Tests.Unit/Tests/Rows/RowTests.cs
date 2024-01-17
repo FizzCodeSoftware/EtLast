@@ -35,7 +35,6 @@ public class RowKeepNullTests
         Assert.AreEqual(new DateTime(2020, 02, 20, 12, 12, 0, 666), result);
     }
 
-
     [TestMethod]
     public void SingleNullColumnResultsNullKey()
     {
