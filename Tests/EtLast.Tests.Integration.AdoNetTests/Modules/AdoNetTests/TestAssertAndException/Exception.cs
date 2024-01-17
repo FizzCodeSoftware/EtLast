@@ -8,9 +8,6 @@ public class Exception : AbstractEtlTask
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomJob(nameof(Exception), job =>
-            {
-                throw new System.Exception("Test Exception.");
-            });
+            .CustomJob(nameof(Exception), job => throw new System.Exception("Test Exception."));
     }
 }

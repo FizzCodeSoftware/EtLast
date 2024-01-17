@@ -175,14 +175,8 @@ internal class ContextProcessInvocationListControl
                     };
 
                     var control = new ProcessRowListControl(form, process, rows.Values.ToList());
-                    control.Updater.RefreshStarted += (sender, args) =>
-                    {
-                        form.Text = "LOADING...";
-                    };
-                    control.Updater.RefreshFinished += (sender, args) =>
-                    {
-                        form.Text = "Process output: " + process.Name;
-                    };
+                    control.Updater.RefreshStarted += (sender, args) => form.Text = "LOADING...";
+                    control.Updater.RefreshFinished += (sender, args) => form.Text = "Process output: " + process.Name;
 
                     ToolTipSingleton.Remove(ListView);
                     form.ShowDialog();

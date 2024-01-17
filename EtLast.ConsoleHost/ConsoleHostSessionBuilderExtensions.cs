@@ -3,7 +3,7 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ConsoleHostSessionBuilderExtensions
 {
-    public static ISessionBuilder UseRollingDevLogManifestFiles<T>(this ISessionBuilder session, int? maxFileCount, int? maxSizeOnDisk = 16 * 1024 * 1024)
+    public static ISessionBuilder UseRollingDevLogManifestFiles(this ISessionBuilder session, int? maxFileCount, int? maxSizeOnDisk = 16 * 1024 * 1024)
     {
         var folder = Path.Combine(session.DevLogFolder, "manifest");
         CleanupManifestFolder(maxFileCount, maxSizeOnDisk, folder);

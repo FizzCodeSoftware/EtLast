@@ -2,11 +2,6 @@
 
 public sealed class ThrowExceptionOnRowErrorMutator : AbstractMutator
 {
-    protected override void StartMutator()
-    {
-        base.StartMutator();
-    }
-
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         if (row.HasError())

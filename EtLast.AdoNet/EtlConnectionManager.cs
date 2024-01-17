@@ -129,10 +129,7 @@ public static class EtlConnectionManager
             });
         },
         onClosed: connection => ioCommand.End(),
-        onError: (connection, ex) =>
-        {
-            ioCommand.Failed(ex);
-        });
+        onError: (connection, ex) => ioCommand.Failed(ex));
 
         if (connection == null)
             return;

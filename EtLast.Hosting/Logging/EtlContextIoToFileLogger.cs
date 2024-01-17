@@ -12,12 +12,12 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
             .WriteTo.File(Path.Combine(folder, "io-.tsv"),
                 outputTemplate: "{Timestamp:HH:mm:ss.fff zzz}\t{Message:l}{NewLine}",
                 formatProvider: CultureInfo.InvariantCulture,
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: lowFileCount,
                 buffered: true,
                 flushToDiskInterval: TimeSpan.FromSeconds(1),
-                hooks: new IoFileLifecycleHooks(),
-                encoding: Encoding.UTF8);
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: lowFileCount,
+                encoding: Encoding.UTF8,
+                hooks: new IoFileLifecycleHooks());
 
         _logger = config.CreateLogger();
     }
@@ -155,7 +155,6 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
                     writer.Flush();
                     underlyingStream.Flush();
                 }
-
             }
 
             return base.OnFileOpened(path, underlyingStream, encoding);

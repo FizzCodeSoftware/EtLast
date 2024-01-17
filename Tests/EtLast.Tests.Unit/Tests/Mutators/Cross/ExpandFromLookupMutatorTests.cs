@@ -22,10 +22,7 @@ public class ExpandFromLookupMutatorTests
                     Process = TestData.Country(),
                     KeyGenerator = row => row.GenerateKey("id"),
                 },
-                MatchSelector = (row, lookup) =>
-                {
-                    return lookup.GetSingleRowByKey(row.GenerateKey("countryId"));
-                },
+                MatchSelector = (row, lookup) => lookup.GetSingleRowByKey(row.GenerateKey("countryId")),
                 NoMatchAction = new NoMatchAction(MatchMode.Custom)
                 {
                     CustomAction = row =>
