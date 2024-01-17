@@ -19,10 +19,12 @@ return (int)new ConsoleHost("EtLast Integration Tests")
     .SetAlias("flow", "run FlowTests Main")
     //.DisableSerilogForModules()
     //.DisableSerilogForCommands()
-    .IfDebuggerAttached(host => host
-        .RegisterEtlContextListener(context => new DiagnosticsHttpSender(context)
-        {
-            MaxCommunicationErrorCount = 2,
-            Url = "http://localhost:8642",
-        }))
+    .IfInstanceIs("WSDEVONE", host => host
+        .IfDebuggerAttached(host => host
+            .RegisterEtlContextListener(context => new DiagnosticsHttpSender(context)
+            {
+                MaxCommunicationErrorCount = 2,
+                Url = "http://localhost:8642",
+            }))
+        )
     .Run();

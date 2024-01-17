@@ -25,9 +25,6 @@ public class GetTableMaxValueTests : AbstractEtlTask
                 ColumnName = "DateTimeValue",
                 WhereClause = null,
             })
-            .CustomJob("Test", job =>
-            {
-                Assert.AreEqual(new DateTime(2022, 7, 9), result.MaxValue);
-            });
+            .CustomJob("Test", job => Assert.AreEqual(new DateTime(2022, 7, 9), result.MaxValue));
     }
 }

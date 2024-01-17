@@ -191,9 +191,21 @@ dotnet_diagnostic.RCS1194.severity = none
 # RCS1163: Unused parameter.
 dotnet_diagnostic.RCS1163.severity = silent
 
+# RCS1097: Remove redundant 'ToString' call
+dotnet_diagnostic.RCS1097.severity = silent
+
 # RCS1239: Use 'for' statement instead of 'while' statement.
 dotnet_diagnostic.RCS1239.severity = silent
 csharp_style_prefer_primary_constructors = true:suggestion
+
+# RCS1158: Static member in generic type should use a type parameter
+dotnet_diagnostic.RCS1158.severity = silent
+
+# RCS1202: Avoid NullReferenceException
+dotnet_diagnostic.RCS1202.severity = silent
+
+# RCS1075: Avoid empty catch clause that catches System.Exception
+dotnet_diagnostic.RCS1075.severity = silent
 
 [*.vb]
 # Modifier preferences

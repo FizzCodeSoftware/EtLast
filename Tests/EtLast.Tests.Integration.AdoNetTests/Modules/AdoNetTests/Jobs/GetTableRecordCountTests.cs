@@ -24,9 +24,6 @@ public class GetTableRecordCountTests : AbstractEtlTask
                 TableName = ConnectionString.Escape(nameof(GetTableRecordCountTests)),
                 WhereClause = null,
             })
-            .CustomJob("Test", job =>
-            {
-                Assert.AreEqual(2, result);
-            });
+            .CustomJob("Test", job => Assert.AreEqual(2, result));
     }
 }

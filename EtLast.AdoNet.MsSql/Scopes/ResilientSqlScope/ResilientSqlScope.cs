@@ -280,7 +280,6 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
     }
 }
 
-
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ResilientSqlScopeFluent
 {

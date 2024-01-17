@@ -241,7 +241,6 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         public required MemoryStream Buffer { get; init; }
         public int RowCount = 0;
     }
-
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]

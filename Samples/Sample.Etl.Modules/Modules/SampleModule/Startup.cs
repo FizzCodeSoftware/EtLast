@@ -2,9 +2,14 @@
 
 public class Startup : IStartup
 {
-    public void Configure(EnvironmentSettings settings, IArgumentCollection arguments)
+    public void BuildSession(ISessionBuilder session, IArgumentCollection arguments)
     {
-        System.Data.Common.DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", Microsoft.Data.SqlClient.SqlClientFactory.Instance);
+        session
+            .EnableMicrosoftSqlClient()
+            .LogToConsole(LogSeverity.Debug)
+            .LogDevToFile()
+            .LogOpsToFile()
+            .LogIoToFile();
     }
 
     public Dictionary<string, Func<IArgumentCollection, IEtlTask>> CustomTasks => [];

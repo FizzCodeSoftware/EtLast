@@ -246,6 +246,7 @@ internal static class ModuleLoader
             {
                 var matchingTypes = assembly.GetTypes()
                     .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
+
                 result.AddRange(matchingTypes);
             }
             catch (Exception) { }

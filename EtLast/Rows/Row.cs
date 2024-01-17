@@ -5,7 +5,7 @@
 public sealed class Row(IEtlContext context, IProcess process, long id, IEnumerable<KeyValuePair<string, object>> initialValues) : IRow
 {
     public IProcess Owner { get; private set; } = process;
-    public long Id { get; private set; } = id;
+    public long Id { get; } = id;
 
     public IEnumerable<KeyValuePair<string, object>> Values => _values;
     public int ValueCount => _values.Count;

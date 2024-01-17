@@ -77,6 +77,7 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
                     }
 
                     var entry = enumerator.Current;
+                    entryIndex++;
 
                     resultCount++;
                     initialValues[ColumnName] = entry;

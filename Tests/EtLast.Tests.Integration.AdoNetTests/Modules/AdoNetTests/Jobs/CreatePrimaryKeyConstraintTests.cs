@@ -30,10 +30,7 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                         AND CONSTRAINT_CATALOG = '{DatabaseName}'
                         AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
             })
-            .CustomJob("Test", job =>
-            {
-                Assert.AreEqual(0, countOfPrimaryKeys1);
-            })
+            .CustomJob("Test", job => Assert.AreEqual(0, countOfPrimaryKeys1))
             .CreatePrimaryKeyConstraint(() => new CreatePrimaryKeyConstraint()
             {
                 Name = "CreatePrimaryKey",
@@ -52,9 +49,6 @@ public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
                         AND CONSTRAINT_CATALOG = '{DatabaseName}'
                         AND CONSTRAINT_TYPE = 'PRIMARY KEY'",
             })
-            .CustomJob("Test", job =>
-            {
-                Assert.AreEqual(1, countOfPrimaryKeys2);
-            });
+            .CustomJob("Test", job => Assert.AreEqual(1, countOfPrimaryKeys2));
     }
 }
