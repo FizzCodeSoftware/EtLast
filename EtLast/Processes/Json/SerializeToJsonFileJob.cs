@@ -8,8 +8,6 @@ public sealed class SerializeToJsonFileJob<T> : AbstractJob
     [ProcessParameterMustHaveValue]
     public T Data { get; init; }
 
-    public required bool Overwrite { get; init; }
-
     public Encoding Encoding { get; init; } = Encoding.UTF8;
 
     public JsonSerializerOptions SerializerOptions { get; init; } = new JsonSerializerOptions()
@@ -30,7 +28,6 @@ public sealed class SerializeToJsonFileJob<T> : AbstractJob
         catch (Exception ex)
         {
             var exception = new ProcessExecutionException(this, ex);
-            exception.Data["Overwrite"] = Overwrite;
             throw exception;
         }
     }
