@@ -7,6 +7,7 @@ public static class SerializeToLocalJsonFileFluent
     {
         return builder.ExecuteProcess(() => new SerializeToJsonFileJob<T>()
         {
+            Data = data,
             Overwrite = true,
             Encoding = customEncoding ?? Encoding.UTF8,
             SinkProvider = new LocalFileSinkProvider()
