@@ -28,6 +28,7 @@ internal static class ModuleExecuter
         };
 
         module.Startup?.BuildSession(sessionBuilder, arguments);
+        host.SessionConfigurator(sessionBuilder, arguments);
 
         context.Manifest.Extra["ModuleName"] = module.Name;
         context.Manifest.Extra["TaskNames"] = taskNames;
@@ -151,7 +152,7 @@ internal static class ModuleExecuter
                             args.Add(action.Process.GetType().GetFriendlyTypeName());
                         }
 
-                        context.Log(LogSeverity.Information, null, sb.ToString(), args.ToArray());
+                        context.Log(LogSeverity.Information, null, sb.ToString(), [.. args]);
                     }
                 }
 
