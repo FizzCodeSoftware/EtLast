@@ -8,7 +8,8 @@ internal class EtlContextConsoleLogger : IEtlContextListener
     {
         var config = new LoggerConfiguration()
             .WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff} [{Level}] {Message} {Properties}{NewLine}{Exception}"),
-                (LogEventLevel)minimumLogLevel);
+                (LogEventLevel)minimumLogLevel)
+            .MinimumLevel.Is((LogEventLevel)minimumLogLevel);
 
         _logger = config.CreateLogger();
     }
