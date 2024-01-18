@@ -63,6 +63,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.Hosting.AspNet", "Et
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.AdoNet.PostgreSql", "EtLast.AdoNet.PostgreSql\EtLast.AdoNet.PostgreSql.csproj", "{1336B5DE-BAB0-4C89-9A8B-EBAB20377003}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ",github", ",github", "{7B620BDC-E7B0-4D95-98E6-63CC409508C4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actions", "Actions", "{5CCA0F47-1041-4C52-84D1-1A84297FAD79}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dev-test.yml = .github\workflows\dev-test.yml
+		.github\workflows\main-release.yml = .github\workflows\main-release.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -223,6 +231,7 @@ Global
 		{618A5B3C-77D3-43E6-B3E7-6A010A3C6224} = {79B641A3-3BD8-4B5D-804E-6775A803470B}
 		{07F75636-CAB9-4A3D-8AAF-D64A80A8A8E5} = {618A5B3C-77D3-43E6-B3E7-6A010A3C6224}
 		{DF3E2E97-F83C-482B-A1F2-F71A3C5AF9FD} = {618A5B3C-77D3-43E6-B3E7-6A010A3C6224}
+		{5CCA0F47-1041-4C52-84D1-1A84297FAD79} = {7B620BDC-E7B0-4D95-98E6-63CC409508C4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2B1A4546-5839-4F14-8E4D-8404CA122935}
