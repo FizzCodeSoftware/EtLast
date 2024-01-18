@@ -3,11 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Global", "Global", "{9BB9529D-3AA4-406E-8104-FE6DB4293000}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".solution", ".solution", "{9BB9529D-3AA4-406E-8104-FE6DB4293000}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
-		Global\AssemblyInfo.Global.cs = Global\AssemblyInfo.Global.cs
 		Directory.Build.props = Directory.Build.props
 		README.md = README.md
 	EndProjectSection

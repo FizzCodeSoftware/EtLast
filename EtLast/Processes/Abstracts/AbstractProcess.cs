@@ -8,7 +8,7 @@ public abstract class AbstractProcess : IProcess
     [EditorBrowsable(EditorBrowsableState.Never)]
     public ProcessInvocationInfo InvocationInfo { get; set; }
 
-    public IEtlContext Context => FlowState.Context;
+    public IEtlContext Context => FlowState?.Context;
 
     public FlowState FlowState { get; private set; }
     public FlowState GetFlowState() => FlowState;
