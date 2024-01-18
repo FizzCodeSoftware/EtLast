@@ -17,18 +17,20 @@ public sealed class SerializeToJsonFileJob<T> : AbstractJob
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
+        var namedSink = SinkProvider.GetSink(this, null, "json", []);
         try
         {
+
             var content = JsonSerializer.Serialize(Data, SerializerOptions);
 
-            var namedSink = SinkProvider.GetSink(this, null, "json", []);
             namedSink.Stream.Write(Encoding.GetBytes(content));
             namedSink.IncreaseRowsWritten();
         }
-        catch (Exception ex)
+        finally
         {
-            var exception = new ProcessExecutionException(this, ex);
-            throw exception;
+            namedSink.Stream.Flush();
+            namedSink.Stream.Close();
+            namedSink.Stream.Dispose();
         }
     }
 }
