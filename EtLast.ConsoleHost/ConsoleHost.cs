@@ -1,4 +1,5 @@
 ﻿using FizzCode.EtLast.HostBuilder;
+using static FizzCode.EtLast.ConsoleHostFluent;
 
 namespace FizzCode.EtLast;
 
@@ -45,7 +46,7 @@ public class ConsoleHost : AbstractHost
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public Action<ISessionBuilder, IArgumentCollection> SessionConfigurator { get; internal set; }
+    public SessionBuilderAction SessionConfigurator { get; internal set; }
 
     public ConsoleHost(string name)
         : base(name)

@@ -20,7 +20,7 @@ return (int)new ConsoleHost("EtLast Integration Tests")
     //.DisableSerilogForModules()
     //.DisableSerilogForCommands()
 
-    .ConfigureSession((builder, args) => builder.UseRollingDevLogManifestFiles(null))
+    .ConfigureSession((builder, sessionArguments) => builder.UseRollingDevLogManifestFiles(null))
 
     .IfInstanceIs("WSDEVONE", host => host
         .IfDebuggerAttached(host => host

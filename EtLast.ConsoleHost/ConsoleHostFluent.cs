@@ -38,7 +38,9 @@ public static class ConsoleHostFluent
         return host;
     }
 
-    public static T ConfigureSession<T>(this T host, Action<ISessionBuilder, IArgumentCollection> builderAction)
+    public delegate void SessionBuilderAction(ISessionBuilder builder, IArgumentCollection sessionArguments);
+
+    public static T ConfigureSession<T>(this T host, SessionBuilderAction builderAction)
         where T : ConsoleHost
     {
         host.SessionConfigurator = builderAction;
