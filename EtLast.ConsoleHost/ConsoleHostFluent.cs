@@ -37,4 +37,11 @@ public static class ConsoleHostFluent
         host.ModuleCompilationMode = moduleCompilationMode;
         return host;
     }
+
+    public static T ConfigureSession<T>(this T host, Action<ISessionBuilder, IArgumentCollection> builderAction)
+        where T : ConsoleHost
+    {
+        host.SessionConfigurator = builderAction;
+        return host;
+    }
 }

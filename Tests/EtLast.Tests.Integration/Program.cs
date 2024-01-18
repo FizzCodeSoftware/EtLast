@@ -19,6 +19,9 @@ return (int)new ConsoleHost("EtLast Integration Tests")
     .SetAlias("flow", "run FlowTests Main")
     //.DisableSerilogForModules()
     //.DisableSerilogForCommands()
+
+    .ConfigureSession((builder, args) => builder.UseRollingDevLogManifestFiles(null))
+
     .IfInstanceIs("WSDEVONE", host => host
         .IfDebuggerAttached(host => host
             .RegisterEtlContextListener(context => new DiagnosticsHttpSender(context)

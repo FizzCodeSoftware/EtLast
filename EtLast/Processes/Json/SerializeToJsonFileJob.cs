@@ -20,7 +20,6 @@ public sealed class SerializeToJsonFileJob<T> : AbstractJob
         var namedSink = SinkProvider.GetSink(this, null, "json", []);
         try
         {
-
             var content = JsonSerializer.Serialize(Data, SerializerOptions);
 
             namedSink.Stream.Write(Encoding.GetBytes(content));

@@ -44,6 +44,9 @@ public class ConsoleHost : AbstractHost
         }
     }
 
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Action<ISessionBuilder, IArgumentCollection> SessionConfigurator { get; internal set; }
+
     public ConsoleHost(string name)
         : base(name)
     {
@@ -162,7 +165,7 @@ public class ConsoleHost : AbstractHost
             }
         }
 
-        var executionResult = ModuleExecuter.Execute(this, module, taskNames.ToArray());
+        var executionResult = ModuleExecuter.Execute(this, module, [.. taskNames]);
 
         ModuleLoader.UnloadModule(this, module);
         return executionResult;
