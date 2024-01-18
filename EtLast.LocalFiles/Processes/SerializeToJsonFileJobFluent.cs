@@ -3,11 +3,13 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class SerializeToLocalJsonFileFluent
 {
-    public static IFlow SerializeToLocalJsonFile<T>(this IFlow builder, T data, string targetFileName)
+    public static IFlow SerializeToLocalJsonFile<T>(this IFlow builder, string targetFileName, T data, Encoding customEncoding = null)
     {
         return builder.ExecuteProcess(() => new SerializeToJsonFileJob<T>()
         {
+            Data = data,
             Overwrite = true,
+            Encoding = customEncoding ?? Encoding.UTF8,
             SinkProvider = new LocalFileSinkProvider()
             {
                 FileNameGenerator = _ => targetFileName,
