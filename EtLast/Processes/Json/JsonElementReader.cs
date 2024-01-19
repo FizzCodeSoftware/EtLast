@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public sealed class JsonElementReader<T> : AbstractRowSource
 {

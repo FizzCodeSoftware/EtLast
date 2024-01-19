@@ -1,7 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public class LocalJsonFileManifestProcessor : IManifestProcessor
 {
@@ -13,7 +10,7 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
         WriteIndented = true,
     };
 
-    private Stopwatch _lastSave = null;
+    private Stopwatch _lastSave;
 
     public void RegisterToManifestEvents(ContextManifest manifest)
     {
