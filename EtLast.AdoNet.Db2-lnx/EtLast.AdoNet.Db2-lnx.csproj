@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <PackageId>EtLast.AdoNet.Db2-lnx</PackageId>
+    <Description>ADO.NET extension for EtLast ETL (Extract, Transform and Load) library</Description>
+    <AssemblyName>EtLast.AdoNet.Db2-lnx</AssemblyName>
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="8.0.0.100" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtLast\EtLast.csproj" />
+  </ItemGroup>
+
+</Project>
