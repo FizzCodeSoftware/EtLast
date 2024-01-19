@@ -37,7 +37,7 @@ public class WriteToDelimitedMutatorTests
                 Columns = [],
                 SinkProvider = new LocalFileSinkProvider()
                 {
-                    FileNameGenerator = null, // should throw an exception
+                    FileName = null, // should throw an exception
                     ActionWhenFileExists = LocalSinkFileExistsAction.Continue,
                     FileMode = FileMode.Append,
                 },
@@ -65,7 +65,7 @@ public class WriteToDelimitedMutatorTests
                     FormatProvider = CultureInfo.InvariantCulture,
                     SinkProvider = new MemorySinkProvider()
                     {
-                        StreamCreator = () => outputStream,
+                        Stream = outputStream,
                         AutomaticallyDispose = false,
                     },
                     Columns = new()
@@ -101,9 +101,9 @@ public class WriteToDelimitedMutatorTests
             builder = SequenceBuilder.Fluent
                 .ReadDelimitedLines(new DelimitedLineReader()
                 {
-                    StreamProvider = new MemoryStreamProvider()
+                    StreamProvider = new OneMemoryStreamProvider()
                     {
-                        StreamCreator = () => outputStream,
+                        Stream = outputStream,
                     },
                     Columns = new()
                     {
@@ -155,7 +155,7 @@ public class WriteToDelimitedMutatorTests
                     FormatProvider = CultureInfo.InvariantCulture,
                     SinkProvider = new MemorySinkProvider()
                     {
-                        StreamCreator = () => outputStream,
+                        Stream = outputStream,
                         AutomaticallyDispose = false,
                     },
                     Columns = new()

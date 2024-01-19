@@ -3,7 +3,7 @@
 public sealed class JsonElementReader<T> : AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
-    public required IStreamProvider StreamProvider { get; init; }
+    public required IManyStreamProvider StreamProvider { get; init; }
 
     [ProcessParameterMustHaveValue]
     public required string ColumnName { get; init; }

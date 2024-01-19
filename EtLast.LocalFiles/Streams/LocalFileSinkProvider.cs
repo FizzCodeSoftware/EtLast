@@ -1,15 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
-public enum LocalSinkFileExistsAction { Continue, Exception, DeleteAndContinue }
-
 [ContainsProcessParameterValidation]
-public class LocalFileSinkProvider : ISinkProvider
+public class LocalFileSinkProvider : IOneSinkProvider
 {
     /// <summary>
-    /// Generates file name based on a partition key.
+    /// Generates file name.
     /// </summary>
     [ProcessParameterMustHaveValue]
-    public required Func<string, string> FileNameGenerator { get; init; }
+    public required string FileName { get; init; }
 
     /// <summary>
     /// Default value is <see cref="LocalSinkFileExistsAction.Exception"/>.
@@ -33,26 +31,24 @@ public class LocalFileSinkProvider : ISinkProvider
 
     public bool AutomaticallyDispose => true;
 
-    public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat, string[] columns)
+    public NamedSink GetSink(IProcess caller, string sinkFormat, string[] columns)
     {
-        var fileName = FileNameGenerator.Invoke(partitionKey);
-
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
             Process = caller,
             Kind = IoCommandKind.fileWrite,
-            Location = Path.GetDirectoryName(fileName),
-            Path = Path.GetFileName(fileName),
+            Location = Path.GetDirectoryName(FileName),
+            Path = Path.GetFileName(FileName),
             Message = "writing to local file",
         });
 
-        if (ActionWhenFileExists != LocalSinkFileExistsAction.Continue && File.Exists(fileName))
+        if (ActionWhenFileExists != LocalSinkFileExistsAction.Continue && File.Exists(FileName))
         {
             if (ActionWhenFileExists == LocalSinkFileExistsAction.Exception)
             {
-                var exception = new LocalFileWriteException(caller, "local file already exist", fileName);
+                var exception = new LocalFileWriteException(caller, "local file already exist", FileName);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file already exist: {0}",
-                    fileName));
+                    FileName));
 
                 ioCommand.AffectedDataCount = 0;
                 ioCommand.Failed(exception);
@@ -62,14 +58,14 @@ public class LocalFileSinkProvider : ISinkProvider
             {
                 try
                 {
-                    File.Delete(fileName);
+                    File.Delete(FileName);
                 }
                 catch (Exception ex)
                 {
-                    var exception = new LocalFileWriteException(caller, "error while writing local file / file deletion failed", fileName, ex);
+                    var exception = new LocalFileWriteException(caller, "error while writing local file / file deletion failed", FileName, ex);
                     exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, file deletion failed, message: {1}",
-                        fileName, ex.Message));
-                    exception.Data["FileName"] = fileName;
+                        FileName, ex.Message));
+                    exception.Data["FileName"] = FileName;
 
                     ioCommand.AffectedDataCount = 0;
                     ioCommand.Failed(exception);
@@ -78,7 +74,7 @@ public class LocalFileSinkProvider : ISinkProvider
             }
         }
 
-        var directory = Path.GetDirectoryName(fileName);
+        var directory = Path.GetDirectoryName(FileName);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
         {
             try
@@ -87,10 +83,10 @@ public class LocalFileSinkProvider : ISinkProvider
             }
             catch (Exception ex)
             {
-                var exception = new LocalFileWriteException(caller, "error while writing local file / directory creation failed", fileName, ex);
+                var exception = new LocalFileWriteException(caller, "error while writing local file / directory creation failed", FileName, ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, directory creation failed, message: {1}",
-                    fileName, ex.Message));
-                exception.Data["FileName"] = fileName;
+                    FileName, ex.Message));
+                exception.Data["FileName"] = FileName;
                 exception.Data["Directory"] = directory;
 
                 ioCommand.AffectedDataCount = 0;
@@ -101,17 +97,17 @@ public class LocalFileSinkProvider : ISinkProvider
 
         try
         {
-            var sink = caller.Context.GetSink(Path.GetDirectoryName(fileName), Path.GetFileName(fileName), sinkFormat, caller, columns);
+            var sink = caller.Context.GetSink(Path.GetDirectoryName(FileName), Path.GetFileName(FileName), sinkFormat, caller, columns);
 
-            var stream = new FileStream(fileName, FileMode, FileAccess, FileShare);
-            return new NamedSink(fileName, stream, ioCommand, sink);
+            var stream = new FileStream(FileName, FileMode, FileAccess, FileShare);
+            return new NamedSink(FileName, stream, ioCommand, sink);
         }
         catch (Exception ex)
         {
-            var exception = new LocalFileWriteException(caller, "error while writing local file", fileName, ex);
+            var exception = new LocalFileWriteException(caller, "error while writing local file", FileName, ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing local file: {0}, message: {1}",
-                fileName, ex.Message));
-            exception.Data["FileName"] = fileName;
+                FileName, ex.Message));
+            exception.Data["FileName"] = FileName;
 
             ioCommand.AffectedDataCount = 0;
             ioCommand.Failed(exception);

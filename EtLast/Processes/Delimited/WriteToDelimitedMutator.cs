@@ -3,7 +3,7 @@
 public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue]
-    public required ISinkProvider SinkProvider { get; init; }
+    public required IOneSinkProvider SinkProvider { get; init; }
 
     /// <summary>
     /// Default value is <see cref="Encoding.UTF8"/>
@@ -51,17 +51,13 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     /// </summary>
     public int BatchSize { get; init; } = 10000;
 
-    public PartitionKeyGenerator PartitionKeyGenerator { get; init; }
-
-    private readonly Dictionary<string, SinkEntry> _sinkEntries = [];
+    private SinkEntry _sinkEntry = null;
     private byte[] _delimiterBytes;
     private byte[] _lineEndingBytes;
     private byte[] _quoteBytes;
     private string _escapedQuote;
     private char[] _quoteRequiredChars;
     private string _quoteAsString;
-
-    private int _rowCounter;
 
     protected override void StartMutator()
     {
@@ -71,24 +67,18 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         _quoteRequiredChars = [Delimiter, Quote, Escape, '\r', '\n'];
         _quoteAsString = Quote.ToString();
         _quoteBytes = Encoding.GetBytes(new[] { Quote });
-
-        _rowCounter = 0;
     }
 
-    private SinkEntry GetSinkEntry(string partitionKey)
+    private SinkEntry GetSinkEntry()
     {
-        var internalKey = partitionKey ?? "\0__nopartition__\0";
+        if (_sinkEntry != null)
+            return _sinkEntry;
 
-        if (_sinkEntries.TryGetValue(internalKey, out var sinkEntry))
-            return sinkEntry;
-
-        sinkEntry = new SinkEntry()
+        var sinkEntry = _sinkEntry = new SinkEntry()
         {
-            NamedSink = SinkProvider.GetSink(this, partitionKey, "delimited", Columns.Select(x => x.Value?.SourceColumn ?? x.Key).ToArray()),
+            NamedSink = SinkProvider.GetSink(this, "delimited", Columns.Select(x => x.Value?.SourceColumn ?? x.Key).ToArray()),
             Buffer = new MemoryStream(),
         };
-
-        _sinkEntries.Add(internalKey, sinkEntry);
 
         if (WriteHeader)
         {
@@ -140,30 +130,21 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
     protected override void CloseMutator()
     {
-        foreach (var sinkEntry in _sinkEntries.Values)
-        {
-            WriteBuffer(sinkEntry);
-        }
+        WriteBuffer(_sinkEntry);
 
         if (SinkProvider.AutomaticallyDispose)
         {
-            foreach (var sinkEntry in _sinkEntries.Values)
-            {
-                sinkEntry.NamedSink.Stream.Flush();
-                sinkEntry.NamedSink.Stream.Close();
-                sinkEntry.NamedSink.Stream.Dispose();
-            }
+            _sinkEntry.NamedSink.Stream.Flush();
+            _sinkEntry.NamedSink.Stream.Close();
+            _sinkEntry.NamedSink.Stream.Dispose();
         }
 
-        _sinkEntries.Clear();
+        _sinkEntry = null;
     }
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        var partitionKey = PartitionKeyGenerator?.Invoke(row, _rowCounter);
-        _rowCounter++;
-
-        var sinkEntry = GetSinkEntry(partitionKey);
+        var sinkEntry = GetSinkEntry();
         sinkEntry.NamedSink.Sink.RegisterWrite(row);
 
         try

@@ -43,7 +43,7 @@ public class EpPlusSimpleRowWriterTests
                     ["lastChangedTime"] = new ExcelColumn().SetNumberFormat("yyyy-mm-dd hh:mm"),
                 },
                 PartitionKeyGenerator = null,
-                SinkProvider = new LocalFileSinkProvider()
+                SinkProvider = new PartitionedLocalFileSinkProvider()
                 {
                     FileNameGenerator = partition => directory + "\\test.xlsx",
                     ActionWhenFileExists = LocalSinkFileExistsAction.DeleteAndContinue,
@@ -74,7 +74,7 @@ public class EpPlusSimpleRowWriterTests
             .ReadFromExcel(new EpPlusExcelReader()
             {
                 SheetName = "person",
-                StreamProvider = new LocalDirectoryStreamProvider()
+                StreamProvider = new MultipleLocalFilesInDirectoryStreamProvider()
                 {
                     Directory = directory,
                     SearchPattern = "*.xlsx",
@@ -142,7 +142,7 @@ public class EpPlusSimpleRowWriterTests
                     ["lastChangedTime"] = new ExcelColumn().SetNumberFormat("yyyy-mm-dd hh:mm"),
                 },
                 PartitionKeyGenerator = (row, index) => (index % 2).ToString("D", CultureInfo.InvariantCulture),
-                SinkProvider = new LocalFileSinkProvider()
+                SinkProvider = new PartitionedLocalFileSinkProvider()
                 {
                     FileNameGenerator = partition => directory + "\\test-" + partition + ".xlsx",
                     ActionWhenFileExists = LocalSinkFileExistsAction.DeleteAndContinue,
@@ -173,7 +173,7 @@ public class EpPlusSimpleRowWriterTests
             .ReadFromExcel(new EpPlusExcelReader()
             {
                 SheetName = "person",
-                StreamProvider = new LocalDirectoryStreamProvider()
+                StreamProvider = new MultipleLocalFilesInDirectoryStreamProvider()
                 {
                     Directory = directory,
                     SearchPattern = "*.xlsx",

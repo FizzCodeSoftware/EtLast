@@ -3,7 +3,7 @@
 [TestClass]
 public class EpPlusExcelReaderTests
 {
-    private static EpPlusExcelReader GetReader(IEtlContext context, IStreamProvider streamProvider, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
+    private static EpPlusExcelReader GetReader(IEtlContext context, IManyStreamProvider streamProvider, string sheetName = null, int sheetIndex = -1, bool automaticallyTrimAllStringValues = true)
     {
         return new EpPlusExcelReader()
         {
@@ -65,7 +65,7 @@ public class EpPlusExcelReaderTests
         var context = TestExecuter.GetContext();
         var reader = new EpPlusExcelReader()
         {
-            StreamProvider = new LocalDirectoryStreamProvider()
+            StreamProvider = new MultipleLocalFilesInDirectoryStreamProvider()
             {
                 Directory = @".\TestData\",
                 SearchPattern = "Partition*.xlsx"

@@ -3,7 +3,7 @@
 namespace FizzCode.EtLast;
 
 [ContainsProcessParameterValidation]
-public class HttpStreamProvider : IStreamProvider
+public class HttpStreamProvider : IManyStreamProvider, IOneStreamProvider
 {
     /// <summary>
     /// According to MSDN, it is recommended to reuse HttpClient instances if possible.
@@ -22,7 +22,7 @@ public class HttpStreamProvider : IStreamProvider
 
     public string GetTopic() => Url;
 
-    public IEnumerable<NamedStream> GetStreams(IProcess caller)
+    public NamedStream GetStream(IProcess caller)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
@@ -40,7 +40,7 @@ public class HttpStreamProvider : IStreamProvider
             var stream = Client.GetStreamAsync(Url).Result;
             var namedStream = new NamedStream(Url, stream, ioCommand);
             namedStream.OnDispose += (sender, args) => cancellationTokenRegistration.Dispose();
-            return new[] { namedStream };
+            return namedStream;
         }
         catch (Exception ex)
         {
@@ -57,7 +57,13 @@ public class HttpStreamProvider : IStreamProvider
 
             ioCommand.AffectedDataCount = 0;
             ioCommand.End();
-            return Enumerable.Empty<NamedStream>();
+            return null;
         }
+    }
+
+    public IEnumerable<NamedStream> GetStreams(IProcess caller)
+    {
+        var stream = GetStream(caller);
+        return new[] { stream };
     }
 }

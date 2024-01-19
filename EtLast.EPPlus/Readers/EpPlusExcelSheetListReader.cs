@@ -3,7 +3,7 @@
 public sealed class EpPlusExcelSheetListReader : AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
-    public required IStreamProvider StreamProvider { get; init; }
+    public required IManyStreamProvider StreamProvider { get; init; }
 
     /// <summary>
     /// Default value is "Stream".
