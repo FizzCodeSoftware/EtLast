@@ -54,7 +54,25 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow CalculateVariable<T>(out T variable, Func<T> calculatorFunc)
+    public IFlow CaptureValue<T>(out T value, Func<T> valueFunc)
+    {
+        value = default;
+
+        if (_flowState.IsTerminating)
+            return this;
+        try
+        {
+            value = valueFunc.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _flowState.AddException(_caller, ex);
+        }
+
+        return this;
+    }
+
+    public IFlow InitializeVariable<T>(out Variable<T> variable, Func<T> valueFunc, string name = null)
     {
         variable = default;
 
@@ -62,7 +80,8 @@ public sealed class Flow : IFlow
             return this;
         try
         {
-            variable = calculatorFunc.Invoke();
+            var value = valueFunc.Invoke();
+            variable = new Variable<T>(name, value);
         }
         catch (Exception ex)
         {
