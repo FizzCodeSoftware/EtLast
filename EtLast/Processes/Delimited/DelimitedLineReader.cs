@@ -5,7 +5,7 @@ public enum DelimitedLineHeader { NoHeader, HasHeader, IgnoreHeader }
 public sealed class DelimitedLineReader : AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
-    public required IStreamProvider StreamProvider { get; init; }
+    public required IManyStreamProvider StreamProvider { get; init; }
 
     public Dictionary<string, TextReaderColumn> Columns { get; init; }
     public TextReaderColumn DefaultColumns { get; init; }

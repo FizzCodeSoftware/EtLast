@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
 [ContainsProcessParameterValidation]
-public class LocalFileStreamProvider : IStreamProvider
+public class LocalFileStreamProvider : IManyStreamProvider, IOneStreamProvider
 {
     [ProcessParameterMustHaveValue]
     public required string FileName { get; init; }
@@ -33,7 +33,7 @@ public class LocalFileStreamProvider : IStreamProvider
             : null;
     }
 
-    public IEnumerable<NamedStream> GetStreams(IProcess caller)
+    public NamedStream GetStream(IProcess caller)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
@@ -59,16 +59,13 @@ public class LocalFileStreamProvider : IStreamProvider
 
             ioCommand.AffectedDataCount = 0;
             ioCommand.End();
-            return Enumerable.Empty<NamedStream>();
+            return null;
         }
 
         try
         {
             var stream = new FileStream(FileName, Options);
-            return new[]
-            {
-                new NamedStream(FileName, stream, ioCommand),
-            };
+            return new NamedStream(FileName, stream, ioCommand);
         }
         catch (Exception ex)
         {
@@ -81,5 +78,11 @@ public class LocalFileStreamProvider : IStreamProvider
             ioCommand.Failed(exception);
             throw exception;
         }
+    }
+
+    public IEnumerable<NamedStream> GetStreams(IProcess caller)
+    {
+        var stream = GetStream(caller);
+        return new[] { stream };
     }
 }

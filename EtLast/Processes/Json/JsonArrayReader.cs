@@ -5,7 +5,7 @@ namespace FizzCode.EtLast;
 public sealed class JsonArrayReader<T> : AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
-    public required IStreamProvider StreamProvider { get; init; }
+    public required IManyStreamProvider StreamProvider { get; init; }
 
     [ProcessParameterMustHaveValue]
     public required string ColumnName { get; init; }

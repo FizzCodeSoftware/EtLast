@@ -11,7 +11,7 @@ public static class SerializeToLocalJsonFileFluent
             Encoding = customEncoding ?? Encoding.UTF8,
             SinkProvider = new LocalFileSinkProvider()
             {
-                FileNameGenerator = _ => targetFileName,
+                FileName = targetFileName,
                 ActionWhenFileExists = LocalSinkFileExistsAction.DeleteAndContinue,
                 FileMode = FileMode.CreateNew,
             },

@@ -3,7 +3,7 @@
 public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
 {
     [ProcessParameterMustHaveValue]
-    public required IStreamProvider StreamProvider { get; init; }
+    public required IManyStreamProvider StreamProvider { get; init; }
 
     /// <summary>
     /// First stream index is (integer) 0

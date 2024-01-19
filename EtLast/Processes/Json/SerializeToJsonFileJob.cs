@@ -3,7 +3,7 @@
 public sealed class SerializeToJsonFileJob<T> : AbstractJob
 {
     [ProcessParameterMustHaveValue]
-    public required ISinkProvider SinkProvider { get; init; }
+    public required IOneSinkProvider SinkProvider { get; init; }
 
     [ProcessParameterMustHaveValue]
     public T Data { get; init; }
@@ -17,7 +17,7 @@ public sealed class SerializeToJsonFileJob<T> : AbstractJob
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
-        var namedSink = SinkProvider.GetSink(this, null, "json", []);
+        var namedSink = SinkProvider.GetSink(this, "json", []);
         try
         {
             var content = JsonSerializer.Serialize(Data, SerializerOptions);

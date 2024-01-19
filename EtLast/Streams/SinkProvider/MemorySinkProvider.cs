@@ -1,12 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
 [ContainsProcessParameterValidation]
-public class MemorySinkProvider : ISinkProvider
+public class MemorySinkProvider : IOneSinkProvider
 {
     [ProcessParameterMustHaveValue]
-    public required Func<MemoryStream> StreamCreator { get; init; }
+    public required MemoryStream Stream { get; init; }
 
-    private readonly string _sinkName = "MemorySink";
+    public string Name { get; init; } = "MemorySink";
+
     private readonly string _sinkLocation = "memory";
     private readonly string _sinkPath = "memory";
 
@@ -15,7 +16,7 @@ public class MemorySinkProvider : ISinkProvider
     /// </summary>
     public required bool AutomaticallyDispose { get; init; }
 
-    public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat, string[] columns)
+    public NamedSink GetSink(IProcess caller, string sinkFormat, string[] columns)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
@@ -30,16 +31,15 @@ public class MemorySinkProvider : ISinkProvider
         {
             var sink = caller.Context.GetSink(_sinkLocation, _sinkPath, sinkFormat, caller, columns);
 
-            var stream = StreamCreator.Invoke();
-            return new NamedSink(_sinkName, stream, ioCommand, sink);
+            return new NamedSink(Name, Stream, ioCommand, sink);
         }
         catch (Exception ex)
         {
             var exception = new EtlException(caller, "error while writing memory stream", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing memory stream: {0}, message: {1}",
-                _sinkName, ex.Message));
+                Name, ex.Message));
 
-            exception.Data["SinkName"] = _sinkName;
+            exception.Data["SinkName"] = Name;
 
             ioCommand.Failed(exception);
             throw exception;

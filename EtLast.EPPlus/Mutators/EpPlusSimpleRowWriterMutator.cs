@@ -3,7 +3,7 @@
 public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue]
-    public required ISinkProvider SinkProvider { get; init; }
+    public required IPartitionedSinkProvider SinkProvider { get; init; }
 
     [ProcessParameterMustHaveValue]
     public required string SheetName { get; init; }

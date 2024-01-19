@@ -34,7 +34,7 @@ public class ReadFromDelimitedTests
                 Quote = '"',
                 SinkProvider = new MemorySinkProvider()
                 {
-                    StreamCreator = () => _stream,
+                    Stream = _stream,
                     AutomaticallyDispose = true,
                 },
                 Columns = new()
@@ -52,7 +52,7 @@ public class ReadFromDelimitedTests
                 Quote = '"',
                 SinkProvider = new LocalFileSinkProvider()
                 {
-                    FileNameGenerator = _ => _file,
+                    FileName = _file,
                     ActionWhenFileExists = LocalSinkFileExistsAction.DeleteAndContinue,
                     FileMode = FileMode.CreateNew,
                 },
@@ -87,9 +87,9 @@ public class ReadFromDelimitedTests
         var context = new EtlContext(null);
         var process = new DelimitedLineReader()
         {
-            StreamProvider = new MemoryStreamProvider()
+            StreamProvider = new OneMemoryStreamProvider()
             {
-                StreamCreator = () => stream,
+                Stream = stream,
             },
             Columns = new()
             {
