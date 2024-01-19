@@ -1,18 +1,16 @@
 ﻿namespace FizzCode.EtLast;
 
-public delegate T VariableSetterMutatorJobDelegate<T>(Variable<T> variable);
-
 public class VariableSetterJob<T> : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required Variable<T> Variable { get; init; }
 
     [ProcessParameterMustHaveValue]
-    public required VariableSetterMutatorJobDelegate<T> Setter { get; init; }
+    public required Func<T> ValueGetter { get; init; }
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
-        var newValue = Setter.Invoke(Variable);
+        var newValue = ValueGetter.Invoke();
         Variable.Value = newValue;
     }
 }
@@ -20,12 +18,12 @@ public class VariableSetterJob<T> : AbstractJob
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class VariableSetterJobFluent
 {
-    public static IFlow SetVariable<T>(this IFlow builder, Variable<T> variable, VariableSetterMutatorJobDelegate<T> setter)
+    public static IFlow SetVariable<T>(this IFlow builder, Variable<T> variable, Func<T> valueGetter)
     {
         return builder.ExecuteProcess(() => new VariableSetterJob<T>()
         {
             Variable = variable,
-            Setter = setter,
+            ValueGetter = valueGetter,
         });
     }
 
@@ -34,7 +32,7 @@ public static class VariableSetterJobFluent
         return builder.ExecuteProcess(() => new VariableSetterJob<T>()
         {
             Variable = variable,
-            Setter = variable => fixValue,
+            ValueGetter = () => fixValue,
         });
     }
 
@@ -43,7 +41,7 @@ public static class VariableSetterJobFluent
         return builder.ExecuteProcess(() => new VariableSetterJob<int>()
         {
             Variable = variable,
-            Setter = variable => variable.Value + 1,
+            ValueGetter = () => variable.Value + 1,
         });
     }
 
@@ -52,7 +50,7 @@ public static class VariableSetterJobFluent
         return builder.ExecuteProcess(() => new VariableSetterJob<long>()
         {
             Variable = variable,
-            Setter = variable => variable.Value + 1,
+            ValueGetter = () => variable.Value + 1,
         });
     }
 }

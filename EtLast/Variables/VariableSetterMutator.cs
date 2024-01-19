@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public delegate T VariableSetterMutatorDelegate<T>(IRow row, Variable<T> variable);
+public delegate T VariableSetterMutatorDelegate<T>(IRow row);
 
 public class VariableSetterMutator<T> : AbstractMutator
 {
@@ -12,7 +12,7 @@ public class VariableSetterMutator<T> : AbstractMutator
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        var newValue = Setter.Invoke(row, Variable);
+        var newValue = Setter.Invoke(row);
         Variable.Value = newValue;
         yield return row;
     }
@@ -35,7 +35,7 @@ public static class VariableSetterMutatorFluent
         return builder.AddMutator(new VariableSetterMutator<T>()
         {
             Variable = variable,
-            Setter = (row, variable) => fixValue,
+            Setter = _ => fixValue,
         });
     }
 
@@ -44,7 +44,7 @@ public static class VariableSetterMutatorFluent
         return builder.AddMutator(new VariableSetterMutator<int>()
         {
             Variable = variable,
-            Setter = (row, variable) => variable.Value + 1,
+            Setter = _ => variable.Value + 1,
         });
     }
 
@@ -53,7 +53,7 @@ public static class VariableSetterMutatorFluent
         return builder.AddMutator(new VariableSetterMutator<long>()
         {
             Variable = variable,
-            Setter = (row, variable) => variable.Value + 1,
+            Setter = _ => variable.Value + 1,
         });
     }
 }
