@@ -3,6 +3,7 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractSqlStatementWithResult<T> : AbstractProcessWithResult<T>
 {
+    [ProcessParameterMustHaveValue]
     public required NamedConnectionString ConnectionString { get; set; }
 
     /// <summary>
@@ -22,8 +23,6 @@ public abstract class AbstractSqlStatementWithResult<T> : AbstractProcessWithRes
 
     protected override void ValidateImpl()
     {
-        if (ConnectionString == null)
-            throw new ProcessParameterNullException(this, nameof(ConnectionString));
     }
 
     protected sealed override T ExecuteImpl()

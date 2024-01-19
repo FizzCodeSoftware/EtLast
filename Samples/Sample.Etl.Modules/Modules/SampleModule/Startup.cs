@@ -11,6 +11,4 @@ public class Startup : IStartup
             .LogOpsToFile()
             .LogIoToFile();
     }
-
-    public Dictionary<string, Func<IArgumentCollection, IEtlTask>> CustomTasks => [];
 }

@@ -36,6 +36,12 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     /// </summary>
     public bool InlineArrayParameters { get; init; } = true;
 
+    /// <summary>
+    /// If initialized with a dictionary, then all the columns returned by the ADO.NET connector based on the given query will be stored in it.
+    /// Key is the column name in the produced row, value is the exact data type of the field.
+    /// </summary>
+    public Dictionary<string, Type> ColumnTypeMap = null;
+
     protected abstract CommandType GetCommandType();
 
     protected AbstractAdoNetDbReader()
@@ -155,6 +161,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         Config = null,
                     };
                 }
+
+                if (ColumnTypeMap != null && columns[i] != null)
+                    ColumnTypeMap[columns[i].NameInRow] = reader.GetFieldType(i);
             }
 
             while (!FlowState.IsTerminating)
