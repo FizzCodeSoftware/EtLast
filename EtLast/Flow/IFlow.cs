@@ -14,6 +14,7 @@ public interface IFlow
     public IFlow ExecuteForEachIsolated<TElement>(IEnumerable<TElement> elements, Action<TElement, IFlow> action);
 
     public IFlow CaptureValue<T>(out T variable, Func<T> calculatorFunc);
+    public IFlow InitializeVariable<T>(out Variable<T> variable, Func<T> valueFunc, string name = null);
 
     /// <summary>
     /// Only continue the execution with the next element when the supplied action returns true.
