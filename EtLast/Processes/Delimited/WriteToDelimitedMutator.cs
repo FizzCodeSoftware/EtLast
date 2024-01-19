@@ -230,7 +230,7 @@ public static class WriteToDelimitedMutatorFluent
     /// <summary>
     /// Write rows to a delimited stream.
     /// </summary>
-    public static IFluentSequenceMutatorBuilder WriteToDelimited(this IFluentSequenceMutatorBuilder builder, WriteToDelimitedMutator mutator)
+    public static IFluentSequenceMutatorBuilder WriteToDelimitedFile(this IFluentSequenceMutatorBuilder builder, WriteToDelimitedMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

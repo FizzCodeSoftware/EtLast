@@ -233,7 +233,7 @@ public static class WriteToDynamicDelimitedMutatorFluent
     /// <summary>
     /// Write rows to a delimited stream. The first row if each partition is used to determine the columns of the delimited output.
     /// </summary>
-    public static IFluentSequenceMutatorBuilder WriteToDynamicDelimited(this IFluentSequenceMutatorBuilder builder, WriteToDynamicDelimitedMutator mutator)
+    public static IFluentSequenceMutatorBuilder WriteToDynamicDelimitedFile(this IFluentSequenceMutatorBuilder builder, WriteToDynamicDelimitedMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

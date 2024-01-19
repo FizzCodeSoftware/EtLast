@@ -32,7 +32,7 @@ public class WriteToDelimitedMutatorTests
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
             .ReadFrom(TestData.Person())
-            .WriteToDelimited(new WriteToDelimitedMutator()
+            .WriteToDelimitedFile(new WriteToDelimitedMutator()
             {
                 Columns = [],
                 SinkProvider = new LocalFileSinkProvider()
@@ -57,7 +57,7 @@ public class WriteToDelimitedMutatorTests
             var context = TestExecuter.GetContext();
             var builder = SequenceBuilder.Fluent
                 .ReadFrom(TestData.Person())
-                .WriteToDelimited(new WriteToDelimitedMutator()
+                .WriteToDelimitedFile(new WriteToDelimitedMutator()
                 {
                     Delimiter = ';',
                     WriteHeader = true,
@@ -147,7 +147,7 @@ public class WriteToDelimitedMutatorTests
                     Columns = ["ValueDate"],
                     Value = null,
                 })
-                .WriteToDelimited(new WriteToDelimitedMutator()
+                .WriteToDelimitedFile(new WriteToDelimitedMutator()
                 {
                     Delimiter = ';',
                     WriteHeader = true,

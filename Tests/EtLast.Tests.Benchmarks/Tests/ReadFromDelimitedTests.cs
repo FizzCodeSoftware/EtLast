@@ -25,7 +25,7 @@ public class ReadFromDelimitedTests
             {
                 InputGenerator = proc => GenerateRows(13, RowCount, proc),
             })
-            .WriteToDelimited(new WriteToDelimitedMutator()
+            .WriteToDelimitedFile(new WriteToDelimitedMutator()
             {
                 Delimiter = ';',
                 WriteHeader = true,
@@ -43,7 +43,7 @@ public class ReadFromDelimitedTests
                     ["2"] = null,
                 },
             })
-            .WriteToDelimited(new WriteToDelimitedMutator()
+            .WriteToDelimitedFile(new WriteToDelimitedMutator()
             {
                 Delimiter = ';',
                 WriteHeader = true,
