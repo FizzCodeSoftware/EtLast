@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <PackageId>FizzCode.EtLast.AdoNet.Db2-lnx</PackageId>
+    <Description>ADO.NET extension for EtLast ETL (Extract, Transform and Load) library</Description>
+    <AssemblyName>FizzCode.EtLast.AdoNet.Db2-lnx</AssemblyName>
+    <RootNamespace>FizzCode.EtLast</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="2.0.42.7056" />
+    <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="8.0.0.100" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EtLast\EtLast.csproj" />
+  </ItemGroup>
+
+</Project>
