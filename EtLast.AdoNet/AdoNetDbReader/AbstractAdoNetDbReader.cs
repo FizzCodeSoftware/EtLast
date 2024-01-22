@@ -37,10 +37,10 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     public bool InlineArrayParameters { get; init; } = true;
 
     /// <summary>
-    /// If initialized with a dictionary, then all the columns returned by the ADO.NET connector based on the given query will be stored in it.
+    /// If initialized with an empty schema, then the schema returned by the ADO.NET connector based on the given query will be stored in it.
     /// Key is the column name in the produced row, value is the exact data type of the field.
     /// </summary>
-    public Dictionary<string, Type> ColumnTypeMap = null;
+    public Dictionary<string, AdoNetDbReaderColumnSchema> SchemaColumns { get; init; } = [];
 
     protected abstract CommandType GetCommandType();
 
@@ -122,6 +122,10 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value?.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
+            var schemaTable = SchemaColumns != null
+                ? reader.GetSchemaTable()
+                : null;
+
             var fieldCount = reader.FieldCount;
             var columns = new MappedColumn[fieldCount];
             for (var i = 0; i < fieldCount; i++)
@@ -162,8 +166,44 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     };
                 }
 
-                if (ColumnTypeMap != null && columns[i] != null)
-                    ColumnTypeMap[columns[i].NameInRow] = reader.GetFieldType(i);
+                if (schemaTable != null && columns[i] != null)
+                // Type ClrType, string SqlType, short SqlPrecision, short SqlScale, int SqlSize
+                {
+                    var schemaRow = schemaTable.Rows[i];
+                    var properties = new Dictionary<string, object>();
+                    foreach (DataColumn c in schemaTable.Columns)
+                    {
+                        var fieldValue = schemaRow[c];
+                        if (fieldValue != null && fieldValue is not DBNull)
+                        {
+                            if (fieldValue is Type type)
+                            {
+                                properties[c.ColumnName] = type.Name;
+                            }
+                            else
+                            {
+                                properties[c.ColumnName] = fieldValue;
+                            }
+                        }
+                    }
+
+                    SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderColumnSchema()
+                    {
+                        NameInRow = columns[i].NameInRow,
+                        ClrType = reader.GetFieldType(i),
+                        DataType = reader.GetDataTypeName(i),
+                        AllowNull = properties.TryGetValue("AllowDBNull", out var v) && v is bool bv ? bv : null,
+                        Precision = properties.TryGetValue("NumericPrecision", out v) && v is short sv ? sv : null,
+                        Scale = properties.TryGetValue("NumericScale", out v) && v is short sv2 ? sv2 : null,
+                        Size = properties.TryGetValue("ColumnSize", out v) && v is int iv ? iv : null,
+                        IsUnique = properties.TryGetValue("IsUnique", out v) && v is bool bv2 ? bv2 : null,
+                        IsKey = properties.TryGetValue("IsKey", out v) && v is bool bv3 ? bv3 : null,
+                        IsIdentity = properties.TryGetValue("IsIdentity", out v) && v is bool bv4 ? bv4 : null,
+                        IsAutoIncrement = properties.TryGetValue("IsAutoIncrement", out v) && v is bool bv5 ? bv5 : null,
+                        IsRowVersion = properties.TryGetValue("IsRowVersion", out v) && v is bool bv6 ? bv6 : null,
+                        AllProperties = properties,
+                    };
+                }
             }
 
             while (!FlowState.IsTerminating)
