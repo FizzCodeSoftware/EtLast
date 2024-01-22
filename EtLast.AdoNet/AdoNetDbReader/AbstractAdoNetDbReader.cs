@@ -167,7 +167,6 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                 }
 
                 if (schemaTable != null && columns[i] != null)
-                // Type ClrType, string SqlType, short SqlPrecision, short SqlScale, int SqlSize
                 {
                     var schemaRow = schemaTable.Rows[i];
                     var properties = new Dictionary<string, object>();
@@ -176,6 +175,15 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         var fieldValue = schemaRow[c];
                         if (fieldValue != null && fieldValue is not DBNull)
                         {
+                            if (fieldValue is bool boolFieldValue && !boolFieldValue)
+                                continue;
+
+                            if (fieldName is "ColumnName" or "ColumnOrdinal" or "ProviderType" or "NonVersionedProviderType"
+                                or "ProviderSpecificDataType" or "BaseColumnName" or "BaseTableName" or "BaseCatalogName" or "BaseSchemaName")
+                            {
+                                continue;
+                            }
+
                             if (fieldValue is Type type)
                             {
                                 properties[c.ColumnName] = type.Name;
