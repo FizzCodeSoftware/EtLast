@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class AdoNetDbReaderSchemaColumn
+public class AdoNetDbReaderColumnSchema
 {
     public string NameInRow { get; init; }
     public Type ClrType { get; init; }

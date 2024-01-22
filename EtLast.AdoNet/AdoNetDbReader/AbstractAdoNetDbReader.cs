@@ -40,7 +40,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     /// If initialized with an empty schema, then the schema returned by the ADO.NET connector based on the given query will be stored in it.
     /// Key is the column name in the produced row, value is the exact data type of the field.
     /// </summary>
-    public Dictionary<string, AdoNetDbReaderSchemaColumn> SchemaColumns { get; init; } = [];
+    public Dictionary<string, AdoNetDbReaderColumnSchema> SchemaColumns { get; init; } = [];
 
     protected abstract CommandType GetCommandType();
 
@@ -187,7 +187,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
-                    SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderSchemaColumn()
+                    SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderColumnSchema()
                     {
                         NameInRow = columns[i].NameInRow,
                         ClrType = reader.GetFieldType(i),
