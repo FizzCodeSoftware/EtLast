@@ -10,7 +10,7 @@ public class MySqlValueProcessor : ISqlValueProcessor
 
     public bool Init(NamedConnectionString connectionString)
     {
-        return connectionString.GetSqlEngine() == AdoNetEngine.GenericSql;
+        return connectionString.GetAdoNetEngine() == AdoNetEngine.GenericSql;
     }
 
     public object ProcessValue(object value)

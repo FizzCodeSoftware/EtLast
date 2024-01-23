@@ -9,7 +9,7 @@ public sealed class DropViews : AbstractSqlStatements
     {
         base.ValidateParameters();
 
-        if (ConnectionString.GetSqlEngine() is not AdoNetEngine.MsSql and not AdoNetEngine.MySql)
+        if (ConnectionString.GetAdoNetEngine() is not AdoNetEngine.MsSql and not AdoNetEngine.MySql)
         {
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient or MySql.Data.MySqlClient");
         }

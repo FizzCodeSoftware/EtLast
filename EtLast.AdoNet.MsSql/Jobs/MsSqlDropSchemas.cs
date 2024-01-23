@@ -9,7 +9,7 @@ public sealed class MsSqlDropSchemas : AbstractSqlStatements
     {
         base.ValidateParameters();
 
-        if (ConnectionString.GetSqlEngine() != AdoNetEngine.MsSql)
+        if (ConnectionString.GetAdoNetEngine() != AdoNetEngine.MsSql)
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");
     }
 

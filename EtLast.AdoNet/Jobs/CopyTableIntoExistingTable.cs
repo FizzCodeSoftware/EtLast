@@ -27,7 +27,7 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
         var statement = "";
-        if (CopyIdentityColumns && ConnectionString.GetSqlEngine() == AdoNetEngine.MsSql)
+        if (CopyIdentityColumns && ConnectionString.GetAdoNetEngine() == AdoNetEngine.MsSql)
         {
             if (Configuration.Columns == null || Configuration.Columns.Count == 0)
                 throw new InvalidProcessParameterException(this, nameof(Configuration) + "." + nameof(TableCopyConfiguration.Columns), null, "identity columns can be copied only if the column list is specified");
@@ -65,7 +65,7 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
             statement += " WHERE " + WhereClause.Trim();
         }
 
-        if (CopyIdentityColumns && ConnectionString.GetSqlEngine() == AdoNetEngine.MsSql)
+        if (CopyIdentityColumns && ConnectionString.GetAdoNetEngine() == AdoNetEngine.MsSql)
         {
             statement += "; SET IDENTITY_INSERT " + Configuration.TargetTableName + " OFF; ";
         }
