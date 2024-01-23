@@ -274,7 +274,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     {
         base.ValidateParameters();
 
-        if (ConnectionString.SqlEngine != SqlEngine.MsSql)
+        if (ConnectionString.GetSqlEngine() != AdoNetEngine.MsSql)
             throw new InvalidProcessParameterException(this, "ConnectionString", nameof(ConnectionString.ProviderName), "provider name must be Microsoft.Data.SqlClient");
     }
 }

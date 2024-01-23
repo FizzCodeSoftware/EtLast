@@ -41,7 +41,7 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
 
         if (RecordCountLimit > 0)
         {
-            if (ConnectionString.SqlEngine == SqlEngine.MySql)
+            if (ConnectionString.GetSqlEngine() == AdoNetEngine.MySql)
             {
                 postfix += (string.IsNullOrEmpty(postfix) ? "" : " ") + "LIMIT " + RecordCountLimit.ToString("D", CultureInfo.InvariantCulture);
             }

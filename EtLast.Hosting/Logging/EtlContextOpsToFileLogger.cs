@@ -102,7 +102,7 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
             values.Add(topic);
         }
 
-        _logger.Write((LogEventLevel)severity, sb.ToString(), values.ToArray());
+        _logger.Write((LogEventLevel)severity, sb.ToString(), [.. values]);
     }
 
     public void OnCustomLog(bool forOps, string fileName, IProcess process, string text, params object[] args)

@@ -40,7 +40,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
                 break;
         }
 
-        if (ConnectionString.SqlEngine != SqlEngine.MsSql)
+        if (ConnectionString.GetSqlEngine() != AdoNetEngine.MsSql)
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");
     }
 
@@ -49,7 +49,7 @@ public sealed class MsSqlDropTables : AbstractSqlStatements
         switch (Mode)
         {
             case MsSqlDropTablesProcessMode.SpecifiedTables:
-                _tableNames = TableNames.ToList();
+                _tableNames = [.. TableNames];
                 break;
 
             case MsSqlDropTablesProcessMode.SpecifiedSchema:

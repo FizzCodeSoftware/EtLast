@@ -75,7 +75,7 @@ public sealed class EtlContext : IEtlContext
 
     public ScopeAction[] GetScopeActions()
     {
-        return _scopeActions.ToArray();
+        return [.. _scopeActions];
     }
 
     public T Service<T>() where T : IEtlService, new()

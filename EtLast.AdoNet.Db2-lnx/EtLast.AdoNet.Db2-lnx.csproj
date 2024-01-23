@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="2.0.42.7056" />
+    <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="2.0.46.7239" />
     <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="8.0.0.100" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.9.0">
       <PrivateAssets>all</PrivateAssets>

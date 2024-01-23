@@ -53,7 +53,7 @@ public sealed class MsSqlDropForeignKeys : AbstractSqlStatements
                 break;
         }
 
-        if (ConnectionString.SqlEngine != SqlEngine.MsSql)
+        if (ConnectionString.GetSqlEngine() != AdoNetEngine.MsSql)
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");
     }
 

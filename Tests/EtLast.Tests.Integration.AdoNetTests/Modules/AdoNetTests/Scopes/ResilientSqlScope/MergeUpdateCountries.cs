@@ -81,7 +81,7 @@ public class MergeUpdateCountries : AbstractEtlTask
             {
                 Name = "CreateUpdatedRow",
                 Columns = TestData.CountryColumns,
-                InputRows = data.ToList()
+                InputRows = [.. data]
             })
             .WriteToMsSqlResilient(new ResilientWriteToMsSqlMutator()
             {

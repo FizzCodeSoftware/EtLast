@@ -47,7 +47,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
                 break;
         }
 
-        if (ConnectionString.SqlEngine != SqlEngine.MsSql)
+        if (ConnectionString.GetSqlEngine() != AdoNetEngine.MsSql)
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");
     }
 
@@ -56,7 +56,7 @@ public sealed class MsSqlDropStoredProcedures : AbstractSqlStatements
         switch (Mode)
         {
             case MsSqlDropStoredProceduresProcessMode.SpecifiedStoredProcedures:
-                _storedProcedureNames = StoredProcedureNames.ToList();
+                _storedProcedureNames = [.. StoredProcedureNames];
                 break;
 
             case MsSqlDropStoredProceduresProcessMode.InSpecifiedSchema:

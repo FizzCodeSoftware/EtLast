@@ -9,5 +9,6 @@ global using System.Globalization;
 global using System.Linq;
 global using System.Threading;
 global using System.Transactions;
+global using FizzCode.LightWeight;
 global using FizzCode.LightWeight.AdoNet;
 global using Microsoft.Data.SqlClient;

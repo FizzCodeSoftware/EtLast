@@ -10,9 +10,9 @@ public sealed class DropTables : AbstractSqlStatements
         return TableNames
             .Select(tableName =>
             {
-                var dropTableStatement = (ConnectionString.SqlEngine, ConnectionString.Version) switch
+                var dropTableStatement = (ConnectionString.GetSqlEngine(), ConnectionString.Version) switch
                 {
-                    (SqlEngine.MsSql, "2005" or "2008" or "2008 R2" or "2008R2" or "2012" or "2014")
+                    (AdoNetEngine.MsSql, "2005" or "2008" or "2008 R2" or "2008R2" or "2012" or "2014")
                         => "IF OBJECT_ID('" + tableName + "', 'U') IS NOT NULL DROP TABLE " + tableName,
                     _ => "DROP TABLE IF EXISTS " + tableName,
                 };

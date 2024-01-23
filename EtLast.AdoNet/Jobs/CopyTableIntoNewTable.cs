@@ -23,9 +23,9 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
              ? "*"
              : string.Join(", ", Configuration.Columns.Select(column => (column.Value ?? column.Key) + (column.Value != null ? " AS " + column.Key : "")));
 
-        var dropTableStatement = (ConnectionString.SqlEngine, ConnectionString.Version) switch
+        var dropTableStatement = (ConnectionString.GetSqlEngine(), ConnectionString.Version) switch
         {
-            (SqlEngine.MsSql, "2005" or "2008" or "2008 R2" or "2008R2" or "2012" or "2014")
+            (AdoNetEngine.MsSql, "2005" or "2008" or "2008 R2" or "2008R2" or "2012" or "2014")
                 => "IF OBJECT_ID('" + Configuration.TargetTableName + "', 'U') IS NOT NULL DROP TABLE " + Configuration.TargetTableName,
             _ => "DROP TABLE IF EXISTS " + Configuration.TargetTableName,
         };
