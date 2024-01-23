@@ -245,7 +245,7 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
         {
             foreach (var listener in _context.Listeners)
             {
-                listener.OnRowValueChanged(this, changedValues.ToArray());
+                listener.OnRowValueChanged(this, [.. changedValues]);
             }
         }
     }
@@ -271,7 +271,7 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
         {
             foreach (var listener in _context.Listeners)
             {
-                listener.OnRowValueChanged(this, changedValues.ToArray());
+                listener.OnRowValueChanged(this, [.. changedValues]);
             }
         }
     }
@@ -293,7 +293,7 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
         {
             foreach (var listener in _context.Listeners)
             {
-                listener.OnRowValueChanged(this, changedValues.ToArray());
+                listener.OnRowValueChanged(this, [.. changedValues]);
             }
         }
     }

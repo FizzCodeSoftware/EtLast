@@ -8,4 +8,5 @@ global using System.Linq;
 global using System.Runtime.InteropServices;
 global using System.Text;
 global using System.Transactions;
+global using FizzCode.LightWeight;
 global using FizzCode.LightWeight.AdoNet;

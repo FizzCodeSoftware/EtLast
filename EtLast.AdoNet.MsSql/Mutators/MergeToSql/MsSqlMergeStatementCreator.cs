@@ -13,7 +13,7 @@ public sealed class MsSqlMergeStatementCreator : IMergeToSqlStatementCreator
     public void Prepare(MergeToSqlMutator process, string tableName, DbColumn[] keyColumns, DbColumn[] valueColumns)
     {
         _tableName = tableName;
-        _allColumns = keyColumns.Concat(valueColumns).ToArray();
+        _allColumns = [.. keyColumns, .. valueColumns];
 
         _allDbColumns = string.Join(", ", valueColumns.Select(x => x.NameInDatabase));
         _keyDbColumns = string.Join(" AND ", keyColumns.Select(x => "target." + x.NameInDatabase + " = source." + x.NameInDatabase));
