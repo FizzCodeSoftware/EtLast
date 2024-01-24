@@ -114,7 +114,7 @@ public class ContextManifest : IEtlContextListener
             Format = sink.Format,
             ProcessInvocationId = process.InvocationInfo.InvocationId,
             ProcessType = process.GetType().GetFriendlyTypeName(),
-            Columns = [.. sink.Columns],
+            Columns = sink.Columns != null ? [.. sink.Columns] : [],
         };
 
         _sinks[sink.Id] = manifestSink;
