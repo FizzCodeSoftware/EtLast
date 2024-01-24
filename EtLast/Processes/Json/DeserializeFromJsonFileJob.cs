@@ -46,8 +46,7 @@ public sealed class DeserializeFromJsonFileJob<T> : AbstractProcessWithResult<T>
         }
         finally
         {
-            stream.Stream.Flush();
-            stream.Stream.Close();
+            //stream.Stream.Close();
             stream.Stream.Dispose();
         }
 
