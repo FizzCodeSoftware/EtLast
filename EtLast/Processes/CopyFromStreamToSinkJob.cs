@@ -11,8 +11,28 @@ public sealed class CopyFromStreamToSinkJob : AbstractJob
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         var stream = StreamProvider.GetStream(this);
-        var sink = SinkProvider.GetSink(this, null, null);
-        stream.Stream.CopyTo(sink.Stream);
+        try
+        {
+            var sink = SinkProvider.GetSink(this, null, null);
+            try
+            {
+                stream.Stream.CopyTo(sink.Stream);
+
+                sink.IoCommand.AffectedDataCount += 1;
+                sink.IoCommand.End();
+            }
+            finally
+            {
+                sink.Dispose();
+            }
+
+            stream.IoCommand.AffectedDataCount += 1;
+            stream.IoCommand.End();
+        }
+        finally
+        {
+            stream.Dispose();
+        }
     }
 }
 
