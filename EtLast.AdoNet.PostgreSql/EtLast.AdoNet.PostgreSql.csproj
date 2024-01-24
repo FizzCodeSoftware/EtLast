@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="2.0.47.7240" />
+    <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="8.0.3" />
     <PackageReference Include="Npgsql" Version="8.0.1" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.9.0">
       <PrivateAssets>all</PrivateAssets>
