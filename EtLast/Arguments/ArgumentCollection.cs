@@ -50,7 +50,7 @@ public sealed class ArgumentCollection : IArgumentCollection
         return defaultValue;
     }
 
-    public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, string instance)
+    public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, string instance, Dictionary<string, string> userArguments)
     {
         Instance = instance;
 
@@ -72,6 +72,14 @@ public sealed class ArgumentCollection : IArgumentCollection
             {
                 foreach (var kvp in args)
                     values[kvp.Key] = kvp.Value;
+            }
+        }
+
+        if (userArguments != null)
+        {
+            foreach (var kvp in userArguments)
+            {
+                values[kvp.Key] = kvp.Value;
             }
         }
 

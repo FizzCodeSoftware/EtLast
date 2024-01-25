@@ -105,14 +105,39 @@ public class ConsoleHost : AbstractHost
                         return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
                     }
 
+                    var userArguments = new Dictionary<string, string>();
+
                     var taskNames = commandParts.Skip(2).ToList();
+                    var temp = taskNames.ToArray();
+                    for (var i = 0; i < temp.Length; i++)
+                    {
+                        var taskName = temp[i];
+                        var idx = taskName.IndexOf('=');
+                        if (idx > -1)
+                        {
+                            if (idx < taskName.Length - 1)
+                            {
+                                taskNames.Remove(taskName);
+                                userArguments[taskName[..idx]] = taskName[(idx + 1)..];
+                            }
+                            else
+                            {
+                                taskNames.Remove(taskName);
+                                userArguments[taskName[..idx]] = temp[i + 1];
+                                taskNames.Remove(temp[i + 1]);
+
+                                i++;
+                            }
+                        }
+                    }
+
                     if (taskNames.Count == 0)
                     {
                         Console.WriteLine("Missing task name(s). Usage: `run <moduleName> <taskNames>`");
                         return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
                     }
 
-                    return RunModule(moduleName, taskNames);
+                    return RunModule(moduleName, taskNames, userArguments);
                 }
             case "test-modules":
                 var moduleNames = commandParts.Skip(2).ToList();
@@ -148,7 +173,7 @@ public class ConsoleHost : AbstractHost
         return result;
     }
 
-    private IExecutionResult RunModule(string moduleName, List<string> taskNames)
+    private IExecutionResult RunModule(string moduleName, List<string> taskNames, Dictionary<string, string> userArguments)
     {
         Logger.Information("loading module {Module}", moduleName);
 
@@ -166,7 +191,7 @@ public class ConsoleHost : AbstractHost
             }
         }
 
-        var executionResult = ModuleExecuter.Execute(this, module, [.. taskNames]);
+        var executionResult = ModuleExecuter.Execute(this, module, [.. taskNames], userArguments);
 
         ModuleLoader.UnloadModule(this, module);
         return executionResult;

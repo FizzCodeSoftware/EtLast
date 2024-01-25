@@ -34,7 +34,7 @@ public abstract class AbstractHost : IHost
     [EditorBrowsable(EditorBrowsableState.Never)]
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = [];
 
-    private static readonly Regex _regEx = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
+    protected static readonly Regex QuoteSplitterRegex = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
     protected AbstractHost(string name)
     {
@@ -141,7 +141,7 @@ public abstract class AbstractHost : IHost
 
     public IExecutionResult RunCommand(string command)
     {
-        var commandParts = _regEx
+        var commandParts = QuoteSplitterRegex
             .Matches(command.Trim())
             .Select(x => x.Value)
             .ToArray();
@@ -158,7 +158,7 @@ public abstract class AbstractHost : IHost
     {
         if (commandParts?.Length >= 1 && CommandAliases.TryGetValue(commandParts[0], out var alias))
         {
-            commandParts = _regEx
+            commandParts = QuoteSplitterRegex
                 .Matches(alias.Trim())
                 .Select(x => x.Value)
                 .Concat(commandParts.Skip(1))

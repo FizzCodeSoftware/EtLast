@@ -196,7 +196,7 @@ dotnet_diagnostic.RCS1097.severity = silent
 
 # RCS1239: Use 'for' statement instead of 'while' statement.
 dotnet_diagnostic.RCS1239.severity = silent
-csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_prefer_primary_constructors = true:silent
 
 # RCS1158: Static member in generic type should use a type parameter
 dotnet_diagnostic.RCS1158.severity = silent
