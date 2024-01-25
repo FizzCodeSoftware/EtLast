@@ -62,7 +62,7 @@ internal static class HostArgumentsLoader
             var defaultArgumentProviders = defaultConfigurationProviders;
 
             var instance = Environment.MachineName;
-            var collection = new ArgumentCollection(defaultArgumentProviders, instanceArgumentProviders, instance);
+            var collection = new ArgumentCollection(defaultArgumentProviders, instanceArgumentProviders, instance, null);
 
             assemblyLoadContext.Unload();
 
