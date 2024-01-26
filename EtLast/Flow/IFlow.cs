@@ -4,6 +4,8 @@ public interface IFlow
 {
     public IEtlContext Context { get; }
 
+    public IFlow If(Func<bool> test, Action action);
+
     public IFlow ExecuteSequence(Func<IFluentSequenceBuilder, ISequenceBuilder> sequenceBuilder);
     public IFlow ExecuteSequenceAndTakeRows(out List<ISlimRow> rows, Func<IFluentSequenceBuilder, ISequenceBuilder> sequenceBuilder);
 
