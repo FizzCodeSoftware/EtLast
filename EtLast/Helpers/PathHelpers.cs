@@ -4,13 +4,13 @@ namespace FizzCode.EtLast;
 
 public static class PathHelpers
 {
-    private static readonly Lazy<string> BaseFolder = new(() =>
+    private static readonly Lazy<string> BaseDirectory = new(() =>
     {
-        var folder = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
-        if (!folder.EndsWith(Path.DirectorySeparatorChar))
-            folder += Path.DirectorySeparatorChar;
+        var directory = Path.GetDirectoryName((Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly()).Location);
+        if (!directory.EndsWith(Path.DirectorySeparatorChar))
+            directory += Path.DirectorySeparatorChar;
 
-        return folder;
+        return directory;
     });
 
     public static string GetFriendlyPathName(string path)
@@ -22,7 +22,7 @@ public static class PathHelpers
         {
             try
             {
-                var relPath = Path.GetRelativePath(BaseFolder.Value, path);
+                var relPath = Path.GetRelativePath(BaseDirectory.Value, path);
                 if (relPath.Length < path.Length)
                     return relPath;
 

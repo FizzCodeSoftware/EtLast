@@ -33,6 +33,7 @@ internal static class CustomColoredProperties
         ["SourceFileName"] = ColorCode.Location,
         ["TargetFileName"] = ColorCode.Location,
         ["Folder"] = ColorCode.Location,
+        ["Directory"] = ColorCode.Location,
         ["Path"] = ColorCode.Location,
         ["SourcePath"] = ColorCode.Location,
         ["TargetPath"] = ColorCode.Location,

@@ -2,7 +2,7 @@
 
 public class LocalJsonFileManifestProcessor : IManifestProcessor
 {
-    public required string Folder { get; init; }
+    public required string Directory { get; init; }
     public required Func<ContextManifest, string> FileNameGenerator { get; init; }
     public int BufferTimeoutMilliseconds { get; init; } = 2000;
     public JsonSerializerOptions JsonSerializerOptions { get; init; } = new()
@@ -36,10 +36,10 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
         else
             _lastSave.Restart();
 
-        if (!Directory.Exists(Folder))
-            Directory.CreateDirectory(Folder);
+        if (!System.IO.Directory.Exists(Directory))
+            System.IO.Directory.CreateDirectory(Directory);
 
-        var fileName = Path.Combine(Folder, FileNameGenerator.Invoke(manifest));
+        var fileName = Path.Combine(Directory, FileNameGenerator.Invoke(manifest));
         var content = JsonSerializer.Serialize(manifest, JsonSerializerOptions);
         try
         {

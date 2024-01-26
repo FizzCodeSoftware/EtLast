@@ -8,11 +8,11 @@ internal static class ModuleExecuter
         var instance = Environment.MachineName;
         var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance, userArguments);
 
-        var moduleFolderName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
-        var tasksFolderName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
+        var moduleDirectoryName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
+        var tasksDirectoryName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
 
-        var currentDevLogFolder = Path.Combine(host.DevLogFolder, moduleFolderName, tasksFolderName);
-        var currentOpsLogFolder = Path.Combine(host.OpsLogFolder, moduleFolderName, tasksFolderName);
+        var currentDevLogDirectory = Path.Combine(host.DevLogDirectory, moduleDirectoryName, tasksDirectoryName);
+        var currentOpsLogDirectory = Path.Combine(host.OpsLogDirectory, moduleDirectoryName, tasksDirectoryName);
 
         var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName);
@@ -20,10 +20,10 @@ internal static class ModuleExecuter
         var sessionBuilder = new SessionBuilder()
         {
             Context = context,
-            ModuleFolderName = moduleFolderName,
-            TasksFolderName = tasksFolderName,
-            DevLogFolder = currentDevLogFolder,
-            OpsLogFolder = currentOpsLogFolder,
+            ModuleDirectoryName = moduleDirectoryName,
+            TasksDirectoryName = tasksDirectoryName,
+            DevLogDirectory = currentDevLogDirectory,
+            OpsLogDirectory = currentOpsLogDirectory,
             TaskNames = taskNames,
         };
 

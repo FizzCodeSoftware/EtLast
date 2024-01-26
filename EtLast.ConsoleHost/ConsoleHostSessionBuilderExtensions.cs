@@ -5,27 +5,27 @@ public static class ConsoleHostSessionBuilderExtensions
 {
     public static ISessionBuilder UseRollingDevLogManifestFiles(this ISessionBuilder session, int? maxFileCount = null, int? maxSizeOnDisk = 64 * 1024 * 1024)
     {
-        var folder = Path.Combine(session.DevLogFolder, "manifest");
-        CleanupManifestFolder(maxFileCount, maxSizeOnDisk, folder);
+        var directory = Path.Combine(session.DevLogDirectory, "manifest");
+        CleanupManifestDirectory(maxFileCount, maxSizeOnDisk, directory);
 
         return session.AddManifestProcessor(new ConsoleHostJsonManifestProcessor()
         {
-            Folder = folder,
+            Directory = directory,
             FileNameFunc = manifest => manifest.CreatedOnUtc.ToString("yyyyMMdd-HHmmssfff", CultureInfo.InvariantCulture) + ".json",
         });
     }
 
-    private static void CleanupManifestFolder(int? maxFileCount, int? maxSizeOnDisk, string folder)
+    private static void CleanupManifestDirectory(int? maxFileCount, int? maxSizeOnDisk, string directory)
     {
         if (maxFileCount == null && maxSizeOnDisk == null)
             return;
 
-        if (!Directory.Exists(folder))
+        if (!Directory.Exists(directory))
             return;
 
         if (maxFileCount != null)
         {
-            var files = Directory.GetFiles(folder)
+            var files = Directory.GetFiles(directory)
                 .OrderBy(x => x)
                 .ToArray();
 
@@ -38,7 +38,7 @@ public static class ConsoleHostSessionBuilderExtensions
 
         if (maxSizeOnDisk != null)
         {
-            var files = Directory.GetFiles(folder)
+            var files = Directory.GetFiles(directory)
                 .OrderByDescending(x => x)
                 .Select(x => (File: x, Info: new FileInfo(x)))
                 .ToList();

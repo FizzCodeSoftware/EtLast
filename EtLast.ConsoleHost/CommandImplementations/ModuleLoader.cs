@@ -12,19 +12,19 @@ internal static class ModuleLoader
     {
         module = null;
 
-        var moduleFolder = Path.Combine(host.ModulesFolder, moduleName);
-        if (!Directory.Exists(moduleFolder))
+        var moduleDirectory = Path.Combine(host.ModulesDirectory, moduleName);
+        if (!Directory.Exists(moduleDirectory))
         {
-            host.Logger.Write(LogEventLevel.Fatal, "can't find the module folder: {Folder}", moduleFolder);
+            host.Logger.Write(LogEventLevel.Fatal, "can't find the module directory: {Directory}", moduleDirectory);
             return ExecutionStatusCode.ModuleLoadError;
         }
 
-        // read back actual folder name casing
-        moduleFolder = Directory
-            .GetDirectories(host.ModulesFolder, moduleName, SearchOption.TopDirectoryOnly)
+        // read back actual directory name casing
+        moduleDirectory = Directory
+            .GetDirectories(host.ModulesDirectory, moduleName, SearchOption.TopDirectoryOnly)
             .FirstOrDefault();
 
-        moduleName = Path.GetFileName(moduleFolder);
+        moduleName = Path.GetFileName(moduleDirectory);
 
         var startedOn = Stopwatch.StartNew();
 
@@ -45,7 +45,7 @@ internal static class ModuleLoader
             module = new CompiledModule()
             {
                 Name = moduleName,
-                Folder = moduleFolder,
+                Directory = moduleDirectory,
                 Startup = startup,
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
@@ -61,14 +61,14 @@ internal static class ModuleLoader
             return ExecutionStatusCode.Success;
         }
 
-        host.Logger.Information("compiling module from {Folder}", PathHelpers.GetFriendlyPathName(moduleFolder));
+        host.Logger.Information("compiling module from {Directory}", PathHelpers.GetFriendlyPathName(moduleDirectory));
 
         var metadataReferences = host.GetReferenceAssemblyFileNames()
             .Select(fn => MetadataReference.CreateFromFile(fn))
             .ToArray();
 
-        var csFileNames = Directory.GetFiles(moduleFolder, "*.cs", SearchOption.AllDirectories).ToList();
-        var globalCsFileName = Path.Combine(host.ModulesFolder, "Global.cs");
+        var csFileNames = Directory.GetFiles(moduleDirectory, "*.cs", SearchOption.AllDirectories).ToList();
+        var globalCsFileName = Path.Combine(host.ModulesDirectory, "Global.cs");
         if (File.Exists(globalCsFileName))
             csFileNames.Add(globalCsFileName);
 
@@ -112,7 +112,7 @@ internal static class ModuleLoader
             module = new CompiledModule()
             {
                 Name = moduleName,
-                Folder = moduleFolder,
+                Directory = moduleDirectory,
                 Startup = compiledStartup,
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
@@ -131,8 +131,8 @@ internal static class ModuleLoader
 
     private static void ForceLoadLocalDllsToAppDomain()
     {
-        var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly)
+        var selfDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var localDllFileNames = Directory.GetFiles(selfDirectory, "*.dll", SearchOption.TopDirectoryOnly)
             .Where(x =>
             {
                 var fn = Path.GetFileName(x);

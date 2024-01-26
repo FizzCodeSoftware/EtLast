@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
-public class ContextIndex(string dataFolder)
+public class ContextIndex(string dataDirectory)
 {
-    public string DataFolder { get; } = dataFolder;
+    public string DataDirectory { get; } = dataDirectory;
     private int _lastStreamIndex;
     private long _lastStreamSize;
 
@@ -24,22 +24,22 @@ public class ContextIndex(string dataFolder)
 
     private string GetMainFileName(int index)
     {
-        return Path.Combine(DataFolder, "stream-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
+        return Path.Combine(DataDirectory, "stream-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
     }
 
     private string GetRowEventFileName(int index)
     {
-        return Path.Combine(DataFolder, "row-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
+        return Path.Combine(DataDirectory, "row-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
     }
 
     private string GetSinkFileName(long sinkId)
     {
-        return Path.Combine(DataFolder, "sink-id-" + sinkId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
+        return Path.Combine(DataDirectory, "sink-id-" + sinkId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
     private string GetProcessRowMapFileName(long processInvocationId)
     {
-        return Path.Combine(DataFolder, "process-rows-id-" + processInvocationId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
+        return Path.Combine(DataDirectory, "process-rows-id-" + processInvocationId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
     public List<AbstractEvent> Append(MemoryStream input)
