@@ -8,17 +8,17 @@ internal static class HostArgumentsLoader
 {
     public static IArgumentCollection LoadHostArguments(ConsoleHost host)
     {
-        var argumentsFolder = host.HostArgumentsFolder;
-        if (!Directory.Exists(argumentsFolder))
+        var argumentsDirectory = host.HostArgumentsDirectory;
+        if (!Directory.Exists(argumentsDirectory))
             return new ArgumentCollection();
 
         var startedOn = Stopwatch.StartNew();
 
-        var csFileNames = Directory.GetFiles(argumentsFolder, "*.cs", SearchOption.AllDirectories).ToList();
+        var csFileNames = Directory.GetFiles(argumentsDirectory, "*.cs", SearchOption.AllDirectories).ToList();
         if (csFileNames.Count == 0)
             return new ArgumentCollection();
 
-        host.Logger.Information("compiling host arguments from {Folder}", PathHelpers.GetFriendlyPathName(argumentsFolder));
+        host.Logger.Information("compiling host arguments from {Directory}", PathHelpers.GetFriendlyPathName(argumentsDirectory));
 
         var metadataReferences = host.GetReferenceAssemblyFileNames()
             .Select(fn => MetadataReference.CreateFromFile(fn))

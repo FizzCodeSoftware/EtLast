@@ -3,31 +3,31 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ConsoleHostFluent
 {
-    public static T ClearReferenceAssemblyFolder<T>(this T host)
+    public static T ClearReferenceAssemblyDirectories<T>(this T host)
         where T : ConsoleHost
     {
-        host.ReferenceAssemblyFolders.Clear();
+        host.ReferenceAssemblyDirectories.Clear();
         return host;
     }
 
-    public static T AddReferenceAssemblyFolder<T>(this T host, string path)
+    public static T AddReferenceAssemblyDirectory<T>(this T host, string path)
         where T : ConsoleHost
     {
-        host.ReferenceAssemblyFolders.Add(path);
+        host.ReferenceAssemblyDirectories.Add(path);
         return host;
     }
 
-    public static T UseHostArgumentsFolder<T>(this T host, string path)
+    public static T UseHostArgumentsDirectory<T>(this T host, string path)
         where T : ConsoleHost
     {
-        host.HostArgumentsFolder = path;
+        host.HostArgumentsDirectory = path;
         return host;
     }
 
-    public static T UseModulesFolder<T>(this T host, string path)
+    public static T UseModulesDirectory<T>(this T host, string path)
         where T : ConsoleHost
     {
-        host.ModulesFolder = path;
+        host.ModulesDirectory = path;
         return host;
     }
 

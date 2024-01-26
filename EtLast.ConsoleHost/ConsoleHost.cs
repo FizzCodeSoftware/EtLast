@@ -6,41 +6,41 @@ namespace FizzCode.EtLast;
 public class ConsoleHost : AbstractHost
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string HostLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
+    public string HostLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string DevLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
+    public string DevLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string OpsLogFolder { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
+    public string OpsLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
 
-    public List<string> ReferenceAssemblyFolders { get; } = [];
+    public List<string> ReferenceAssemblyDirectories { get; } = [];
     public ModuleCompilationMode ModuleCompilationMode { get; internal set; } = ModuleCompilationMode.Dynamic;
 
-    private string _modulesFolder;
-    public string ModulesFolder
+    private string _modulesDirectory;
+    public string ModulesDirectory
     {
-        get => _modulesFolder;
+        get => _modulesDirectory;
         set
         {
-            _modulesFolder = value;
-            if (_modulesFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
+            _modulesDirectory = value;
+            if (_modulesDirectory.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
             {
-                _modulesFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _modulesFolder[2..]);
+                _modulesDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _modulesDirectory[2..]);
             }
         }
     }
 
-    private string _hostArgumentsFolder;
-    public string HostArgumentsFolder
+    private string _hostArgumentsDirectory;
+    public string HostArgumentsDirectory
     {
-        get => _hostArgumentsFolder;
+        get => _hostArgumentsDirectory;
         set
         {
-            _hostArgumentsFolder = value;
-            if (_hostArgumentsFolder.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
+            _hostArgumentsDirectory = value;
+            if (_hostArgumentsDirectory.StartsWith(@".\", StringComparison.InvariantCultureIgnoreCase))
             {
-                _hostArgumentsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _hostArgumentsFolder[2..]);
+                _hostArgumentsDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), _hostArgumentsDirectory[2..]);
             }
         }
     }
@@ -51,10 +51,10 @@ public class ConsoleHost : AbstractHost
     public ConsoleHost(string name)
         : base(name)
     {
-        ModulesFolder = @".\Modules";
-        HostArgumentsFolder = @".\HostArguments";
-        ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\");
-        ReferenceAssemblyFolders.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
+        ModulesDirectory = @".\Modules";
+        HostArgumentsDirectory = @".\HostArguments";
+        ReferenceAssemblyDirectories.Add(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\");
+        ReferenceAssemblyDirectories.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
 
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
     }
@@ -66,7 +66,7 @@ public class ConsoleHost : AbstractHost
         if (SerilogForHostEnabled)
         {
             config = config
-                .WriteTo.File(Path.Combine(HostLogFolder, "host-.txt"),
+                .WriteTo.File(Path.Combine(HostLogDirectory, "host-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     formatProvider: CultureInfo.InvariantCulture,
@@ -142,7 +142,7 @@ public class ConsoleHost : AbstractHost
             case "test-modules":
                 var moduleNames = commandParts.Skip(2).ToList();
                 if (moduleNames.Count == 0)
-                    moduleNames = ModuleLister.GetAllModules(ModulesFolder);
+                    moduleNames = ModuleLister.GetAllModules(ModulesDirectory);
 
                 return TestModules(moduleNames);
         }
@@ -242,39 +242,27 @@ public class ConsoleHost : AbstractHost
     public List<string> GetReferenceAssemblyFileNames()
     {
         var referenceDllFileNames = new List<string>();
-        foreach (var referenceAssemblyFolder in ReferenceAssemblyFolders)
+        foreach (var referenceAssemblyDirectory in ReferenceAssemblyDirectories)
         {
-#if NET8_0
-            var folder = Directory.GetDirectories(referenceAssemblyFolder, "8.*")
+            var directory = Directory.GetDirectories(referenceAssemblyDirectory, "8.*")
                 .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
                 .FirstOrDefault();
-#endif
-#if NET7_0
-            var folder = Directory.GetDirectories(referenceAssemblyFolder, "7.*")
-                .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
-                .FirstOrDefault();
-#endif
-#if NET6_0
-            var folder = Directory.GetDirectories(referenceAssemblyFolder, "6.*")
-                .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
-                .FirstOrDefault();
-#endif
 
-            Logger.Information("using assemblies from {ReferenceAssemblyFolder}", folder);
+            Logger.Information("using assemblies from {ReferenceAssemblyDirectory}", directory);
 
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "System*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Extensions*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "Microsoft.Net*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(folder, "netstandard.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "System*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "Microsoft.Extensions*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "Microsoft.Net*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "netstandard.dll", SearchOption.TopDirectoryOnly));
         }
 
         var referenceFileNames = referenceDllFileNames
             .Where(x => !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase))
             .ToList();
 
-        var selfFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        var localDllFileNames = Directory.GetFiles(selfFolder, "*.dll", SearchOption.TopDirectoryOnly)
+        var selfDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        var localDllFileNames = Directory.GetFiles(selfDirectory, "*.dll", SearchOption.TopDirectoryOnly)
             .Where(x => Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
                 && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
 

@@ -6,7 +6,7 @@ public class DiagContext
     public long Id { get; }
     public string Name { get; }
 
-    public string DataFolder { get; }
+    public string DataDirectory { get; }
 
     public Playbook WholePlaybook { get; }
     public DateTime StartedOn { get; }
@@ -15,13 +15,13 @@ public class DiagContext
     public ContextIndex Index { get; }
     private readonly List<AbstractEvent> _stagedEvents = [];
 
-    public DiagContext(long id, string name, DateTime startedOn, string dataFolder)
+    public DiagContext(long id, string name, DateTime startedOn, string dataDirectory)
     {
         Id = id;
         Name = name;
         WholePlaybook = new Playbook(this);
         StartedOn = startedOn;
-        Index = new ContextIndex(dataFolder);
+        Index = new ContextIndex(dataDirectory);
     }
 
     public void Stage(MemoryStream input)

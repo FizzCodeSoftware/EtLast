@@ -63,18 +63,18 @@ internal class DiagnosticsStateManager : IDisposable
 
             if (!_contextList.TryGetValue(contextId, out var context))
             {
-                var folder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "streams", contextIdStr);
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
+                var directory = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "streams", contextIdStr);
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
 
-                File.WriteAllLines(Path.Combine(folder, "stream-info.txt"),
+                File.WriteAllLines(Path.Combine(directory, "stream-info.txt"),
 [
                     "id\t" + contextIdStr,
                     "name\t" + contextName,
                     "started-on\t" + now.ToString("yyyy.MM.dd HH:mm:ss.fff", CultureInfo.InvariantCulture),
                 ]);
 
-                context = new DiagContext(contextId, contextName, now, folder);
+                context = new DiagContext(contextId, contextName, now, directory);
                 lock (_contextList)
                 {
                     _contextList.Add(contextId, context);

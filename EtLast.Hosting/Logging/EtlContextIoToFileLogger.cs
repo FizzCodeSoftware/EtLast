@@ -6,10 +6,10 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
 {
     private readonly ILogger _logger;
 
-    public EtlContextIoToFileLogger(string folder, int lowFileCount = 4)
+    public EtlContextIoToFileLogger(string directory, int lowFileCount = 4)
     {
         var config = new LoggerConfiguration()
-            .WriteTo.File(Path.Combine(folder, "io-.tsv"),
+            .WriteTo.File(Path.Combine(directory, "io-.tsv"),
                 outputTemplate: "{Timestamp:HH:mm:ss.fff zzz}\t{Message:l}{NewLine}",
                 formatProvider: CultureInfo.InvariantCulture,
                 buffered: true,
@@ -167,7 +167,7 @@ public static class EtlContextIoToFileLoggerFluent
 {
     public static ISessionBuilder LogIoToFile(this ISessionBuilder builder, int lowFileCount = 4)
     {
-        builder.Context.Listeners.Add(new EtlContextIoToFileLogger(builder.DevLogFolder, lowFileCount));
+        builder.Context.Listeners.Add(new EtlContextIoToFileLogger(builder.DevLogDirectory, lowFileCount));
         return builder;
     }
 }
