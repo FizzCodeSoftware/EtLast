@@ -21,6 +21,26 @@ public sealed class Flow : IFlow
         return new Flow(context, caller, flowState);
     }
 
+    public IFlow If(Func<bool> test, Action action)
+    {
+        if (_flowState.IsTerminating)
+            return this;
+
+        try
+        {
+            var result = test.Invoke();
+
+            if (result && !_flowState.IsTerminating)
+                action.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _flowState.AddException(_caller, ex);
+        }
+
+        return this;
+    }
+
     public IFlow ExecuteSequence(Func<IFluentSequenceBuilder, ISequenceBuilder> sequenceBuilder)
     {
         if (_flowState.IsTerminating)
@@ -60,6 +80,7 @@ public sealed class Flow : IFlow
 
         if (_flowState.IsTerminating)
             return this;
+
         try
         {
             value = valueFunc.Invoke();
