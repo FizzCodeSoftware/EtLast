@@ -66,6 +66,18 @@ public class DelimitedValueFormatter : IValueFormatter
         if (v is char chr)
             return chr.ToString(formatProvider);
 
+        if (v is byte bv)
+            return bv.ToString(IntegerFormat, formatProvider ?? CultureInfo.InvariantCulture);
+
+        if (v is sbyte sbv)
+            return sbv.ToString(IntegerFormat, formatProvider ?? CultureInfo.InvariantCulture);
+
+        if (v is short sv)
+            return sv.ToString(IntegerFormat, formatProvider ?? CultureInfo.InvariantCulture);
+
+        if (v is ushort usv)
+            return usv.ToString(IntegerFormat, formatProvider ?? CultureInfo.InvariantCulture);
+
         if (v is int iv)
             return iv.ToString(IntegerFormat, formatProvider ?? CultureInfo.InvariantCulture);
 
@@ -104,6 +116,9 @@ public class DelimitedValueFormatter : IValueFormatter
 
         if (v is IFormattable fmt)
             return fmt.ToString(GenericFormat, formatProvider ?? CultureInfo.InvariantCulture);
+
+        if (v is byte[] data)
+            return Convert.ToBase64String(data);
 
         return v.ToString();
     }
