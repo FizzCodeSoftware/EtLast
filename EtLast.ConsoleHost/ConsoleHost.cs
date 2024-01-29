@@ -123,8 +123,15 @@ public class ConsoleHost : AbstractHost
                             else
                             {
                                 taskNames.Remove(taskName);
-                                userArguments[taskName[..idx]] = temp[i + 1];
-                                taskNames.Remove(temp[i + 1]);
+                                if (i < temp.Length - 1)
+                                {
+                                    userArguments[taskName[..idx]] = temp[i + 1];
+                                    taskNames.Remove(temp[i + 1]);
+                                }
+                                else
+                                {
+                                    userArguments[taskName[..idx]] = null;
+                                }
 
                                 i++;
                             }
