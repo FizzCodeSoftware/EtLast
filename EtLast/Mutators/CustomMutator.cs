@@ -19,7 +19,7 @@ public sealed class CustomMutator : AbstractMutator
                 tracker.ApplyChanges();
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not EtlException)
         {
             var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
             exception.Data["RowInputIndex"] = rowInputIndex;

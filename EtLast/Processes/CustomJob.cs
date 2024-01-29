@@ -11,7 +11,7 @@ public sealed class CustomJob : AbstractJob
         {
             Action.Invoke(this);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not EtlException)
         {
             var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
             throw exception;
