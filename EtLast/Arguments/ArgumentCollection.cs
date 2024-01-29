@@ -25,7 +25,10 @@ public sealed class ArgumentCollection : IArgumentCollection
                 value = func.Invoke();
 
             if (value is Func<IArgumentCollection, object> funcWithArgs)
+            {
                 value = funcWithArgs.Invoke(this);
+                _values[key] = value;
+            }
 
             if (value is T castValue)
                 return castValue;
@@ -42,7 +45,10 @@ public sealed class ArgumentCollection : IArgumentCollection
                 value = func.Invoke();
 
             if (value is Func<IArgumentCollection, object> funcWithArgs)
+            {
                 value = funcWithArgs.Invoke(this);
+                _values[key] = value;
+            }
 
             return value;
         }
