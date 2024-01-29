@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="FizzCode.DbTools.Configuration" Version="2.0.25.6662" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.9.0">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.10.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
