@@ -266,9 +266,17 @@ public sealed class Flow : IFlow
         if (!_flowState.IsTerminating)
             return this;
 
-        if (_flowState.Exceptions.Count > 0)
+        if (_flowState.Exceptions.Count > 1)
+        {
             throw new AggregateException(_flowState.Exceptions);
-
-        throw new OperationCanceledException();
+        }
+        else if (_flowState.Exceptions.Count == 1)
+        {
+            throw _flowState.Exceptions[0];
+        }
+        else
+        {
+            throw new OperationCanceledException();
+        }
     }
 }
