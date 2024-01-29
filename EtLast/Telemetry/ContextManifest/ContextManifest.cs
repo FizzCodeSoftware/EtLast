@@ -29,7 +29,6 @@ public class ContextManifest : IEtlContextListener
     public DateTimeOffset? ClosedOnUtc { get; private set; }
     public DateTimeOffset? ClosedOnLocal { get; private set; }
     public long? RunMilliseconds { get; private set; }
-    public Dictionary<string, string> Arguments { get; set; }
 
     public Dictionary<string, object> Extra { get; init; } = [];
 

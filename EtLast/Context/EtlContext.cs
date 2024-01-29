@@ -62,7 +62,6 @@ public sealed class EtlContext : IEtlContext
             TickCountSinceStartup = Environment.TickCount64,
             CreatedOnUtc = nowUtc,
             CreatedOnLocal = nowUtc.ToLocalTime(),
-            Arguments = arguments?.AllKeys.ToDictionary(key => key, key => arguments.Get(key)?.ToString()),
         };
 
         Listeners = [Manifest];

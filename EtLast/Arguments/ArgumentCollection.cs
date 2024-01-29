@@ -17,6 +17,11 @@ public sealed class ArgumentCollection : IArgumentCollection
         _values = new Dictionary<string, object>(values, StringComparer.InvariantCultureIgnoreCase);
     }
 
+    public bool HasKey(string key)
+    {
+        return _values.ContainsKey(key);
+    }
+
     public T GetAs<T>(string key, T defaultValue = default)
     {
         if (_values.TryGetValue(key, out var value))

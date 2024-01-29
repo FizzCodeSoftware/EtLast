@@ -163,9 +163,23 @@ public abstract class AbstractProcess : IProcess
 
             if (key != null)
             {
-                var value = Context.Arguments.Get(key);
-                if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
-                    property.SetValue(this, value);
+                if (Context.Arguments.HasKey(key))
+                {
+                    try
+                    {
+                        var value = Context.Arguments.Get(key);
+                        if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
+                            property.SetValue(this, value);
+                    }
+                    catch (Exception ex)
+                    {
+                        var exception = new ProcessExecutionException(this, "error while resolving argument", ex);
+                        exception.Data["argument"] = key;
+
+                        flowState.AddException(this, exception);
+                        break;
+                    }
+                }
             }
         }
     }
