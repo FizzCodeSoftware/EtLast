@@ -105,6 +105,9 @@ public class DelimitedValueFormatter : IValueFormatter
         if (v is IFormattable fmt)
             return fmt.ToString(GenericFormat, formatProvider ?? CultureInfo.InvariantCulture);
 
+        if (v is byte[] data)
+            return Convert.ToBase64String(data);
+
         return v.ToString();
     }
 }
