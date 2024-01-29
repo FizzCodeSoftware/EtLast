@@ -10,6 +10,9 @@ public abstract class AbstractJob : AbstractProcess
     public override void Execute(ICaller caller, FlowState flowState = null)
     {
         BeginExecution(caller, flowState);
+        if (FlowState.IsTerminating)
+            return;
+
         LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();

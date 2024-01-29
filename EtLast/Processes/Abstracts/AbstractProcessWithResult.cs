@@ -15,6 +15,9 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
     public T ExecuteWithResult(ICaller caller, FlowState flowState = null)
     {
         BeginExecution(caller, flowState);
+        if (FlowState.IsTerminating)
+            return default;
+
         LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();

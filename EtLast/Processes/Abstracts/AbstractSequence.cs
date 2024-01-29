@@ -12,6 +12,9 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
     private IEnumerable<IRow> Evaluate(ICaller caller, FlowState flowState = null)
     {
         BeginExecution(caller, flowState);
+        if (FlowState.IsTerminating)
+            yield break;
+
         LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();
