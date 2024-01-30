@@ -130,16 +130,19 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 
     protected override void CloseMutator()
     {
-        WriteBuffer(_sinkEntry);
-
-        if (SinkProvider.AutomaticallyDispose)
+        if (_sinkEntry != null)
         {
-            _sinkEntry.NamedSink.Stream.Flush();
-            _sinkEntry.NamedSink.Stream.Close();
-            _sinkEntry.NamedSink.Stream.Dispose();
-        }
+            WriteBuffer(_sinkEntry);
 
-        _sinkEntry = null;
+            if (SinkProvider.AutomaticallyDispose)
+            {
+                _sinkEntry.NamedSink.Stream.Flush();
+                _sinkEntry.NamedSink.Stream.Close();
+                _sinkEntry.NamedSink.Stream.Dispose();
+            }
+
+            _sinkEntry = null;
+        }
     }
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
