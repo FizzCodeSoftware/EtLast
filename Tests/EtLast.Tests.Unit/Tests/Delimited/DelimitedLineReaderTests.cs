@@ -231,7 +231,32 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
-            new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\r\ncontinues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null } ]);
+            new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\r\ncontinues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null }]);
+
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
+    }
+
+    /// <summary>
+    /// New empty line test
+    /// </summary>
+    [TestMethod]
+    public void NewLineTest3()
+    {
+        var context = TestExecuter.GetContext();
+        var builder = SequenceBuilder.Fluent
+            .ReadDelimitedLines(GetReader(@"TestData\NewLineSample3.csv"))
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator()
+            {
+                Columns = ["ValueDate"],
+                Value = null,
+            });
+
+        var result = TestExecuter.Execute(context, builder);
+        Assert.AreEqual(2, result.MutatedRows.Count);
+        Assert.That.ExactMatch(result.MutatedRows, [
+            new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "test\"\r\n\r\ncontinues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
+            new() { ["Id"] = 2, ["Name"] = "B", ["ValueString"] = "test2", ["ValueInt"] = null, ["ValueDate"] = null, ["ValueDouble"] = null }
+        ]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
