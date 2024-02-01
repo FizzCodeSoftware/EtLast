@@ -45,6 +45,11 @@ public class DelimitedValueFormatter : IValueFormatter
     public string DecimalFormat { get; init; } = "G";
 
     /// <summary>
+    /// Default value is "D"
+    /// </summary>
+    public string GuidFormat { get; init; } = "D";
+
+    /// <summary>
     /// Default value is "G"
     /// </summary>
     public string GenericFormat { get; init; } = "G";
@@ -113,6 +118,9 @@ public class DelimitedValueFormatter : IValueFormatter
 
         if (v is TimeOnly timeOnly)
             return timeOnly.ToString(TimeFormat, formatProvider ?? CultureInfo.InvariantCulture);
+
+        if (v is Guid guid)
+            return guid.ToString(GuidFormat, formatProvider ?? CultureInfo.InvariantCulture);
 
         if (v is IFormattable fmt)
             return fmt.ToString(GenericFormat, formatProvider ?? CultureInfo.InvariantCulture);
