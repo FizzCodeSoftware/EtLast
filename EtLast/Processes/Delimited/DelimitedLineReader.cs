@@ -209,7 +209,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                             ? buffer[bufferPosition]
                             : '\0';
 
-                        if (c is '\r' or '\n')
+                        if (quotes == 0 && c is '\r' or '\n')
                         {
                             if (nc is '\r' or '\n')
                                 bufferPosition++;
@@ -226,7 +226,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                 quotes++;
 
                             // quotedCellClosing
-                            if (builderLength > 0 && isQuote && quotes > 0 && nc == delimiter)
+                            if (builderLength > 0 && isQuote && quotes > 0 && nc != '\"')
                                 quotes--;
 
                             // newLineInQuotedCell
