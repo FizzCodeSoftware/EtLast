@@ -320,7 +320,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                 builderLength++;
                             }
 
-                            if (lastCharInLine || (quotes == 0 && c == delimiter))
+                            if (quotes == 0 && (lastCharInLine || c == delimiter))
                             {
                                 if (builderLength > 0)
                                 {

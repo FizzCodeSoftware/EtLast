@@ -61,7 +61,7 @@ public class DelimitedLineReaderTests
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = null, ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } ]);
+            new() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = null, ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -95,7 +95,7 @@ public class DelimitedLineReaderTests
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["Value3"] = null, ["ValueDouble"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["Value1"] = null, ["ValueDouble"] = 1.234d } ]);
+            new() { ["Id"] = 1, ["Name"] = "B", ["Value1"] = null, ["ValueDouble"] = 1.234d }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -123,7 +123,7 @@ public class DelimitedLineReaderTests
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = "-1", ["Value3"] = null, ["Value4"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["Value1"] = null, ["Value2"] = "3", ["Value3"] = "2019.04.25", ["Value4"] = "1.234" } ]);
+            new() { ["Id"] = 1, ["Name"] = "B", ["Value1"] = null, ["Value2"] = "3", ["Value3"] = "2019.04.25", ["Value4"] = "1.234" }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -138,7 +138,7 @@ public class DelimitedLineReaderTests
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "te\"s\"t;test", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
-            new() { ["Id"] = 2, ["Name"] = "tes\"t;t\"est", ["ValueString"] = null, ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null } ]);
+            new() { ["Id"] = 2, ["Name"] = "tes\"t;t\"est", ["ValueString"] = null, ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -154,7 +154,7 @@ public class DelimitedLineReaderTests
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "\"te\"s\"t;test\"", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
-            new() { ["Id"] = 2, ["Name"] = "\"tes\"t;t\"est\"", ["ValueString"] = null, ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null } ]);
+            new() { ["Id"] = 2, ["Name"] = "\"tes\"t;t\"est\"", ["ValueString"] = null, ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -170,7 +170,7 @@ public class DelimitedLineReaderTests
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 1, ["Name"] = "A", ["Value"] = "test" },
             new() { ["Id"] = 2, ["Name"] = "B", ["Value"] = "test\"" },
-            new() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "test\"\"" } ]);
+            new() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "test\"\"" }]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -192,7 +192,7 @@ public class DelimitedLineReaderTests
             new() { ["Id"] = 5, ["Name"] = "E", ["Value"] = "\"\"" },
             new() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "F" },
             new() { ["Id"] = 7, ["Name"] = "G", ["Value"] = "\"a\"" },
-            new() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" } ]);
+            new() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -211,7 +211,7 @@ public class DelimitedLineReaderTests
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(1, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
-            new() { ["Id"] = 1, ["Name"] = " A", ["ValueString"] = "test\r\n continues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null } ]);
+            new() { ["Id"] = 1, ["Name"] = " A", ["ValueString"] = "test\r\n continues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null }]);
 
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
@@ -262,6 +262,28 @@ public class DelimitedLineReaderTests
     }
 
     [TestMethod]
+    public void NewLineTest4()
+    {
+        var context = TestExecuter.GetContext();
+        var builder = SequenceBuilder.Fluent
+            .ReadDelimitedLines(GetReader(@"TestData\NewLineSample4.csv"))
+            .ReplaceErrorWithValue(new ReplaceErrorWithValueMutator()
+            {
+                Columns = ["ValueDate"],
+                Value = null,
+            });
+
+        var result = TestExecuter.Execute(context, builder);
+        Assert.AreEqual(2, result.MutatedRows.Count);
+        Assert.That.ExactMatch(result.MutatedRows, [
+            new() { ["Id"] = 1, ["Name"] = "A", ["ValueString"] = "\r\ntest continues", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
+            new() { ["Id"] = 2, ["Name"] = "B", ["ValueString"] = "test2", ["ValueInt"] = null, ["ValueDate"] = null, ["ValueDouble"] = null }
+        ]);
+
+        Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
+    }
+
+    [TestMethod]
     public void InvalidConversion()
     {
         var context = TestExecuter.GetContext();
@@ -277,7 +299,7 @@ public class DelimitedLineReaderTests
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = new EtlRowError("X"), ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = null, ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d } ]);
+            new() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = null, ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -309,7 +331,7 @@ public class DelimitedLineReaderTests
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1, ["sg"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["Value1"] = null, ["Value2"] = 3 } ]);
+            new() { ["Id"] = 1, ["Name"] = "B", ["Value1"] = null, ["Value2"] = 3 }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -342,7 +364,7 @@ public class DelimitedLineReaderTests
         Assert.AreEqual(2, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
             new() { ["Id"] = 0, ["Name"] = "A", ["Value1"] = "AAA", ["Value2"] = -1, ["Value3"] = null, ["Value4"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["Value1"] = null, ["Value2"] = 3, ["Value3"] = "1", ["Value4"] = "1.234" } ]);
+            new() { ["Id"] = 1, ["Name"] = "B", ["Value1"] = null, ["Value2"] = 3, ["Value3"] = "1", ["Value4"] = "1.234" }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }
