@@ -4,7 +4,7 @@ public sealed class RemoveRowMutator : AbstractMutator
 {
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        return Enumerable.Empty<IRow>();
+        return [];
     }
 }
 

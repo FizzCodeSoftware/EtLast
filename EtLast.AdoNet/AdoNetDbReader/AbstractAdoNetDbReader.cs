@@ -184,14 +184,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                                 continue;
                             }
 
-                            if (fieldValue is Type type)
-                            {
-                                properties[c.ColumnName] = type.Name;
-                            }
-                            else
-                            {
-                                properties[c.ColumnName] = fieldValue;
-                            }
+                            properties[c.ColumnName] = fieldValue is Type type
+                                ? type.Name
+                                : fieldValue;
                         }
                     }
 
