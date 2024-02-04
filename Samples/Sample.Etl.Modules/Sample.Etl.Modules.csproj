@@ -12,17 +12,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.EtLast" Version="8.1.48" />
-    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="8.1.48" />
-    <PackageReference Include="FizzCode.EtLast.AdoNet.MsSql" Version="8.1.48" />
-    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="8.1.48" />
-    <PackageReference Include="FizzCode.EtLast.Hosting" Version="8.1.48" />
-    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="8.1.48" />
+    <PackageReference Include="FizzCode.EtLast" Version="8.1.59" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="8.1.59" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet.MsSql" Version="8.1.59" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="8.1.59" />
+    <PackageReference Include="FizzCode.EtLast.Hosting" Version="8.1.59" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="8.1.59" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.10.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.5" />
   </ItemGroup>
 
   <ItemGroup>
