@@ -35,4 +35,3 @@ public static class GuidConverterFluent
     public static TextReaderColumn AsGuid(this TextReaderColumn column) => column.WithTypeConverter(new GuidConverter());
     public static IConvertMutatorBuilder_NullStrategy ToGuid(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new GuidConverter());
 }
-
