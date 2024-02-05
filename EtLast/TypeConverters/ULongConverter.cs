@@ -82,12 +82,12 @@ public class ULongConverter : ITypeConverter, ITextConverter
                 stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
             }
 
-            if (long.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+            if (ulong.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
                 return value;
         }
         else
         {
-            if (long.TryParse(source.GetContentAsSpan(), NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+            if (ulong.TryParse(source.GetContentAsSpan(), NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
                 return value;
         }
 
