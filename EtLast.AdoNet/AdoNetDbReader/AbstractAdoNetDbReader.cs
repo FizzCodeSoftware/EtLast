@@ -47,6 +47,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     protected AbstractAdoNetDbReader()
     {
         SqlValueProcessors.Add(new MySqlValueProcessor());
+        SqlValueProcessors.Add(new MsSqlValueProcessor());
     }
 
     protected override void ValidateImpl()
@@ -190,7 +191,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
-                    SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderColumnSchema()
+                    columns[i].Schema = SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderColumnSchema()
                     {
                         NameInRow = columns[i].NameInRow,
                         ClrType = reader.GetFieldType(i),
@@ -248,7 +249,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     {
                         foreach (var processor in usedSqlValueProcessors)
                         {
-                            value = processor.ProcessValue(value);
+                            value = processor.ProcessValue(value, column.Schema);
                         }
                     }
 
@@ -395,6 +396,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     {
         public string NameInRow { get; init; }
         public ReaderColumn Config { get; init; }
+        public AdoNetDbReaderColumnSchema Schema { get; set; }
     }
 
     protected abstract IoCommand RegisterIoCommand(string transactionId, int timeout, string statement);
