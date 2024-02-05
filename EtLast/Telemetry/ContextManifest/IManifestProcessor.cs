@@ -2,5 +2,5 @@
 
 public interface IManifestProcessor
 {
-    public void RegisterToManifestEvents(ContextManifest manifest);
+    public void RegisterToManifestEvents(IEtlContext context, ContextManifest manifest);
 }
