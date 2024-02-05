@@ -195,7 +195,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     {
                         NameInRow = columns[i].NameInRow,
                         ClrType = reader.GetFieldType(i),
-                        DataType = reader.GetDataTypeName(i),
+                        DataTypeName = reader.GetDataTypeName(i),
                         AllowNull = properties.TryGetValue("AllowDBNull", out var v) && v is bool bv ? bv : null,
                         Precision = properties.TryGetValue("NumericPrecision", out v) && v is short sv ? sv : null,
                         Scale = properties.TryGetValue("NumericScale", out v) && v is short sv2 ? sv2 : null,

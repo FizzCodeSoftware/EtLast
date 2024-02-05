@@ -4,7 +4,7 @@ public class AdoNetDbReaderColumnSchema
 {
     public string NameInRow { get; init; }
     public Type ClrType { get; init; }
-    public string DataType { get; init; }
+    public string DataTypeName { get; init; }
 
     public bool? AllowNull { get; init; }
     public short? Precision { get; init; }
