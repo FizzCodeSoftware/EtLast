@@ -2,7 +2,7 @@
 
 public class TextBuilder
 {
-    private char[] _buffer = new char[8];
+    private char[] _buffer = new char[8192];
     public int Start { get; private set; }
     public int Length { get; private set; }
 
@@ -10,7 +10,9 @@ public class TextBuilder
     {
         if (Length >= _buffer.Length)
         {
-            Array.Resize(ref _buffer, _buffer.Length + 8);
+            var extraLength = Convert.ToInt32(_buffer.Length / 4);
+            var newLength = _buffer.Length + extraLength;
+            Array.Resize(ref _buffer, newLength);
         }
 
         _buffer[Length++] = ch;
