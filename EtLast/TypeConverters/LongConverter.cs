@@ -1,8 +1,11 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Buffers.Binary;
+
+namespace FizzCode.EtLast;
 
 public class LongConverter : ITypeConverter, ITextConverter
 {
     public string[] RemoveSubString { get; init; }
+    public bool BigEndianByteArray { get; init; } = false;
 
     public virtual object Convert(object source)
     {
@@ -59,6 +62,13 @@ public class LongConverter : ITypeConverter, ITextConverter
         if (source is bool boolv)
             return boolv ? 1L : 0L;
 
+        if (source is byte[] bytes && bytes.Length == 8)
+        {
+            return BigEndianByteArray
+                ? BinaryPrimitives.ReadInt64BigEndian(bytes)
+                : BitConverter.ToInt64(bytes);
+        }
+
         return null;
     }
 
@@ -88,7 +98,7 @@ public class LongConverter : ITypeConverter, ITextConverter
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class LongConverterFluent
 {
-    public static ReaderColumn AsLong(this ReaderColumn column) => column.WithTypeConverter(new LongConverter());
-    public static TextReaderColumn AsLong(this TextReaderColumn column) => column.WithTypeConverter(new LongConverter());
-    public static IConvertMutatorBuilder_NullStrategy ToLong(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new LongConverter());
+    public static ReaderColumn AsLong(this ReaderColumn column, bool bigEndianByteArray = false) => column.WithTypeConverter(new LongConverter() { BigEndianByteArray = bigEndianByteArray });
+    public static TextReaderColumn AsLong(this TextReaderColumn column, bool bigEndianByteArray = false) => column.WithTypeConverter(new LongConverter() { BigEndianByteArray = bigEndianByteArray });
+    public static IConvertMutatorBuilder_NullStrategy ToLong(this IConvertMutatorBuilder_WithTypeConverter builder, bool bigEndianByteArray = false) => builder.WithTypeConverter(new LongConverter() { BigEndianByteArray = bigEndianByteArray });
 }
