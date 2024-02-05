@@ -35,7 +35,7 @@ internal static class ModuleExecuter
 
         foreach (var manifestProcessor in sessionBuilder.ManifestProcessors)
         {
-            manifestProcessor.RegisterToManifestEvents(context.Manifest);
+            manifestProcessor.RegisterToManifestEvents(context, context.Manifest);
         }
 
         try

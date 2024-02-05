@@ -11,9 +11,11 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
     };
 
     private Stopwatch _lastSave;
+    private IEtlContext _context;
 
-    public void RegisterToManifestEvents(ContextManifest manifest)
+    public void RegisterToManifestEvents(IEtlContext context, ContextManifest manifest)
     {
+        _context = context;
         manifest.ManifestChanged += ManifestChanged;
         manifest.ManifestClosed += ManifestClosed;
     }
@@ -45,8 +47,9 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
         {
             File.WriteAllText(fileName, content, Encoding.UTF8);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _context.Log(LogSeverity.Warning, null, "error while writing manifest: {ErrorMessage}", ex.FormatExceptionWithDetails(false));
         }
     }
 }
