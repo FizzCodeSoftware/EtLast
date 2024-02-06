@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CreateLocalDirectoryJob : AbstractJob
+public sealed class CreateLocalDirectory : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required string Path { get; init; }
@@ -24,11 +24,11 @@ public sealed class CreateLocalDirectoryJob : AbstractJob
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class CreateLocalDirectoryJobFluent
+public static class CreateLocalDirectoryFluent
 {
     public static IFlow CreateLocalDirectory(this IFlow builder, string path)
     {
-        return builder.ExecuteProcess(() => new CreateLocalDirectoryJob()
+        return builder.ExecuteProcess(() => new CreateLocalDirectory()
         {
             Path = path,
         });

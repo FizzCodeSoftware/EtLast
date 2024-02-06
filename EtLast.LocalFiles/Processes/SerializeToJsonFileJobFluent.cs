@@ -5,7 +5,7 @@ public static class SerializeToLocalJsonFileFluent
 {
     public static IFlow SerializeToLocalJsonFile<T>(this IFlow builder, string name, string targetFileName, T data, Encoding customEncoding = null)
     {
-        return builder.ExecuteProcess(() => new SerializeToJsonFileJob<T>()
+        return builder.ExecuteProcess(() => new SerializeToJsonFile<T>()
         {
             Name = name,
             Data = data,

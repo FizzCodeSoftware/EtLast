@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class MoveLocalFileJob : AbstractJob
+public sealed class MoveLocalFile : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required string SourceFileName { get; init; }
@@ -36,11 +36,11 @@ public sealed class MoveLocalFileJob : AbstractJob
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class MoveLocalFileJobFluent
+public static class MoveLocalFileFluent
 {
     public static IFlow MoveLocalFile(this IFlow builder, string sourceFileName, string targetFileName, bool overwrite)
     {
-        return builder.ExecuteProcess(() => new MoveLocalFileJob()
+        return builder.ExecuteProcess(() => new MoveLocalFile()
         {
             SourceFileName = sourceFileName,
             TargetFileName = targetFileName,
