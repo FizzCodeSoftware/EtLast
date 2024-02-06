@@ -2,21 +2,13 @@
 
 public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<TableMaxValueResult<TResult>>
 {
-    public required string TableName { get; init; }
-    public required string ColumnName { get; init; }
+    [ProcessParameterMustHaveValue] public required string TableName { get; init; }
+    [ProcessParameterMustHaveValue] public required string ColumnName { get; init; }
 
     /// <summary>
     /// Set to null to get the max value of all records in the column.
     /// </summary>
-    public required string WhereClause { get; init; }
-
-    protected override void ValidateImpl()
-    {
-        base.ValidateImpl();
-
-        if (string.IsNullOrEmpty(TableName))
-            throw new ProcessParameterNullException(this, nameof(TableName));
-    }
+    public string WhereClause { get; init; }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {

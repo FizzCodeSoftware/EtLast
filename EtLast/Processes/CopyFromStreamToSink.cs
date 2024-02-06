@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class CopyFromStreamToSinkJob : AbstractJob
+public sealed class CopyFromStreamToSink : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required IOneStreamProvider StreamProvider { get; init; }
@@ -37,9 +37,9 @@ public sealed class CopyFromStreamToSinkJob : AbstractJob
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class CopyFromStreamToSinkJobFluent
+public static class CopyFromStreamToSinkFluent
 {
-    public static IFlow CopyFromStreamToSink(this IFlow builder, Func<CopyFromStreamToSinkJob> processCreator)
+    public static IFlow CopyFromStreamToSink(this IFlow builder, Func<CopyFromStreamToSink> processCreator)
     {
         return builder.ExecuteProcess(processCreator);
     }

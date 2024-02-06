@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class DeserializeFromJsonFileJob<T> : AbstractProcessWithResult<T>
+public sealed class DeserializeFromJsonFile<T> : AbstractProcessWithResult<T>
 {
     [ProcessParameterMustHaveValue]
     public required IOneStreamProvider StreamProvider { get; init; }
@@ -11,10 +11,6 @@ public sealed class DeserializeFromJsonFileJob<T> : AbstractProcessWithResult<T>
     {
         WriteIndented = true,
     };
-
-    protected override void ValidateImpl()
-    {
-    }
 
     protected override T ExecuteImpl()
     {
@@ -55,9 +51,9 @@ public sealed class DeserializeFromJsonFileJob<T> : AbstractProcessWithResult<T>
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class DeserializeFromJsonFileJobFluent
+public static class DeserializeFromJsonFileFluent
 {
-    public static IFlow DeserializeFromJsonFile<TResult>(this IFlow builder, out TResult result, Func<DeserializeFromJsonFileJob<TResult>> processCreator)
+    public static IFlow DeserializeFromJsonFile<TResult>(this IFlow builder, out TResult result, Func<DeserializeFromJsonFile<TResult>> processCreator)
     {
         return builder.ExecuteProcessWithResult(out result, processCreator);
     }

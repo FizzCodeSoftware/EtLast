@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class VariableSetterJob<T> : AbstractJob
+public class VariableSetter<T> : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required Variable<T> Variable { get; init; }
@@ -16,11 +16,11 @@ public class VariableSetterJob<T> : AbstractJob
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class VariableSetterJobFluent
+public static class VariableSetterFluent
 {
     public static IFlow SetVariable<T>(this IFlow builder, Variable<T> variable, Func<T> valueGetter)
     {
-        return builder.ExecuteProcess(() => new VariableSetterJob<T>()
+        return builder.ExecuteProcess(() => new VariableSetter<T>()
         {
             Variable = variable,
             ValueGetter = valueGetter,
@@ -29,7 +29,7 @@ public static class VariableSetterJobFluent
 
     public static IFlow SetVariableToFixValue<T>(this IFlow builder, Variable<T> variable, T fixValue)
     {
-        return builder.ExecuteProcess(() => new VariableSetterJob<T>()
+        return builder.ExecuteProcess(() => new VariableSetter<T>()
         {
             Variable = variable,
             ValueGetter = () => fixValue,
@@ -38,7 +38,7 @@ public static class VariableSetterJobFluent
 
     public static IFlow IncrementVariable(this IFlow builder, Variable<int> variable)
     {
-        return builder.ExecuteProcess(() => new VariableSetterJob<int>()
+        return builder.ExecuteProcess(() => new VariableSetter<int>()
         {
             Variable = variable,
             ValueGetter = () => variable.Value + 1,
@@ -47,7 +47,7 @@ public static class VariableSetterJobFluent
 
     public static IFlow IncrementVariable(this IFlow builder, Variable<long> variable)
     {
-        return builder.ExecuteProcess(() => new VariableSetterJob<long>()
+        return builder.ExecuteProcess(() => new VariableSetter<long>()
         {
             Variable = variable,
             ValueGetter = () => variable.Value + 1,

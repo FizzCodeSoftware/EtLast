@@ -2,7 +2,7 @@
 
 public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
 {
-    public required string TableName { get; init; }
+    [ProcessParameterMustHaveValue] public required string TableName { get; init; }
 
     /// <summary>
     /// Set to null to get the count of all records in the table.
@@ -14,14 +14,6 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
         return TableName != null
             ? ConnectionString?.Unescape(TableName)
             : null;
-    }
-
-    protected override void ValidateImpl()
-    {
-        base.ValidateImpl();
-
-        if (string.IsNullOrEmpty(TableName))
-            throw new ProcessParameterNullException(this, nameof(TableName));
     }
 
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)

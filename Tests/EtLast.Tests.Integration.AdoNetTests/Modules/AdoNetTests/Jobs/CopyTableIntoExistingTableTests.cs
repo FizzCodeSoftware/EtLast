@@ -49,6 +49,7 @@ public class CopyTableIntoExistingTableTests : AbstractEtlTask
                     new() { ["Id"] = 1, ["Value"] = "etlast" },
                     new() { ["Id"] = 2, ["Value"] = "CopyTableIntoExistingTableTest" }
                 ]);
-            });
+            })
+            ;
     }
 }

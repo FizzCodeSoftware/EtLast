@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class SerializeToJsonFileJob<T> : AbstractJob
+public sealed class SerializeToJsonFile<T> : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required IOneSinkProvider SinkProvider { get; init; }
@@ -47,9 +47,9 @@ public sealed class SerializeToJsonFileJob<T> : AbstractJob
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class SerializeToJsonFileJobFluent
+public static class SerializeToJsonFileFluent
 {
-    public static IFlow SerializeToJsonFile<T>(this IFlow builder, Func<SerializeToJsonFileJob<T>> processCreator)
+    public static IFlow SerializeToJsonFile<T>(this IFlow builder, Func<SerializeToJsonFile<T>> processCreator)
     {
         return builder.ExecuteProcess(processCreator);
     }

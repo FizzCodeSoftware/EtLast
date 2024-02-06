@@ -21,10 +21,6 @@ public abstract class AbstractSqlStatementWithResult<T> : AbstractProcessWithRes
     {
     }
 
-    protected override void ValidateImpl()
-    {
-    }
-
     protected sealed override T ExecuteImpl()
     {
         var parameters = new Dictionary<string, object>();

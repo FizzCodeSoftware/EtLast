@@ -24,7 +24,8 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         T result = default;
         try
         {
-            ValidateImpl();
+            ValidateParameterAnnotations();
+            ValidateParameters();
 
             if (!FlowState.IsTerminating)
             {
@@ -40,6 +41,5 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         return result;
     }
 
-    protected abstract void ValidateImpl();
     protected abstract T ExecuteImpl();
 }
