@@ -4,15 +4,13 @@
 [Serializable]
 public class LocalFileDeleteException : EtlException
 {
-    internal LocalFileDeleteException(IProcess process, string message, string fileName)
+    internal LocalFileDeleteException(IProcess process, string message)
         : base(process, message)
     {
-        Data["FileName"] = fileName;
     }
 
-    internal LocalFileDeleteException(IProcess process, string message, string fileName, Exception innerException)
+    internal LocalFileDeleteException(IProcess process, string message, Exception innerException)
         : base(process, message, innerException)
     {
-        Data["FileName"] = fileName;
     }
 }

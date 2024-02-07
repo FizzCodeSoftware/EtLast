@@ -6,7 +6,7 @@ public sealed class SerializeToJsonFile<T> : AbstractJob
     public required IOneSinkProvider SinkProvider { get; init; }
 
     [ProcessParameterMustHaveValue]
-    public T Data { get; init; }
+    public required T Data { get; init; }
 
     public Encoding Encoding { get; init; } = Encoding.UTF8;
 

@@ -23,7 +23,8 @@ public sealed class DeleteLocalFile : AbstractJob
         }
         catch (Exception ex)
         {
-            var exception = new LocalFileDeleteException(this, "local file deletion failed", Path, ex);
+            var exception = new LocalFileDeleteException(this, "local file deletion failed", ex);
+            exception.Data["Path"] = Path;
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file deletion failed, file name: {0}, message: {1}",
                 Path, ex.Message));
             throw exception;

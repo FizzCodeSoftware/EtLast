@@ -2,8 +2,9 @@
 
 public class AdoNetDbReaderColumnSchema
 {
-    public string NameInRow { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore]
     public Type ClrType { get; init; }
+
     public string DataType { get; init; }
 
     public bool? AllowNull { get; init; }
