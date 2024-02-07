@@ -26,10 +26,16 @@ public sealed class DeleteLocalDirectory : AbstractJob
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DeleteLocalDirectoryFluent
 {
-    public static IFlow DeleteLocalDirectory(this IFlow builder, string path, bool recursive)
+    public static IFlow DeleteLocalDirectory(this IFlow builder, Func<DeleteLocalDirectory> processCreator)
+    {
+        return builder.ExecuteProcess(processCreator);
+    }
+
+    public static IFlow DeleteLocalDirectory(this IFlow builder, string name, string path, bool recursive)
     {
         return builder.ExecuteProcess(() => new DeleteLocalDirectory()
         {
+            Name = name,
             Path = path,
             Recursive = recursive,
         });
