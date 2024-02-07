@@ -193,7 +193,6 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
                     columns[i].Schema = SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderColumnSchema()
                     {
-                        NameInRow = columns[i].NameInRow,
                         ClrType = reader.GetFieldType(i),
                         DataType = reader.GetDataTypeName(i),
                         AllowNull = properties.TryGetValue("AllowDBNull", out var v) && v is bool bv ? bv : null,
