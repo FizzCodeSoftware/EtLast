@@ -194,8 +194,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     columns[i].Schema = SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderColumnSchema()
                     {
                         ClrType = reader.GetFieldType(i),
-                        DataType = reader.GetDataTypeName(i),
-                        AllowNull = properties.TryGetValue("AllowDBNull", out var v) && v is bool bv ? bv : null,
+                        ClrTypeName = reader.GetFieldType(i).Name,
+                        DataTypeName = properties.TryGetValue("DataTypeName", out var v) && v is string strv ? strv : null,
+                        AllowNull = properties.TryGetValue("AllowDBNull", out v) && v is bool bv ? bv : null,
                         Precision = properties.TryGetValue("NumericPrecision", out v) && v is short sv ? sv : null,
                         Scale = properties.TryGetValue("NumericScale", out v) && v is short sv2 ? sv2 : null,
                         Size = properties.TryGetValue("ColumnSize", out v) && v is int iv ? iv : null,
@@ -204,7 +205,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         IsIdentity = properties.TryGetValue("IsIdentity", out v) && v is bool bv4 ? bv4 : null,
                         IsAutoIncrement = properties.TryGetValue("IsAutoIncrement", out v) && v is bool bv5 ? bv5 : null,
                         IsRowVersion = properties.TryGetValue("IsRowVersion", out v) && v is bool bv6 ? bv6 : null,
-                        AllProperties = properties,
+                        AllProperties = properties.ToDictionary(x => x.Key, x => x.Value.ToString()),
                     };
                 }
             }

@@ -5,7 +5,8 @@ public class AdoNetDbReaderColumnSchema
     [System.Text.Json.Serialization.JsonIgnore]
     public Type ClrType { get; init; }
 
-    public string DataType { get; init; }
+    public string ClrTypeName { get; init; }
+    public string DataTypeName { get; init; }
 
     public bool? AllowNull { get; init; }
     public short? Precision { get; init; }
@@ -18,5 +19,6 @@ public class AdoNetDbReaderColumnSchema
     public bool? IsAutoIncrement { get; init; }
     public bool? IsRowVersion { get; init; }
 
-    public Dictionary<string, object> AllProperties { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Dictionary<string, string> AllProperties { get; init; }
 }
