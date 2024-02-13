@@ -45,6 +45,11 @@ public class DelimitedValueFormatter : IValueFormatter
     public string DecimalFormat { get; init; } = "G";
 
     /// <summary>
+    /// Divide the decimal values with 1.000000000000000000000000000000000m before formatting to string to remove trailing zeros.
+    /// </summary>
+    public bool NormalizeDecimal { get; init; } = true;
+
+    /// <summary>
     /// Default value is "D"
     /// </summary>
     public string GuidFormat { get; init; } = "D";
@@ -102,7 +107,11 @@ public class DelimitedValueFormatter : IValueFormatter
             return fv.ToString(FloatingFormat, formatProvider ?? CultureInfo.InvariantCulture);
 
         if (v is decimal decv)
-            return decv.ToString(DecimalFormat, formatProvider ?? CultureInfo.InvariantCulture);
+        {
+            return NormalizeDecimal
+                ? (decv / 1.000000000000000000000000000000000m).ToString(DecimalFormat, formatProvider ?? CultureInfo.InvariantCulture)
+                : decv.ToString(DecimalFormat, formatProvider ?? CultureInfo.InvariantCulture);
+        }
 
         if (v is TimeSpan ts)
             return ts.ToString(TimeSpanFormat, formatProvider ?? CultureInfo.InvariantCulture);
