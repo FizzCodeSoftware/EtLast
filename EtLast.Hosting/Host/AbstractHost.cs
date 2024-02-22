@@ -48,6 +48,8 @@ public abstract class AbstractHost : IHost
     protected abstract void ListCommands();
     protected abstract void ListModules();
 
+    private int ActiveCommandCounter;
+
     public ExecutionStatusCode Run()
     {
         Logger = CreateHostLogger();
@@ -110,7 +112,10 @@ public abstract class AbstractHost : IHost
 
         SetMaxTransactionTimeout(MaxTransactionTimeout);
 
+        var gradefulTerminationTokenSource = new CancellationTokenSource();
+
         var threads = new List<Thread>();
+        var listeners = new List<ICommandListener>();
         foreach (var creator in CommandListenerCreators)
         {
             var listener = creator.Invoke(hostArguments);
@@ -121,7 +126,8 @@ public abstract class AbstractHost : IHost
             {
                 try
                 {
-                    listener.Listen(this);
+                    listener.Listen(this, gradefulTerminationTokenSource.Token);
+                    listeners.Add(listener);
                 }
                 catch (Exception ex)
                 {
@@ -133,20 +139,26 @@ public abstract class AbstractHost : IHost
             thread.Start();
         }
 
+        var grafulTerminationTriggered = false;
+        while (!grafulTerminationTriggered)
+        {
+            // todo: check for trigger, semaphore, whatever
+            if (grafulTerminationTriggered)
+                gradefulTerminationTokenSource.Cancel();
+
+            Thread.Sleep(10);
+        }
+
         foreach (var thread in threads)
             thread.Join();
 
+        // wait for running commands
+        while (ActiveCommandCounter != 0)
+        {
+            Thread.Sleep(10);
+        }
+
         return ExecutionStatusCode.Success;
-    }
-
-    public IExecutionResult RunCommand(string command)
-    {
-        var commandParts = QuoteSplitterRegex
-            .Matches(command.Trim())
-            .Select(x => x.Value)
-            .ToArray();
-
-        return RunCommand(commandParts);
     }
 
     public void Terminate()
@@ -154,7 +166,26 @@ public abstract class AbstractHost : IHost
         _cancellationTokenSource.Cancel();
     }
 
-    public IExecutionResult RunCommand(string[] commandParts)
+    public IExecutionResult RunCommand(string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
+    {
+        var commandParts = QuoteSplitterRegex
+            .Matches(command.Trim())
+            .Select(x => x.Value)
+            .ToArray();
+
+        return RunCommand(commandParts, resultHandler);
+    }
+
+    public IExecutionResult RunCommand(string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
+    {
+        Interlocked.Increment(ref ActiveCommandCounter);
+        var result = RunCommandInternal(commandParts);
+        resultHandler?.Invoke(result)?.Wait();
+        Interlocked.Decrement(ref ActiveCommandCounter);
+        return result;
+    }
+
+    private IExecutionResult RunCommandInternal(string[] commandParts)
     {
         if (commandParts?.Length >= 1 && CommandAliases.TryGetValue(commandParts[0], out var alias))
         {
