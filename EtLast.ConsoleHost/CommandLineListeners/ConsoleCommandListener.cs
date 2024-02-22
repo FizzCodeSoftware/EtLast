@@ -4,19 +4,20 @@ namespace FizzCode.EtLast;
 
 public class ConsoleCommandListener : ICommandListener
 {
-    public void Listen(IHost host)
+    public void Listen(IHost host, CancellationToken cancellationToken)
     {
         var commands = new List<string>();
         var lck = new object();
 
-        var thread = new Thread(ListenForNewCommand(host, commands, lck))
+        var thread = new Thread(ListenForNewCommand(host, commands, lck, cancellationToken))
         {
-            IsBackground = true
+            IsBackground = true,
         };
+
         thread.Start();
 
         Console.WriteLine("listening on console");
-        while (!host.CancellationToken.IsCancellationRequested)
+        while (!host.CancellationToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
             string command = null;
             lock (lck)
@@ -42,11 +43,11 @@ public class ConsoleCommandListener : ICommandListener
         //Console.WriteLine("listening on console finished: " + thread.ThreadState.ToString());
     }
 
-    private static ThreadStart ListenForNewCommand(IHost host, List<string> commands, object lck)
+    private static ThreadStart ListenForNewCommand(IHost host, List<string> commands, object lck, CancellationToken cancellationToken)
     {
         return () =>
         {
-            while (!host.CancellationToken.IsCancellationRequested)
+            while (!host.CancellationToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
             {
                 try
                 {
