@@ -1,5 +1,4 @@
-﻿using FizzCode.EtLast.HostBuilder;
-using static FizzCode.EtLast.ConsoleHostFluent;
+﻿using static FizzCode.EtLast.ConsoleHostFluent;
 
 namespace FizzCode.EtLast;
 
