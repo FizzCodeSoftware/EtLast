@@ -43,7 +43,7 @@ public abstract class AbstractHost : IHost
 
     protected abstract ILogger CreateHostLogger();
     protected abstract IArgumentCollection LoadHostArguments();
-    protected abstract IExecutionResult RunCustomCommand(string[] commandParts);
+    protected abstract IExecutionResult RunCustomCommand(string commandId, string[] commandParts);
 
     protected abstract void ListCommands();
     protected abstract void ListModules();
@@ -239,7 +239,7 @@ public abstract class AbstractHost : IHost
                     return new ExecutionResult(ExecutionStatusCode.Success);
             }
 
-            return RunCustomCommand(commandParts);
+            return RunCustomCommand(commandId, commandParts);
         }
         catch (Exception ex)
         {
