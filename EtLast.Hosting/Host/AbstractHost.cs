@@ -1,6 +1,6 @@
 ﻿using FizzCode.EtLast.Host;
 
-namespace FizzCode.EtLast.HostBuilder;
+namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractHost : IHost
@@ -48,7 +48,7 @@ public abstract class AbstractHost : IHost
     protected abstract void ListCommands();
     protected abstract void ListModules();
 
-    private int ActiveCommandCounter;
+    private int _activeCommandCounter;
 
     public ExecutionStatusCode Run()
     {
@@ -112,8 +112,7 @@ public abstract class AbstractHost : IHost
 
         SetMaxTransactionTimeout(MaxTransactionTimeout);
 
-        var gradefulTerminationTokenSource = new CancellationTokenSource();
-
+        var gracefulTerminationTokenSource = new CancellationTokenSource();
         var threads = new List<Thread>();
         var listeners = new List<ICommandListener>();
         foreach (var creator in CommandListenerCreators)
@@ -126,7 +125,7 @@ public abstract class AbstractHost : IHost
             {
                 try
                 {
-                    listener.Listen(this, gradefulTerminationTokenSource.Token);
+                    listener.Listen(this, gracefulTerminationTokenSource.Token);
                     listeners.Add(listener);
                 }
                 catch (Exception ex)
@@ -139,23 +138,39 @@ public abstract class AbstractHost : IHost
             thread.Start();
         }
 
-        var grafulTerminationTriggered = false;
-        while (!grafulTerminationTriggered)
+        while (true)
         {
-            // todo: check for trigger, semaphore, whatever
-            if (grafulTerminationTriggered)
-                gradefulTerminationTokenSource.Cancel();
+            if (threads.All(x => x.ThreadState != System.Threading.ThreadState.Running))
+            {
+                Logger.Write(LogEventLevel.Information, "all command listener threads stopped, terminating host...");
+                break;
+            }
 
-            Thread.Sleep(10);
+            var semaphoreOn = false;
+            // todo: check semaphore
+
+            if (semaphoreOn)
+                gracefulTerminationTokenSource.Cancel();
+
+            Thread.Sleep(100);
         }
 
-        foreach (var thread in threads)
-            thread.Join();
-
-        // wait for running commands
-        while (ActiveCommandCounter != 0)
+        var runningThreadCount = threads.Count(x => x.ThreadState == System.Threading.ThreadState.Running);
+        if (runningThreadCount > 0)
         {
-            Thread.Sleep(10);
+            Logger.Write(LogEventLevel.Information, "waiting for {ThreadCount} command listener threads to stop, before host is terminated...", runningThreadCount);
+
+            foreach (var thread in threads)
+                thread.Join();
+        }
+
+        if (_activeCommandCounter > 0)
+        {
+            Logger.Write(LogEventLevel.Information, "waiting for {CommandCount} commands to finish, before host is terminated...", _activeCommandCounter);
+            while (_activeCommandCounter != 0)
+            {
+                Thread.Sleep(100);
+            }
         }
 
         return ExecutionStatusCode.Success;
@@ -164,6 +179,12 @@ public abstract class AbstractHost : IHost
     public void Terminate()
     {
         _cancellationTokenSource.Cancel();
+    }
+
+    public static void StopGracefully()
+    {
+        // todo: trigger semaphore
+        // todo: block caller thread until all processes are gone
     }
 
     public IExecutionResult RunCommand(string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
@@ -178,10 +199,10 @@ public abstract class AbstractHost : IHost
 
     public IExecutionResult RunCommand(string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
     {
-        Interlocked.Increment(ref ActiveCommandCounter);
+        Interlocked.Increment(ref _activeCommandCounter);
         var result = RunCommandInternal(commandParts);
         resultHandler?.Invoke(result)?.Wait();
-        Interlocked.Decrement(ref ActiveCommandCounter);
+        Interlocked.Decrement(ref _activeCommandCounter);
         return result;
     }
 
@@ -200,6 +221,9 @@ public abstract class AbstractHost : IHost
         {
             switch (commandParts[0].ToLowerInvariant())
             {
+                case "stop":
+                    StopGracefully();
+                    return new ExecutionResult(ExecutionStatusCode.Success);
                 case "exit":
                     Terminate();
                     return new ExecutionResult(ExecutionStatusCode.Success);

@@ -16,7 +16,7 @@ public class ConsoleCommandListener : ICommandListener
 
         thread.Start();
 
-        Console.WriteLine("listening on console");
+        host.Logger.Write(LogEventLevel.Information, "listening on console");
         while (!host.CancellationToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
             string command = null;
@@ -31,8 +31,9 @@ public class ConsoleCommandListener : ICommandListener
 
             if (command != null)
             {
+                host.Logger.Write(LogEventLevel.Information, "executing command entered on the console: {Command}", command);
                 var result = host.RunCommand(command);
-                Console.WriteLine("command: " + result.Status.ToString());
+                host.Logger.Write(LogEventLevel.Information, "command result {CommandResult}", result.Status.ToString());
             }
             else
             {
