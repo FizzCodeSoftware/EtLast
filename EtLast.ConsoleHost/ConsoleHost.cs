@@ -91,7 +91,7 @@ public class ConsoleHost : AbstractHost
         return HostArgumentsLoader.LoadHostArguments(this);
     }
 
-    protected override IExecutionResult RunCustomCommand(string[] commandParts)
+    protected override IExecutionResult RunCustomCommand(string commandId, string[] commandParts)
     {
         switch (commandParts[0].ToLowerInvariant())
         {
@@ -143,7 +143,7 @@ public class ConsoleHost : AbstractHost
                         return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
                     }
 
-                    return RunModule(moduleName, taskNames, userArguments);
+                    return RunModule(commandId, moduleName, taskNames, userArguments);
                 }
             case "test-modules":
                 var moduleNames = commandParts.Skip(2).ToList();
@@ -179,7 +179,7 @@ public class ConsoleHost : AbstractHost
         return result;
     }
 
-    private IExecutionResult RunModule(string moduleName, List<string> taskNames, Dictionary<string, string> userArguments)
+    private IExecutionResult RunModule(string commandId, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments)
     {
         Logger.Information("loading module {Module}", moduleName);
 
@@ -197,7 +197,7 @@ public class ConsoleHost : AbstractHost
             }
         }
 
-        var executionResult = ModuleExecuter.Execute(this, module, [.. taskNames], userArguments);
+        var executionResult = ModuleExecuter.Execute(this, commandId, module, [.. taskNames], userArguments);
 
         ModuleLoader.UnloadModule(this, module);
         return executionResult;

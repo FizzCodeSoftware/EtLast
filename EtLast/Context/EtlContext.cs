@@ -38,7 +38,7 @@ public sealed class EtlContext : IEtlContext
 
     public ContextManifest Manifest { get; }
 
-    public EtlContext(IArgumentCollection arguments, string customName = null)
+    public EtlContext(IArgumentCollection arguments, string customName = null, string commandId = null)
     {
         _cancellationTokenSource = new CancellationTokenSource();
         CancellationToken = _cancellationTokenSource.Token;
@@ -50,6 +50,7 @@ public sealed class EtlContext : IEtlContext
         Manifest = new ContextManifest()
         {
             ContextId = DateTime.UtcNow.Ticks,
+            CommandId = commandId,
             ContextName = customName ?? Guid.NewGuid().ToString("D"),
             Instance = arguments?.Instance ?? Environment.MachineName,
             UserName = Environment.UserName,

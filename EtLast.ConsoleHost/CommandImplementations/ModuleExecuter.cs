@@ -2,7 +2,7 @@
 
 internal static class ModuleExecuter
 {
-    public static IExecutionResult Execute(ConsoleHost host, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments)
+    public static IExecutionResult Execute(ConsoleHost host, string commandId, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments)
     {
         var executionResult = new ExecutionResult();
         var instance = Environment.MachineName;
@@ -15,7 +15,7 @@ internal static class ModuleExecuter
         var currentOpsLogDirectory = Path.Combine(host.OpsLogDirectory, moduleDirectoryName, tasksDirectoryName);
 
         var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
-        var context = new EtlContext(arguments, contextName);
+        var context = new EtlContext(arguments, contextName, commandId);
 
         var sessionBuilder = new SessionBuilder()
         {
