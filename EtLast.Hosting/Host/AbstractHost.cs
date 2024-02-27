@@ -138,9 +138,13 @@ public abstract class AbstractHost : IHost
             thread.Start();
         }
 
+        var state = threads[0].ThreadState;
+        if (state != System.Threading.ThreadState.Running)
+            Debugger.Break();
+
         while (true)
         {
-            if (threads.All(x => x.ThreadState != System.Threading.ThreadState.Running))
+            if (!threads.Any(x => x.ThreadState is System.Threading.ThreadState.Running or System.Threading.ThreadState.WaitSleepJoin))
             {
                 Logger.Write(LogEventLevel.Information, "all command listener threads stopped, terminating host...");
                 break;
