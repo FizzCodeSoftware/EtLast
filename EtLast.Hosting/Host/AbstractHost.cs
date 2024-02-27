@@ -79,7 +79,7 @@ public abstract class AbstractHost : IHost
         if (commandLineArgs.Length > 0)
         {
             Logger.Debug("command line arguments: {CommandLineArguments}", commandLineArgs);
-            var result = RunCommand(commandLineArgs).Status;
+            var result = RunCommand(Guid.NewGuid().ToString(), commandLineArgs).Status;
 
             if (Debugger.IsAttached)
             {
@@ -191,26 +191,26 @@ public abstract class AbstractHost : IHost
         // todo: block caller thread until all processes are gone
     }
 
-    public IExecutionResult RunCommand(string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
+    public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
     {
         var commandParts = QuoteSplitterRegex
             .Matches(command.Trim())
             .Select(x => x.Value)
             .ToArray();
 
-        return RunCommand(commandParts, resultHandler);
+        return RunCommand(commandId, commandParts, resultHandler);
     }
 
-    public IExecutionResult RunCommand(string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
+    public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
-        var result = RunCommandInternal(commandParts);
+        var result = RunCommandInternal(commandId, commandParts);
         resultHandler?.Invoke(result)?.Wait();
         Interlocked.Decrement(ref _activeCommandCounter);
         return result;
     }
 
-    private IExecutionResult RunCommandInternal(string[] commandParts)
+    private IExecutionResult RunCommandInternal(string commandId, string[] commandParts)
     {
         if (commandParts?.Length >= 1 && CommandAliases.TryGetValue(commandParts[0], out var alias))
         {
@@ -244,7 +244,7 @@ public abstract class AbstractHost : IHost
         catch (Exception ex)
         {
             var formattedMessage = ex.FormatExceptionWithDetails();
-            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution: {ErrorMessage}", formattedMessage);
+            Logger.Write(LogEventLevel.Fatal, "unexpected error during execution of command {CommandId}: {ErrorMessage}", commandId, formattedMessage);
 
             return new ExecutionResult(ExecutionStatusCode.UnexpectedError);
         }
