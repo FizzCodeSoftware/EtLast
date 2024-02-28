@@ -1,11 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using FizzCode.EtLast.Host;
-using Microsoft.AspNetCore.Builder;
-using Serilog.Events;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public abstract class HttpCommandListener : ICommandListener
 {
