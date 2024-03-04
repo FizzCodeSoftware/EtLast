@@ -1,7 +1,9 @@
 ﻿using System;
 using FizzCode.EtLast;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-return (int)new ConsoleHost("EtLast Integration Tests", "EtLastIntegrationTest")
+var host = new WindowsConsoleHost("EtLast Integration Tests", "EtLastIntegrationTest")
     .UseCommandListener(hostArgs =>
     {
         Console.WriteLine("list of automatically compiled host argument values:");
@@ -29,5 +31,14 @@ return (int)new ConsoleHost("EtLast Integration Tests", "EtLastIntegrationTest")
                 MaxCommunicationErrorCount = 2,
                 Url = "http://localhost:8642",
             }))
-        )
-    .Run();
+        );
+
+var appHost = new HostBuilder()
+    .ConfigureServices(svc => svc
+        //.AddWindowsService(x => x.ServiceName = host.ServiceName)
+        .AddHostedService(_ => host)
+    )
+   .UseWindowsService(x => x.ServiceName = host.ServiceName)
+   .Build();
+
+appHost.Start();

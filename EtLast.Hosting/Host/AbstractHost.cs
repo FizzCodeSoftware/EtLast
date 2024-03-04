@@ -1,9 +1,10 @@
-﻿using FizzCode.EtLast.Host;
+﻿using System.Threading.Tasks;
+using FizzCode.EtLast.Host;
 
 namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractHost : IHost
+public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundService, IHost
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -49,6 +50,8 @@ public abstract class AbstractHost : IHost
     protected abstract void ListModules();
 
     private int _activeCommandCounter;
+
+    protected CancellationTokenSource GracefulTerminationTokenSource { get; } = new CancellationTokenSource();
 
     public ExecutionStatusCode Run()
     {
@@ -113,7 +116,6 @@ public abstract class AbstractHost : IHost
 
         SetMaxTransactionTimeout(MaxTransactionTimeout);
 
-        var gracefulTerminationTokenSource = new CancellationTokenSource();
         var threads = new List<Thread>();
         var listeners = new List<ICommandListener>();
         foreach (var creator in CommandListenerCreators)
@@ -126,7 +128,7 @@ public abstract class AbstractHost : IHost
             {
                 try
                 {
-                    listener.Listen(this, gracefulTerminationTokenSource.Token);
+                    listener.Listen(this, GracefulTerminationTokenSource.Token);
                     listeners.Add(listener);
                 }
                 catch (Exception ex)
@@ -139,10 +141,6 @@ public abstract class AbstractHost : IHost
             thread.Start();
         }
 
-        var state = threads[0].ThreadState;
-        if (state != System.Threading.ThreadState.Running)
-            Debugger.Break();
-
         while (true)
         {
             if (!threads.Any(x => x.ThreadState is System.Threading.ThreadState.Running or System.Threading.ThreadState.WaitSleepJoin))
@@ -150,12 +148,6 @@ public abstract class AbstractHost : IHost
                 Logger.Write(LogEventLevel.Information, "all command listener threads stopped, terminating host...");
                 break;
             }
-
-            var semaphoreOn = false;
-            // todo: check semaphore
-
-            if (semaphoreOn)
-                gracefulTerminationTokenSource.Cancel();
 
             Thread.Sleep(100);
         }
@@ -178,6 +170,8 @@ public abstract class AbstractHost : IHost
             }
         }
 
+        Logger.Write(LogEventLevel.Information, "host terminated");
+
         return ExecutionStatusCode.Success;
     }
 
@@ -186,15 +180,10 @@ public abstract class AbstractHost : IHost
         _cancellationTokenSource.Cancel();
     }
 
-    public void StopGracefully()
+    public virtual void StopGracefully()
     {
-        // todo: trigger semaphore
-        // todo: block caller thread until all processes are gone
-        Logger.Write(LogEventLevel.Information, "stopping all host processes...");
-        while (true)
-        {
-
-        }
+        Logger.Write(LogEventLevel.Information, "gracefully stopping all host processes...");
+        GracefulTerminationTokenSource.Cancel();
     }
 
     public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
@@ -287,5 +276,16 @@ public abstract class AbstractHost : IHost
 
         field = typeof(TransactionManager).GetField("s_maximumTimeout", BindingFlags.NonPublic | BindingFlags.Static);
         field.SetValue(null, maxValue);
+    }
+
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        stoppingToken.Register(() =>
+        {
+            StopGracefully();
+        });
+
+        Run();
     }
 }
