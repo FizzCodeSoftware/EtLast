@@ -1,13 +1,7 @@
 ﻿using System;
 using FizzCode.EtLast;
 
-if (args?.Length == 1 && args[0].Equals("stop"))
-{
-    AbstractHost.StopGracefully();
-    return 0;
-}
-
-return (int)new ConsoleHost("EtLast Integration Tests")
+return (int)new ConsoleHost("EtLast Integration Tests", "EtLastIntegrationTest")
     .UseCommandListener(hostArgs =>
     {
         Console.WriteLine("list of automatically compiled host argument values:");

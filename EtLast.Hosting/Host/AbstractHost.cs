@@ -79,6 +79,7 @@ public abstract class AbstractHost : IHost
         if (commandLineArgs.Length > 0)
         {
             Logger.Debug("command line arguments: {CommandLineArguments}", commandLineArgs);
+
             var result = RunCommand(Guid.NewGuid().ToString(), commandLineArgs).Status;
 
             if (Debugger.IsAttached)
@@ -185,10 +186,15 @@ public abstract class AbstractHost : IHost
         _cancellationTokenSource.Cancel();
     }
 
-    public static void StopGracefully()
+    public void StopGracefully()
     {
         // todo: trigger semaphore
         // todo: block caller thread until all processes are gone
+        Logger.Write(LogEventLevel.Information, "stopping all host processes...");
+        while (true)
+        {
+
+        }
     }
 
     public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)

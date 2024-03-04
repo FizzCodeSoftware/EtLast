@@ -1,9 +1,9 @@
-﻿using static FizzCode.EtLast.ConsoleHostFluent;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public class ConsoleHost : AbstractHost
 {
+    public string ServiceName { get; }
+
     [EditorBrowsable(EditorBrowsableState.Never)]
     public string HostLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
 
@@ -45,11 +45,12 @@ public class ConsoleHost : AbstractHost
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public SessionBuilderAction SessionConfigurator { get; internal set; }
+    public ConsoleHostFluent.SessionBuilderAction SessionConfigurator { get; internal set; }
 
-    public ConsoleHost(string name)
+    public ConsoleHost(string name, string serviceName)
         : base(name)
     {
+        ServiceName = serviceName;
         ModulesDirectory = @".\Modules";
         HostArgumentsDirectory = @".\HostArguments";
         ReferenceAssemblyDirectories.Add(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App\");
@@ -95,6 +96,12 @@ public class ConsoleHost : AbstractHost
     {
         switch (commandParts[0].ToLowerInvariant())
         {
+            case "--installsvc":
+                InstallWindowsService(ServiceName, Name, "delayed-auto");
+                return new ExecutionResult(ExecutionStatusCode.Success);
+            case "--uninstallsvc":
+                UninstallWindowsService(ServiceName);
+                return new ExecutionResult(ExecutionStatusCode.Success);
             case "run":
                 {
                     var moduleName = commandParts.Skip(1).FirstOrDefault();
@@ -289,5 +296,29 @@ public class ConsoleHost : AbstractHost
                 }
             })
             .ToList();
+    }
+
+    private void InstallWindowsService(string name, string displayName, string startMode, string customPath = null)
+    {
+        if (!Environment.IsPrivilegedProcess)
+        {
+            Console.WriteLine("restart the application with administrator privileges to perform this operation");
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo("sc", string.Format("delete {0}", name)));
+        Process.Start(new ProcessStartInfo("sc", string.Format("create {0} start={1} displayname=\"{2}\" binpath=\"\"{3}\"\"", name, startMode, displayName, customPath ?? Environment.ProcessPath)));
+        Process.Start(new ProcessStartInfo("sc", string.Format("failure {0} reset=86400 actions=restart/1000/restart/1000/restart/1000", name)));
+    }
+
+    private void UninstallWindowsService(string name)
+    {
+        if (!Environment.IsPrivilegedProcess)
+        {
+            Console.WriteLine("restart the application with administrator privileges to perform this operation");
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo("sc", string.Format("delete {0}", name)));
     }
 }

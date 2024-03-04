@@ -11,6 +11,7 @@ global using System.Runtime.Loader;
 global using System.Text;
 global using System.Text.Json;
 global using System.Threading;
+global using System.Threading.Tasks;
 global using System.Transactions;
 global using Serilog;
 global using Serilog.Events;
