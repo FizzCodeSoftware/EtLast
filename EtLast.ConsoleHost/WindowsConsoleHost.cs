@@ -1,11 +1,13 @@
-﻿namespace FizzCode.EtLast;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace FizzCode.EtLast;
 
 public class WindowsConsoleHost : ConsoleHost
 {
     public string ServiceName { get; }
 
-    public WindowsConsoleHost(string name, string serviceName)
-        : base(name)
+    public WindowsConsoleHost(string name, string serviceName, IHostLifetime lifetime)
+        : base(name, lifetime)
     {
         ServiceName = serviceName;
     }
@@ -14,6 +16,9 @@ public class WindowsConsoleHost : ConsoleHost
     {
         switch (commandParts[0].ToLowerInvariant())
         {
+            case "--stopallandwait":
+                StopAllAndWait();
+                return new ExecutionResult(ExecutionStatusCode.Success);
             case "--installsvc":
                 InstallWindowsService(ServiceName, Name, "delayed-auto");
                 return new ExecutionResult(ExecutionStatusCode.Success);
@@ -23,6 +28,22 @@ public class WindowsConsoleHost : ConsoleHost
         }
 
         return base.RunCustomCommand(commandId, commandParts);
+    }
+
+    private void StopAllAndWait()
+    {
+        // turn on semaphor
+        // wait for semaphor
+        StopGracefully();
+    }
+
+    protected override void Loop()
+    {
+        var semaphorTriggered = false;
+        if (semaphorTriggered)
+        {
+            StopGracefully();
+        }
     }
 
     private void InstallWindowsService(string name, string displayName, string startMode, string customPath = null)

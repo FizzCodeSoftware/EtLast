@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace FizzCode.EtLast;
 
 public class ConsoleHost : AbstractHost
 {
@@ -45,8 +47,8 @@ public class ConsoleHost : AbstractHost
     [EditorBrowsable(EditorBrowsableState.Never)]
     public ConsoleHostFluent.SessionBuilderAction SessionConfigurator { get; internal set; }
 
-    public ConsoleHost(string name)
-        : base(name)
+    public ConsoleHost(string name, IHostLifetime lifetime)
+        : base(name, lifetime)
     {
         ModulesDirectory = @".\Modules";
         HostArgumentsDirectory = @".\HostArguments";
