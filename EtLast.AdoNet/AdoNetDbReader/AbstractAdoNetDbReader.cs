@@ -191,14 +191,33 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
+                    var dataTypeName = (string)null;
+                    if (properties.TryGetValue("DataTypeName", out var v) && v is string dataTypeNameTyped)
+                    {
+                        dataTypeName = dataTypeNameTyped;
+                    }
+
+                    var scale = (short?)null;
+                    if (properties.TryGetValue("NumericScale", out v) && v is short scaleType)
+                    {
+                        scale = scaleType;
+
+                        if (ConnectionString.GetAdoNetEngine() is AdoNetEngine.MsSql &&
+                            (string.Equals(dataTypeName, "money", StringComparison.InvariantCultureIgnoreCase)
+                            || string.Equals(dataTypeName, "smallmoney", StringComparison.InvariantCultureIgnoreCase)))
+                        {
+                            scale = 4;
+                        }
+                    }
+
                     columns[i].Schema = SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderColumnSchema()
                     {
                         ClrType = reader.GetFieldType(i),
                         ClrTypeName = reader.GetFieldType(i).Name,
-                        DataTypeName = properties.TryGetValue("DataTypeName", out var v) && v is string strv ? strv : null,
+                        DataTypeName = dataTypeName,
                         AllowNull = properties.TryGetValue("AllowDBNull", out v) && v is bool bv ? bv : null,
                         Precision = properties.TryGetValue("NumericPrecision", out v) && v is short sv ? sv : null,
-                        Scale = properties.TryGetValue("NumericScale", out v) && v is short sv2 ? sv2 : null,
+                        Scale = scale,
                         Size = properties.TryGetValue("ColumnSize", out v) && v is int iv ? iv : null,
                         IsUnique = properties.TryGetValue("IsUnique", out v) && v is bool bv2 ? bv2 : null,
                         IsKey = properties.TryGetValue("IsKey", out v) && v is bool bv3 ? bv3 : null,
