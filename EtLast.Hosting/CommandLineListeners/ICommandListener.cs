@@ -4,5 +4,5 @@ namespace FizzCode.EtLast;
 
 public interface ICommandListener
 {
-    public void Listen(IHost host, CancellationToken cancellationToken);
+    public void Listen(IEtlHost host, CancellationToken cancellationToken);
 }

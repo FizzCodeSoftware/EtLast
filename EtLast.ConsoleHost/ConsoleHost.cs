@@ -1,17 +1,17 @@
-﻿using static FizzCode.EtLast.ConsoleHostFluent;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace FizzCode.EtLast;
 
 public class ConsoleHost : AbstractHost
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string HostLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-host");
+    public string HostLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log-service", "host");
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string DevLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-dev");
+    public string DevLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log-service", "dev");
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string OpsLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "log-ops");
+    public string OpsLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log-service", "ops");
 
     public List<string> ReferenceAssemblyDirectories { get; } = [];
     public ModuleCompilationMode ModuleCompilationMode { get; internal set; } = ModuleCompilationMode.Dynamic;
@@ -45,7 +45,7 @@ public class ConsoleHost : AbstractHost
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public SessionBuilderAction SessionConfigurator { get; internal set; }
+    public ConsoleHostFluent.SessionBuilderAction SessionConfigurator { get; internal set; }
 
     public ConsoleHost(string name)
         : base(name)
@@ -56,6 +56,11 @@ public class ConsoleHost : AbstractHost
         ReferenceAssemblyDirectories.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
 
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+    }
+
+    protected override void CustomizeHostBuilder(IHostBuilder builder)
+    {
+        builder.UseConsoleLifetime();
     }
 
     protected override ILogger CreateHostLogger()

@@ -75,6 +75,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.AdoNet.Db2", "EtLast
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.AdoNet.Db2-lnx", "EtLast.AdoNet.Db2-lnx\EtLast.AdoNet.Db2-lnx.csproj", "{03A81557-1592-48C3-B8FC-CFB520373313}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.ConsoleHost.Windows", "EtLast.ConsoleHost.Windows\EtLast.ConsoleHost.Windows.csproj", "{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -385,6 +387,18 @@ Global
 		{03A81557-1592-48C3-B8FC-CFB520373313}.Release|Any CPU.Build.0 = Release|x64
 		{03A81557-1592-48C3-B8FC-CFB520373313}.Release|x64.ActiveCfg = Release|x64
 		{03A81557-1592-48C3-B8FC-CFB520373313}.Release|x64.Build.0 = Release|x64
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Debug|x64.Build.0 = Debug|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Integration|Any CPU.ActiveCfg = Debug|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Integration|Any CPU.Build.0 = Debug|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Integration|x64.ActiveCfg = Debug|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Integration|x64.Build.0 = Debug|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Release|x64.ActiveCfg = Release|Any CPU
+		{865AE1A8-C7A7-4573-8135-A3C2AEAF0B37}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

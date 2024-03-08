@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <PackageId>FizzCode.EtLast.Diagnostics.Interface</PackageId>
     <Description>Diagnostics interface for EtLast ETL (Extract, Transform and Load) library</Description>
     <AssemblyName>FizzCode.EtLast.Diagnostics.Interface</AssemblyName>
@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.10.0">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.11.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

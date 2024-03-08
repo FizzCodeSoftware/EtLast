@@ -1,9 +1,11 @@
 ﻿using FizzCode.EtLast.Host;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractHost : IHost
+public abstract class AbstractHost : BackgroundService, IEtlHost
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -36,6 +38,8 @@ public abstract class AbstractHost : IHost
 
     protected static readonly Regex QuoteSplitterRegex = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
+    public IHostApplicationLifetime Lifetime { get; private set; }
+
     protected AbstractHost(string name)
     {
         Name = name;
@@ -50,7 +54,12 @@ public abstract class AbstractHost : IHost
 
     private int _activeCommandCounter;
 
-    public ExecutionStatusCode Run()
+    protected CancellationTokenSource GracefulTerminationTokenSource { get; } = new CancellationTokenSource();
+
+    private readonly List<Thread> threads = [];
+    private readonly List<ICommandListener> listeners = [];
+
+    private void Start()
     {
         Logger = CreateHostLogger();
 
@@ -79,6 +88,7 @@ public abstract class AbstractHost : IHost
         if (commandLineArgs.Length > 0)
         {
             Logger.Debug("command line arguments: {CommandLineArguments}", commandLineArgs);
+
             var result = RunCommand(Guid.NewGuid().ToString(), commandLineArgs).Status;
 
             if (Debugger.IsAttached)
@@ -88,7 +98,7 @@ public abstract class AbstractHost : IHost
                 Console.ReadKey();
             }
 
-            return result;
+            return;
         }
 
         ListCommands();
@@ -101,20 +111,17 @@ public abstract class AbstractHost : IHost
             if (hostArguments == null)
             {
                 Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling host arguments");
-                return ExecutionStatusCode.HostArgumentError;
+                return;
             }
         }
         catch (Exception ex)
         {
             Logger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
-            return ExecutionStatusCode.HostArgumentError;
+            return;
         }
 
         SetMaxTransactionTimeout(MaxTransactionTimeout);
 
-        var gracefulTerminationTokenSource = new CancellationTokenSource();
-        var threads = new List<Thread>();
-        var listeners = new List<ICommandListener>();
         foreach (var creator in CommandListenerCreators)
         {
             var listener = creator.Invoke(hostArguments);
@@ -125,7 +132,7 @@ public abstract class AbstractHost : IHost
             {
                 try
                 {
-                    listener.Listen(this, gracefulTerminationTokenSource.Token);
+                    listener.Listen(this, GracefulTerminationTokenSource.Token);
                     listeners.Add(listener);
                 }
                 catch (Exception ex)
@@ -137,11 +144,10 @@ public abstract class AbstractHost : IHost
             threads.Add(thread);
             thread.Start();
         }
+    }
 
-        var state = threads[0].ThreadState;
-        if (state != System.Threading.ThreadState.Running)
-            Debugger.Break();
-
+    private async Task<ExecutionStatusCode> Execute()
+    {
         while (true)
         {
             if (!threads.Any(x => x.ThreadState is System.Threading.ThreadState.Running or System.Threading.ThreadState.WaitSleepJoin))
@@ -150,22 +156,9 @@ public abstract class AbstractHost : IHost
                 break;
             }
 
-            var semaphoreOn = false;
-            // todo: check semaphore
-
-            if (semaphoreOn)
-                gracefulTerminationTokenSource.Cancel();
+            InsideMainLoop();
 
             Thread.Sleep(100);
-        }
-
-        var runningThreadCount = threads.Count(x => x.ThreadState == System.Threading.ThreadState.Running);
-        if (runningThreadCount > 0)
-        {
-            Logger.Write(LogEventLevel.Information, "waiting for {ThreadCount} command listener threads to stop, before host is terminated...", runningThreadCount);
-
-            foreach (var thread in threads)
-                thread.Join();
         }
 
         if (_activeCommandCounter > 0)
@@ -180,18 +173,28 @@ public abstract class AbstractHost : IHost
         return ExecutionStatusCode.Success;
     }
 
+    protected virtual void InsideMainLoop()
+    {
+
+    }
+
     public void Terminate()
     {
         _cancellationTokenSource.Cancel();
     }
 
-    public static void StopGracefully()
+    public void StopGracefully()
     {
-        // todo: trigger semaphore
-        // todo: block caller thread until all processes are gone
+        if (!GracefulTerminationTokenSource.IsCancellationRequested)
+        {
+            Logger.Write(LogEventLevel.Information, "gracefully stopping...");
+            GracefulTerminationTokenSource.Cancel();
+
+            Lifetime?.StopApplication();
+        }
     }
 
-    public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
+    public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, Task> resultHandler = null)
     {
         var commandParts = QuoteSplitterRegex
             .Matches(command.Trim())
@@ -201,7 +204,7 @@ public abstract class AbstractHost : IHost
         return RunCommand(commandId, commandParts, resultHandler);
     }
 
-    public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
+    public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
         var result = RunCommandInternal(commandId, commandParts);
@@ -282,4 +285,46 @@ public abstract class AbstractHost : IHost
         field = typeof(TransactionManager).GetField("s_maximumTimeout", BindingFlags.NonPublic | BindingFlags.Static);
         field.SetValue(null, maxValue);
     }
+
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+        Start();
+        CustomStart();
+        return base.StartAsync(cancellationToken);
+    }
+
+    protected virtual void CustomStart()
+    {
+    }
+
+    public async Task RunAsync()
+    {
+        var builder = new HostBuilder()
+            .ConfigureServices((ctx, svc) => svc
+                .AddHostedService(sp => this)
+            );
+
+        CustomizeHostBuilder(builder);
+
+        var appHost = builder.Build();
+        Lifetime = appHost.Services.GetRequiredService<IHostApplicationLifetime>();
+        await appHost.RunAsync();
+    }
+
+    protected virtual void CustomizeHostBuilder(IHostBuilder builder)
+    {
+        builder.UseConsoleLifetime();
+    }
+
+#pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async () =>
+    {
+        stoppingToken.Register(() => StopGracefully());
+        await Execute();
+        Console.WriteLine("execute is over");
+        Lifetime?.StopApplication();
+    });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning restore CA2016 // Forward the 'CancellationToken' parameter to methods
 }

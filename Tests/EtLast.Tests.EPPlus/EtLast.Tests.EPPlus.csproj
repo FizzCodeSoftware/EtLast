@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <AssemblyName>FizzCode.EtLast.Tests.EPPlus</AssemblyName>
     <RootNamespace>FizzCode.EtLast.Tests.EPPlus</RootNamespace>
@@ -9,9 +9,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.2.0" />
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.10.0">
+    <PackageReference Include="MSTest.TestAdapter" Version="3.2.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.2.2" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.11.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

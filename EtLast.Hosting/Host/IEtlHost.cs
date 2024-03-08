@@ -1,15 +1,16 @@
 ﻿namespace FizzCode.EtLast.Host;
 
-public interface IHost
+public interface IEtlHost
 {
     public string Name { get; }
     public ILogger Logger { get; }
+
+    public Task RunAsync();
 
     public void Terminate();
     public CancellationToken CancellationToken { get; }
     public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null);
     public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null);
-    public ExecutionStatusCode Run();
 
     public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; }
     public Dictionary<string, string> CommandAliases { get; }

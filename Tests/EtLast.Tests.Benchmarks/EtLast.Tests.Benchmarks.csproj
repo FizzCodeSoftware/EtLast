@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <AssemblyName>EtLast.Tests.Benchmarks</AssemblyName>
@@ -20,7 +20,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.10.0">
+    <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.11.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

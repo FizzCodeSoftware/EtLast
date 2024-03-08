@@ -1,13 +1,9 @@
 ﻿using System;
 using FizzCode.EtLast;
 
-if (args?.Length == 1 && args[0].Equals("stop"))
-{
-    AbstractHost.StopGracefully();
-    return 0;
-}
+var serviceName = "EtLastIntegrationTest";
 
-return (int)new ConsoleHost("EtLast Integration Tests")
+await new WindowsConsoleHost("EtLast Integration Tests", serviceName)
     .UseCommandListener(hostArgs =>
     {
         Console.WriteLine("list of automatically compiled host argument values:");
@@ -23,9 +19,6 @@ return (int)new ConsoleHost("EtLast Integration Tests")
     .SetAlias("test", "test-modules AdoNetTests FlowTests")
     .SetAlias("ado", "run AdoNetTests Main")
     .SetAlias("flow", "run FlowTests Main")
-    //.DisableSerilogForModules()
-    //.DisableSerilogForCommands()
-
     .ConfigureSession((builder, sessionArguments) => builder.UseRollingDevLogManifestFiles(null))
 
     .IfInstanceIs("WSDEVONE", host => host
@@ -36,4 +29,4 @@ return (int)new ConsoleHost("EtLast Integration Tests")
                 Url = "http://localhost:8642",
             }))
         )
-    .Run();
+    .RunAsync();
