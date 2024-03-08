@@ -3,7 +3,7 @@ using FizzCode.EtLast;
 
 var serviceName = "EtLastIntegrationTest";
 
-new WindowsConsoleHost("EtLast Integration Tests", serviceName)
+await new WindowsConsoleHost("EtLast Integration Tests", serviceName)
     .UseCommandListener(hostArgs =>
     {
         Console.WriteLine("list of automatically compiled host argument values:");
