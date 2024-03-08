@@ -1,5 +1,6 @@
 ﻿using System.Security.AccessControl;
 using System.Security.Principal;
+using Microsoft.Extensions.Hosting;
 
 namespace FizzCode.EtLast;
 
@@ -23,6 +24,20 @@ public class WindowsConsoleHost : ConsoleHost
         StopAcrossProcessesSemaphore = SemaphoreAcl.Create(100, 100, semaphoreName, out var createdNew, semaphoreSecurity);
 
         Logger.Write(LogEventLevel.Debug, "interprocess semaphore is {CreatedOrTaken}: {Name}", createdNew ? "CREATED" : "TAKEN", semaphoreName);
+    }
+
+    protected override void CustomizeHostBuilder(IHostBuilder builder)
+    {
+        if (Microsoft.Extensions.Hosting.WindowsServices.WindowsServiceHelpers.IsWindowsService())
+        {
+            builder.UseWindowsService(x => x.ServiceName = ServiceName);
+        }
+        else
+        {
+            builder.UseConsoleLifetime();
+        }
+
+        // base.CustomizeHostBuilder is not called for a reason
     }
 
     protected override IExecutionResult RunCustomCommand(string commandId, string[] commandParts)

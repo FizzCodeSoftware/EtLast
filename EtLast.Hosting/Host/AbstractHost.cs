@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
-using FizzCode.EtLast.Host;
+﻿using FizzCode.EtLast.Host;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundService, IHost
+public abstract class AbstractHost : BackgroundService, IEtlHost
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -37,7 +38,7 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
 
     protected static readonly Regex QuoteSplitterRegex = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
-    public Microsoft.Extensions.Hosting.IHost ParentHost { get; set; }
+    public IHostApplicationLifetime Lifetime { get; private set; }
 
     protected AbstractHost(string name)
     {
@@ -189,12 +190,11 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
             Logger.Write(LogEventLevel.Information, "gracefully stopping...");
             GracefulTerminationTokenSource.Cancel();
 
-            // todo: try to remove...
-            ParentHost.StopAsync().Wait();
+            Lifetime?.StopApplication();
         }
     }
 
-    public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
+    public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, Task> resultHandler = null)
     {
         var commandParts = QuoteSplitterRegex
             .Matches(command.Trim())
@@ -204,7 +204,7 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
         return RunCommand(commandId, commandParts, resultHandler);
     }
 
-    public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
+    public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
         var result = RunCommandInternal(commandId, commandParts);
@@ -297,6 +297,25 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
     {
     }
 
+    public async Task Run()
+    {
+        var builder = new HostBuilder()
+            .ConfigureServices((ctx, svc) => svc
+                .AddHostedService(sp => this)
+            );
+
+        CustomizeHostBuilder(builder);
+
+        var appHost = builder.Build();
+        Lifetime = appHost.Services.GetRequiredService<IHostApplicationLifetime>();
+        await appHost.RunAsync();
+    }
+
+    protected virtual void CustomizeHostBuilder(IHostBuilder builder)
+    {
+        builder.UseConsoleLifetime();
+    }
+
 #pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async () =>
@@ -304,7 +323,7 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
         stoppingToken.Register(() => StopGracefully());
         await Execute();
         Console.WriteLine("execute is over");
-        await ParentHost.StopAsync();
+        Lifetime?.StopApplication();
     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 #pragma warning restore CA2016 // Forward the 'CancellationToken' parameter to methods

@@ -2,7 +2,7 @@
 
 public abstract class HttpCommandListener : ICommandListener
 {
-    public void Listen(IHost host, CancellationToken cancellationToken)
+    public void Listen(IEtlHost host, CancellationToken cancellationToken)
     {
         var mutexName = GetType().AssemblyQualifiedName + "|" + Environment.ProcessPath.Replace(Path.DirectorySeparatorChar, '_');
         var mutex = new Mutex(false, mutexName, out var _);
@@ -70,5 +70,5 @@ public abstract class HttpCommandListener : ICommandListener
         }
     }
 
-    protected abstract WebApplication CreateApplication(IHost host);
+    protected abstract WebApplication CreateApplication(IEtlHost host);
 }

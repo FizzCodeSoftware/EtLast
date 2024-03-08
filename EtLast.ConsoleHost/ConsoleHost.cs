@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace FizzCode.EtLast;
 
 public class ConsoleHost : AbstractHost
 {
@@ -54,6 +56,11 @@ public class ConsoleHost : AbstractHost
         ReferenceAssemblyDirectories.Add(@"C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\");
 
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+    }
+
+    protected override void CustomizeHostBuilder(IHostBuilder builder)
+    {
+        builder.UseConsoleLifetime();
     }
 
     protected override ILogger CreateHostLogger()

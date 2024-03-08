@@ -59,7 +59,7 @@ public static class AbstractHostFluent
     }
 
     /// <summary>
-    /// .NET allows maximum 10 minute long transactions, but each <see cref="IHost"/> automatically apply a hack with 4 hours, which can be overwritten by using this method.
+    /// .NET allows maximum 10 minute long transactions, but each <see cref="IEtlHost"/> automatically apply a hack with 4 hours, which can be overwritten by using this method.
     /// </summary>
     /// <param name="host"></param>
     /// <param name="maxTimeout"></param>

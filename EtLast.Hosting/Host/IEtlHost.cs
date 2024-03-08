@@ -1,9 +1,11 @@
 ﻿namespace FizzCode.EtLast.Host;
 
-public interface IHost
+public interface IEtlHost
 {
     public string Name { get; }
     public ILogger Logger { get; }
+
+    public Task Run();
 
     public void Terminate();
     public CancellationToken CancellationToken { get; }
