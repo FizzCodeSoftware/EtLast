@@ -61,12 +61,12 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
     protected override void StartMutator()
     {
-        _delimiterBytes = Encoding.GetBytes([Delimiter]);
+        _delimiterBytes = Encoding.GetBytes(Delimiter.ToString());
         _lineEndingBytes = Encoding.GetBytes(LineEnding);
         _escapedQuote = new string(new[] { Escape, Quote });
         _quoteRequiredChars = [Delimiter, Quote, Escape, '\r', '\n'];
         _quoteAsString = Quote.ToString();
-        _quoteBytes = Encoding.GetBytes([Quote]);
+        _quoteBytes = Encoding.GetBytes(Quote.ToString());
     }
 
     private SinkEntry GetSinkEntry()
