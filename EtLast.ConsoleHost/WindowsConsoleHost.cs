@@ -6,10 +6,17 @@ public class WindowsConsoleHost : ConsoleHost
 {
     public string ServiceName { get; }
 
+    private Semaphore StopAcrossProcessesSemaphore { get; }
+
     public WindowsConsoleHost(string name, string serviceName, IHostLifetime lifetime)
         : base(name, lifetime)
     {
         ServiceName = serviceName;
+
+        var semaphoreName = Environment.ProcessPath.Replace('\\', '_');
+        StopAcrossProcessesSemaphore = new Semaphore(100, 100, semaphoreName, out var createdNew);
+
+        //Logger.Write(LogEventLevel.Debug, "interprocess stop semaphore " + (createdNew ? "CREATED" : "TAKEN"));
     }
 
     protected override IExecutionResult RunCustomCommand(string commandId, string[] commandParts)
@@ -32,15 +39,66 @@ public class WindowsConsoleHost : ConsoleHost
 
     private void StopAllAndWait()
     {
-        // turn on semaphor
-        // wait for semaphor
-        StopGracefully();
+        Logger.Write(LogEventLevel.Debug, "triggering interprocess stop semaphore");
+        for (var i = 0; i < 100; i++)
+        {
+            try
+            {
+                StopAcrossProcessesSemaphore.WaitOne(10);
+            }
+            catch { }
+        }
+
+        Logger.Write(LogEventLevel.Debug, "finished triggering interprocess stop semaphore");
+
+        var selfProcess = Process.GetCurrentProcess();
+
+        var loggedCount = 0;
+        while (true)
+        {
+            var siblingProcessList = Process.GetProcesses().Where(x => ProcessIsSibling(x, selfProcess)).ToList();
+            var siblingCount = siblingProcessList.Count - 1;
+            if (siblingCount == 0)
+                break;
+
+            if (loggedCount != siblingCount)
+            {
+                Logger.Write(LogEventLevel.Information, "waiting for " + siblingCount.ToString() + " sibling processes to terminate gracefully...");
+                loggedCount = siblingCount;
+            }
+
+            Thread.Sleep(100);
+        }
     }
 
-    protected override void Loop()
+    private static bool ProcessIsSibling(Process process, Process selfProcess)
     {
-        var semaphorTriggered = false;
-        if (semaphorTriggered)
+        try
+        {
+            return process.ProcessName.Equals(selfProcess.ProcessName, StringComparison.InvariantCultureIgnoreCase) && process.MainModule.FileName.Equals(selfProcess.MainModule.FileName, StringComparison.InvariantCultureIgnoreCase);
+        }
+        catch { return false; }
+    }
+
+    protected override void InsideMainLoop()
+    {
+        var success = false;
+        try
+        {
+            success = StopAcrossProcessesSemaphore.WaitOne(1000);
+            if (!success)
+                Logger.Write(LogEventLevel.Debug, "interprocess stop semaphore triggered");
+        }
+        catch (Exception)
+        {
+        }
+        finally
+        {
+            if (success)
+                StopAcrossProcessesSemaphore.Release();
+        }
+
+        if (!success)
         {
             StopGracefully();
         }
@@ -50,7 +108,7 @@ public class WindowsConsoleHost : ConsoleHost
     {
         if (!Environment.IsPrivilegedProcess)
         {
-            Console.WriteLine("restart the application with administrator privileges to perform this operation");
+            Logger.Write(LogEventLevel.Warning, "restart the application with administrator privileges to perform this operation");
             return;
         }
 
@@ -63,7 +121,7 @@ public class WindowsConsoleHost : ConsoleHost
     {
         if (!Environment.IsPrivilegedProcess)
         {
-            Console.WriteLine("restart the application with administrator privileges to perform this operation");
+            Logger.Write(LogEventLevel.Warning, "restart the application with administrator privileges to perform this operation");
             return;
         }
 

@@ -152,7 +152,7 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
                 break;
             }
 
-            Loop();
+            InsideMainLoop();
 
             Thread.Sleep(100);
         }
@@ -176,11 +176,12 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
         }
 
         Logger.Write(LogEventLevel.Information, "host terminated");
+        _lifetime.StopAsync(CancellationToken.None).Wait();
 
         return ExecutionStatusCode.Success;
     }
 
-    protected virtual void Loop()
+    protected virtual void InsideMainLoop()
     {
 
     }
@@ -194,7 +195,6 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
     {
         Logger.Write(LogEventLevel.Information, "gracefully stopping...");
         GracefulTerminationTokenSource.Cancel();
-
         _lifetime.StopAsync(CancellationToken.None).Wait();
     }
 
@@ -293,7 +293,6 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         stoppingToken.Register(() => StopGracefully());
-
         Run();
     }
 }
