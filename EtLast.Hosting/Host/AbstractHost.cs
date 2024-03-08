@@ -55,10 +55,10 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
 
     protected CancellationTokenSource GracefulTerminationTokenSource { get; } = new CancellationTokenSource();
 
-    private readonly List<Thread> threads = new List<Thread>();
-    private readonly List<ICommandListener> listeners = new List<ICommandListener>();
+    private readonly List<Thread> threads = [];
+    private readonly List<ICommandListener> listeners = [];
 
-    public ExecutionStatusCode Start()
+    private void Start()
     {
         Logger = CreateHostLogger();
 
@@ -97,7 +97,7 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
                 Console.ReadKey();
             }
 
-            return result;
+            return;
         }
 
         ListCommands();
@@ -110,13 +110,13 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
             if (hostArguments == null)
             {
                 Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling host arguments");
-                return ExecutionStatusCode.HostArgumentError;
+                return;
             }
         }
         catch (Exception ex)
         {
             Logger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
-            return ExecutionStatusCode.HostArgumentError;
+            return;
         }
 
         SetMaxTransactionTimeout(MaxTransactionTimeout);
@@ -143,8 +143,6 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
             threads.Add(thread);
             thread.Start();
         }
-
-        return ExecutionStatusCode.Success;
     }
 
     private async Task<ExecutionStatusCode> Execute()
