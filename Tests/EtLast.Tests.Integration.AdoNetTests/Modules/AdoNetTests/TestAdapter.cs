@@ -19,9 +19,9 @@ public class TestAdapter
         using (var process = new Process())
         {
 #if DEBUG
-            process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "..", "..", "EtLast.Tests.Integration", "debug_net8.0", "FizzCode.EtLast.Tests.Integration.exe");
+            process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "..", "..", "EtLast.Tests.Integration", "debug", "FizzCode.EtLast.Tests.Integration.exe");
 #else
-            process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "..", "..", "EtLast.Tests.Integration", "release_net8.0", "FizzCode.EtLast.Tests.Integration.exe");
+            process.StartInfo.FileName = Path.Combine(AppContext.BaseDirectory, "..", "..", "EtLast.Tests.Integration", "release", "FizzCode.EtLast.Tests.Integration.exe");
 #endif
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = true;
