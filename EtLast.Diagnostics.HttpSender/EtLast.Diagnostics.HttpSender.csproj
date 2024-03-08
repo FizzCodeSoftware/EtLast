@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <PackageId>FizzCode.EtLast.Diagnostics.HttpSender</PackageId>
     <Description>Listens to ETL diagnostics data and send to http</Description>
     <AssemblyName>FizzCode.EtLast.Diagnostics.HttpSender</AssemblyName>

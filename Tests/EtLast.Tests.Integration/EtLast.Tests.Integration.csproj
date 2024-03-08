@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <AssemblyName>FizzCode.EtLast.Tests.Integration</AssemblyName>
@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
-    <ProjectReference Include="..\..\EtLast.ConsoleHost\EtLast.ConsoleHost.csproj" />
+    <ProjectReference Include="..\..\EtLast.ConsoleHost.Windows\EtLast.ConsoleHost.Windows.csproj" />
     <ProjectReference Include="..\..\EtLast.Diagnostics.HttpSender\EtLast.Diagnostics.HttpSender.csproj" />
     <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />

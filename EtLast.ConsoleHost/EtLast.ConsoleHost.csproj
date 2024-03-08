@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <PackageId>FizzCode.EtLast.ConsoleHost</PackageId>
     <Description>Console host for EtLast ETL (Extract, Transform and Load) library</Description>
     <AssemblyName>FizzCode.EtLast.ConsoleHost</AssemblyName>
@@ -43,12 +43,6 @@
     <ProjectReference Include="..\EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj" />
     <ProjectReference Include="..\EtLast.Hosting\EtLast.Hosting.csproj" />
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="WindowsConsoleHost.cs">
-      <SubType>Component</SubType>
-    </Compile>
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System.Security.AccessControl;
+using System.Security.Principal;
 
 namespace FizzCode.EtLast;
 
@@ -6,17 +7,22 @@ public class WindowsConsoleHost : ConsoleHost
 {
     public string ServiceName { get; }
 
-    private Semaphore StopAcrossProcessesSemaphore { get; }
+    private Semaphore StopAcrossProcessesSemaphore;
 
-    public WindowsConsoleHost(string name, string serviceName, IHostLifetime lifetime)
-        : base(name, lifetime)
+    public WindowsConsoleHost(string name, string serviceName)
+        : base(name)
     {
         ServiceName = serviceName;
+    }
 
-        var semaphoreName = Environment.ProcessPath.Replace('\\', '_');
-        StopAcrossProcessesSemaphore = new Semaphore(100, 100, semaphoreName, out var createdNew);
+    protected override void CustomStart()
+    {
+        var semaphoreName = @"Global\" + Environment.ProcessPath.Replace('\\', '_').ToLowerInvariant();
+        var semaphoreSecurity = new SemaphoreSecurity();
+        semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), SemaphoreRights.FullControl, AccessControlType.Allow));
+        StopAcrossProcessesSemaphore = SemaphoreAcl.Create(100, 100, semaphoreName, out var createdNew, semaphoreSecurity);
 
-        //Logger.Write(LogEventLevel.Debug, "interprocess stop semaphore " + (createdNew ? "CREATED" : "TAKEN"));
+        Logger.Write(LogEventLevel.Debug, "interprocess semaphore is {CreatedOrTaken}: {Name}", createdNew ? "CREATED" : "TAKEN", semaphoreName);
     }
 
     protected override IExecutionResult RunCustomCommand(string commandId, string[] commandParts)

@@ -37,11 +37,10 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
 
     protected static readonly Regex QuoteSplitterRegex = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
-    private readonly Microsoft.Extensions.Hosting.IHostLifetime _lifetime;
+    public Microsoft.Extensions.Hosting.IHost ParentHost { get; set; }
 
-    protected AbstractHost(string name, Microsoft.Extensions.Hosting.IHostLifetime lifetime)
+    protected AbstractHost(string name)
     {
-        _lifetime = lifetime;
         Name = name;
     }
 
@@ -56,7 +55,10 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
 
     protected CancellationTokenSource GracefulTerminationTokenSource { get; } = new CancellationTokenSource();
 
-    public ExecutionStatusCode Run()
+    private readonly List<Thread> threads = new List<Thread>();
+    private readonly List<ICommandListener> listeners = new List<ICommandListener>();
+
+    public ExecutionStatusCode Start()
     {
         Logger = CreateHostLogger();
 
@@ -119,8 +121,6 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
 
         SetMaxTransactionTimeout(MaxTransactionTimeout);
 
-        var threads = new List<Thread>();
-        var listeners = new List<ICommandListener>();
         foreach (var creator in CommandListenerCreators)
         {
             var listener = creator.Invoke(hostArguments);
@@ -144,6 +144,11 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
             thread.Start();
         }
 
+        return ExecutionStatusCode.Success;
+    }
+
+    private async Task<ExecutionStatusCode> Execute()
+    {
         while (true)
         {
             if (!threads.Any(x => x.ThreadState is System.Threading.ThreadState.Running or System.Threading.ThreadState.WaitSleepJoin))
@@ -157,15 +162,6 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
             Thread.Sleep(100);
         }
 
-        /*var runningThreadCount = threads.Count(x => x.ThreadState == System.Threading.ThreadState.Running);
-        if (runningThreadCount > 0)
-        {
-            Logger.Write(LogEventLevel.Information, "waiting for {ThreadCount} command listener threads to stop, before host is terminated...", runningThreadCount);
-
-            foreach (var thread in threads)
-                thread.Join();
-        }*/
-
         if (_activeCommandCounter > 0)
         {
             Logger.Write(LogEventLevel.Information, "waiting for {CommandCount} commands to finish, before host is terminated...", _activeCommandCounter);
@@ -174,9 +170,6 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
                 Thread.Sleep(100);
             }
         }
-
-        Logger.Write(LogEventLevel.Information, "host terminated");
-        _lifetime.StopAsync(CancellationToken.None).Wait();
 
         return ExecutionStatusCode.Success;
     }
@@ -193,9 +186,14 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
 
     public void StopGracefully()
     {
-        Logger.Write(LogEventLevel.Information, "gracefully stopping...");
-        GracefulTerminationTokenSource.Cancel();
-        _lifetime.StopAsync(CancellationToken.None).Wait();
+        if (!GracefulTerminationTokenSource.IsCancellationRequested)
+        {
+            Logger.Write(LogEventLevel.Information, "gracefully stopping...");
+            GracefulTerminationTokenSource.Cancel();
+
+            // todo: try to remove...
+            ParentHost.StopAsync().Wait();
+        }
     }
 
     public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null)
@@ -290,9 +288,26 @@ public abstract class AbstractHost : Microsoft.Extensions.Hosting.BackgroundServ
         field.SetValue(null, maxValue);
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+        Start();
+        CustomStart();
+        return base.StartAsync(cancellationToken);
+    }
+
+    protected virtual void CustomStart()
+    {
+    }
+
+#pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async () =>
     {
         stoppingToken.Register(() => StopGracefully());
-        Run();
-    }
+        await Execute();
+        Console.WriteLine("execute is over");
+        await ParentHost.StopAsync();
+    });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning restore CA2016 // Forward the 'CancellationToken' parameter to methods
 }

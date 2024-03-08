@@ -5,9 +5,11 @@ using Microsoft.Extensions.Hosting;
 
 var serviceName = "EtLastIntegrationTest";
 
+var etlHost = CreateEtLastHost(serviceName);
+
 var builder = new HostBuilder()
     .ConfigureServices(svc => svc
-        .AddHostedService(sp => CreateEtLastHost(serviceName, sp.GetRequiredService<IHostLifetime>()))
+        .AddHostedService(sp => etlHost)
     );
 
 if (Microsoft.Extensions.Hosting.WindowsServices.WindowsServiceHelpers.IsWindowsService())
@@ -20,11 +22,12 @@ else
 }
 
 var appHost = builder.Build();
+etlHost.ParentHost = appHost;
 appHost.Run();
 
-static WindowsConsoleHost CreateEtLastHost(string serviceName, IHostLifetime lifetime)
+static WindowsConsoleHost CreateEtLastHost(string serviceName)
 {
-    return new WindowsConsoleHost("EtLast Integration Tests", serviceName, lifetime)
+    return new WindowsConsoleHost("EtLast Integration Tests", serviceName)
         .UseCommandListener(hostArgs =>
         {
             Console.WriteLine("list of automatically compiled host argument values:");

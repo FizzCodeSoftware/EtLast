@@ -9,7 +9,7 @@ public interface IHost
     public CancellationToken CancellationToken { get; }
     public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null);
     public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null);
-    public ExecutionStatusCode Run();
+    public ExecutionStatusCode Start();
 
     public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; }
     public Dictionary<string, string> CommandAliases { get; }
