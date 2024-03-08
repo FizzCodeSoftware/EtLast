@@ -29,4 +29,4 @@ await new WindowsConsoleHost("EtLast Integration Tests", serviceName)
                 Url = "http://localhost:8642",
             }))
         )
-    .Run();
+    .RunAsync();

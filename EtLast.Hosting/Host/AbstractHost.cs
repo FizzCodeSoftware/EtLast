@@ -297,7 +297,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
     {
     }
 
-    public async Task Run()
+    public async Task RunAsync()
     {
         var builder = new HostBuilder()
             .ConfigureServices((ctx, svc) => svc

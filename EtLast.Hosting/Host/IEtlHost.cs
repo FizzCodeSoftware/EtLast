@@ -5,7 +5,7 @@ public interface IEtlHost
     public string Name { get; }
     public ILogger Logger { get; }
 
-    public Task Run();
+    public Task RunAsync();
 
     public void Terminate();
     public CancellationToken CancellationToken { get; }
