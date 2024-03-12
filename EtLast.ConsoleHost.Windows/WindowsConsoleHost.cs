@@ -135,7 +135,7 @@ public class WindowsConsoleHost : ConsoleHost
 
         Process.Start(new ProcessStartInfo("sc", string.Format("delete {0}", name)));
         Process.Start(new ProcessStartInfo("sc", string.Format("create {0} start={1} displayname=\"{2}\" binpath=\"\"{3}\"\"", name, startMode, displayName, customPath ?? Environment.ProcessPath)));
-        Process.Start(new ProcessStartInfo("sc", string.Format("failure {0} reset=86400 actions=restart/1000/restart/1000/restart/1000", name)));
+        //Process.Start(new ProcessStartInfo("sc", string.Format("failure {0} reset=86400 actions=restart/1000/restart/1000/restart/1000", name)));
     }
 
     private void UninstallWindowsService(string name)
