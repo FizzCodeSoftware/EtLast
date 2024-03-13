@@ -9,14 +9,25 @@ public class ConsoleCommandListener : ICommandListener
         var commands = new List<string>();
         var lck = new object();
 
-        var thread = new Thread(ListenForNewCommand(host, commands, lck, cancellationToken))
+        if (Environment.UserInteractive)
         {
-            IsBackground = true,
-        };
+            var thread = new Thread(ListenForNewCommand(host, commands, lck, cancellationToken))
+            {
+                IsBackground = true,
+            };
 
-        thread.Start();
+            thread.Start();
+        }
 
-        host.Logger.Write(LogEventLevel.Information, "listening on console");
+        if (Environment.UserInteractive)
+        {
+            host.Logger.Write(LogEventLevel.Information, "listening on console");
+        }
+        else
+        {
+            host.Logger.Write(LogEventLevel.Information, "listening on console (non-interactive mode)");
+        }
+
         while (!host.CancellationToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
             string command = null;
@@ -44,7 +55,7 @@ public class ConsoleCommandListener : ICommandListener
         //Console.WriteLine("listening on console finished: " + thread.ThreadState.ToString());
     }
 
-    private static ThreadStart ListenForNewCommand(IEtlHost host, List<string> commands, object lck, CancellationToken cancellationToken)
+    private ThreadStart ListenForNewCommand(IEtlHost host, List<string> commands, object lck, CancellationToken cancellationToken)
     {
         return () =>
         {
@@ -61,8 +72,9 @@ public class ConsoleCommandListener : ICommandListener
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    host.Logger.Write(LogEventLevel.Error, ex, "unexpected error in {CommandListenerName}", GetType().Name);
                 }
             }
         };
