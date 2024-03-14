@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteTextToSink : AbstractJob
+public sealed class WriteTextToFile : AbstractJob
 {
     [ProcessParameterMustHaveValue]
     public required IOneSinkProvider SinkProvider { get; init; }
@@ -41,9 +41,9 @@ public sealed class WriteTextToSink : AbstractJob
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class WriteTextToSinkFluent
+public static class WriteTextToFileFluent
 {
-    public static IFlow WriteTextToSink(this IFlow builder, Func<WriteTextToSink> processCreator)
+    public static IFlow WriteTextToFile(this IFlow builder, Func<WriteTextToFile> processCreator)
     {
         return builder.ExecuteProcess(processCreator);
     }
