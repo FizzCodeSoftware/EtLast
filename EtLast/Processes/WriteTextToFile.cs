@@ -24,12 +24,12 @@ public sealed class WriteTextToFile : AbstractJob
             : [];
 
         var sink = SinkProvider.GetSink(this, "txt", null);
-
         Context.Log(LogSeverity.Information, this, "saving text file to sink {SinkName}", sink.Name);
 
         try
         {
             sink.Stream.Write(contentBytes);
+            sink.Close();
         }
         catch (Exception ex)
         {

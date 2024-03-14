@@ -100,7 +100,7 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
 
                     stream.IoCommand.AffectedDataCount += endPos - startPos;
                     stream.IoCommand.End();
-                    stream.Dispose();
+                    stream.Close();
                 }
             }
 

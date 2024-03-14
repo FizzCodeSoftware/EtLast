@@ -458,7 +458,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
                 {
                     stream.IoCommand.AffectedDataCount += resultCount;
                     stream.IoCommand.End();
-                    stream.Dispose();
+                    stream.Close();
                     reader?.Dispose();
                 }
             }

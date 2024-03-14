@@ -71,7 +71,7 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
             {
                 stream.IoCommand.AffectedDataCount += rowCount;
                 stream.IoCommand.End();
-                stream.Dispose();
+                stream.Close();
                 package.Dispose();
             }
 

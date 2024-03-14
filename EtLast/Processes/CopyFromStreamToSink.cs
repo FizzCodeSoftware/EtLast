@@ -23,7 +23,7 @@ public sealed class CopyFromStreamToSink : AbstractJob
             }
             finally
             {
-                sink.Dispose();
+                sink.Close();
             }
 
             stream.IoCommand.AffectedDataCount += 1;
@@ -31,7 +31,7 @@ public sealed class CopyFromStreamToSink : AbstractJob
         }
         finally
         {
-            stream.Dispose();
+            stream.Close();
         }
     }
 }

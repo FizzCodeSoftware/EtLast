@@ -7,7 +7,7 @@ public class NamedStream(string name, Stream stream, IoCommand ioCommand)
     public IoCommand IoCommand { get; } = ioCommand;
     public EventHandler OnDispose { get; set; }
 
-    public void Dispose()
+    public virtual void Close()
     {
         OnDispose?.Invoke(this, EventArgs.Empty);
 
