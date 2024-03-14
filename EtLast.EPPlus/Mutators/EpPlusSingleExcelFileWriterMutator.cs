@@ -4,7 +4,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
     where TState : BaseExcelWriterState, new()
 {
     [ProcessParameterMustHaveValue]
-    public required string FileName { get; init; }
+    public required string Path { get; init; }
 
     [ProcessParameterMustHaveValue]
     public required Action<IRow, ExcelPackage, TState> Action { get; init; }
@@ -36,8 +36,8 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
             {
                 Process = this,
                 Kind = IoCommandKind.fileWrite,
-                Location = Path.GetDirectoryName(FileName),
-                Path = Path.GetFileName(FileName),
+                Location = System.IO.Path.GetDirectoryName(Path),
+                Path = System.IO.Path.GetFileName(Path),
                 Message = "saving excel package",
             });
 
@@ -51,8 +51,8 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
             {
                 var exception = new ProcessExecutionException(this, "error raised during writing an excel file", ex);
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel file, file name: {0}, message: {1}",
-                    FileName, ex.Message));
-                exception.Data["FileName"] = FileName;
+                    Path, ex.Message));
+                exception.Data["Path"] = Path;
 
                 ioCommand.Failed(exception);
                 throw exception;
@@ -69,7 +69,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
     {
         if (_package == null) // lazy load here instead of prepare
         {
-            _package = ExistingPackage ?? new ExcelPackage(new FileInfo(FileName));
+            _package = ExistingPackage ?? new ExcelPackage(new FileInfo(Path));
             Initialize?.Invoke(_package, _state);
         }
 
@@ -87,8 +87,8 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
         {
             var exception = new ProcessExecutionException(this, row, "error raised during writing an excel file", ex);
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel file, file name: {0}, message: {1}, row: {2}",
-                FileName, ex.Message, row.ToDebugString()));
-            exception.Data["FileName"] = FileName;
+                Path, ex.Message, row.ToDebugString()));
+            exception.Data["Path"] = Path;
             throw exception;
         }
 
@@ -98,7 +98,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
     public void AddWorkSheet(string name)
     {
         _state.Worksheet = _package.Workbook.Worksheets.Add(name);
-        _sink = Context.GetSink(FileName, name, "spreadsheet", this, []);
+        _sink = Context.GetSink(Path, name, "spreadsheet", this, []);
     }
 }
 

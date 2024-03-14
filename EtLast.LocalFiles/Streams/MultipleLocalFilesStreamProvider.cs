@@ -4,7 +4,7 @@
 public class MultipleLocalFilesStreamProvider : IManyStreamProvider
 {
     [ProcessParameterMustHaveValue]
-    public required string[] FileNames { get; init; }
+    public required string[] Paths { get; init; }
 
     public static FileStreamOptions DefaultOptions => new()
     {
@@ -28,37 +28,38 @@ public class MultipleLocalFilesStreamProvider : IManyStreamProvider
 
     public string GetTopic()
     {
-        return FileNames?.Length > 0
-            ? PathHelpers.GetFriendlyPathName(FileNames[0]) + "+" + FileNames.Length.ToString("D", CultureInfo.InvariantCulture) + ""
+        return Paths?.Length > 0
+            ? PathHelpers.GetFriendlyPathName(Paths[0]) + "+" + Paths.Length.ToString("D", CultureInfo.InvariantCulture) + ""
             : null;
     }
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        foreach (var fileName in FileNames)
+        foreach (var path in Paths)
         {
-            yield return GetFileStream(caller, fileName);
+            yield return GetFileStream(caller, path);
         }
     }
 
-    private NamedStream GetFileStream(IProcess caller, string fileName)
+    private NamedStream GetFileStream(IProcess caller, string path)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
             Process = caller,
             Kind = IoCommandKind.fileRead,
-            Location = Path.GetDirectoryName(fileName),
-            Path = Path.GetFileName(fileName),
+            Location = Path.GetDirectoryName(path),
+            Path = Path.GetFileName(path),
             Message = "reading from local file",
         });
 
-        if (!File.Exists(fileName))
+        if (!File.Exists(path))
         {
             if (ThrowExceptionWhenFileNotFound)
             {
-                var exception = new LocalFileReadException(caller, "local file doesn't exist", fileName);
+                var exception = new LocalFileReadException(caller, "local file doesn't exist");
+                exception.Data["Path"] = path;
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file doesn't exist: {0}",
-                    fileName));
+                    path));
 
                 ioCommand.AffectedDataCount = 0;
                 ioCommand.Failed(exception);
@@ -72,14 +73,14 @@ public class MultipleLocalFilesStreamProvider : IManyStreamProvider
 
         try
         {
-            var stream = new FileStream(fileName, Options);
-            return new NamedStream(fileName, stream, ioCommand);
+            var stream = new FileStream(path, Options);
+            return new NamedStream(path, stream, ioCommand);
         }
         catch (Exception ex)
         {
-            var exception = new LocalFileReadException(caller, "error while opening local file", fileName, ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", fileName, ex.Message));
-            exception.Data["FileName"] = fileName;
+            var exception = new LocalFileReadException(caller, "error while opening local file", ex);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", ex.Message));
+            exception.Data["Path"] = path;
 
             ioCommand.AffectedDataCount = 0;
             ioCommand.Failed(exception);

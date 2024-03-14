@@ -250,9 +250,9 @@ public class ConsoleHost : AbstractHost
         }
     }
 
-    public List<string> GetReferenceAssemblyFileNames()
+    public List<string> GetReferenceAssemblyFilePaths()
     {
-        var referenceDllFileNames = new List<string>();
+        var referenceDllFilePaths = new List<string>();
         foreach (var referenceAssemblyDirectory in ReferenceAssemblyDirectories)
         {
             var directory = Directory.GetDirectories(referenceAssemblyDirectory, "8.*")
@@ -261,25 +261,25 @@ public class ConsoleHost : AbstractHost
 
             Logger.Information("using assemblies from {ReferenceAssemblyDirectory}", directory);
 
-            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "System*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "Microsoft.Extensions*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "Microsoft.Net*.dll", SearchOption.TopDirectoryOnly));
-            referenceDllFileNames.AddRange(Directory.GetFiles(directory, "netstandard.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFilePaths.AddRange(Directory.GetFiles(directory, "System*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFilePaths.AddRange(Directory.GetFiles(directory, "Microsoft.AspNetCore*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFilePaths.AddRange(Directory.GetFiles(directory, "Microsoft.Extensions*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFilePaths.AddRange(Directory.GetFiles(directory, "Microsoft.Net*.dll", SearchOption.TopDirectoryOnly));
+            referenceDllFilePaths.AddRange(Directory.GetFiles(directory, "netstandard.dll", SearchOption.TopDirectoryOnly));
         }
 
-        var referenceFileNames = referenceDllFileNames
+        var referenceFilePaths = referenceDllFilePaths
             .Where(x => !Path.GetFileNameWithoutExtension(x).EndsWith("Native", StringComparison.InvariantCultureIgnoreCase))
             .ToList();
 
         var selfDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        var localDllFileNames = Directory.GetFiles(selfDirectory, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(x => Path.GetFileName(x) != "FizzCode.EtLast.ConsoleHost.dll"
+        var localDllFilePaths = Directory.GetFiles(selfDirectory, "*.dll", SearchOption.TopDirectoryOnly)
+            .Where(x => !Path.GetFileName(x).StartsWith("FizzCode.EtLast.ConsoleHost.", StringComparison.InvariantCultureIgnoreCase)
                 && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
 
-        referenceFileNames.AddRange(localDllFileNames);
+        referenceFilePaths.AddRange(localDllFilePaths);
 
-        return referenceFileNames
+        return referenceFilePaths
             .Distinct()
             .Where(x =>
             {

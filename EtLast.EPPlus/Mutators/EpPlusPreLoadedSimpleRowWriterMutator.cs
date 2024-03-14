@@ -18,13 +18,13 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
 
     private SimpleExcelWriterState _state;
     private Sink _sink;
-    private string _fileName;
+    private string _path;
 
     protected override void StartMutator()
     {
         _state = new SimpleExcelWriterState();
-        _fileName = PreLoadedFile?.File?.Name ?? "preloaded";
-        _sink = Context.GetSink(_fileName, SheetName, "spreadsheet", this,
+        _path = PreLoadedFile?.File?.Name ?? "preloaded";
+        _sink = Context.GetSink(_path, SheetName, "spreadsheet", this,
             Columns.Select(x => x.Key).ToArray());
     }
 
@@ -71,8 +71,8 @@ public sealed class EpPlusPreLoadedSimpleRowWriterMutator : AbstractMutator, IRo
         catch (Exception ex)
         {
             var exception = new ProcessExecutionException(this, row, "error raised during writing an excel package", ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel package, file name: {0}, message: {1}, row: {2}", _fileName, ex.Message, row.ToDebugString()));
-            exception.Data["FileName"] = _fileName;
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel package, file name: {0}, message: {1}, row: {2}", _path, ex.Message, row.ToDebugString()));
+            exception.Data["Path"] = _path;
             exception.Data["SheetName"] = SheetName;
             throw exception;
         }

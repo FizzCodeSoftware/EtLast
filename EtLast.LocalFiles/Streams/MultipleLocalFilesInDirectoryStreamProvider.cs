@@ -27,18 +27,17 @@ public class MultipleLocalFilesInDirectoryStreamProvider : IManyStreamProvider
 
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
-        var fileNames = new List<string>();
+        var paths = new List<string>();
 
         if (System.IO.Directory.Exists(Directory))
-        {
-            fileNames.AddRange(System.IO.Directory.EnumerateFiles(Directory, SearchPattern));
-        }
+            paths.AddRange(System.IO.Directory.EnumerateFiles(Directory, SearchPattern));
 
-        if (fileNames.Count == 0)
+        if (paths.Count == 0)
         {
             if (ThrowExceptionWhenFileNotFound)
             {
-                var exception = new LocalFileReadException(caller, "local directory doesn't contain any matching files", Directory);
+                var exception = new LocalFileReadException(caller, "local directory doesn't contain any matching files");
+                exception.Data["Path"] = Directory;
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local directory doesn't contain any matching files: {0}",
                     Directory));
 
@@ -48,30 +47,29 @@ public class MultipleLocalFilesInDirectoryStreamProvider : IManyStreamProvider
             yield break;
         }
 
-        foreach (var fileName in fileNames)
-        {
-            yield return GetFileStream(caller, fileName);
-        }
+        foreach (var path in paths)
+            yield return GetFileStream(caller, path);
     }
 
-    private NamedStream GetFileStream(IProcess caller, string fileName)
+    private NamedStream GetFileStream(IProcess caller, string path)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
         {
             Process = caller,
             Kind = IoCommandKind.fileRead,
             Location = Directory,
-            Path = fileName.Replace(Directory, "", StringComparison.InvariantCultureIgnoreCase),
+            Path = path.Replace(Directory, "", StringComparison.InvariantCultureIgnoreCase),
             Message = "reading from local file",
         });
 
-        if (!File.Exists(fileName))
+        if (!File.Exists(path))
         {
             if (ThrowExceptionWhenFileNotFound)
             {
-                var exception = new LocalFileReadException(caller, "local file doesn't exist", fileName);
+                var exception = new LocalFileReadException(caller, "local file doesn't exist");
+                exception.Data["Path"] = path;
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file doesn't exist: {0}",
-                    fileName));
+                    path));
 
                 ioCommand.AffectedDataCount = 0;
                 ioCommand.Failed(exception);
@@ -85,14 +83,14 @@ public class MultipleLocalFilesInDirectoryStreamProvider : IManyStreamProvider
 
         try
         {
-            var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return new NamedStream(fileName, stream, ioCommand);
+            var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return new NamedStream(path, stream, ioCommand);
         }
         catch (Exception ex)
         {
-            var exception = new LocalFileReadException(caller, "error while opening local file", fileName, ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", fileName, ex.Message));
-            exception.Data["FileName"] = fileName;
+            var exception = new LocalFileReadException(caller, "error while opening local file", ex);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", path, ex.Message));
+            exception.Data["Path"] = path;
 
             ioCommand.Failed(exception);
             throw exception;

@@ -22,22 +22,22 @@ public class ContextIndex(string dataDirectory)
     public DateTime StartedOn { get; }
     public DateTime? EndedOn { get; protected set; }
 
-    private string GetMainFileName(int index)
+    private string GetMainFilePath(int index)
     {
         return Path.Combine(DataDirectory, "stream-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
     }
 
-    private string GetRowEventFileName(int index)
+    private string GetRowEventFilePath(int index)
     {
         return Path.Combine(DataDirectory, "row-part-" + index.ToString("D", CultureInfo.InvariantCulture)) + ".bin";
     }
 
-    private string GetSinkFileName(long sinkId)
+    private string GetSinkFilePath(long sinkId)
     {
         return Path.Combine(DataDirectory, "sink-id-" + sinkId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
-    private string GetProcessRowMapFileName(long processInvocationId)
+    private string GetProcessRowMapFilePath(long processInvocationId)
     {
         return Path.Combine(DataDirectory, "process-rows-id-" + processInvocationId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
@@ -52,8 +52,8 @@ public class ContextIndex(string dataDirectory)
             _lastStreamSize = 0;
         }
 
-        var mainFileName = GetMainFileName(_lastStreamIndex);
-        using (var fw = new FileStream(mainFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
+        var mainFilePath = GetMainFilePath(_lastStreamIndex);
+        using (var fw = new FileStream(mainFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
         {
             input.CopyTo(fw);
             _lastStreamSize += length;
@@ -132,8 +132,8 @@ public class ContextIndex(string dataDirectory)
                     {
                         if (!_openSinkWriterStreams.TryGetValue(rse.SinkId, out var sinkWriterStream))
                         {
-                            var sinkFileName = GetSinkFileName(rse.SinkId);
-                            sinkWriterStream = new FileStream(sinkFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
+                            var sinkFilePath = GetSinkFilePath(rse.SinkId);
+                            sinkWriterStream = new FileStream(sinkFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
                             _openSinkWriterStreams.Add(rse.SinkId, sinkWriterStream);
                         }
 
@@ -160,8 +160,8 @@ public class ContextIndex(string dataDirectory)
 
                         if (_rowEventStream == null)
                         {
-                            var rowEventfileName = GetRowEventFileName(_lastRowEventFileIndex);
-                            _rowEventStream = new FileStream(rowEventfileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
+                            var rowEventFilePath = GetRowEventFilePath(_lastRowEventFileIndex);
+                            _rowEventStream = new FileStream(rowEventFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 512 * 1024);
                         }
                     }
 
@@ -180,8 +180,8 @@ public class ContextIndex(string dataDirectory)
                         {
                             if (!_processRowMapWriters.TryGetValue(involvedProcessId.Value, out var writer))
                             {
-                                var processRowMapFileName = GetProcessRowMapFileName(involvedProcessId.Value);
-                                var stream = new FileStream(processRowMapFileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 128 * 1024);
+                                var processRowMapFilePath = GetProcessRowMapFilePath(involvedProcessId.Value);
+                                var stream = new FileStream(processRowMapFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 128 * 1024);
                                 writer = new ExtendedBinaryWriter(stream, Encoding.UTF8);
                                 _processRowMapWriters.Add(involvedProcessId.Value, writer);
                             }
@@ -198,8 +198,8 @@ public class ContextIndex(string dataDirectory)
 
     public void EnumerateThroughSink(long sinkId, Action<WriteToSinkEvent> callback)
     {
-        var fileName = GetSinkFileName(sinkId);
-        if (!File.Exists(fileName))
+        var filePath = GetSinkFilePath(sinkId);
+        if (!File.Exists(filePath))
             return;
 
         lock (_openSinkWriterStreamsLock)
@@ -210,7 +210,7 @@ public class ContextIndex(string dataDirectory)
             }
         }
 
-        using (var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
         using (var memoryCache = new MemoryStream())
         {
             fileStream.CopyTo(memoryCache);
@@ -235,16 +235,16 @@ public class ContextIndex(string dataDirectory)
 
     public void EnumerateThroughEvents(Func<AbstractEvent, bool> callback, params DiagnosticsEventKind[] eventKindFilter)
     {
-        var fileNames = Enumerable
+        var mainFilePaths = Enumerable
             .Range(0, _lastStreamIndex + 1)
-            .Select(GetMainFileName);
+            .Select(GetMainFilePath);
 
         var eventKinds = eventKindFilter.ToHashSet();
 
         var eventsRead = 0;
-        foreach (var fileName in fileNames)
+        foreach (var mainFilePath in mainFilePaths)
         {
-            using (var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fileStream = new FileStream(mainFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var memoryCache = new MemoryStream())
             {
                 fileStream.CopyTo(memoryCache);
@@ -301,8 +301,8 @@ public class ContextIndex(string dataDirectory)
     {
         var result = new HashSet<long>();
 
-        var fileName = GetProcessRowMapFileName(processInvocationId);
-        if (!File.Exists(fileName))
+        var filePath = GetProcessRowMapFilePath(processInvocationId);
+        if (!File.Exists(filePath))
             return result;
 
         lock (_processRowMapWritersLock)
@@ -313,7 +313,7 @@ public class ContextIndex(string dataDirectory)
             }
         }
 
-        using (var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
         using (var memoryCache = new MemoryStream())
         {
             fileStream.CopyTo(memoryCache);
@@ -341,9 +341,9 @@ public class ContextIndex(string dataDirectory)
 
     public void EnumerateThroughRowEvents(Func<AbstractRowEvent, bool> callback, params DiagnosticsEventKind[] eventKindFilter)
     {
-        var fileNames = Enumerable
+        var filePaths = Enumerable
             .Range(0, _lastRowEventFileIndex + 1)
-            .Select(GetRowEventFileName);
+            .Select(GetRowEventFilePath);
 
         var eventKinds = eventKindFilter.ToHashSet();
 
@@ -352,9 +352,9 @@ public class ContextIndex(string dataDirectory)
             _rowEventStream?.Flush();
         }
 
-        foreach (var fileName in fileNames)
+        foreach (var filePath in filePaths)
         {
-            using (var fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var memoryCache = new MemoryStream())
             {
                 fileStream.CopyTo(memoryCache);

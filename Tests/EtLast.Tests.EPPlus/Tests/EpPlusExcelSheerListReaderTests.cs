@@ -3,13 +3,13 @@
 [TestClass]
 public class EpPlusExcelSheetReaderTests
 {
-    private static EpPlusExcelSheetListReader GetReader(string fileName)
+    private static EpPlusExcelSheetListReader GetReader(string path)
     {
         return new EpPlusExcelSheetListReader()
         {
             StreamProvider = new LocalFileStreamProvider()
             {
-                FileName = fileName,
+                Path = path,
             },
             AddRowIndexToColumn = "idx",
         };

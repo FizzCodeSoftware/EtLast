@@ -13,13 +13,13 @@ public class Example3 : AbstractEtlTask
                 Message = "awesome...",
             })
             .ThrowOnError()
-            .ExecuteForEachIsolated(getFilesTask.FileNames, (fileName, isolatedFlow) => isolatedFlow
+            .ExecuteForEachIsolated(getFilesTask.Paths, (path, isolatedFlow) => isolatedFlow
                 .ExecuteProcess(() => new ShowMessage()
                 {
                     Name = "ShowMessageForFile",
-                    Message = fileName.StartsWith('c')
+                    Message = path.StartsWith('c')
                         ? throw new Exception("disk full")
-                        : "file found: " + fileName,
+                        : "file found: " + path,
                 })
                 .HandleError(() => new ShowMessage()
                 {
