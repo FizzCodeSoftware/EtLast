@@ -90,7 +90,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error raised during writing an excel stream, message: {0}, row: {1}",
                 ex.Message, row.ToDebugString()));
 
-            exception.Data["FileName"] = Stream;
+            exception.Data["SinkId"] = _sink.Id;
             throw exception;
         }
 

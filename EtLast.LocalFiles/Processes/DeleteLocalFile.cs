@@ -9,16 +9,16 @@ public sealed class DeleteLocalFile : AbstractJob
     {
         if (!File.Exists(Path))
         {
-            Context.Log(LogSeverity.Debug, this, "can't delete local file because it doesn't exist '{FileName}'", Path);
+            Context.Log(LogSeverity.Debug, this, "can't delete local file because it doesn't exist '{Path}'", Path);
             return;
         }
 
-        Context.Log(LogSeverity.Information, this, "deleting local file '{FileName}'", Path);
+        Context.Log(LogSeverity.Information, this, "deleting local file '{Path}'", Path);
 
         try
         {
             File.Delete(Path);
-            Context.Log(LogSeverity.Debug, this, "successfully deleted local file '{FileName}'",
+            Context.Log(LogSeverity.Debug, this, "successfully deleted local file '{Path}'",
                 Path);
         }
         catch (Exception ex)

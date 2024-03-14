@@ -45,8 +45,8 @@ public class EpPlusSimpleRowWriterTests
                 PartitionKeyGenerator = null,
                 SinkProvider = new PartitionedLocalFileSinkProvider()
                 {
-                    FileNameGenerator = partition => directory + "\\test.xlsx",
-                    ActionWhenFileExists = LocalSinkFileExistsAction.DeleteAndContinue,
+                    PathGenerator = partition => directory + "\\test.xlsx",
+                    ActionWhenFileExists = LocalSinkFileExistsAction.Overwrite,
                     FileMode = FileMode.OpenOrCreate,
                     FileAccess = FileAccess.ReadWrite,
                 },
@@ -144,8 +144,8 @@ public class EpPlusSimpleRowWriterTests
                 PartitionKeyGenerator = (row, index) => (index % 2).ToString("D", CultureInfo.InvariantCulture),
                 SinkProvider = new PartitionedLocalFileSinkProvider()
                 {
-                    FileNameGenerator = partition => directory + "\\test-" + partition + ".xlsx",
-                    ActionWhenFileExists = LocalSinkFileExistsAction.DeleteAndContinue,
+                    PathGenerator = partition => directory + "\\test-" + partition + ".xlsx",
+                    ActionWhenFileExists = LocalSinkFileExistsAction.Overwrite,
                     FileMode = FileMode.OpenOrCreate,
                     FileAccess = FileAccess.ReadWrite,
                 },

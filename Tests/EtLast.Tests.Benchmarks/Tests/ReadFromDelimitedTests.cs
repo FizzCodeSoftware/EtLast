@@ -52,8 +52,8 @@ public class ReadFromDelimitedTests
                 Quote = '"',
                 SinkProvider = new LocalFileSinkProvider()
                 {
-                    FileName = _file,
-                    ActionWhenFileExists = LocalSinkFileExistsAction.DeleteAndContinue,
+                    Path = _file,
+                    ActionWhenFileExists = LocalSinkFileExistsAction.Overwrite,
                     FileMode = FileMode.CreateNew,
                 },
                 Columns = new()
@@ -113,7 +113,7 @@ public class ReadFromDelimitedTests
         {
             StreamProvider = new LocalFileStreamProvider()
             {
-                FileName = _file,
+                Path = _file,
             },
             Columns = new()
             {

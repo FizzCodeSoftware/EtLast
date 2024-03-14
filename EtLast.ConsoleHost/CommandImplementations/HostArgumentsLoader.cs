@@ -20,7 +20,7 @@ internal static class HostArgumentsLoader
 
         host.Logger.Information("compiling host arguments from {Directory}", PathHelpers.GetFriendlyPathName(argumentsDirectory));
 
-        var metadataReferences = host.GetReferenceAssemblyFileNames()
+        var metadataReferences = host.GetReferenceAssemblyFilePaths()
             .Select(fn => MetadataReference.CreateFromFile(fn))
             .ToArray();
 

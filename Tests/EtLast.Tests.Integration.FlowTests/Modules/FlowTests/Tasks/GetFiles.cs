@@ -2,11 +2,11 @@
 
 public class GetFiles : AbstractEtlTask
 {
-    public List<string> FileNames { get; private set; }
+    public List<string> Paths { get; private set; }
 
     public override void Execute(IFlow flow)
     {
         flow
-            .CustomJob(nameof(GetFiles), job => FileNames = ["a.txt", "b.txt", "c.txt"]);
+            .CustomJob(nameof(GetFiles), job => Paths = ["a.txt", "b.txt", "c.txt"]);
     }
 }

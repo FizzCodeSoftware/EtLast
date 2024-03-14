@@ -4,7 +4,7 @@
 public class LocalFileStreamProvider : IManyStreamProvider, IOneStreamProvider
 {
     [ProcessParameterMustHaveValue]
-    public required string FileName { get; init; }
+    public required string Path { get; init; }
 
     public static FileStreamOptions DefaultOptions => new()
     {
@@ -28,8 +28,8 @@ public class LocalFileStreamProvider : IManyStreamProvider, IOneStreamProvider
 
     public string GetTopic()
     {
-        return FileName != null
-            ? PathHelpers.GetFriendlyPathName(FileName)
+        return Path != null
+            ? PathHelpers.GetFriendlyPathName(Path)
             : null;
     }
 
@@ -39,18 +39,19 @@ public class LocalFileStreamProvider : IManyStreamProvider, IOneStreamProvider
         {
             Process = caller,
             Kind = IoCommandKind.fileRead,
-            Location = Path.GetDirectoryName(FileName),
-            Path = Path.GetFileName(FileName),
+            Location = System.IO.Path.GetDirectoryName(Path),
+            Path = System.IO.Path.GetFileName(Path),
             Message = "reading from local file",
         });
 
-        if (!File.Exists(FileName))
+        if (!File.Exists(Path))
         {
             if (ThrowExceptionWhenFileNotFound)
             {
-                var exception = new LocalFileReadException(caller, "local file doesn't exist", FileName);
+                var exception = new LocalFileReadException(caller, "local file doesn't exist");
+                exception.Data["Path"] = Path;
                 exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "local file doesn't exist: {0}",
-                    FileName));
+                    Path));
 
                 ioCommand.AffectedDataCount = 0;
                 ioCommand.Failed(exception);
@@ -64,15 +65,15 @@ public class LocalFileStreamProvider : IManyStreamProvider, IOneStreamProvider
 
         try
         {
-            var stream = new FileStream(FileName, Options);
-            return new NamedStream(FileName, stream, ioCommand);
+            var stream = new FileStream(Path, Options);
+            return new NamedStream(Path, stream, ioCommand);
         }
         catch (Exception ex)
         {
-            var exception = new LocalFileReadException(caller, "error while opening local file", FileName, ex);
+            var exception = new LocalFileReadException(caller, "error while opening local file", ex);
+            exception.Data["Path"] = Path;
             exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}",
-                FileName, ex.Message));
-            exception.Data["FileName"] = FileName;
+                Path, ex.Message));
 
             ioCommand.AffectedDataCount = 0;
             ioCommand.Failed(exception);

@@ -9,7 +9,7 @@ public class WriteToDelimitedMutatorTests
         {
             StreamProvider = new LocalFileStreamProvider()
             {
-                FileName = fileName,
+                Path = fileName,
             },
             Columns = new()
             {
@@ -37,7 +37,7 @@ public class WriteToDelimitedMutatorTests
                 Columns = [],
                 SinkProvider = new LocalFileSinkProvider()
                 {
-                    FileName = null, // should throw an exception
+                    Path = null, // should throw an exception
                     ActionWhenFileExists = LocalSinkFileExistsAction.Continue,
                     FileMode = FileMode.Append,
                 },

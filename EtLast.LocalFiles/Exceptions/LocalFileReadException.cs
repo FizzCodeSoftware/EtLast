@@ -4,15 +4,13 @@
 [Serializable]
 public class LocalFileReadException : EtlException
 {
-    internal LocalFileReadException(IProcess process, string message, string fileName)
+    internal LocalFileReadException(IProcess process, string message)
         : base(process, message)
     {
-        Data["FileName"] = fileName;
     }
 
-    internal LocalFileReadException(IProcess process, string message, string fileName, Exception innerException)
+    internal LocalFileReadException(IProcess process, string message, Exception innerException)
         : base(process, message, innerException)
     {
-        Data["FileName"] = fileName;
     }
 }

@@ -63,7 +63,7 @@ internal static class ModuleLoader
 
         host.Logger.Information("compiling module from {Directory}", PathHelpers.GetFriendlyPathName(moduleDirectory));
 
-        var metadataReferences = host.GetReferenceAssemblyFileNames()
+        var metadataReferences = host.GetReferenceAssemblyFilePaths()
             .Select(fn => MetadataReference.CreateFromFile(fn))
             .ToArray();
 

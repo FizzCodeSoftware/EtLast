@@ -12,7 +12,7 @@ public class ReadExcelReaderConversionTests
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
-                    FileName = @".\TestData\Test.xlsx",
+                    Path = @".\TestData\Test.xlsx",
                 },
                 SheetName = "DateBroken",
                 Columns = new()

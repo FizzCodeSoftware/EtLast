@@ -11,7 +11,7 @@ public static class ConsoleHostSessionBuilderExtensions
         return session.AddManifestProcessor(new ConsoleHostJsonManifestProcessor()
         {
             Directory = directory,
-            FileNameFunc = manifest => manifest.CreatedOnUtc.ToString("yyyyMMdd-HHmmssfff", CultureInfo.InvariantCulture) + ".json",
+            FileNameGenerator = manifest => manifest.CreatedOnUtc.ToString("yyyyMMdd-HHmmssfff", CultureInfo.InvariantCulture) + ".json",
         });
     }
 

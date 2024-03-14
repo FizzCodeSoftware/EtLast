@@ -3,13 +3,13 @@
 [TestClass]
 public class DelimitedLineReaderTests
 {
-    private static DelimitedLineReader GetReader(string fileName, bool removeSurroundingDoubleQuotes = true)
+    private static DelimitedLineReader GetReader(string path, bool removeSurroundingDoubleQuotes = true)
     {
         return new DelimitedLineReader()
         {
             StreamProvider = new LocalFileStreamProvider()
             {
-                FileName = fileName,
+                Path = path,
             },
             Columns = new()
             {
@@ -26,13 +26,13 @@ public class DelimitedLineReaderTests
         };
     }
 
-    private static DelimitedLineReader GetSimpleReader(string fileName)
+    private static DelimitedLineReader GetSimpleReader(string path)
     {
         return new DelimitedLineReader()
         {
             StreamProvider = new LocalFileStreamProvider()
             {
-                FileName = fileName,
+                Path = path,
             },
             Columns = new()
             {
@@ -74,7 +74,7 @@ public class DelimitedLineReaderTests
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
-                    FileName = @"TestData\Sample.csv",
+                    Path = @"TestData\Sample.csv",
                 },
                 Columns = new()
                 {
@@ -108,7 +108,7 @@ public class DelimitedLineReaderTests
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
-                    FileName = @"TestData\Sample.csv",
+                    Path = @"TestData\Sample.csv",
                 },
                 Columns = new()
                 {
@@ -312,7 +312,7 @@ public class DelimitedLineReaderTests
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
-                    FileName = @"TestData\BrokenHeaderSample.csv",
+                    Path = @"TestData\BrokenHeaderSample.csv",
                 },
                 Columns = new()
                 {
@@ -344,7 +344,7 @@ public class DelimitedLineReaderTests
             {
                 StreamProvider = new LocalFileStreamProvider()
                 {
-                    FileName = @"TestData\BrokenHeaderSample.csv",
+                    Path = @"TestData\BrokenHeaderSample.csv",
                 },
                 ColumnNames = ["Id", "Name", "Value1", "Value2", "Value3", "Value4"],
                 Columns = new()

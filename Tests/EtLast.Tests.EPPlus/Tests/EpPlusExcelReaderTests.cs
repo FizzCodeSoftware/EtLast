@@ -27,7 +27,7 @@ public class EpPlusExcelReaderTests
     public void MissingFileThrowsFileReadException()
     {
         var context = TestExecuter.GetContext();
-        var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\MissingFile.xlsx" }, sheetName: "anySheet");
+        var reader = GetReader(context, new LocalFileStreamProvider() { Path = @".\TestData\MissingFile.xlsx" }, sheetName: "anySheet");
 
         var builder = SequenceBuilder.Fluent
             .ReadFromExcel(reader)
@@ -43,7 +43,7 @@ public class EpPlusExcelReaderTests
     public void ContentBySheetName()
     {
         var context = TestExecuter.GetContext();
-        var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetName: "MergeAtIndex0");
+        var reader = GetReader(context, new LocalFileStreamProvider() { Path = @".\TestData\Test.xlsx" }, sheetName: "MergeAtIndex0");
 
         var builder = SequenceBuilder.Fluent
             .ReadFromExcel(reader)
@@ -101,7 +101,7 @@ public class EpPlusExcelReaderTests
     public void ContentBySheetIndex()
     {
         var context = TestExecuter.GetContext();
-        var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetIndex: 0);
+        var reader = GetReader(context, new LocalFileStreamProvider() { Path = @".\TestData\Test.xlsx" }, sheetIndex: 0);
 
         var builder = SequenceBuilder.Fluent
             .ReadFromExcel(reader)
@@ -121,7 +121,7 @@ public class EpPlusExcelReaderTests
     public void NoTrim()
     {
         var context = TestExecuter.GetContext();
-        var reader = GetReader(context, new LocalFileStreamProvider() { FileName = @".\TestData\Test.xlsx" }, sheetName: "MergeAtIndex0", automaticallyTrimAllStringValues: false);
+        var reader = GetReader(context, new LocalFileStreamProvider() { Path = @".\TestData\Test.xlsx" }, sheetName: "MergeAtIndex0", automaticallyTrimAllStringValues: false);
 
         var builder = SequenceBuilder.Fluent
             .ReadFromExcel(reader)
