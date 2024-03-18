@@ -16,7 +16,7 @@ public class WindowsConsoleHost : ConsoleHost
         ServiceName = serviceName;
     }
 
-    protected override void CustomStart()
+    protected override void AfterInit()
     {
         var semaphoreName = @"Global\" + Environment.ProcessPath.Replace('\\', '_').ToLowerInvariant();
         var semaphoreSecurity = new SemaphoreSecurity();

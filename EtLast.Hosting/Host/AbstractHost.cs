@@ -59,7 +59,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
     private readonly List<Thread> threads = [];
     private readonly List<ICommandListener> listeners = [];
 
-    private void Start()
+    private void Init()
     {
         Logger = CreateHostLogger();
 
@@ -83,7 +83,10 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
         Console.WriteLine("  {0,-23} = {1}", "IsPrivileged", Environment.IsPrivilegedProcess);
         Console.WriteLine("  {0,-23} = {1}", "TickCountSinceStartup", Environment.TickCount64);
         Console.WriteLine();
+    }
 
+    private void Start()
+    {
         var commandLineArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
         if (commandLineArgs.Length > 0)
         {
@@ -288,12 +291,13 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
 
     public override Task StartAsync(CancellationToken cancellationToken)
     {
+        Init();
+        AfterInit();
         Start();
-        CustomStart();
         return base.StartAsync(cancellationToken);
     }
 
-    protected virtual void CustomStart()
+    protected virtual void AfterInit()
     {
     }
 
