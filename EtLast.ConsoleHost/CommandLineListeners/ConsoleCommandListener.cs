@@ -42,9 +42,7 @@ public class ConsoleCommandListener : ICommandListener
 
             if (command != null)
             {
-                host.Logger.Write(LogEventLevel.Information, "executing command entered on the console: {Command}", command);
-                var result = host.RunCommand(Guid.NewGuid().ToString(), command);
-                host.Logger.Write(LogEventLevel.Information, "command result {CommandResult}", result.Status.ToString());
+                host.RunCommand("console", Guid.NewGuid().ToString(), command);
             }
             else
             {
