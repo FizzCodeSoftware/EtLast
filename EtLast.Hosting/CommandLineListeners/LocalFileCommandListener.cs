@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using FizzCode.EtLast.Host;
-using Serilog.Events;
+﻿using FizzCode.EtLast.Host;
 
 namespace FizzCode.EtLast;
 
