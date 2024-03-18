@@ -326,7 +326,6 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
     {
         stoppingToken.Register(() => StopGracefully());
         await Execute();
-        Console.WriteLine("execute is over");
         Lifetime?.StopApplication();
     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
