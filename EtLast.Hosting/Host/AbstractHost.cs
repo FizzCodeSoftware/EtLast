@@ -195,7 +195,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
             Logger.Write(LogEventLevel.Information, "stopping all command listeners...");
             CommandListenerTerminationTokenSource.Cancel();
 
-            Lifetime?.StopApplication();
+            //Lifetime?.StopApplication();
         }
     }
 
@@ -310,7 +310,8 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
         var builder = new HostBuilder()
             .ConfigureServices((ctx, svc) => svc
                 .AddHostedService(sp => this)
-            );
+            )
+            .ConfigureHostOptions(ho => ho.ShutdownTimeout = Timeout.InfiniteTimeSpan);
 
         CustomizeHostBuilder(builder);
 
@@ -330,7 +331,9 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
     {
         stoppingToken.Register(() => StopAllCommandListeners());
         await Execute();
+        //Logger.Write(LogEventLevel.Debug, "Execute finished");
         Lifetime?.StopApplication();
+        //Logger.Write(LogEventLevel.Debug, "StopApplication finished");
     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 #pragma warning restore CA2016 // Forward the 'CancellationToken' parameter to methods

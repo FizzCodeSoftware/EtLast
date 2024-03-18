@@ -16,6 +16,10 @@ await new WindowsConsoleHost("EtLast Integration Tests", serviceName)
 
         return new ConsoleCommandListener();
     })
+    .UseCommandListener(hostArgs => new LocalFileCommandListener()
+    {
+        CommandFilePath = @"h:\command.txt",
+    })
     .SetAlias("test", "test-modules AdoNetTests FlowTests")
     .SetAlias("ado", "run AdoNetTests Main")
     .SetAlias("flow", "run FlowTests Main")
