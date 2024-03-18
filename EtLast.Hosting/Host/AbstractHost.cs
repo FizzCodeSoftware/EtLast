@@ -54,7 +54,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
 
     private int _activeCommandCounter;
 
-    protected CancellationTokenSource GracefulTerminationTokenSource { get; } = new CancellationTokenSource();
+    protected CancellationTokenSource CommandListenerTerminationTokenSource { get; } = new CancellationTokenSource();
 
     private readonly List<Thread> threads = [];
     private readonly List<ICommandListener> listeners = [];
@@ -135,7 +135,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
             {
                 try
                 {
-                    listener.Listen(this, GracefulTerminationTokenSource.Token);
+                    listener.Listen(this, CommandListenerTerminationTokenSource.Token);
                     listeners.Add(listener);
                 }
                 catch (Exception ex)
@@ -188,12 +188,12 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
         _cancellationTokenSource.Cancel();
     }
 
-    public void StopGracefully()
+    public void StopAllCommandListeners()
     {
-        if (!GracefulTerminationTokenSource.IsCancellationRequested)
+        if (!CommandListenerTerminationTokenSource.IsCancellationRequested)
         {
-            Logger.Write(LogEventLevel.Information, "gracefully stopping...");
-            GracefulTerminationTokenSource.Cancel();
+            Logger.Write(LogEventLevel.Information, "stopping all command listeners...");
+            CommandListenerTerminationTokenSource.Cancel();
 
             Lifetime?.StopApplication();
         }
@@ -236,7 +236,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
             switch (commandParts[0].ToLowerInvariant())
             {
                 case "stop":
-                    StopGracefully();
+                    StopAllCommandListeners();
                     return new ExecutionResult(ExecutionStatusCode.Success);
                 case "exit":
                     Terminate();
@@ -328,7 +328,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async () =>
     {
-        stoppingToken.Register(() => StopGracefully());
+        stoppingToken.Register(() => StopAllCommandListeners());
         await Execute();
         Lifetime?.StopApplication();
     });
