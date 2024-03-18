@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
+﻿using System.Threading;
+
+namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 public class Main : AbstractEtlTask
 {
@@ -18,6 +20,14 @@ public class Main : AbstractEtlTask
             .ExecuteProcess(() => new CopyTableIntoNewTableTests())
             .ExecuteProcess(() => new DropDatabase())
             .HandleError(() => new DropDatabase())
+            .CustomJob("longrunnning", _ =>
+            {
+                for (var i = 0; i < 30; i++)
+                {
+                    Console.WriteLine(i);
+                    Thread.Sleep(1000);
+                }
+            })
             .ThrowOnError();
     }
 }

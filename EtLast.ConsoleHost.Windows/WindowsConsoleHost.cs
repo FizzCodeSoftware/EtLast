@@ -9,6 +9,7 @@ public class WindowsConsoleHost : ConsoleHost
     public string ServiceName { get; }
 
     private Semaphore StopAcrossProcessesSemaphore;
+    private bool StopAcrossProcessesSemaphoreTriggered = false;
 
     public WindowsConsoleHost(string name, string serviceName)
         : base(name)
@@ -103,12 +104,19 @@ public class WindowsConsoleHost : ConsoleHost
 
     protected override void InsideMainLoop()
     {
+        if (StopAcrossProcessesSemaphoreTriggered)
+            return;
+
         var success = false;
         try
         {
             success = StopAcrossProcessesSemaphore.WaitOne(1000);
             if (!success)
+            {
                 Logger.Write(LogEventLevel.Debug, "interprocess stop semaphore triggered");
+                StopAcrossProcessesSemaphoreTriggered = true;
+                StopAllCommandListeners();
+            }
         }
         catch (Exception)
         {
@@ -117,11 +125,6 @@ public class WindowsConsoleHost : ConsoleHost
         {
             if (success)
                 StopAcrossProcessesSemaphore.Release();
-        }
-
-        if (!success)
-        {
-            StopGracefully();
         }
     }
 
