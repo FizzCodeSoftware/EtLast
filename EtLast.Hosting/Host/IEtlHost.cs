@@ -9,8 +9,8 @@ public interface IEtlHost
 
     public void Terminate();
     public CancellationToken CancellationToken { get; }
-    public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null);
-    public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, System.Threading.Tasks.Task> resultHandler = null);
+    public IExecutionResult RunCommand(string source, string commandId, string command, Func<IExecutionResult, Task> resultHandler = null);
+    public IExecutionResult RunCommand(string source, string commandId, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null);
 
     public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; }
     public Dictionary<string, string> CommandAliases { get; }

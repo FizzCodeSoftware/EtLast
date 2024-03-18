@@ -21,12 +21,12 @@ await new WindowsConsoleHost("EtLast Integration Tests", serviceName)
     .SetAlias("flow", "run FlowTests Main")
     .ConfigureSession((builder, sessionArguments) => builder.UseRollingDevLogManifestFiles(null))
 
-    .IfInstanceIs("WSDEVONE", host => host
+    /*.IfInstanceIs("WSDEVONE", host => host
         .IfDebuggerAttached(host => host
             .RegisterEtlContextListener(context => new DiagnosticsHttpSender(context)
             {
                 MaxCommunicationErrorCount = 2,
                 Url = "http://localhost:8642",
             }))
-        )
+        )*/
     .RunAsync();

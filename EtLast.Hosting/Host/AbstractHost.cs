@@ -92,7 +92,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
         {
             Logger.Debug("command line arguments: {CommandLineArguments}", commandLineArgs);
 
-            var result = RunCommand(Guid.NewGuid().ToString(), commandLineArgs).Status;
+            var result = RunCommand("command line arguments", Guid.NewGuid().ToString(), commandLineArgs).Status;
 
             if (Debugger.IsAttached)
             {
@@ -166,7 +166,9 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
 
         if (_activeCommandCounter > 0)
         {
-            Logger.Write(LogEventLevel.Information, "waiting for {CommandCount} commands to finish, before host is terminated...", _activeCommandCounter);
+            Logger.Write(LogEventLevel.Information, "waiting for {CommandCount} commands to finish, before host is terminated...",
+                _activeCommandCounter);
+
             while (_activeCommandCounter != 0)
             {
                 Thread.Sleep(100);
@@ -197,22 +199,24 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
         }
     }
 
-    public IExecutionResult RunCommand(string commandId, string command, Func<IExecutionResult, Task> resultHandler = null)
+    public IExecutionResult RunCommand(string source, string commandId, string command, Func<IExecutionResult, Task> resultHandler = null)
     {
         var commandParts = QuoteSplitterRegex
             .Matches(command.Trim())
             .Select(x => x.Value)
             .ToArray();
 
-        return RunCommand(commandId, commandParts, resultHandler);
+        return RunCommand(source, commandId, commandParts, resultHandler);
     }
 
-    public IExecutionResult RunCommand(string commandId, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
+    public IExecutionResult RunCommand(string source, string commandId, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
+        Logger.Information("command {CommandId} started by {CommandSource}: {Command}", commandId, source, string.Join(' ', commandParts));
         var result = RunCommandInternal(commandId, commandParts);
         resultHandler?.Invoke(result)?.Wait();
         Interlocked.Decrement(ref _activeCommandCounter);
+        Logger.Information("command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
         return result;
     }
 
@@ -326,7 +330,6 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
     {
         stoppingToken.Register(() => StopGracefully());
         await Execute();
-        Console.WriteLine("execute is over");
         Lifetime?.StopApplication();
     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
