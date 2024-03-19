@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 var builder = new HostApplicationBuilder();
 builder.Services.AddLogging(x => x.ClearProviders());
 
-builder.Services.AddEtLastCommandService(() => new WindowsConsoleEtlCommandService("EtLast Integration Tests", "EtLastIntegrationTest")
+builder.Services.AddEtLastCommandService(() => new WindowsCommandService("EtLast Integration Tests", "EtLastIntegrationTest")
     .AddCommandListener(serviceArgs =>
     {
         Console.WriteLine("list of automatically compiled service argument values:");
