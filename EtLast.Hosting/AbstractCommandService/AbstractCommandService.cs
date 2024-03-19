@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractCommandService : IHostedService, IEtlCommandService
+public abstract class AbstractCommandService : IHostedService, ICommandService
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 

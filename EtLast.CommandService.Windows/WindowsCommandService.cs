@@ -138,7 +138,7 @@ public class WindowsCommandService : CommandService
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class WindowsConsoleHostHelpers
 {
-    public static IServiceCollection AddEtLastCommandService(this IServiceCollection services, Func<WindowsCommandService> consoleHostCreator)
+    public static IServiceCollection AddEtlCommandService(this IServiceCollection services, Func<WindowsCommandService> consoleHostCreator)
     {
         var consoleHost = consoleHostCreator.Invoke();
         services.AddHostedService(serviceProvider =>

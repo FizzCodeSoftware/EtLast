@@ -4,7 +4,7 @@ namespace FizzCode.EtLast;
 
 public class ConsoleCommandListener : ICommandListener
 {
-    public void Listen(IEtlCommandService commandService, CancellationToken cancellationToken)
+    public void Listen(ICommandService commandService, CancellationToken cancellationToken)
     {
         var commands = new List<string>();
         var lck = new object();
@@ -53,7 +53,7 @@ public class ConsoleCommandListener : ICommandListener
         //Console.WriteLine("listening on console finished: " + thread.ThreadState.ToString());
     }
 
-    private ThreadStart ListenForNewCommand(IEtlCommandService host, List<string> commands, object lck, CancellationToken cancellationToken)
+    private ThreadStart ListenForNewCommand(ICommandService host, List<string> commands, object lck, CancellationToken cancellationToken)
     {
         return () =>
         {

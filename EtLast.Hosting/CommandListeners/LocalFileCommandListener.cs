@@ -6,7 +6,7 @@ public class LocalFileCommandListener : ICommandListener
 {
     public required string CommandFilePath { get; init; }
 
-    public void Listen(IEtlCommandService commandService, CancellationToken cancellationToken)
+    public void Listen(ICommandService commandService, CancellationToken cancellationToken)
     {
         commandService.Logger.Write(LogEventLevel.Information, "listening the following file for commands: " + CommandFilePath);
 
