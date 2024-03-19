@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Hosting;
 
-public interface IEtlCommandService
+public interface ICommandService
 {
     public string Name { get; }
     public ILogger Logger { get; }

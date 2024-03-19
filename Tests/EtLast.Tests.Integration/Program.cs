@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 var builder = new HostApplicationBuilder();
 builder.Services.AddLogging(x => x.ClearProviders());
 
-builder.Services.AddEtLastCommandService(() => new WindowsCommandService("EtLast Integration Tests", "EtLastIntegrationTest")
+builder.Services.AddEtlCommandService(() => new WindowsCommandService("EtLast Integration Tests", "EtLastIntegrationTest")
     .AddCommandListener(serviceArgs =>
     {
         Console.WriteLine("list of automatically compiled service argument values:");
@@ -20,6 +20,10 @@ builder.Services.AddEtLastCommandService(() => new WindowsCommandService("EtLast
 
         return new ConsoleCommandListener();
     })
+    /*.AddCommandListener(args => new LocalFileCommandListener()
+    {
+        CommandFilePath = @"h:\command.txt",
+    })*/
     .SetAlias("test", "test-modules AdoNetTests FlowTests")
     .SetAlias("ado", "run AdoNetTests Main")
     .SetAlias("flow", "run FlowTests Main")

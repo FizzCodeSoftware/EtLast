@@ -59,7 +59,7 @@ public static class AbstractCommandServiceFluent
     }
 
     /// <summary>
-    /// .NET allows maximum 10 minute long transactions, but each <see cref="IEtlCommandService"/> automatically apply a hack with 4 hours, which can be overwritten by using this method.
+    /// .NET allows maximum 10 minute long transactions, but each <see cref="ICommandService"/> automatically apply a hack with 4 hours, which can be overwritten by using this method.
     /// </summary>
     /// <param name="commandService"></param>
     /// <param name="maxTimeout"></param>
