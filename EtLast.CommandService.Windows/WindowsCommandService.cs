@@ -1,13 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
-public class WindowsConsoleEtlCommandService : CommandService
+public class WindowsCommandService : CommandService
 {
     public string ServiceName { get; }
 
     private Semaphore StopAcrossProcessesSemaphore;
     private bool StopAcrossProcessesSemaphoreTriggered = false;
 
-    public WindowsConsoleEtlCommandService(string name, string serviceName)
+    public WindowsCommandService(string name, string serviceName)
         : base(name)
     {
         ServiceName = serviceName;
@@ -138,7 +138,7 @@ public class WindowsConsoleEtlCommandService : CommandService
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class WindowsConsoleHostHelpers
 {
-    public static IServiceCollection AddEtLastCommandService(this IServiceCollection services, Func<WindowsConsoleEtlCommandService> consoleHostCreator)
+    public static IServiceCollection AddEtLastCommandService(this IServiceCollection services, Func<WindowsCommandService> consoleHostCreator)
     {
         var consoleHost = consoleHostCreator.Invoke();
         services.AddHostedService(serviceProvider =>
