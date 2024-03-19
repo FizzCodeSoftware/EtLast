@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public class ConsoleHost : AbstractHost
 {
@@ -294,5 +292,25 @@ public class ConsoleHost : AbstractHost
                 }
             })
             .ToList();
+    }
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+public static class ConsoleHostHelpers
+{
+    public static IHostBuilder EnableEtLast(this IHostBuilder builder, Func<ConsoleHost> consoleHostCreator)
+    {
+        var consoleHost = consoleHostCreator.Invoke();
+
+        builder.ConfigureServices(services => services.AddHostedService(serviceProvider =>
+        {
+            var hostLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
+            consoleHost.HostLifetime = hostLifetime;
+            return consoleHost;
+        }));
+
+        builder.UseConsoleLifetime();
+
+        return builder;
     }
 }

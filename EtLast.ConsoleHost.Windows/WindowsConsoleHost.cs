@@ -1,8 +1,4 @@
-﻿using System.Security.AccessControl;
-using System.Security.Principal;
-using Microsoft.Extensions.Hosting;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public class WindowsConsoleHost : ConsoleHost
 {
@@ -25,20 +21,6 @@ public class WindowsConsoleHost : ConsoleHost
         StopAcrossProcessesSemaphore = SemaphoreAcl.Create(100, 100, semaphoreName, out var createdNew, semaphoreSecurity);
 
         Logger.Write(LogEventLevel.Debug, "interprocess semaphore is {CreatedOrTaken}: {Name}", createdNew ? "CREATED" : "TAKEN", semaphoreName);
-    }
-
-    protected override void CustomizeHostBuilder(IHostBuilder builder)
-    {
-        if (Microsoft.Extensions.Hosting.WindowsServices.WindowsServiceHelpers.IsWindowsService())
-        {
-            builder.UseWindowsService(x => x.ServiceName = ServiceName);
-        }
-        else
-        {
-            builder.UseConsoleLifetime();
-        }
-
-        // base.CustomizeHostBuilder is not called for a reason
     }
 
     protected override IExecutionResult RunCustomCommand(string commandId, string[] commandParts)
@@ -150,5 +132,33 @@ public class WindowsConsoleHost : ConsoleHost
         }
 
         Process.Start(new ProcessStartInfo("sc", string.Format("delete {0}", name)));
+    }
+}
+
+[EditorBrowsable(EditorBrowsableState.Never)]
+public static class WindowsConsoleHostHelpers
+{
+    public static IHostBuilder EnableEtLast(this IHostBuilder builder, Func<WindowsConsoleHost> consoleHostCreator)
+    {
+        var consoleHost = consoleHostCreator.Invoke();
+
+        builder.ConfigureServices(services => services.AddHostedService(serviceProvider =>
+        {
+            var hostLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
+            consoleHost.HostLifetime = hostLifetime;
+            return consoleHost;
+        }));
+
+        if (Microsoft.Extensions.Hosting.WindowsServices.WindowsServiceHelpers.IsWindowsService())
+        {
+            builder.UseWindowsService(x => x.ServiceName = consoleHost.ServiceName);
+            builder.ConfigureHostOptions(ho => ho.ShutdownTimeout = Timeout.InfiniteTimeSpan);
+        }
+        else
+        {
+            builder.UseConsoleLifetime();
+        }
+
+        return builder;
     }
 }

@@ -1,6 +1,11 @@
 ﻿global using System;
+global using System.ComponentModel;
 global using System.Data;
 global using System.Diagnostics;
 global using System.Linq;
+global using System.Security.AccessControl;
+global using System.Security.Principal;
 global using System.Threading;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
 global using Serilog.Events;

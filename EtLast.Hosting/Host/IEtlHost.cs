@@ -5,8 +5,6 @@ public interface IEtlHost
     public string Name { get; }
     public ILogger Logger { get; }
 
-    public Task RunAsync();
-
     public void Terminate();
     public CancellationToken CancellationToken { get; }
     public IExecutionResult RunCommand(string source, string commandId, string command, Func<IExecutionResult, Task> resultHandler = null);
