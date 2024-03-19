@@ -1,11 +1,11 @@
-﻿using FizzCode.EtLast.Host;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.Concurrent;
+using FizzCode.EtLast.Host;
 using Microsoft.Extensions.Hosting;
 
 namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractHost : BackgroundService, IEtlHost
+public abstract class AbstractHost : IHostedService, IEtlHost
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -38,7 +38,7 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
 
     protected static readonly Regex QuoteSplitterRegex = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
-    public IHostApplicationLifetime Lifetime { get; private set; }
+    public IHostApplicationLifetime HostLifetime { get; set; }
 
     protected AbstractHost(string name)
     {
@@ -56,36 +56,10 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
 
     protected CancellationTokenSource CommandListenerTerminationTokenSource { get; } = new CancellationTokenSource();
 
-    private readonly List<Thread> threads = [];
-    private readonly List<ICommandListener> listeners = [];
+    private readonly List<Thread> commandListenerThreads = [];
+    private readonly ConcurrentDictionary<int, ICommandListener> commandListeners = [];
 
-    private void Init()
-    {
-        Logger = CreateHostLogger();
-
-        AppDomain.MonitoringIsEnabled = true;
-        AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
-        AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
-
-        Console.WriteLine();
-        Logger.Information("{ProgramName} {ProgramVersion} started", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
-
-        Console.WriteLine();
-        Console.WriteLine("Environment:");
-        Console.WriteLine("  {0,-23} = {1}", "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
-        Console.WriteLine("  {0,-23} = {1}", "Instance", Environment.MachineName);
-        Console.WriteLine("  {0,-23} = {1}", "UserName", Environment.UserName);
-        Console.WriteLine("  {0,-23} = {1}", "UserDomainName", Environment.UserDomainName);
-        Console.WriteLine("  {0,-23} = {1}", "OSVersion", Environment.OSVersion);
-        Console.WriteLine("  {0,-23} = {1}", "ProcessorCount", Environment.ProcessorCount);
-        Console.WriteLine("  {0,-23} = {1}", "UserInteractive", Environment.UserInteractive);
-        Console.WriteLine("  {0,-23} = {1}", "Is64Bit", Environment.Is64BitProcess);
-        Console.WriteLine("  {0,-23} = {1}", "IsPrivileged", Environment.IsPrivilegedProcess);
-        Console.WriteLine("  {0,-23} = {1}", "TickCountSinceStartup", Environment.TickCount64);
-        Console.WriteLine();
-    }
-
-    private void Start()
+    private void StartCommandListeners()
     {
         var commandLineArgs = Environment.GetCommandLineArgs().Skip(1).ToArray();
         if (commandLineArgs.Length > 0)
@@ -135,8 +109,9 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
             {
                 try
                 {
+                    commandListeners[Environment.CurrentManagedThreadId] = listener;
                     listener.Listen(this, CommandListenerTerminationTokenSource.Token);
-                    listeners.Add(listener);
+                    commandListeners.TryRemove(Environment.CurrentManagedThreadId, out var l);
                 }
                 catch (Exception ex)
                 {
@@ -144,43 +119,13 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
                 }
             });
 
-            threads.Add(thread);
+            commandListenerThreads.Add(thread);
             thread.Start();
         }
     }
 
-    private async Task<ExecutionStatusCode> Execute()
-    {
-        while (true)
-        {
-            if (!threads.Any(x => x.ThreadState is System.Threading.ThreadState.Running or System.Threading.ThreadState.WaitSleepJoin))
-            {
-                Logger.Write(LogEventLevel.Information, "all command listener threads stopped, terminating host...");
-                break;
-            }
-
-            InsideMainLoop();
-
-            Thread.Sleep(100);
-        }
-
-        if (_activeCommandCounter > 0)
-        {
-            Logger.Write(LogEventLevel.Information, "waiting for {CommandCount} commands to finish, before host is terminated...",
-                _activeCommandCounter);
-
-            while (_activeCommandCounter != 0)
-            {
-                Thread.Sleep(100);
-            }
-        }
-
-        return ExecutionStatusCode.Success;
-    }
-
     protected virtual void InsideMainLoop()
     {
-
     }
 
     public void Terminate()
@@ -190,12 +135,10 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
 
     public void StopAllCommandListeners()
     {
-        if (!CommandListenerTerminationTokenSource.IsCancellationRequested)
+        if (!commandListeners.IsEmpty && !CommandListenerTerminationTokenSource.IsCancellationRequested)
         {
             Logger.Write(LogEventLevel.Information, "stopping all command listeners...");
             CommandListenerTerminationTokenSource.Cancel();
-
-            //Lifetime?.StopApplication();
         }
     }
 
@@ -293,31 +236,73 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
         field.SetValue(null, maxValue);
     }
 
-    public override Task StartAsync(CancellationToken cancellationToken)
-    {
-        Init();
-        AfterInit();
-        Start();
-        return base.StartAsync(cancellationToken);
-    }
+    private Thread _mainThread;
 
     protected virtual void AfterInit()
     {
     }
 
-    public async Task RunAsync()
+    public Task StartAsync(CancellationToken cancellationToken)
     {
-        var builder = new HostBuilder()
-            .ConfigureServices((ctx, svc) => svc
-                .AddHostedService(sp => this)
-            )
-            .ConfigureHostOptions(ho => ho.ShutdownTimeout = Timeout.InfiniteTimeSpan);
+        Logger = CreateHostLogger();
 
-        CustomizeHostBuilder(builder);
+        AppDomain.MonitoringIsEnabled = true;
+        AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
+        AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
-        var appHost = builder.Build();
-        Lifetime = appHost.Services.GetRequiredService<IHostApplicationLifetime>();
-        await appHost.RunAsync();
+        if (Environment.UserInteractive)
+        {
+            Console.WriteLine();
+            Logger.Information("{ProgramName} {ProgramVersion} started", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
+            Console.WriteLine();
+            Console.WriteLine("Environment:");
+            Console.WriteLine("  {0,-23} = {1}", "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
+            Console.WriteLine("  {0,-23} = {1}", "Instance", Environment.MachineName);
+            Console.WriteLine("  {0,-23} = {1}", "UserName", Environment.UserName);
+            Console.WriteLine("  {0,-23} = {1}", "UserDomainName", Environment.UserDomainName);
+            Console.WriteLine("  {0,-23} = {1}", "OSVersion", Environment.OSVersion);
+            Console.WriteLine("  {0,-23} = {1}", "ProcessorCount", Environment.ProcessorCount);
+            Console.WriteLine("  {0,-23} = {1}", "UserInteractive", Environment.UserInteractive);
+            Console.WriteLine("  {0,-23} = {1}", "Is64Bit", Environment.Is64BitProcess);
+            Console.WriteLine("  {0,-23} = {1}", "IsPrivileged", Environment.IsPrivilegedProcess);
+            Console.WriteLine("  {0,-23} = {1}", "TickCountSinceStartup", Environment.TickCount64);
+            Console.WriteLine();
+        }
+        else
+        {
+            Logger.Information("{ProgramName} {ProgramVersion} started", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
+        }
+
+        AfterInit();
+
+        StartCommandListeners();
+
+        _mainThread = new Thread(() =>
+        {
+            while (commandListenerThreads.Any(x => x.ThreadState is System.Threading.ThreadState.Running or System.Threading.ThreadState.WaitSleepJoin))
+            {
+                InsideMainLoop();
+                Thread.Sleep(100);
+            }
+
+            if (_activeCommandCounter > 0)
+            {
+                Logger.Write(LogEventLevel.Information, "waiting for {CommandCount} commands to finish, before host is terminated...",
+                    _activeCommandCounter);
+
+                while (_activeCommandCounter != 0)
+                {
+                    Thread.Sleep(100);
+                }
+            }
+
+            Logger.Write(LogEventLevel.Debug, "EtLast stopped");
+            HostLifetime?.StopApplication();
+        });
+
+        _mainThread.Start();
+
+        return Task.CompletedTask;
     }
 
     protected virtual void CustomizeHostBuilder(IHostBuilder builder)
@@ -325,16 +310,16 @@ public abstract class AbstractHost : BackgroundService, IEtlHost
         builder.UseConsoleLifetime();
     }
 
-#pragma warning disable CA2016 // Forward the 'CancellationToken' parameter to methods
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async () =>
+    public Task StopAsync(CancellationToken cancellationToken)
     {
-        stoppingToken.Register(() => StopAllCommandListeners());
-        await Execute();
-        //Logger.Write(LogEventLevel.Debug, "Execute finished");
-        Lifetime?.StopApplication();
-        //Logger.Write(LogEventLevel.Debug, "StopApplication finished");
-    });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-#pragma warning restore CA2016 // Forward the 'CancellationToken' parameter to methods
+        StopAllCommandListeners();
+
+        if (_mainThread.ThreadState != System.Threading.ThreadState.Stopped)
+        {
+            Logger.Write(LogEventLevel.Debug, "waiting for EtLast to finish");
+            _mainThread.Join();
+        }
+
+        return Task.CompletedTask;
+    }
 }

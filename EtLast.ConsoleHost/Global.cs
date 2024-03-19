@@ -12,5 +12,7 @@ global using System.Text;
 global using System.Text.Json;
 global using System.Threading;
 global using System.Transactions;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
 global using Serilog;
 global using Serilog.Events;
