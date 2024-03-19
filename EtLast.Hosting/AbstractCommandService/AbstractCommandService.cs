@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractEtlCommandService : IHostedService, IEtlCommandService
+public abstract class AbstractCommandService : IHostedService, IEtlCommandService
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -40,7 +40,7 @@ public abstract class AbstractEtlCommandService : IHostedService, IEtlCommandSer
 
     public IHostApplicationLifetime HostLifetime { get; set; }
 
-    protected AbstractEtlCommandService(string name)
+    protected AbstractCommandService(string name)
     {
         Name = name;
         Logger = CreateHostLogger();
@@ -295,7 +295,7 @@ public abstract class AbstractEtlCommandService : IHostedService, IEtlCommandSer
                 }
             }
 
-            Logger.Write(LogEventLevel.Debug, "EtLast stopped");
+            Logger.Write(LogEventLevel.Debug, "EtLast service stopped");
             HostLifetime?.StopApplication();
         });
 

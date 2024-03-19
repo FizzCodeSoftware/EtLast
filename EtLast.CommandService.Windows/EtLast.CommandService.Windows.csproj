@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <PackageId>FizzCode.EtLast.ConsoleHost</PackageId>
-    <Description>Console host for EtLast ETL (Extract, Transform and Load) library</Description>
-    <AssemblyName>FizzCode.EtLast.ConsoleHost</AssemblyName>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <PackageId>FizzCode.EtLast.CommandService.Windows</PackageId>
+    <Description>Windows-specific command service for EtLast ETL (Extract, Transform and Load) library</Description>
+    <AssemblyName>FizzCode.EtLast.CommandService.Windows</AssemblyName>
     <RootNamespace>FizzCode.EtLast</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
@@ -16,25 +16,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="8.0.4" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.11.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="4.0.1" />
+    <PackageReference Include="System.Threading.AccessControl" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
-    <ProjectReference Include="..\EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj" />
-    <ProjectReference Include="..\EtLast.Hosting\EtLast.Hosting.csproj" />
-    <ProjectReference Include="..\EtLast\EtLast.csproj" />
+    <ProjectReference Include="..\EtLast.CommandService\EtLast.CommandService.csproj" />
   </ItemGroup>
 
 </Project>

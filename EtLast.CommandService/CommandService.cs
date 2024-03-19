@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class SimpleConsoleEtlCommandService : AbstractEtlCommandService
+public class CommandService : AbstractCommandService
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     public string HostLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log-service", "host");
@@ -43,9 +43,9 @@ public class SimpleConsoleEtlCommandService : AbstractEtlCommandService
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ConsoleHostFluent.SessionBuilderAction SessionConfigurator { get; internal set; }
+    public SimpleConsoleEtlCommandServiceFluent.SessionBuilderAction SessionConfigurator { get; internal set; }
 
-    public SimpleConsoleEtlCommandService(string name)
+    public CommandService(string name)
         : base(name)
     {
         ModulesDirectory = @".\Modules";
@@ -293,7 +293,7 @@ public class SimpleConsoleEtlCommandService : AbstractEtlCommandService
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ConsoleHostHelpers
 {
-    public static IServiceCollection AddEtLastCommandService(this IServiceCollection services, Func<SimpleConsoleEtlCommandService> consoleHostCreator)
+    public static IServiceCollection AddEtLastCommandService(this IServiceCollection services, Func<CommandService> consoleHostCreator)
     {
         var consoleHost = consoleHostCreator.Invoke();
         services.AddHostedService(serviceProvider =>

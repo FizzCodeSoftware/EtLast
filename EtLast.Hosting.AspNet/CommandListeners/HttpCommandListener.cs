@@ -56,8 +56,6 @@ public abstract class HttpCommandListener : ICommandListener
             {
                 commandService.Logger.Error(ex, "error during the execution of the http listener application");
             }
-
-            //Thread.Sleep(60000);
         }
         finally
         {

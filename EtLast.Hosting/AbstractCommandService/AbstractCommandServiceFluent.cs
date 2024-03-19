@@ -6,42 +6,42 @@ namespace FizzCode.EtLast;
 public static class AbstractCommandServiceFluent
 {
     public static T AddCommandListener<T>(this T commandService, Func<IArgumentCollection, ICommandListener> listenerCreator)
-        where T : AbstractEtlCommandService
+        where T : AbstractCommandService
     {
         commandService.CommandListenerCreators.Add(listenerCreator);
         return commandService;
     }
 
     public static T RegisterEtlContextListener<T>(this T commandService, Func<IEtlContext, IEtlContextListener> listenerCreator)
-        where T : AbstractEtlCommandService
+        where T : AbstractCommandService
     {
         commandService.EtlContextListeners.Add(listenerCreator);
         return commandService;
     }
 
     public static T SetAlias<T>(this T commandService, string alias, string commandLine)
-        where T : AbstractEtlCommandService
+        where T : AbstractCommandService
     {
         commandService.CommandAliases[alias] = commandLine;
         return commandService;
     }
 
     public static T DisableSerilogForModules<T>(this T commandService)
-        where T : AbstractEtlCommandService
+        where T : AbstractCommandService
     {
         commandService.SerilogForModulesDisabled = false;
         return commandService;
     }
 
     public static T DisableSerilogForCommands<T>(this T commandService)
-        where T : AbstractEtlCommandService
+        where T : AbstractCommandService
     {
         commandService.SerilogForCommandsEnabled = false;
         return commandService;
     }
 
     public static T IfInstanceIs<T>(this T commandService, string instanceName, Func<T, T> action)
-        where T : AbstractEtlCommandService
+        where T : AbstractCommandService
     {
         if (Environment.MachineName.Equals(instanceName, StringComparison.InvariantCultureIgnoreCase))
             return action.Invoke(commandService);
@@ -50,7 +50,7 @@ public static class AbstractCommandServiceFluent
     }
 
     public static T IfDebuggerAttached<T>(this T commandService, Func<T, T> action)
-        where T : AbstractEtlCommandService
+        where T : AbstractCommandService
     {
         if (Debugger.IsAttached)
             return action.Invoke(commandService);
@@ -65,7 +65,7 @@ public static class AbstractCommandServiceFluent
     /// <param name="maxTimeout"></param>
     /// <returns></returns>
     public static T SetMaxTransactionTimeout<T>(this T commandService, TimeSpan maxTimeout)
-        where T : AbstractEtlCommandService
+        where T : AbstractCommandService
     {
         commandService.MaxTransactionTimeout = maxTimeout;
         return commandService;

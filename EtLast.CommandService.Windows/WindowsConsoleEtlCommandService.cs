@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class WindowsConsoleEtlCommandService : SimpleConsoleEtlCommandService
+public class WindowsConsoleEtlCommandService : CommandService
 {
     public string ServiceName { get; }
 

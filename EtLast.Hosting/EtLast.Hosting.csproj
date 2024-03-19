@@ -28,8 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
-    <ProjectReference Include="..\EtLast.Diagnostics.Interface\EtLast.Diagnostics.Interface.csproj" />
     <ProjectReference Include="..\EtLast\EtLast.csproj" />
   </ItemGroup>
 
