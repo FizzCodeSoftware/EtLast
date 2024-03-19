@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\EtLast.AdoNet\EtLast.AdoNet.csproj" />
-    <ProjectReference Include="..\..\EtLast.ConsoleHost.Windows\EtLast.ConsoleHost.Windows.csproj" />
+    <ProjectReference Include="..\..\EtLast.CommandService.Windows\EtLast.CommandService.Windows.csproj" />
     <ProjectReference Include="..\..\EtLast.Diagnostics.HttpSender\EtLast.Diagnostics.HttpSender.csproj" />
     <ProjectReference Include="..\..\EtLast.EPPlus\EtLast.EPPlus.csproj" />
     <ProjectReference Include="..\..\EtLast\EtLast.csproj" />
@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="HostArguments\**">
+    <Compile Update="ServiceArguments\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

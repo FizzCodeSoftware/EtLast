@@ -1,13 +1,13 @@
 ﻿namespace FizzCode.EtLast;
 
-public class WindowsConsoleHost : ConsoleHost
+public class WindowsConsoleEtlCommandService : CommandService
 {
     public string ServiceName { get; }
 
     private Semaphore StopAcrossProcessesSemaphore;
     private bool StopAcrossProcessesSemaphoreTriggered = false;
 
-    public WindowsConsoleHost(string name, string serviceName)
+    public WindowsConsoleEtlCommandService(string name, string serviceName)
         : base(name)
     {
         ServiceName = serviceName;
@@ -138,27 +138,26 @@ public class WindowsConsoleHost : ConsoleHost
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class WindowsConsoleHostHelpers
 {
-    public static IHostBuilder EnableEtLast(this IHostBuilder builder, Func<WindowsConsoleHost> consoleHostCreator)
+    public static IServiceCollection AddEtLastCommandService(this IServiceCollection services, Func<WindowsConsoleEtlCommandService> consoleHostCreator)
     {
         var consoleHost = consoleHostCreator.Invoke();
-
-        builder.ConfigureServices(services => services.AddHostedService(serviceProvider =>
+        services.AddHostedService(serviceProvider =>
         {
             var hostLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
             consoleHost.HostLifetime = hostLifetime;
             return consoleHost;
-        }));
+        });
 
         if (Microsoft.Extensions.Hosting.WindowsServices.WindowsServiceHelpers.IsWindowsService())
         {
-            builder.UseWindowsService(x => x.ServiceName = consoleHost.ServiceName);
-            builder.ConfigureHostOptions(ho => ho.ShutdownTimeout = Timeout.InfiniteTimeSpan);
-        }
-        else
-        {
-            builder.UseConsoleLifetime();
+            services.AddWindowsService(x => x.ServiceName = consoleHost.ServiceName);
+            services.Configure<HostOptions>(options =>
+            {
+                options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+                options.ShutdownTimeout = Timeout.InfiniteTimeSpan;
+            });
         }
 
-        return builder;
+        return services;
     }
 }

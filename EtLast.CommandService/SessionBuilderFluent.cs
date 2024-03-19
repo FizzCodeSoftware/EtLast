@@ -1,14 +1,14 @@
 ﻿namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class ConsoleHostSessionBuilderExtensions
+public static class SessionBuilderFluent
 {
     public static ISessionBuilder UseRollingDevLogManifestFiles(this ISessionBuilder session, int? maxFileCount = null, int? maxSizeOnDisk = 64 * 1024 * 1024)
     {
         var directory = Path.Combine(session.DevLogDirectory, "manifest");
         CleanupManifestDirectory(maxFileCount, maxSizeOnDisk, directory);
 
-        return session.AddManifestProcessor(new ConsoleHostJsonManifestProcessor()
+        return session.AddManifestProcessor(new CommandServiceJsonManifestProcessor()
         {
             Directory = directory,
             FileNameGenerator = manifest => manifest.CreatedOnUtc.ToString("yyyyMMdd-HHmmssfff", CultureInfo.InvariantCulture) + ".json",
