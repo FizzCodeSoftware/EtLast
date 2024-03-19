@@ -1,4 +1,4 @@
-﻿using FizzCode.EtLast.Host;
+﻿using FizzCode.EtLast.Hosting;
 
 namespace FizzCode.EtLast;
 
@@ -6,11 +6,11 @@ public class LocalFileCommandListener : ICommandListener
 {
     public required string CommandFilePath { get; init; }
 
-    public void Listen(IEtlHost host, CancellationToken cancellationToken)
+    public void Listen(IEtlCommandService commandService, CancellationToken cancellationToken)
     {
-        host.Logger.Write(LogEventLevel.Information, "listening the following file for commands: " + CommandFilePath);
+        commandService.Logger.Write(LogEventLevel.Information, "listening the following file for commands: " + CommandFilePath);
 
-        while (!host.CancellationToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        while (!commandService.CancellationToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
             string command = null;
             if (File.Exists(CommandFilePath))
@@ -25,7 +25,7 @@ public class LocalFileCommandListener : ICommandListener
             if (command != null)
             {
                 File.Move(CommandFilePath, Path.ChangeExtension(CommandFilePath, ".old"));
-                host.RunCommand("file", Guid.NewGuid().ToString(), command);
+                commandService.RunCommand("file", Guid.NewGuid().ToString(), command);
             }
             else
             {

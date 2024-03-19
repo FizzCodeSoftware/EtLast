@@ -2,7 +2,7 @@
 
 public abstract class HttpCommandListener : ICommandListener
 {
-    public void Listen(IEtlHost host, CancellationToken cancellationToken)
+    public void Listen(IEtlCommandService commandService, CancellationToken cancellationToken)
     {
         var mutexName = GetType().AssemblyQualifiedName + "|" + Environment.ProcessPath.Replace(Path.DirectorySeparatorChar, '_');
         var mutex = new Mutex(false, mutexName, out var _);
@@ -31,21 +31,21 @@ public abstract class HttpCommandListener : ICommandListener
 
             if (exists)
             {
-                host.Logger.Write(LogEventLevel.Information, "listening for http requests is skipped because another listener is already running...");
+                commandService.Logger.Write(LogEventLevel.Information, "listening for http requests is skipped because another listener is already running...");
                 return;
             }
 
             if (abandoned)
             {
-                host.Logger.Write(LogEventLevel.Information, "abandoned http listener mutex detected (and ignored)");
+                commandService.Logger.Write(LogEventLevel.Information, "abandoned http listener mutex detected (and ignored)");
             }
 
-            host.Logger.Write(LogEventLevel.Information, "listening for http requests...");
-            var app = CreateApplication(host);
+            commandService.Logger.Write(LogEventLevel.Information, "listening for http requests...");
+            var app = CreateApplication(commandService);
             if (app == null)
                 return;
 
-            host.CancellationToken.Register(() => app.StopAsync().Wait());
+            commandService.CancellationToken.Register(() => app.StopAsync().Wait());
             cancellationToken.Register(() => app.StopAsync().Wait());
 
             try
@@ -54,7 +54,7 @@ public abstract class HttpCommandListener : ICommandListener
             }
             catch (Exception ex)
             {
-                host.Logger.Error(ex, "error during the execution of the http listener application");
+                commandService.Logger.Error(ex, "error during the execution of the http listener application");
             }
 
             //Thread.Sleep(60000);
@@ -63,12 +63,12 @@ public abstract class HttpCommandListener : ICommandListener
         {
             if (mustRelease)
             {
-                host.Logger.Write(LogEventLevel.Information, "releasing http listener mutex...");
+                commandService.Logger.Write(LogEventLevel.Information, "releasing http listener mutex...");
                 mutex.ReleaseMutex();
-                host.Logger.Write(LogEventLevel.Information, "http listener mutex released");
+                commandService.Logger.Write(LogEventLevel.Information, "http listener mutex released");
             }
         }
     }
 
-    protected abstract WebApplication CreateApplication(IEtlHost host);
+    protected abstract WebApplication CreateApplication(IEtlCommandService host);
 }

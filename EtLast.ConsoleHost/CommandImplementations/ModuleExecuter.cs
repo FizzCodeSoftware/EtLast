@@ -2,7 +2,7 @@
 
 internal static class ModuleExecuter
 {
-    public static IExecutionResult Execute(ConsoleHost host, string commandId, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments)
+    public static IExecutionResult Execute(SimpleConsoleEtlCommandService host, string commandId, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments)
     {
         var executionResult = new ExecutionResult();
         var instance = Environment.MachineName;

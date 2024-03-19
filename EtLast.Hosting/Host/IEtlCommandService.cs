@@ -1,6 +1,6 @@
-﻿namespace FizzCode.EtLast.Host;
+﻿namespace FizzCode.EtLast.Hosting;
 
-public interface IEtlHost
+public interface IEtlCommandService
 {
     public string Name { get; }
     public ILogger Logger { get; }
@@ -15,5 +15,5 @@ public interface IEtlHost
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; }
     public TimeSpan MaxTransactionTimeout { get; set; }
     public bool SerilogForModulesDisabled { get; set; }
-    public bool SerilogForHostEnabled { get; set; }
+    public bool SerilogForCommandsEnabled { get; set; }
 }

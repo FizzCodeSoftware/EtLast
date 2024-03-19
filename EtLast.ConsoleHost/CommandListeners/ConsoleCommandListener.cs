@@ -1,17 +1,17 @@
-﻿using FizzCode.EtLast.Host;
+﻿using FizzCode.EtLast.Hosting;
 
 namespace FizzCode.EtLast;
 
 public class ConsoleCommandListener : ICommandListener
 {
-    public void Listen(IEtlHost host, CancellationToken cancellationToken)
+    public void Listen(IEtlCommandService commandService, CancellationToken cancellationToken)
     {
         var commands = new List<string>();
         var lck = new object();
 
         if (Environment.UserInteractive)
         {
-            var thread = new Thread(ListenForNewCommand(host, commands, lck, cancellationToken))
+            var thread = new Thread(ListenForNewCommand(commandService, commands, lck, cancellationToken))
             {
                 IsBackground = true,
             };
@@ -21,14 +21,14 @@ public class ConsoleCommandListener : ICommandListener
 
         if (Environment.UserInteractive)
         {
-            host.Logger.Write(LogEventLevel.Information, "listening on console");
+            commandService.Logger.Write(LogEventLevel.Information, "listening on console");
         }
         else
         {
-            host.Logger.Write(LogEventLevel.Information, "listening on console (non-interactive mode)");
+            commandService.Logger.Write(LogEventLevel.Information, "listening on console (non-interactive mode)");
         }
 
-        while (!host.CancellationToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        while (!commandService.CancellationToken.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
         {
             string command = null;
             lock (lck)
@@ -42,7 +42,7 @@ public class ConsoleCommandListener : ICommandListener
 
             if (command != null)
             {
-                host.RunCommand("console", Guid.NewGuid().ToString(), command);
+                commandService.RunCommand("console", Guid.NewGuid().ToString(), command);
             }
             else
             {
@@ -53,7 +53,7 @@ public class ConsoleCommandListener : ICommandListener
         //Console.WriteLine("listening on console finished: " + thread.ThreadState.ToString());
     }
 
-    private ThreadStart ListenForNewCommand(IEtlHost host, List<string> commands, object lck, CancellationToken cancellationToken)
+    private ThreadStart ListenForNewCommand(IEtlCommandService host, List<string> commands, object lck, CancellationToken cancellationToken)
     {
         return () =>
         {

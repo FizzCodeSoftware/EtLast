@@ -2,7 +2,7 @@
 
 internal static class ModuleLister
 {
-    public static void ListModules(ConsoleHost host)
+    public static void ListModules(SimpleConsoleEtlCommandService host)
     {
         var moduleNames = GetAllModules(host.ModulesDirectory);
         host.Logger.Information("available modules: {ModuleNames}", moduleNames);

@@ -1,8 +1,8 @@
-﻿using FizzCode.EtLast.Host;
+﻿using FizzCode.EtLast.Hosting;
 
 namespace FizzCode.EtLast;
 
 public interface ICommandListener
 {
-    public void Listen(IEtlHost host, CancellationToken cancellationToken);
+    public void Listen(IEtlCommandService commandService, CancellationToken cancellationToken);
 }

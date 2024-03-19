@@ -1,38 +1,30 @@
 ﻿using System;
 using FizzCode.EtLast;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-new HostBuilder()
-    .EnableEtLast(() => new WindowsConsoleHost("EtLast Integration Tests", "EtLastIntegrationTest")
-        .UseCommandListener(hostArgs =>
+var builder = new HostApplicationBuilder();
+builder.Services.AddLogging(x => x.ClearProviders());
+
+builder.Services.AddEtLastCommandService(() => new WindowsConsoleEtlCommandService("EtLast Integration Tests", "EtLastIntegrationTest")
+    .AddCommandListener(serviceArgs =>
+    {
+        Console.WriteLine("list of automatically compiled service argument values:");
+        foreach (var key in serviceArgs.AllKeys)
         {
-            Console.WriteLine("list of automatically compiled host argument values:");
-            foreach (var key in hostArgs.AllKeys)
-            {
-                var v = hostArgs.GetAs<string>(key);
-                if (v != null)
-                    Console.WriteLine("[" + key + "] = [" + v + "]");
-            }
+            var v = serviceArgs.GetAs<string>(key);
+            if (v != null)
+                Console.WriteLine("[" + key + "] = [" + v + "]");
+        }
 
-            return new ConsoleCommandListener();
-        })
-        .UseCommandListener(hostArgs => new LocalFileCommandListener()
-        {
-            CommandFilePath = @"h:\command.txt",
-        })
-        .SetAlias("test", "test-modules AdoNetTests FlowTests")
-        .SetAlias("ado", "run AdoNetTests Main")
-        .SetAlias("flow", "run FlowTests Main")
-        .ConfigureSession((builder, sessionArguments) => builder.UseRollingDevLogManifestFiles(null))
+        return new ConsoleCommandListener();
+    })
+    .SetAlias("test", "test-modules AdoNetTests FlowTests")
+    .SetAlias("ado", "run AdoNetTests Main")
+    .SetAlias("flow", "run FlowTests Main")
+    .ConfigureSession((builder, sessionArguments) => builder.UseRollingDevLogManifestFiles(null))
+    );
 
-        /*.IfInstanceIs("WSDEVONE", host => host
-            .IfDebuggerAttached(host => host
-                .RegisterEtlContextListener(context => new DiagnosticsHttpSender(context)
-                {
-                    MaxCommunicationErrorCount = 2,
-                    Url = "http://localhost:8642",
-                }))
-            )*/
-        )
-    .Build()
-    .Run();
+var host = builder.Build();
+host.Run();

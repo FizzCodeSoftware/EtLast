@@ -1,11 +1,11 @@
 ﻿using System.Collections.Concurrent;
-using FizzCode.EtLast.Host;
+using FizzCode.EtLast.Hosting;
 using Microsoft.Extensions.Hosting;
 
 namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class AbstractHost : IHostedService, IEtlHost
+public abstract class AbstractEtlCommandService : IHostedService, IEtlCommandService
 {
     private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -22,7 +22,7 @@ public abstract class AbstractHost : IHostedService, IEtlHost
     public bool SerilogForModulesDisabled { get; set; } = true;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public bool SerilogForHostEnabled { get; set; } = true;
+    public bool SerilogForCommandsEnabled { get; set; } = true;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public TimeSpan MaxTransactionTimeout { get; set; } = TimeSpan.FromHours(4);
@@ -40,13 +40,14 @@ public abstract class AbstractHost : IHostedService, IEtlHost
 
     public IHostApplicationLifetime HostLifetime { get; set; }
 
-    protected AbstractHost(string name)
+    protected AbstractEtlCommandService(string name)
     {
         Name = name;
+        Logger = CreateHostLogger();
     }
 
     protected abstract ILogger CreateHostLogger();
-    protected abstract IArgumentCollection LoadHostArguments();
+    protected abstract IArgumentCollection LoadServiceArguments();
     protected abstract IExecutionResult RunCustomCommand(string commandId, string[] commandParts);
 
     protected abstract void ListCommands();
@@ -81,19 +82,19 @@ public abstract class AbstractHost : IHostedService, IEtlHost
         ListCommands();
         ListModules();
 
-        IArgumentCollection hostArguments = null;
+        IArgumentCollection serviceArguments = null;
         try
         {
-            hostArguments = LoadHostArguments();
-            if (hostArguments == null)
+            serviceArguments = LoadServiceArguments();
+            if (serviceArguments == null)
             {
-                Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling host arguments");
+                Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling service arguments");
                 return;
             }
         }
         catch (Exception ex)
         {
-            Logger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling host arguments");
+            Logger.Write(LogEventLevel.Fatal, ex, "unexpected exception while compiling service arguments");
             return;
         }
 
@@ -101,7 +102,7 @@ public abstract class AbstractHost : IHostedService, IEtlHost
 
         foreach (var creator in CommandListenerCreators)
         {
-            var listener = creator.Invoke(hostArguments);
+            var listener = creator.Invoke(serviceArguments);
             if (listener == null)
                 continue;
 
@@ -244,8 +245,6 @@ public abstract class AbstractHost : IHostedService, IEtlHost
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        Logger = CreateHostLogger();
-
         AppDomain.MonitoringIsEnabled = true;
         AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
@@ -287,7 +286,7 @@ public abstract class AbstractHost : IHostedService, IEtlHost
 
             if (_activeCommandCounter > 0)
             {
-                Logger.Write(LogEventLevel.Information, "waiting for {CommandCount} commands to finish, before host is terminated...",
+                Logger.Write(LogEventLevel.Information, "waiting for {CommandCount} commands to finish, before service is terminated...",
                     _activeCommandCounter);
 
                 while (_activeCommandCounter != 0)
@@ -303,11 +302,6 @@ public abstract class AbstractHost : IHostedService, IEtlHost
         _mainThread.Start();
 
         return Task.CompletedTask;
-    }
-
-    protected virtual void CustomizeHostBuilder(IHostBuilder builder)
-    {
-        builder.UseConsoleLifetime();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

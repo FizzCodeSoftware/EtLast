@@ -8,7 +8,7 @@ internal static class ModuleLoader
 {
     private static long _moduleAutoincrementId;
 
-    public static ExecutionStatusCode LoadModule(ConsoleHost host, string moduleName, ModuleCompilationMode compilationMode, out CompiledModule module)
+    public static ExecutionStatusCode LoadModule(SimpleConsoleEtlCommandService host, string moduleName, ModuleCompilationMode compilationMode, out CompiledModule module)
     {
         module = null;
 
@@ -181,7 +181,7 @@ internal static class ModuleLoader
         }
     }
 
-    public static void UnloadModule(ConsoleHost host, CompiledModule module)
+    public static void UnloadModule(SimpleConsoleEtlCommandService host, CompiledModule module)
     {
         host.Logger.Debug("unloading module {Module}", module.Name);
 
