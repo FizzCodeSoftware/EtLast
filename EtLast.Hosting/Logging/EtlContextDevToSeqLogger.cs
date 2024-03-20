@@ -4,11 +4,12 @@ internal class EtlContextDevToSeqLogger : IEtlContextListener
 {
     private readonly ILogger _logger;
 
-    public EtlContextDevToSeqLogger(string url, string apiKey, LogSeverity minimumLogLevel)
+    public EtlContextDevToSeqLogger(IEtlContext context, string url, string apiKey, LogSeverity minimumLogLevel)
     {
         var config = new LoggerConfiguration()
             .MinimumLevel.Is((LogEventLevel)minimumLogLevel)
-            .WriteTo.Seq(url, apiKey: apiKey);
+            .WriteTo.Seq(url, apiKey: apiKey)
+            .Enrich.WithProperty("ContextId", context.Manifest.ContextId);
 
         _logger = config.CreateLogger();
     }
@@ -132,7 +133,7 @@ public static class EtlContextDevToSeqLoggerFluent
 {
     public static ISessionBuilder LogDevToSeq(this ISessionBuilder builder, string url, string apiKey, LogSeverity minimumLogLevel = LogSeverity.Debug)
     {
-        builder.Context.Listeners.Add(new EtlContextDevToSeqLogger(url, apiKey, minimumLogLevel));
+        builder.Context.Listeners.Add(new EtlContextDevToSeqLogger(builder.Context, url, apiKey, minimumLogLevel));
         return builder;
     }
 }

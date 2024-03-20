@@ -28,25 +28,28 @@ internal static class ModuleExecuter
         };
 
         module.Startup?.BuildSession(sessionBuilder, arguments);
-        host.SessionConfigurator(sessionBuilder, arguments);
+
+        foreach (var configurator in host.SessionConfigurators)
+            configurator?.Invoke(sessionBuilder, arguments);
 
         context.Manifest.Extra["ModuleName"] = module.Name;
         context.Manifest.Extra["TaskNames"] = taskNames;
 
         foreach (var manifestProcessor in sessionBuilder.ManifestProcessors)
-        {
-            manifestProcessor.RegisterToManifestEvents(context, context.Manifest);
-        }
+            manifestProcessor?.RegisterToManifestEvents(context, context.Manifest);
 
         try
         {
-            if (host.EtlContextListeners?.Count > 0)
+            if (host.EtlContextListenerCreators?.Count > 0)
             {
-                foreach (var listenerCreator in host.EtlContextListeners)
+                foreach (var listenerCreator in host.EtlContextListenerCreators)
                 {
-                    var listener = listenerCreator.Invoke(context);
-                    listener.Start();
-                    context.Listeners.Add(listener);
+                    if (listenerCreator != null)
+                    {
+                        var listener = listenerCreator.Invoke(context);
+                        listener.Start();
+                        context.Listeners.Add(listener);
+                    }
                 }
             }
         }
@@ -58,9 +61,7 @@ internal static class ModuleExecuter
         }
 
         if (module.Startup == null)
-        {
-            context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing " + nameof(IStartup) + ".");
-        }
+            context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing {StartupClassName}", nameof(IStartup));
 
         context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Manifest.ContextName, context.Manifest.ContextId);
 

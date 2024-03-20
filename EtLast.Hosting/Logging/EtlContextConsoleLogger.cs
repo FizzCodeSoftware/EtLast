@@ -4,12 +4,13 @@ internal class EtlContextConsoleLogger : IEtlContextListener
 {
     private readonly ILogger _logger;
 
-    public EtlContextConsoleLogger(LogSeverity minimumLogLevel)
+    public EtlContextConsoleLogger(IEtlContext context, LogSeverity minimumLogLevel)
     {
         var config = new LoggerConfiguration()
-            .WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff} [{Level}] {Message} {Properties}{NewLine}{Exception}"),
+            .WriteTo.Sink(new ConsoleSink("[{Timestamp:HH:mm:ss.fff}] [{ContextId}] {Message} {Properties}{NewLine}{Exception}"),
                 (LogEventLevel)minimumLogLevel)
-            .MinimumLevel.Is((LogEventLevel)minimumLogLevel);
+            .MinimumLevel.Is((LogEventLevel)minimumLogLevel)
+            .Enrich.WithProperty("ContextId", context.Manifest.ContextId);
 
         _logger = config.CreateLogger();
     }
@@ -133,7 +134,7 @@ public static class EtlContextConsoleLoggerFluent
 {
     public static ISessionBuilder LogToConsole(this ISessionBuilder builder, LogSeverity minimumLogLevel = LogSeverity.Information)
     {
-        builder.Context.Listeners.Add(new EtlContextConsoleLogger(minimumLogLevel));
+        builder.Context.Listeners.Add(new EtlContextConsoleLogger(builder.Context, minimumLogLevel));
         return builder;
     }
 }
