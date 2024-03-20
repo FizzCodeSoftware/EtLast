@@ -15,7 +15,7 @@ public static class AbstractCommandServiceFluent
     public static T RegisterEtlContextListener<T>(this T commandService, Func<IEtlContext, IEtlContextListener> listenerCreator)
         where T : AbstractCommandService
     {
-        commandService.EtlContextListeners.Add(listenerCreator);
+        commandService.EtlContextListenerCreators.Add(listenerCreator);
         return commandService;
     }
 
@@ -26,17 +26,17 @@ public static class AbstractCommandServiceFluent
         return commandService;
     }
 
-    public static T DisableSerilogForModules<T>(this T commandService)
+    public static T DisableModuleLogging<T>(this T commandService)
         where T : AbstractCommandService
     {
-        commandService.SerilogForModulesDisabled = false;
+        commandService.ModuleLoggingEnabled = false;
         return commandService;
     }
 
-    public static T DisableSerilogForCommands<T>(this T commandService)
+    public static T DisableServiceLogging<T>(this T commandService)
         where T : AbstractCommandService
     {
-        commandService.SerilogForCommandsEnabled = false;
+        commandService.ServiceLoggingEnabled = false;
         return commandService;
     }
 

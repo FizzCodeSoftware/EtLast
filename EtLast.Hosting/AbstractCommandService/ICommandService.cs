@@ -12,8 +12,8 @@ public interface ICommandService
 
     public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; }
     public Dictionary<string, string> CommandAliases { get; }
-    public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; }
+    public List<Func<IEtlContext, IEtlContextListener>> EtlContextListenerCreators { get; }
     public TimeSpan MaxTransactionTimeout { get; set; }
-    public bool SerilogForModulesDisabled { get; set; }
-    public bool SerilogForCommandsEnabled { get; set; }
+    public bool ModuleLoggingEnabled { get; set; }
+    public bool ServiceLoggingEnabled { get; set; }
 }

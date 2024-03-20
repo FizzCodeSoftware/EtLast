@@ -31,10 +31,10 @@ public class WindowsCommandService : CommandService
                 StopAllAndWait();
                 return new ExecutionResult(ExecutionStatusCode.Success);
             case "--installsvc":
-                InstallWindowsService(ServiceName, Name, "delayed-auto");
+                InstallWindowsService("delayed-auto", null);
                 return new ExecutionResult(ExecutionStatusCode.Success);
             case "--uninstallsvc":
-                UninstallWindowsService(ServiceName);
+                UninstallWindowsService();
                 return new ExecutionResult(ExecutionStatusCode.Success);
         }
 
@@ -110,7 +110,7 @@ public class WindowsCommandService : CommandService
         }
     }
 
-    private void InstallWindowsService(string name, string displayName, string startMode, string customPath = null)
+    private void InstallWindowsService(string startMode, string customPath)
     {
         if (!Environment.IsPrivilegedProcess)
         {
@@ -118,12 +118,12 @@ public class WindowsCommandService : CommandService
             return;
         }
 
-        Process.Start(new ProcessStartInfo("sc", string.Format("delete {0}", name)));
-        Process.Start(new ProcessStartInfo("sc", string.Format("create {0} start={1} displayname=\"{2}\" binpath=\"\"{3}\"\"", name, startMode, displayName, customPath ?? Environment.ProcessPath)));
+        Process.Start(new ProcessStartInfo("sc", string.Format("delete {0}", ServiceName)));
+        Process.Start(new ProcessStartInfo("sc", string.Format("create {0} start={1} displayname=\"{2}\" binpath=\"\"{3}\"\"", ServiceName, startMode, Name, customPath ?? Environment.ProcessPath)));
         //Process.Start(new ProcessStartInfo("sc", string.Format("failure {0} reset=86400 actions=restart/1000/restart/1000/restart/1000", name)));
     }
 
-    private void UninstallWindowsService(string name)
+    private void UninstallWindowsService()
     {
         if (!Environment.IsPrivilegedProcess)
         {
@@ -131,26 +131,26 @@ public class WindowsCommandService : CommandService
             return;
         }
 
-        Process.Start(new ProcessStartInfo("sc", string.Format("delete {0}", name)));
+        Process.Start(new ProcessStartInfo("sc", string.Format("delete {0}", ServiceName)));
     }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class WindowsConsoleHostHelpers
+public static class WindowsCommandServiceFluent
 {
-    public static IServiceCollection AddEtlCommandService(this IServiceCollection services, Func<WindowsCommandService> consoleHostCreator)
+    public static IServiceCollection AddEtlCommandService(this IServiceCollection services, Func<WindowsCommandService> serviceCreator)
     {
-        var consoleHost = consoleHostCreator.Invoke();
+        var service = serviceCreator.Invoke();
         services.AddHostedService(serviceProvider =>
         {
             var hostLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
-            consoleHost.HostLifetime = hostLifetime;
-            return consoleHost;
+            service.HostLifetime = hostLifetime;
+            return service;
         });
 
         if (Microsoft.Extensions.Hosting.WindowsServices.WindowsServiceHelpers.IsWindowsService())
         {
-            services.AddWindowsService(x => x.ServiceName = consoleHost.ServiceName);
+            services.AddWindowsService(x => x.ServiceName = service.ServiceName);
             services.Configure<HostOptions>(options =>
             {
                 options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;

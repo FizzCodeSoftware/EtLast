@@ -3,13 +3,13 @@
 public class CommandService : AbstractCommandService
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string HostLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log-service", "host");
+    public string ServiceLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log", "svc");
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string DevLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log-service", "dev");
+    public string DevLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log", "dev");
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public string OpsLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log-service", "ops");
+    public string OpsLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log", "ops");
 
     public List<string> ReferenceAssemblyDirectories { get; } = [];
     public ModuleCompilationMode ModuleCompilationMode { get; internal set; } = ModuleCompilationMode.Dynamic;
@@ -43,7 +43,7 @@ public class CommandService : AbstractCommandService
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public SimpleConsoleEtlCommandServiceFluent.SessionBuilderAction SessionConfigurator { get; internal set; }
+    public List<CommandServiceFluent.SessionBuilderAction> SessionConfigurators { get; } = [];
 
     public CommandService(string name)
         : base(name)
@@ -56,14 +56,14 @@ public class CommandService : AbstractCommandService
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
     }
 
-    protected override ILogger CreateHostLogger()
+    protected override ILogger CreateServiceLogger()
     {
         var config = new LoggerConfiguration();
 
-        if (SerilogForCommandsEnabled)
+        if (ServiceLoggingEnabled)
         {
             config = config
-                .WriteTo.File(Path.Combine(HostLogDirectory, "host-.txt"),
+                .WriteTo.File(Path.Combine(ServiceLogDirectory, "host-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     formatProvider: CultureInfo.InvariantCulture,
@@ -267,7 +267,7 @@ public class CommandService : AbstractCommandService
 
         var selfDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         var localDllFilePaths = Directory.GetFiles(selfDirectory, "*.dll", SearchOption.TopDirectoryOnly)
-            .Where(x => !Path.GetFileName(x).StartsWith("FizzCode.EtLast.ConsoleHost.", StringComparison.InvariantCultureIgnoreCase)
+            .Where(x => !Path.GetFileName(x).StartsWith("FizzCode.EtLast.CommandService.", StringComparison.InvariantCultureIgnoreCase)
                 && !Path.GetFileName(x).Equals("testhost.dll", StringComparison.InvariantCultureIgnoreCase));
 
         referenceFilePaths.AddRange(localDllFilePaths);
@@ -287,22 +287,5 @@ public class CommandService : AbstractCommandService
                 }
             })
             .ToList();
-    }
-}
-
-[EditorBrowsable(EditorBrowsableState.Never)]
-public static class ConsoleHostHelpers
-{
-    public static IServiceCollection AddEtLastCommandService(this IServiceCollection services, Func<CommandService> consoleHostCreator)
-    {
-        var consoleHost = consoleHostCreator.Invoke();
-        services.AddHostedService(serviceProvider =>
-        {
-            var hostLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
-            consoleHost.HostLifetime = hostLifetime;
-            return consoleHost;
-        });
-
-        return services;
     }
 }

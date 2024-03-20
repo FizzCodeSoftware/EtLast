@@ -19,10 +19,10 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     public string Name { get; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public bool SerilogForModulesDisabled { get; set; } = true;
+    public bool ModuleLoggingEnabled { get; set; } = true;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public bool SerilogForCommandsEnabled { get; set; } = true;
+    public bool ServiceLoggingEnabled { get; set; } = true;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public TimeSpan MaxTransactionTimeout { get; set; } = TimeSpan.FromHours(4);
@@ -34,7 +34,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; } = [];
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public List<Func<IEtlContext, IEtlContextListener>> EtlContextListeners { get; } = [];
+    public List<Func<IEtlContext, IEtlContextListener>> EtlContextListenerCreators { get; } = [];
 
     protected static readonly Regex QuoteSplitterRegex = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
@@ -43,10 +43,10 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     protected AbstractCommandService(string name)
     {
         Name = name;
-        Logger = CreateHostLogger();
+        Logger = CreateServiceLogger();
     }
 
-    protected abstract ILogger CreateHostLogger();
+    protected abstract ILogger CreateServiceLogger();
     protected abstract IArgumentCollection LoadServiceArguments();
     protected abstract IExecutionResult RunCustomCommand(string commandId, string[] commandParts);
 

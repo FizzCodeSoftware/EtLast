@@ -117,10 +117,7 @@ public class EtlException : Exception
 
             if (assemblyName != null)
             {
-                if (assemblyName.Equals("CommandDotNet", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                if (assemblyName.Equals("FizzCode.EtLast.ConsoleHost", StringComparison.OrdinalIgnoreCase))
+                if (assemblyName.StartsWith("FizzCode.EtLast.CommandService", StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 try
