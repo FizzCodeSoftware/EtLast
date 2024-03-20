@@ -5,7 +5,7 @@ namespace FizzCode.EtLast;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class AbstractCommandServiceFluent
 {
-    public static T AddCommandListener<T>(this T commandService, Func<IArgumentCollection, ICommandListener> listenerCreator)
+    public static T AddCommandListener<T>(this T commandService, Func<ICommandService, IArgumentCollection, ICommandListener> listenerCreator)
         where T : AbstractCommandService
     {
         commandService.CommandListenerCreators.Add(listenerCreator);

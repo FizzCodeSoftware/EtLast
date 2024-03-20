@@ -6,13 +6,13 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
     private readonly string _directory;
     private readonly object _customFileLock = new();
 
-    public EtlContextOpsToFileLogger(string directory, int importantFileCount = 30, int infoFileCount = 14)
+    public EtlContextOpsToFileLogger(IEtlContext context, string directory, int importantFileCount = 30, int infoFileCount = 14)
     {
         _directory = directory;
         var config = new LoggerConfiguration()
             .WriteTo.File(Path.Combine(directory, "2-info-.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Information,
-                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: infoFileCount,
@@ -20,7 +20,7 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
 
             .WriteTo.File(Path.Combine(directory, "3-warning-.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Warning,
-                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: importantFileCount,
@@ -28,7 +28,7 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
 
             .WriteTo.File(Path.Combine(directory, "4-error-.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Error,
-                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: importantFileCount,
@@ -36,13 +36,15 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
 
             .WriteTo.File(Path.Combine(directory, "5-fatal-.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Fatal,
-                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: importantFileCount,
                 encoding: Encoding.UTF8);
 
-        config = config.MinimumLevel.Is(LogEventLevel.Information);
+        config = config
+            .MinimumLevel.Is(LogEventLevel.Information)
+            .Enrich.WithProperty("ContextId", context.Manifest.ContextId);
 
         _logger = config.CreateLogger();
     }
@@ -226,7 +228,7 @@ public static class EtlContextOpsToFileLoggerFluent
 {
     public static ISessionBuilder LogOpsToFile(this ISessionBuilder builder, int importantFileCount = 30, int infoFileCount = 14)
     {
-        builder.Context.Listeners.Add(new EtlContextOpsToFileLogger(builder.OpsLogDirectory, importantFileCount, infoFileCount));
+        builder.Context.Listeners.Add(new EtlContextOpsToFileLogger(builder.Context, builder.OpsLogDirectory, importantFileCount, infoFileCount));
         return builder;
     }
 }

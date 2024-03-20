@@ -31,7 +31,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; } = [];
+    public List<Func<ICommandService, IArgumentCollection, ICommandListener>> CommandListenerCreators { get; } = [];
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListenerCreators { get; } = [];
@@ -43,7 +43,6 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     protected AbstractCommandService(string name)
     {
         Name = name;
-        Logger = CreateServiceLogger();
     }
 
     protected abstract ILogger CreateServiceLogger();
@@ -57,7 +56,6 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
     protected CancellationTokenSource CommandListenerTerminationTokenSource { get; } = new CancellationTokenSource();
 
-    private readonly List<Thread> commandListenerThreads = [];
     private readonly ConcurrentDictionary<int, ICommandListener> commandListeners = [];
 
     private void StartCommandListeners()
@@ -102,7 +100,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
         foreach (var creator in CommandListenerCreators)
         {
-            var listener = creator.Invoke(serviceArguments);
+            var listener = creator.Invoke(this, serviceArguments);
             if (listener == null)
                 continue;
 
@@ -120,7 +118,6 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
                 }
             });
 
-            commandListenerThreads.Add(thread);
             thread.Start();
         }
     }
@@ -245,31 +242,30 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        Logger = CreateServiceLogger();
+
         AppDomain.MonitoringIsEnabled = true;
         AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
         if (Environment.UserInteractive)
         {
-            Console.WriteLine();
-            Logger.Information("{ProgramName} {ProgramVersion} started", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
-            Console.WriteLine();
-            Console.WriteLine("Environment:");
-            Console.WriteLine("  {0,-23} = {1}", "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
-            Console.WriteLine("  {0,-23} = {1}", "Instance", Environment.MachineName);
-            Console.WriteLine("  {0,-23} = {1}", "UserName", Environment.UserName);
-            Console.WriteLine("  {0,-23} = {1}", "UserDomainName", Environment.UserDomainName);
-            Console.WriteLine("  {0,-23} = {1}", "OSVersion", Environment.OSVersion);
-            Console.WriteLine("  {0,-23} = {1}", "ProcessorCount", Environment.ProcessorCount);
-            Console.WriteLine("  {0,-23} = {1}", "UserInteractive", Environment.UserInteractive);
-            Console.WriteLine("  {0,-23} = {1}", "Is64Bit", Environment.Is64BitProcess);
-            Console.WriteLine("  {0,-23} = {1}", "IsPrivileged", Environment.IsPrivilegedProcess);
-            Console.WriteLine("  {0,-23} = {1}", "TickCountSinceStartup", Environment.TickCount64);
-            Console.WriteLine();
+            Logger.Information("EtLast service started: {ProgramName} {ProgramVersion}", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
+            Logger.Debug("Environment:");
+            Logger.Debug("  {0,-23} = {1}", "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
+            Logger.Debug("  {0,-23} = {1}", "Instance", Environment.MachineName);
+            Logger.Debug("  {0,-23} = {1}", "UserName", Environment.UserName);
+            Logger.Debug("  {0,-23} = {1}", "UserDomainName", Environment.UserDomainName);
+            Logger.Debug("  {0,-23} = {1}", "OSVersion", Environment.OSVersion);
+            Logger.Debug("  {0,-23} = {1}", "ProcessorCount", Environment.ProcessorCount);
+            Logger.Debug("  {0,-23} = {1}", "UserInteractive", Environment.UserInteractive);
+            Logger.Debug("  {0,-23} = {1}", "Is64Bit", Environment.Is64BitProcess);
+            Logger.Debug("  {0,-23} = {1}", "IsPrivileged", Environment.IsPrivilegedProcess);
+            Logger.Debug("  {0,-23} = {1}", "TickCountSinceStartup", Environment.TickCount64);
         }
         else
         {
-            Logger.Information("{ProgramName} {ProgramVersion} started", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
+            Logger.Information("EtLast service started: {ProgramName} {ProgramVersion}", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
         }
 
         AfterInit();
@@ -278,7 +274,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
         _mainThread = new Thread(() =>
         {
-            while (commandListenerThreads.Any(x => x.ThreadState is System.Threading.ThreadState.Running or System.Threading.ThreadState.WaitSleepJoin))
+            while (!commandListeners.IsEmpty)
             {
                 InsideMainLoop();
                 Thread.Sleep(100);

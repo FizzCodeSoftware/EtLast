@@ -63,18 +63,20 @@ public class CommandService : AbstractCommandService
         if (ServiceLoggingEnabled)
         {
             config = config
-                .WriteTo.File(Path.Combine(ServiceLogDirectory, "host-.txt"),
+                .WriteTo.File(Path.Combine(ServiceLogDirectory, "svc-.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    outputTemplate: "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ServiceId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     formatProvider: CultureInfo.InvariantCulture,
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: int.MaxValue,
                     encoding: Encoding.UTF8)
 
-                .WriteTo.Sink(new ConsoleSink("{Timestamp:HH:mm:ss.fff} [{Level}] {Message} {Properties}{NewLine}{Exception}"), LogEventLevel.Debug);
+                .WriteTo.Sink(new ConsoleSink("[{Timestamp:HH:mm:ss.fff}] [{ServiceId}] {Message} {Properties}{NewLine}{Exception}"),
+                    LogEventLevel.Debug);
         }
 
         config.MinimumLevel.Is(LogEventLevel.Debug);
+        config.Enrich.WithProperty("ServiceId", Environment.ProcessId);
 
         return config.CreateLogger();
     }
@@ -222,12 +224,12 @@ public class CommandService : AbstractCommandService
 
     protected override void ListCommands()
     {
+        Console.WriteLine();
         Console.WriteLine("Commands:");
         Console.WriteLine("  run          <moduleName> <taskNames>");
         Console.WriteLine("  list-modules");
         Console.WriteLine("  test-modules [moduleNames]");
         Console.WriteLine("  exit");
-
         Console.WriteLine();
 
         if (CommandAliases?.Count > 0)

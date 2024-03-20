@@ -30,7 +30,7 @@ public static class CommandServiceFluent
         return service;
     }
 
-    public static T UseHostArgumentsDirectory<T>(this T service, string path)
+    public static T UseServiceArgumentsDirectory<T>(this T service, string path)
         where T : CommandService
     {
         service.ServiceArgumentsDirectory = path;

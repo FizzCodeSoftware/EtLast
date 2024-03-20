@@ -10,7 +10,7 @@ public interface ICommandService
     public IExecutionResult RunCommand(string source, string commandId, string command, Func<IExecutionResult, Task> resultHandler = null);
     public IExecutionResult RunCommand(string source, string commandId, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null);
 
-    public List<Func<IArgumentCollection, ICommandListener>> CommandListenerCreators { get; }
+    public List<Func<ICommandService, IArgumentCollection, ICommandListener>> CommandListenerCreators { get; }
     public Dictionary<string, string> CommandAliases { get; }
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListenerCreators { get; }
     public TimeSpan MaxTransactionTimeout { get; set; }
