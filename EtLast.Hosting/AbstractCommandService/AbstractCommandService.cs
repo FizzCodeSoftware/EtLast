@@ -1,8 +1,4 @@
-﻿using System.Collections.Concurrent;
-using FizzCode.EtLast.Hosting;
-using Microsoft.Extensions.Hosting;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractCommandService : IHostedService, ICommandService
@@ -14,6 +10,9 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public ILogger Logger { get; private set; }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public Microsoft.Extensions.Logging.ILoggerProvider LoggerProvider { get; private set; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public string Name { get; }
@@ -243,6 +242,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         Logger = CreateServiceLogger();
+        LoggerProvider = new SerilogLoggerProvider(Logger);
 
         AppDomain.MonitoringIsEnabled = true;
         AppDomain.CurrentDomain.UnhandledException -= UnhandledExceptionHandler;
