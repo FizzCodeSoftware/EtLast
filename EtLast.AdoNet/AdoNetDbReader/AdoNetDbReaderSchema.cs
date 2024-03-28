@@ -44,6 +44,6 @@ public class AdoNetDbReaderColumnInfo
 
     public override string ToString()
     {
-        return Name + ", " + ClrTypeName + ", " + DataTypeName + (Precision != null && Scale != null ? " (" + Precision.Value.ToString(CultureInfo.InvariantCulture) + ", " + Scale.Value.ToString(CultureInfo.InvariantCulture) + ")" : "") + (Size != null ? "[" + Size.Value.ToString(CultureInfo.InvariantCulture) + "]" : "");
+        return Name + ", " + ClrTypeName + ", " + DataTypeName + (Precision != null && Scale != null ? " (" + Precision.Value.ToString(CultureInfo.InvariantCulture) + ", " + Scale.Value.ToString(CultureInfo.InvariantCulture) + ")" : "") + (Size != null ? " [" + Size.Value.ToString(CultureInfo.InvariantCulture) + "]" : "");
     }
 }
