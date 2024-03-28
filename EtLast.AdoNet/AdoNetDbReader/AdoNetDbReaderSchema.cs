@@ -2,8 +2,10 @@
 
 namespace FizzCode.EtLast;
 
-public class AdoNetDbReaderColumnSchema
+public class AdoNetDbReaderColumnInfo
 {
+    public string Name { get; init; }
+
     [JsonIgnore]
     public Type ClrType { get; init; }
 
