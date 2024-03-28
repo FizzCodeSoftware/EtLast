@@ -37,10 +37,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     public bool InlineArrayParameters { get; init; } = true;
 
     /// <summary>
-    /// If initialized with an empty schema, then the schema returned by the ADO.NET connector based on the given query will be stored in it.
-    /// Key is the column name in the produced row, value is the exact data type of the field.
+    /// If initialized with a list, then the column info returned by the ADO.NET connector based on the given query will be stored in it.
     /// </summary>
-    public Dictionary<string, AdoNetDbReaderColumnSchema> SchemaColumns { get; init; } = [];
+    public List<AdoNetDbReaderColumnInfo> ColumnInfoList { get; init; } = [];
 
     protected abstract CommandType GetCommandType();
 
@@ -123,7 +122,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
             // key is the SOURCE column name
             var columnMap = Columns?.ToDictionary(kvp => kvp.Value?.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
 
-            var schemaTable = SchemaColumns != null
+            var schemaTable = ColumnInfoList != null
                 ? reader.GetSchemaTable()
                 : null;
 
@@ -210,7 +209,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
-                    columns[i].Schema = SchemaColumns[columns[i].NameInRow] = new AdoNetDbReaderColumnSchema()
+                    var info = new AdoNetDbReaderColumnInfo()
                     {
                         ClrType = reader.GetFieldType(i),
                         ClrTypeName = reader.GetFieldType(i).Name,
@@ -226,6 +225,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         IsRowVersion = properties.TryGetValue("IsRowVersion", out v) && v is bool bv6 ? bv6 : null,
                         AllProperties = properties.ToDictionary(x => x.Key, x => x.Value.ToString()),
                     };
+
+                    columns[i].Info = info;
+                    ColumnInfoList.Add(info);
                 }
             }
 
@@ -268,7 +270,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                     {
                         foreach (var processor in usedSqlValueProcessors)
                         {
-                            value = processor.ProcessValue(value, column.Schema);
+                            value = processor.ProcessValue(value, column.Info);
                         }
                     }
 
@@ -415,7 +417,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     {
         public string NameInRow { get; init; }
         public ReaderColumn Config { get; init; }
-        public AdoNetDbReaderColumnSchema Schema { get; set; }
+        public AdoNetDbReaderColumnInfo Info { get; set; }
     }
 
     protected abstract IoCommand RegisterIoCommand(string transactionId, int timeout, string statement);
