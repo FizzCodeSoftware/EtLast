@@ -211,6 +211,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
                     var info = new AdoNetDbReaderColumnInfo()
                     {
+                        Name = columns[i].NameInRow,
                         ClrType = reader.GetFieldType(i),
                         ClrTypeName = reader.GetFieldType(i).Name,
                         DataTypeName = dataTypeName,
