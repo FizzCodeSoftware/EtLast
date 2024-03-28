@@ -7,7 +7,7 @@ var builder = new HostApplicationBuilder();
 builder.Services.AddLogging(x => x.ClearProviders());
 
 builder.Services.AddEtLastCommandService(() => new CommandService("Sample ETL Host")
-    .AddCommandListener(serviceArguments => new ConsoleCommandListener())
+    .AddCommandListener((service, serviceArgs) => new ConsoleCommandListener())
     .SetAlias("test", "test-modules -a")
     .SetAlias("load", "run SampleModule Load")
     .ConfigureSession((builder, sessionArguments) => builder.UseRollingDevLogManifestFiles(1024))
