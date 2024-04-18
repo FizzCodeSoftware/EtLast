@@ -2,9 +2,9 @@
 
 public static class TestHelpers
 {
-    public static CustomJob CreateReadSqlTableAndAssertExactMatch(NamedConnectionString connectionString, string table, params CaseInsensitiveStringKeyDictionary<object>[] expectedRows)
+    public static CustomJob CreateReadSqlTableAndAssertExactMatch(NamedConnectionString connectionString, string table, params Dictionary<string, object>[] expectedRows)
     {
-        var expectedRowsList = new List<CaseInsensitiveStringKeyDictionary<object>>(expectedRows);
+        var expectedRowsList = new List<Dictionary<string, object>>(expectedRows);
         return new CustomJob()
         {
             Name = "ReadAndCheck" + table + "Table",
@@ -12,7 +12,7 @@ public static class TestHelpers
         };
     }
 
-    public static void ReadSqlTableAndAssertExactMacth(IProcess caller, NamedConnectionString connectionString, string table, List<CaseInsensitiveStringKeyDictionary<object>> expectedRows)
+    public static void ReadSqlTableAndAssertExactMacth(IProcess caller, NamedConnectionString connectionString, string table, List<Dictionary<string, object>> expectedRows)
     {
         var rows = ReadRows(caller, connectionString, table);
         Assert.That.ExactMatch(rows, expectedRows);

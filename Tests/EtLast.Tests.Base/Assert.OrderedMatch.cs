@@ -2,7 +2,7 @@
 
 public static class OrderedMatchHelper
 {
-    public static void ExactMatch(this Assert assert, List<ISlimRow> rows, List<CaseInsensitiveStringKeyDictionary<object>> referenceRows)
+    public static void ExactMatch(this Assert assert, List<ISlimRow> rows, List<Dictionary<string, object>> referenceRows)
     {
         ArgumentNullException.ThrowIfNull(assert);
 
