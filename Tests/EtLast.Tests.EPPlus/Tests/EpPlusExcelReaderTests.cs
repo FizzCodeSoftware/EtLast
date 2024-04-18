@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast.Tests.EPPlus;
+﻿using System.Collections.Generic;
+
+namespace FizzCode.EtLast.Tests.EPPlus;
 
 [TestClass]
 public class EpPlusExcelReaderTests
@@ -52,10 +54,10 @@ public class EpPlusExcelReaderTests
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
-            new() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
-            new() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
-            new() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } ]);
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -85,15 +87,15 @@ public class EpPlusExcelReaderTests
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(9, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
-            new() { ["Name"] = "AAA", ["Age"] = 20 },
-            new() { ["Name"] = "BBB", ["Age"] = 25 },
-            new() { ["Name"] = "CCC", ["Age"] = 10 },
-            new() { ["Name"] = "DDD", ["Age"] = 0 },
-            new() { ["Name"] = "EEE", ["Age"] = null },
-            new() { ["Name"] = "F", ["Age"] = -1 },
-            new() { ["Age"] = 9, ["Name"] = "x" },
-            new() { ["Age"] = 10, ["Name"] = "y" },
-            new() { ["Age"] = 11, ["Name"] = "z" } ]);
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Name"] = "AAA", ["Age"] = 20 },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Name"] = "BBB", ["Age"] = 25 },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Name"] = "CCC", ["Age"] = 10 },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Name"] = "DDD", ["Age"] = 0 },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Name"] = "EEE", ["Age"] = null },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Name"] = "F", ["Age"] = -1 },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Age"] = 9, ["Name"] = "x" },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Age"] = 10, ["Name"] = "y" },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Age"] = 11, ["Name"] = "z" } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -110,10 +112,10 @@ public class EpPlusExcelReaderTests
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
-            new() { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
-            new() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
-            new() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } ]);
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 0, ["Name"] = "A", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 
@@ -130,10 +132,10 @@ public class EpPlusExcelReaderTests
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(4, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
-            new() { ["Id"] = 0, ["Name"] = "A   ", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
-            new() { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
-            new() { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
-            new() { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } ]);
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 0, ["Name"] = "A   ", ["ValueString"] = "AAA", ["ValueInt"] = -1, ["ValueDate"] = null, ["ValueDouble"] = null },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 1, ["Name"] = "B", ["ValueString"] = "AAA", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 12, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 2, ["Name"] = "C", ["ValueString"] = "C", ["ValueInt"] = 3, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 1.234d },
+            new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 3, ["Name"] = "X", ["ValueString"] = "X", ["ValueInt"] = 2, ["ValueDate"] = new DateTime(2019, 4, 25, 0, 0, 0, 0), ["ValueDouble"] = 98d } ]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 }
