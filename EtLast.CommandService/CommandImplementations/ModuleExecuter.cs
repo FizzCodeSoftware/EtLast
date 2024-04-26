@@ -35,6 +35,15 @@ internal static class ModuleExecuter
         context.Manifest.Extra["ModuleName"] = module.Name;
         context.Manifest.Extra["TaskNames"] = taskNames;
 
+        if (userArguments != null)
+        {
+            foreach (var kvp in userArguments)
+            {
+                if (kvp.Value != null)
+                    context.Manifest.Extra[kvp.Key] = kvp.Value;
+            }
+        }
+
         foreach (var manifestProcessor in sessionBuilder.ManifestProcessors)
             manifestProcessor?.RegisterToManifestEvents(context, context.Manifest);
 
