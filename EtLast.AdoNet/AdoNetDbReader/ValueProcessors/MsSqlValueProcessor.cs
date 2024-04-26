@@ -9,12 +9,12 @@ public class MsSqlValueProcessor : ISqlValueProcessor
         return connectionString.GetAdoNetEngine() == AdoNetEngine.MsSql;
     }
 
-    public object ProcessValue(object value, AdoNetDbReaderColumnSchema columnSchema)
+    public object ProcessValue(object value, AdoNetDbReaderColumnInfo info)
     {
         if (value == null)
             return null;
 
-        if (value is byte[] bytes && bytes.Length == 8 && columnSchema.IsRowVersion == true)
+        if (value is byte[] bytes && bytes.Length == 8 && info.IsRowVersion == true)
         {
             value = BinaryPrimitives.ReadUInt64BigEndian(bytes);
         }

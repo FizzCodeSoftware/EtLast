@@ -2,8 +2,10 @@
 
 namespace FizzCode.EtLast;
 
-public class AdoNetDbReaderColumnSchema
+public class AdoNetDbReaderColumnInfo
 {
+    public string Name { get; init; }
+
     [JsonIgnore]
     public Type ClrType { get; init; }
 
@@ -39,4 +41,9 @@ public class AdoNetDbReaderColumnSchema
 
     [JsonIgnore]
     public Dictionary<string, string> AllProperties { get; init; }
+
+    public override string ToString()
+    {
+        return Name + ", " + ClrTypeName + ", " + DataTypeName + (Precision != null && Scale != null ? " (" + Precision.Value.ToString(CultureInfo.InvariantCulture) + ", " + Scale.Value.ToString(CultureInfo.InvariantCulture) + ")" : "") + (Size != null ? " [" + Size.Value.ToString(CultureInfo.InvariantCulture) + "]" : "");
+    }
 }

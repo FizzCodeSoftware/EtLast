@@ -45,8 +45,8 @@ public class MergeUpdateCountries : AbstractEtlTask
                     },
                 ],
             })
-            .ExecuteProcess(() => TestHelpers.CreateReadSqlTableAndAssertExactMatch(ConnectionString, nameof(MergeUpdateCountries), new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
-                new CaseInsensitiveStringKeyDictionary<object>() { ["Id"] = 2, ["Name"] = "United States of America Update", ["Abbreviation2"] = "UX", ["Abbreviation3"] = "USX" })
+            .ExecuteProcess(() => TestHelpers.CreateReadSqlTableAndAssertExactMatch(ConnectionString, nameof(MergeUpdateCountries), new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 1, ["Name"] = "Hungary", ["Abbreviation2"] = "HU", ["Abbreviation3"] = "HUN" },
+                new(StringComparer.InvariantCultureIgnoreCase) { ["Id"] = 2, ["Name"] = "United States of America Update", ["Abbreviation2"] = "UX", ["Abbreviation3"] = "USX" })
             );
     }
 
