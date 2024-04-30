@@ -9,7 +9,7 @@ public class MsSqlValueProcessor : ISqlValueProcessor
         return connectionString.GetAdoNetEngine() == AdoNetEngine.MsSql;
     }
 
-    public object ProcessValue(object value, AdoNetDbReaderColumnInfo info)
+    public object ProcessValue(object value, ColumnDataTypeInfo info)
     {
         if (value == null)
             return null;
