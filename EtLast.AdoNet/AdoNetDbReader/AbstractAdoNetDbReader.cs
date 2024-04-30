@@ -39,7 +39,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     /// <summary>
     /// If initialized with a list, then the column info returned by the ADO.NET connector based on the given query will be stored in it.
     /// </summary>
-    public List<AdoNetDbReaderColumnInfo> ColumnInfoList { get; init; } = [];
+    public List<ColumnDataTypeInfo> ColumnInfoList { get; init; } = [];
 
     protected abstract CommandType GetCommandType();
 
@@ -209,7 +209,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         }
                     }
 
-                    var info = new AdoNetDbReaderColumnInfo()
+                    var info = new ColumnDataTypeInfo()
                     {
                         Name = columns[i].NameInRow,
                         ClrType = reader.GetFieldType(i),
@@ -418,7 +418,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     {
         public string NameInRow { get; init; }
         public ReaderColumn Config { get; init; }
-        public AdoNetDbReaderColumnInfo Info { get; set; }
+        public ColumnDataTypeInfo Info { get; set; }
     }
 
     protected abstract IoCommand RegisterIoCommand(string transactionId, int timeout, string statement);

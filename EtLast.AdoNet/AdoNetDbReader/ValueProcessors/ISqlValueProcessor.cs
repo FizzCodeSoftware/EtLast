@@ -3,5 +3,5 @@
 public interface ISqlValueProcessor
 {
     bool Init(NamedConnectionString connectionString);
-    object ProcessValue(object value, AdoNetDbReaderColumnInfo info);
+    object ProcessValue(object value, ColumnDataTypeInfo info);
 }

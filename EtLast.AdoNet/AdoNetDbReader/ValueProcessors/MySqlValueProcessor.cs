@@ -13,7 +13,7 @@ public class MySqlValueProcessor : ISqlValueProcessor
         return connectionString.GetAdoNetEngine() == AdoNetEngine.MySql;
     }
 
-    public object ProcessValue(object value, AdoNetDbReaderColumnInfo info)
+    public object ProcessValue(object value, ColumnDataTypeInfo info)
     {
         if (value == null)
             return null;

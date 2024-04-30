@@ -2,7 +2,7 @@
 
 namespace FizzCode.EtLast;
 
-public class AdoNetDbReaderColumnInfo
+public class ColumnDataTypeInfo
 {
     public string Name { get; init; }
 
