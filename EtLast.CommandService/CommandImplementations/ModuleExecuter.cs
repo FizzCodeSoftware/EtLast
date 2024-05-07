@@ -75,7 +75,7 @@ internal static class ModuleExecuter
         context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Manifest.ContextName, context.Manifest.ContextId);
 
         var startedOn = Stopwatch.StartNew();
-        var taskResults = new List<TaskExectionResult>();
+        var taskResults = new List<TaskExecutionResult>();
         var flowState = new FlowState(context);
 
         try
@@ -101,8 +101,8 @@ internal static class ModuleExecuter
                 {
                     task.Execute(context, flowState);
 
-                    taskResults.Add(new TaskExectionResult(task));
-                    executionResult.TaskResults.Add(new TaskExectionResult(task));
+                    taskResults.Add(new TaskExecutionResult(task));
+                    executionResult.TaskResults.Add(new TaskExecutionResult(task));
 
                     if (flowState.Failed)
                     {
@@ -225,7 +225,7 @@ internal static class ModuleExecuter
         }
     }
 
-    private static void LogTaskSummary(IEtlContext context, TaskExectionResult result, int longestTaskName)
+    private static void LogTaskSummary(IEtlContext context, TaskExecutionResult result, int longestTaskName)
     {
         var spacing1 = "".PadRight(longestTaskName - result.TaskName.Length);
         var spacing1WithoutName = "".PadRight(longestTaskName);
