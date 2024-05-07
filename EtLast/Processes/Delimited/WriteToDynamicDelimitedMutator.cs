@@ -121,7 +121,6 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
                 }
 
                 sinkEntry.NamedSink.Stream.Write(_lineEndingBytes);
-                sinkEntry.NamedSink.IncreaseRowsWritten();
             }
         }
 

@@ -143,7 +143,6 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
 
             sinkEntry.State.NextRow++;
             sinkEntry.State.NextCol = 1;
-            sinkEntry.NamedSink.IncreaseRowsWritten();
         }
         catch (Exception ex)
         {
