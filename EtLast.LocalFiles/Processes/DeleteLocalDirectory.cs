@@ -18,6 +18,7 @@ public sealed class DeleteLocalDirectory : AbstractJob
         {
             var exception = new DeleteDirectoryException(this, ex);
             exception.Data["Path"] = Path;
+            exception.Data["Recursive"] = Recursive;
             throw exception;
         }
     }
