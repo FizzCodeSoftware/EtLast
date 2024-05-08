@@ -58,9 +58,9 @@ public sealed class DeserializeFromJsonStreams<T> : AbstractProcessWithResult<IE
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class DeserializeFromJsonFilesFluent
+public static class DeserializeFromJsonStreamsFluent
 {
-    public static IFlow DeserializeFromJsonFiles<TResult>(this IFlow builder, out IEnumerable<TResult> result, Func<DeserializeFromJsonStreams<TResult>> processCreator)
+    public static IFlow DeserializeFromJsonStreams<TResult>(this IFlow builder, out IEnumerable<TResult> result, Func<DeserializeFromJsonStreams<TResult>> processCreator)
     {
         return builder.ExecuteProcessWithResult(out result, processCreator);
     }

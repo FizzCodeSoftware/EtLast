@@ -47,9 +47,9 @@ public sealed class SerializeToJsonSink<T> : AbstractJob
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class SerializeToJsonFileFluent
+public static class SerializeToJsonSinkFluent
 {
-    public static IFlow SerializeToJsonFile<T>(this IFlow builder, Func<SerializeToJsonSink<T>> processCreator)
+    public static IFlow SerializeToJsonSink<T>(this IFlow builder, Func<SerializeToJsonSink<T>> processCreator)
     {
         return builder.ExecuteProcess(processCreator);
     }
