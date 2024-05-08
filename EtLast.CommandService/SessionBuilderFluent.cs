@@ -49,7 +49,7 @@ public static class SessionBuilderFluent
                 if (totalSize < maxSizeOnDisk.Value)
                     break;
 
-                File.Delete(files.Last().File);
+                File.Delete(files[^1].File);
                 files.RemoveAt(files.Count - 1);
             }
         }
