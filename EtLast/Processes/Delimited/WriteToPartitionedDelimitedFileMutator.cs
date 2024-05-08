@@ -131,7 +131,6 @@ public sealed class WriteToPartitionedDelimitedFileMutator : AbstractMutator, IR
                 }
 
                 sinkEntry.NamedSink.Stream.Write(_lineEndingBytes);
-                sinkEntry.NamedSink.IncreaseRowsWritten();
             }
         }
 

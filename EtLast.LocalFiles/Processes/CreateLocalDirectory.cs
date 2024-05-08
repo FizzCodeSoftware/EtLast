@@ -26,10 +26,11 @@ public sealed class CreateLocalDirectory : AbstractJob
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class CreateLocalDirectoryFluent
 {
-    public static IFlow CreateLocalDirectory(this IFlow builder, string path)
+    public static IFlow CreateLocalDirectory(this IFlow builder, string name, string path)
     {
         return builder.ExecuteProcess(() => new CreateLocalDirectory()
         {
+            Name = name,
             Path = path,
         });
     }

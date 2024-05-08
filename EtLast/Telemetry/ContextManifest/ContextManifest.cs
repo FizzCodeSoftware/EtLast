@@ -67,6 +67,7 @@ public class ContextManifest : IEtlContextListener
 
     public event ContextManifestClosedEvent ManifestClosed;
 
+    // todo: change to ConcurrentDictionary
     private Dictionary<long, ContextManifestSink> _sinks = [];
     private Dictionary<long, ContextManifestProcess> _processes = [];
     private Dictionary<(string, string, string), ContextManifestIoTarget> _ioTargets = [];
