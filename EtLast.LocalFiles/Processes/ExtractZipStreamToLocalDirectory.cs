@@ -1,6 +1,4 @@
-﻿using System.IO.Compression;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public sealed class ExtractZipStreamToLocalDirectory : AbstractJob
 {
