@@ -11,6 +11,14 @@ public sealed class CopyFromStreamToSink : AbstractJob
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         var stream = StreamProvider.GetStream(this);
+        var startPos = 0L;
+        var endPos = 0L;
+        try
+        {
+            startPos = stream.Stream.Position;
+        }
+        catch (Exception) { }
+
         try
         {
             var sink = SinkProvider.GetSink(this, null, null);
@@ -18,7 +26,13 @@ public sealed class CopyFromStreamToSink : AbstractJob
             {
                 stream.Stream.CopyTo(sink.Stream);
 
-                sink.IoCommand.AffectedDataCount += 1;
+                try
+                {
+                    endPos = stream.Stream.Position;
+                }
+                catch (Exception) { }
+
+                sink.IoCommand.AffectedDataCount += endPos - startPos;
                 sink.IoCommand.End();
             }
             finally
@@ -26,7 +40,7 @@ public sealed class CopyFromStreamToSink : AbstractJob
                 sink.Close();
             }
 
-            stream.IoCommand.AffectedDataCount += 1;
+            stream.IoCommand.AffectedDataCount += endPos - startPos;
             stream.IoCommand.End();
         }
         finally
