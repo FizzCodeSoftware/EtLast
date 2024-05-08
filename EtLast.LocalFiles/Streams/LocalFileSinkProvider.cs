@@ -31,6 +31,13 @@ public class LocalFileSinkProvider : IOneSinkProvider
 
     public bool AutomaticallyDispose => true;
 
+    public static LocalFileSinkProvider CreateOrOverwrite(string path) => new()
+    {
+        ActionWhenFileExists = LocalSinkFileExistsAction.Overwrite,
+        FileMode = FileMode.Create,
+        Path = path,
+    };
+
     public NamedSink GetSink(IProcess caller, string sinkFormat, string[] columns)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()

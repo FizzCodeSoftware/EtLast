@@ -33,6 +33,11 @@ public class LocalFileStreamProvider : IManyStreamProvider, IOneStreamProvider
             : null;
     }
 
+    public static LocalFileStreamProvider ReadFrom(string path) => new()
+    {
+        Path = path,
+    };
+
     public NamedStream GetStream(IProcess caller)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()

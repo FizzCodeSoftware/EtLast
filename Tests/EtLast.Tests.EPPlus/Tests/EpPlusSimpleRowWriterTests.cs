@@ -74,7 +74,7 @@ public class EpPlusSimpleRowWriterTests
             .ReadFromExcel(new EpPlusExcelReader()
             {
                 SheetName = "person",
-                StreamProvider = new MultipleLocalFilesInDirectoryStreamProvider()
+                StreamProvider = new LocalFilesInDirectoryStreamProvider()
                 {
                     Directory = directory,
                     SearchPattern = "*.xlsx",
@@ -173,7 +173,7 @@ public class EpPlusSimpleRowWriterTests
             .ReadFromExcel(new EpPlusExcelReader()
             {
                 SheetName = "person",
-                StreamProvider = new MultipleLocalFilesInDirectoryStreamProvider()
+                StreamProvider = new LocalFilesInDirectoryStreamProvider()
                 {
                     Directory = directory,
                     SearchPattern = "*.xlsx",

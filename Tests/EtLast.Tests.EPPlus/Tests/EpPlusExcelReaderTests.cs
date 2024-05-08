@@ -67,7 +67,7 @@ public class EpPlusExcelReaderTests
         var context = TestExecuter.GetContext();
         var reader = new EpPlusExcelReader()
         {
-            StreamProvider = new MultipleLocalFilesInDirectoryStreamProvider()
+            StreamProvider = new LocalFilesInDirectoryStreamProvider()
             {
                 Directory = @".\TestData\",
                 SearchPattern = "Partition*.xlsx"
