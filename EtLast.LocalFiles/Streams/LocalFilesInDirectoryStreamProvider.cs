@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
 [ContainsProcessParameterValidation]
-public class MultipleLocalFilesInDirectoryStreamProvider : IManyStreamProvider
+public class LocalFilesInDirectoryStreamProvider : IManyStreamProvider
 {
     [ProcessParameterMustHaveValue]
     public required string Directory { get; init; }
