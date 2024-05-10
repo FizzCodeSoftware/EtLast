@@ -32,8 +32,8 @@ public sealed class HungarianGiroBankAccountConverter(string formatHint = null, 
         {
             return value.Length switch
             {
-                16 => string.Concat(value.AsSpan(0, 8), "-", value.AsSpan(8, 8)),
-                24 => string.Concat(value[..8], "-", value.Substring(8, 8), "-", value.Substring(16, 8)),
+                16 => $"{value.AsSpan(0, 8)}-{value.AsSpan(8, 8)}",
+                24 => $"{value[..8]}-{value.Substring(8, 8)}-{value.Substring(16, 8)}",
                 _ => value,
             };
         }

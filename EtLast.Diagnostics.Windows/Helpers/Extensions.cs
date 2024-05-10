@@ -15,6 +15,6 @@ public static class Extensions
         if (text.Length <= length)
             return text;
 
-        return string.Concat(text.AsSpan(0, length - 3), "...");
+        return $"{text.AsSpan(0, length - 3)}...";
     }
 }

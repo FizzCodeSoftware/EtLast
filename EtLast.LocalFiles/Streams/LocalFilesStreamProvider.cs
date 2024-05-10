@@ -79,7 +79,7 @@ public class LocalFilesStreamProvider : IManyStreamProvider
         catch (Exception ex)
         {
             var exception = new LocalFileReadException(caller, "error while opening local file", ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", ex.Message));
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while opening local file: {0}, message: {1}", path, ex.Message));
             exception.Data["Path"] = path;
 
             ioCommand.AffectedDataCount = 0;
