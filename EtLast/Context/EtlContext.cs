@@ -49,7 +49,7 @@ public sealed class EtlContext : IEtlContext
 
         Manifest = new ContextManifest()
         {
-            ContextId = DateTime.UtcNow.Ticks,
+            ContextId = long.Parse(DateTime.UtcNow.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
             CommandId = commandId,
             ContextName = customName ?? Guid.NewGuid().ToString("D"),
             Instance = arguments?.Instance ?? Environment.MachineName,
