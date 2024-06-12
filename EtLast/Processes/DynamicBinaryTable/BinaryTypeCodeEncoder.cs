@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public static class DynamicBinaryTableEncoder
+public static class BinaryTypeCodeEncoder
 {
     private static Dictionary<Type, BinaryTypeCode> TypeMap { get; } = new()
     {
