@@ -109,9 +109,9 @@ public static class BinaryTypeCodeEncoder
                 writer.Write((char)value);
                 break;
             case BinaryTypeCode._uint128:
-                var value128 = (UInt128)value;
-                writer.Write((ulong)(value128 >> 64)); // upper
-                writer.Write((ulong)value128); // lower
+                var uint128 = (UInt128)value;
+                writer.Write((ulong)(uint128 >> 64)); // upper
+                writer.Write((ulong)uint128); // lower
                 break;
         }
     }
@@ -168,7 +168,7 @@ public static class BinaryTypeCodeEncoder
             case BinaryTypeCode._char:
                 return reader.ReadChar();
             case BinaryTypeCode._uint128:
-                return new Int128(reader.ReadUInt64(), reader.ReadUInt64()); // upper, lower
+                return new UInt128(reader.ReadUInt64(), reader.ReadUInt64()); // upper, lower
         }
 
         return null;
