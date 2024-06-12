@@ -24,6 +24,7 @@ public static class DynamicBinaryTableEncoder
         [typeof(decimal)] = 16,
         [typeof(Half)] = 17,
         [typeof(byte[])] = 18,
+        [typeof(char)] = 19,
     };
 
     public static int GetTypeCode(Type type)
