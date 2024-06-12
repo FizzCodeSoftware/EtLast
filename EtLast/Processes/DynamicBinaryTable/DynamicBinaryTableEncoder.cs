@@ -25,6 +25,7 @@ public static class DynamicBinaryTableEncoder
         [typeof(Half)] = 17,
         [typeof(byte[])] = 18,
         [typeof(char)] = 19,
+        [typeof(UInt128)] = 20,
     };
 
     public static int GetTypeCode(Type type)
@@ -101,6 +102,10 @@ public static class DynamicBinaryTableEncoder
                 break;
             case 19: // char
                 writer.Write((char)value);
+                break;
+            case 20: // UInt128
+                writer.Write((ulong)(UInt128)value);
+                writer.Write((ulong)(UInt128)value >> 64);
                 break;
         }
     }
