@@ -1,7 +1,7 @@
 ﻿namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
-public enum TypeCode : byte
+public enum BinaryTypeCode : byte
 {
     _int = 0,
     _uint = 1,

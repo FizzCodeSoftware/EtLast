@@ -3,113 +3,113 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class DynamicBinaryTableEncoder
 {
-    private static Dictionary<Type, TypeCode> TypeMap { get; } = new()
+    private static Dictionary<Type, BinaryTypeCode> TypeMap { get; } = new()
     {
-        [typeof(int)] = TypeCode._int,
-        [typeof(uint)] = TypeCode._uint,
-        [typeof(long)] = TypeCode._long,
-        [typeof(ulong)] = TypeCode._ulong,
-        [typeof(sbyte)] = TypeCode._sbyte,
-        [typeof(byte)] = TypeCode._byte,
-        [typeof(short)] = TypeCode._short,
-        [typeof(ushort)] = TypeCode._ushort,
-        [typeof(string)] = TypeCode._string,
-        [typeof(DateTime)] = TypeCode._datetime,
-        [typeof(DateTimeOffset)] = TypeCode._datetimeoffset,
-        [typeof(TimeSpan)] = TypeCode._timespan,
-        [typeof(Guid)] = TypeCode._guid,
-        [typeof(bool)] = TypeCode._bool,
-        [typeof(float)] = TypeCode._float,
-        [typeof(double)] = TypeCode._double,
-        [typeof(decimal)] = TypeCode._decimal,
-        [typeof(Half)] = TypeCode._half,
-        [typeof(byte[])] = TypeCode._bytearray,
-        [typeof(char)] = TypeCode._char,
-        [typeof(UInt128)] = TypeCode._uint128,
+        [typeof(int)] = BinaryTypeCode._int,
+        [typeof(uint)] = BinaryTypeCode._uint,
+        [typeof(long)] = BinaryTypeCode._long,
+        [typeof(ulong)] = BinaryTypeCode._ulong,
+        [typeof(sbyte)] = BinaryTypeCode._sbyte,
+        [typeof(byte)] = BinaryTypeCode._byte,
+        [typeof(short)] = BinaryTypeCode._short,
+        [typeof(ushort)] = BinaryTypeCode._ushort,
+        [typeof(string)] = BinaryTypeCode._string,
+        [typeof(DateTime)] = BinaryTypeCode._datetime,
+        [typeof(DateTimeOffset)] = BinaryTypeCode._datetimeoffset,
+        [typeof(TimeSpan)] = BinaryTypeCode._timespan,
+        [typeof(Guid)] = BinaryTypeCode._guid,
+        [typeof(bool)] = BinaryTypeCode._bool,
+        [typeof(float)] = BinaryTypeCode._float,
+        [typeof(double)] = BinaryTypeCode._double,
+        [typeof(decimal)] = BinaryTypeCode._decimal,
+        [typeof(Half)] = BinaryTypeCode._half,
+        [typeof(byte[])] = BinaryTypeCode._bytearray,
+        [typeof(char)] = BinaryTypeCode._char,
+        [typeof(UInt128)] = BinaryTypeCode._uint128,
     };
 
-    public static TypeCode GetTypeCode(Type type)
+    public static BinaryTypeCode GetTypeCode(Type type)
     {
         return TypeMap.TryGetValue(type, out var typeCode)
             ? typeCode
-            : TypeCode._unknown;
+            : BinaryTypeCode._unknown;
     }
 
-    public static void EncodeByTypeCode(BinaryWriter writer, object value, TypeCode typeCode)
+    public static void EncodeByTypeCode(BinaryWriter writer, object value, BinaryTypeCode typeCode)
     {
         switch (typeCode)
         {
-            case TypeCode._int:
+            case BinaryTypeCode._int:
                 writer.Write7BitEncodedInt((int)value);
                 break;
-            case TypeCode._uint:
+            case BinaryTypeCode._uint:
                 unchecked
                 {
                     writer.Write7BitEncodedInt((int)(uint)value);
                 }
                 break;
-            case TypeCode._long:
+            case BinaryTypeCode._long:
                 writer.Write7BitEncodedInt64((long)value);
                 break;
-            case TypeCode._ulong:
+            case BinaryTypeCode._ulong:
                 unchecked
                 {
                     writer.Write7BitEncodedInt64((long)(ulong)value);
                 }
                 break;
-            case TypeCode._sbyte:
+            case BinaryTypeCode._sbyte:
                 unchecked
                 {
                     writer.Write((sbyte)value);
                 }
                 break;
-            case TypeCode._byte:
+            case BinaryTypeCode._byte:
                 writer.Write((byte)value);
                 break;
-            case TypeCode._short:
+            case BinaryTypeCode._short:
                 writer.Write((short)value);
                 break;
-            case TypeCode._ushort:
+            case BinaryTypeCode._ushort:
                 writer.Write((ushort)value);
                 break;
-            case TypeCode._string:
+            case BinaryTypeCode._string:
                 writer.Write((string)value);
                 break;
-            case TypeCode._datetime:
+            case BinaryTypeCode._datetime:
                 writer.Write7BitEncodedInt64(((DateTime)value).Ticks);
                 break;
-            case TypeCode._datetimeoffset:
+            case BinaryTypeCode._datetimeoffset:
                 writer.Write7BitEncodedInt64(((DateTimeOffset)value).Ticks);
                 writer.Write7BitEncodedInt64(((DateTimeOffset)value).Offset.Ticks);
                 break;
-            case TypeCode._timespan:
+            case BinaryTypeCode._timespan:
                 writer.Write7BitEncodedInt64(((TimeSpan)value).Ticks);
                 break;
-            case TypeCode._guid:
+            case BinaryTypeCode._guid:
                 writer.Write(((Guid)value).ToByteArray());
                 break;
-            case TypeCode._bool:
+            case BinaryTypeCode._bool:
                 writer.Write((bool)value);
                 break;
-            case TypeCode._float:
+            case BinaryTypeCode._float:
                 writer.Write((float)value);
                 break;
-            case TypeCode._double:
+            case BinaryTypeCode._double:
                 writer.Write((double)value);
                 break;
-            case TypeCode._decimal:
+            case BinaryTypeCode._decimal:
                 writer.Write((decimal)value);
                 break;
-            case TypeCode._half:
+            case BinaryTypeCode._half:
                 writer.Write((Half)value);
                 break;
-            case TypeCode._bytearray:
+            case BinaryTypeCode._bytearray:
                 writer.Write((byte[])value);
                 break;
-            case TypeCode._char:
+            case BinaryTypeCode._char:
                 writer.Write((char)value);
                 break;
-            case TypeCode._uint128:
+            case BinaryTypeCode._uint128:
                 writer.Write((ulong)(UInt128)value);
                 writer.Write((ulong)(UInt128)value >> 64);
                 break;
