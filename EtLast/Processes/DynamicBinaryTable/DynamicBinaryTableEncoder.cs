@@ -23,7 +23,7 @@ public static class DynamicBinaryTableEncoder
         [typeof(double)] = TypeCode._double,
         [typeof(decimal)] = TypeCode._decimal,
         [typeof(Half)] = TypeCode._half,
-        [typeof(byte[])] = TypeCode._byteArray,
+        [typeof(byte[])] = TypeCode._bytearray,
         [typeof(char)] = TypeCode._char,
         [typeof(UInt128)] = TypeCode._uint128,
     };
@@ -103,7 +103,7 @@ public static class DynamicBinaryTableEncoder
             case TypeCode._half:
                 writer.Write((Half)value);
                 break;
-            case TypeCode._byteArray:
+            case TypeCode._bytearray:
                 writer.Write((byte[])value);
                 break;
             case TypeCode._char:

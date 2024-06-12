@@ -21,7 +21,7 @@ public enum TypeCode : byte
     _double = 15,
     _decimal = 16,
     _half = 17,
-    _byteArray = 18,
+    _bytearray = 18,
     _char = 19,
     _uint128 = 20,
     _unknown = byte.MaxValue,
