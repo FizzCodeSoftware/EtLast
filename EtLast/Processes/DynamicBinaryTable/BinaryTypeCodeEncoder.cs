@@ -35,7 +35,7 @@ public static class BinaryTypeCodeEncoder
             : BinaryTypeCode._unknown;
     }
 
-    public static void EncodeByTypeCode(BinaryWriter writer, object value, BinaryTypeCode typeCode)
+    public static void Write(BinaryWriter writer, object value, BinaryTypeCode typeCode)
     {
         switch (typeCode)
         {
@@ -58,10 +58,7 @@ public static class BinaryTypeCodeEncoder
                 }
                 break;
             case BinaryTypeCode._sbyte:
-                unchecked
-                {
-                    writer.Write((sbyte)value);
-                }
+                writer.Write((sbyte)value);
                 break;
             case BinaryTypeCode._byte:
                 writer.Write((byte)value);
@@ -104,15 +101,76 @@ public static class BinaryTypeCodeEncoder
                 writer.Write((Half)value);
                 break;
             case BinaryTypeCode._bytearray:
-                writer.Write((byte[])value);
+                var bytes = (byte[])value;
+                writer.Write7BitEncodedInt(bytes.Length);
+                writer.Write(bytes);
                 break;
             case BinaryTypeCode._char:
                 writer.Write((char)value);
                 break;
             case BinaryTypeCode._uint128:
-                writer.Write((ulong)(UInt128)value);
-                writer.Write((ulong)(UInt128)value >> 64);
+                var uint128 = (UInt128)value;
+                writer.Write((ulong)(uint128 >> 64)); // upper
+                writer.Write((ulong)uint128); // lower
                 break;
         }
+    }
+
+    public static object Read(BinaryReader reader, BinaryTypeCode typeCode)
+    {
+        switch (typeCode)
+        {
+            case BinaryTypeCode._int:
+                return reader.Read7BitEncodedInt();
+            case BinaryTypeCode._uint:
+                unchecked
+                {
+                    return (uint)reader.Read7BitEncodedInt();
+                }
+            case BinaryTypeCode._long:
+                return reader.Read7BitEncodedInt64();
+            case BinaryTypeCode._ulong:
+                unchecked
+                {
+                    return (ulong)reader.Read7BitEncodedInt64();
+                }
+            case BinaryTypeCode._sbyte:
+                return reader.ReadSByte();
+            case BinaryTypeCode._byte:
+                return reader.ReadByte();
+            case BinaryTypeCode._short:
+                return reader.ReadInt16();
+            case BinaryTypeCode._ushort:
+                return reader.ReadUInt16();
+            case BinaryTypeCode._string:
+                return reader.ReadString();
+            case BinaryTypeCode._datetime:
+                return new DateTime(reader.Read7BitEncodedInt64());
+            case BinaryTypeCode._datetimeoffset:
+                return new DateTimeOffset(reader.Read7BitEncodedInt64(), new TimeSpan(reader.Read7BitEncodedInt64()));
+            case BinaryTypeCode._timespan:
+                return new TimeSpan(reader.Read7BitEncodedInt64());
+            case BinaryTypeCode._guid:
+                return new Guid(reader.ReadBytes(16));
+            case BinaryTypeCode._bool:
+                return reader.ReadBoolean();
+            case BinaryTypeCode._float:
+                return reader.ReadSingle();
+            case BinaryTypeCode._double:
+                return reader.ReadDouble();
+            case BinaryTypeCode._decimal:
+                return reader.ReadDecimal();
+            case BinaryTypeCode._half:
+                return reader.ReadHalf();
+            case BinaryTypeCode._bytearray:
+                var byteArrayLength = reader.Read7BitEncodedInt();
+                return reader.ReadBytes(byteArrayLength);
+            case BinaryTypeCode._char:
+                return reader.ReadChar();
+            case BinaryTypeCode._uint128:
+                return new UInt128(reader.ReadUInt64(), reader.ReadUInt64()); // upper, lower
+        }
+
+        return null;
     }
 }

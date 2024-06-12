@@ -100,7 +100,7 @@ public sealed class WriteToDynamicBinaryTableMutator : AbstractMutator, IRowSink
                     {
                         sinkEntry.BufferWriter.Write((byte)1);
                         var typeCode = ColumnTypeCodes[colIdx];
-                        BinaryTypeCodeEncoder.EncodeByTypeCode(sinkEntry.BufferWriter, value, typeCode);
+                        BinaryTypeCodeEncoder.Write(sinkEntry.BufferWriter, value, typeCode);
                     }
                     else
                     {
