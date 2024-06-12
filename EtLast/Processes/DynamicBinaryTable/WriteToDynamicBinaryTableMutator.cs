@@ -16,7 +16,7 @@ public sealed class WriteToDynamicBinaryTableMutator : AbstractMutator, IRowSink
 
     private string[] ColumnNames { get; set; }
     private Type[] ColumnTypes { get; set; }
-    private int[] ColumnTypeCodes { get; set; }
+    private TypeCode[] ColumnTypeCodes { get; set; }
 
     private SinkEntry GetSinkEntry()
     {
@@ -26,7 +26,7 @@ public sealed class WriteToDynamicBinaryTableMutator : AbstractMutator, IRowSink
         var columns = DynamicColumns.Invoke();
         ColumnNames = new string[columns.Count];
         ColumnTypes = new Type[columns.Count];
-        ColumnTypeCodes = new int[columns.Count];
+        ColumnTypeCodes = new TypeCode[columns.Count];
         var colIdx = 0;
         foreach (var (columnName, columnType) in columns)
         {
@@ -54,7 +54,7 @@ public sealed class WriteToDynamicBinaryTableMutator : AbstractMutator, IRowSink
             {
                 sinkEntry.BufferWriter.Write(column.Key);
                 sinkEntry.BufferWriter.Write(column.Value.AssemblyQualifiedName);
-                sinkEntry.BufferWriter.Write7BitEncodedInt(ColumnTypeCodes[colIdx]);
+                sinkEntry.BufferWriter.Write((byte)ColumnTypeCodes[colIdx]);
                 colIdx++;
             }
 
