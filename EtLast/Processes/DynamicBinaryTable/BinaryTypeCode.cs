@@ -24,5 +24,6 @@ public enum BinaryTypeCode : byte
     _bytearray = 18,
     _char = 19,
     _uint128 = 20,
-    _unknown = byte.MaxValue,
+    _null = 254,
+    _unknown = 255,
 };
