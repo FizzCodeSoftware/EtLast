@@ -14,18 +14,18 @@ public static class DynamicBinaryTableEncoder
         [typeof(short)] = TypeCode._short,
         [typeof(ushort)] = TypeCode._ushort,
         [typeof(string)] = TypeCode._string,
-        [typeof(DateTime)] = TypeCode._DateTime,
-        [typeof(DateTimeOffset)] = TypeCode._DateTimeOffset,
-        [typeof(TimeSpan)] = TypeCode._TimeSpan,
-        [typeof(Guid)] = TypeCode._Guid,
+        [typeof(DateTime)] = TypeCode._datetime,
+        [typeof(DateTimeOffset)] = TypeCode._datetimeoffset,
+        [typeof(TimeSpan)] = TypeCode._timespan,
+        [typeof(Guid)] = TypeCode._guid,
         [typeof(bool)] = TypeCode._bool,
         [typeof(float)] = TypeCode._float,
         [typeof(double)] = TypeCode._double,
         [typeof(decimal)] = TypeCode._decimal,
-        [typeof(Half)] = TypeCode._Half,
+        [typeof(Half)] = TypeCode._half,
         [typeof(byte[])] = TypeCode._byteArray,
         [typeof(char)] = TypeCode._char,
-        [typeof(UInt128)] = TypeCode._UInt128,
+        [typeof(UInt128)] = TypeCode._uint128,
     };
 
     public static TypeCode GetTypeCode(Type type)
@@ -75,17 +75,17 @@ public static class DynamicBinaryTableEncoder
             case TypeCode._string:
                 writer.Write((string)value);
                 break;
-            case TypeCode._DateTime:
+            case TypeCode._datetime:
                 writer.Write7BitEncodedInt64(((DateTime)value).Ticks);
                 break;
-            case TypeCode._DateTimeOffset:
+            case TypeCode._datetimeoffset:
                 writer.Write7BitEncodedInt64(((DateTimeOffset)value).Ticks);
                 writer.Write7BitEncodedInt64(((DateTimeOffset)value).Offset.Ticks);
                 break;
-            case TypeCode._TimeSpan:
+            case TypeCode._timespan:
                 writer.Write7BitEncodedInt64(((TimeSpan)value).Ticks);
                 break;
-            case TypeCode._Guid:
+            case TypeCode._guid:
                 writer.Write(((Guid)value).ToByteArray());
                 break;
             case TypeCode._bool:
@@ -100,7 +100,7 @@ public static class DynamicBinaryTableEncoder
             case TypeCode._decimal:
                 writer.Write((decimal)value);
                 break;
-            case TypeCode._Half:
+            case TypeCode._half:
                 writer.Write((Half)value);
                 break;
             case TypeCode._byteArray:
@@ -109,7 +109,7 @@ public static class DynamicBinaryTableEncoder
             case TypeCode._char:
                 writer.Write((char)value);
                 break;
-            case TypeCode._UInt128:
+            case TypeCode._uint128:
                 writer.Write((ulong)(UInt128)value);
                 writer.Write((ulong)(UInt128)value >> 64);
                 break;
