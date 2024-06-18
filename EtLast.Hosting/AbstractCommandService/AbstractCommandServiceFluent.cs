@@ -1,6 +1,4 @@
-﻿using FizzCode.EtLast.Hosting;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class AbstractCommandServiceFluent
