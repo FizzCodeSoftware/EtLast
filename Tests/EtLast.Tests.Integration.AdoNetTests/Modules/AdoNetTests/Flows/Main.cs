@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 public class Main : AbstractEtlTask
 {

@@ -1,6 +1,4 @@
-﻿using FizzCode.EtLast.Hosting;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public interface ICommandListener
 {

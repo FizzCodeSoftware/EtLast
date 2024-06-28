@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace FizzCode.EtLast.Tests.EPPlus;
+﻿namespace FizzCode.EtLast.Tests.EPPlus;
 
 [TestClass]
 public class EpPlusExcelReaderTests
