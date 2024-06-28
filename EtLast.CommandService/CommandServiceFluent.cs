@@ -3,7 +3,7 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class CommandServiceFluent
 {
-    public static IServiceCollection AddEtLastCommandService(this IServiceCollection services, Func<CommandService> serviceCreator)
+    public static IServiceCollection AddEtlCommandService(this IServiceCollection services, Func<CommandService> serviceCreator)
     {
         var service = serviceCreator.Invoke();
         services.AddHostedService(serviceProvider =>

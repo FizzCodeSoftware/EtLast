@@ -138,7 +138,7 @@ public class WindowsCommandService : CommandService
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class WindowsCommandServiceFluent
 {
-    public static IServiceCollection AddEtlCommandService(this IServiceCollection services, Func<WindowsCommandService> serviceCreator)
+    public static IServiceCollection AddEtlWindowsCommandService(this IServiceCollection services, Func<WindowsCommandService> serviceCreator)
     {
         var service = serviceCreator.Invoke();
         services.AddHostedService(serviceProvider =>
