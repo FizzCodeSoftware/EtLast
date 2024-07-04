@@ -72,7 +72,7 @@ internal class SinkControl
 
             Context.Index.EnumerateThroughSink(Sink.Id, evt =>
             {
-                if (!Context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessInvocationId, out var process))
+                if (!Context.WholePlaybook.ProcessList.TryGetValue(evt.ProcessId, out var process))
                     return;
 
                 for (var i = 0; i < evt.Values.Length; i++)

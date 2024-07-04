@@ -37,9 +37,9 @@ public class ContextIndex(string dataDirectory)
         return Path.Combine(DataDirectory, "sink-id-" + sinkId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
-    private string GetProcessRowMapFilePath(long processInvocationId)
+    private string GetProcessRowMapFilePath(long processId)
     {
-        return Path.Combine(DataDirectory, "process-rows-id-" + processInvocationId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
+        return Path.Combine(DataDirectory, "process-rows-id-" + processId.ToString("D", CultureInfo.InvariantCulture) + ".bin");
     }
 
     public List<AbstractEvent> Append(MemoryStream input)
@@ -114,8 +114,8 @@ public class ContextIndex(string dataDirectory)
                     DiagnosticsEventKind.RowValueChanged => _eventParser.ReadRowValueChangedEvent(reader),
                     DiagnosticsEventKind.SinkStarted => _eventParser.ReadSinkStartedEvent(reader),
                     DiagnosticsEventKind.WriteToSink => _eventParser.ReadWriteToSinkEvent(reader),
-                    DiagnosticsEventKind.ProcessInvocationStart => EventParser.ReadProcessInvocationStartEvent(reader),
-                    DiagnosticsEventKind.ProcessInvocationEnd => EventParser.ReadProcessInvocationEndEvent(reader),
+                    DiagnosticsEventKind.ProcessStart => EventParser.ReadProcessStartEvent(reader),
+                    DiagnosticsEventKind.ProcessEnd => EventParser.ReadProcessEndEvent(reader),
                     DiagnosticsEventKind.IoCommandStart => _eventParser.ReadIoCommandStartEvent(reader),
                     DiagnosticsEventKind.IoCommandEnd => EventParser.ReadIoCommandEndEvent(reader),
                     _ => null,
@@ -169,9 +169,9 @@ public class ContextIndex(string dataDirectory)
                     _lastRowEventFileSize += eventBytes.Length;
 
                     var involvedProcessId = evt is RowCreatedEvent rce
-                        ? rce.ProcessInvocationId
+                        ? rce.ProcessId
                         : (evt is RowOwnerChangedEvent roce)
-                            ? roce.NewProcessInvocationId
+                            ? roce.NewProcessId
                             : null;
 
                     if (involvedProcessId != null)
@@ -273,8 +273,8 @@ public class ContextIndex(string dataDirectory)
                                 DiagnosticsEventKind.RowValueChanged => _eventParser.ReadRowValueChangedEvent(reader),
                                 DiagnosticsEventKind.SinkStarted => _eventParser.ReadSinkStartedEvent(reader),
                                 DiagnosticsEventKind.WriteToSink => _eventParser.ReadWriteToSinkEvent(reader),
-                                DiagnosticsEventKind.ProcessInvocationStart => EventParser.ReadProcessInvocationStartEvent(reader),
-                                DiagnosticsEventKind.ProcessInvocationEnd => EventParser.ReadProcessInvocationEndEvent(reader),
+                                DiagnosticsEventKind.ProcessStart => EventParser.ReadProcessStartEvent(reader),
+                                DiagnosticsEventKind.ProcessEnd => EventParser.ReadProcessEndEvent(reader),
                                 DiagnosticsEventKind.IoCommandStart => _eventParser.ReadIoCommandStartEvent(reader),
                                 DiagnosticsEventKind.IoCommandEnd => EventParser.ReadIoCommandEndEvent(reader),
                                 _ => null,
@@ -297,17 +297,17 @@ public class ContextIndex(string dataDirectory)
         Debug.WriteLine("events read: " + eventsRead.ToString("D", CultureInfo.InvariantCulture));
     }
 
-    public HashSet<long> GetProcessRowMap(long processInvocationId)
+    public HashSet<long> GetProcessRowMap(long processId)
     {
         var result = new HashSet<long>();
 
-        var filePath = GetProcessRowMapFilePath(processInvocationId);
+        var filePath = GetProcessRowMapFilePath(processId);
         if (!File.Exists(filePath))
             return result;
 
         lock (_processRowMapWritersLock)
         {
-            if (_processRowMapWriters.TryGetValue(processInvocationId, out var writer))
+            if (_processRowMapWriters.TryGetValue(processId, out var writer))
             {
                 writer.Flush();
             }

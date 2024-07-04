@@ -123,7 +123,7 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
             exception.Data["ConnectionStringName"] = ConnectionString.Name;
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = ExecutionInfo.Timer.Elapsed;
 
             ioCommand.Failed(exception);
             throw exception;

@@ -9,14 +9,14 @@ internal class ContextInlineIoCommandListControl
     public CheckBox HideVeryFast { get; }
     public Color HighlightedProcessForeColor { get; set; } = Color.Black;
     public Color HighlightedProcessBackColor { get; set; } = Color.FromArgb(150, 255, 255);
-    public ContextProcessInvocationListControl LinkedProcessInvocationList { get; set; }
+    public ContextProcessListControl LinkedProcessList { get; set; }
 
-    private TrackedProcessInvocation _highlightedProcess;
+    private TrackedProcess _highlightedProcess;
 
     private readonly ControlUpdater<IoCommandModel> _updater;
     private readonly Dictionary<long, IoCommandModel> _itemById = [];
 
-    public TrackedProcessInvocation HighlightedProcess
+    public TrackedProcess HighlightedProcess
     {
         get => _highlightedProcess;
         set
@@ -173,7 +173,7 @@ internal class ContextInlineIoCommandListControl
     {
         if (_updater.ListView.GetItem(_updater.ListView.SelectedIndex).RowObject is IoCommandModel item && item.Process != null)
         {
-            LinkedProcessInvocationList?.SelectProcess(item.Process);
+            LinkedProcessList?.SelectProcess(item.Process);
         }
     }
 
@@ -212,7 +212,7 @@ internal class ContextInlineIoCommandListControl
                     Timestamp = new DateTime(evt.Timestamp),
                     Playbook = playbook,
                     StartEvent = startEvent,
-                    Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationId],
+                    Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessId],
                     ArgumentsPreview = startEvent.Arguments != null
                         ? string.Join(",", startEvent.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
                         : null,

@@ -33,9 +33,9 @@ public interface IEtlContext : ICaller
 
     public IoCommand RegisterIoCommand(IoCommand ioCommand);
 
-    public void RegisterProcessInvocationStart(IProcess process, ICaller caller);
-    public void RegisterProcessInvocationEnd(IProcess process);
-    public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds);
+    public void RegisterProcessStart(IProcess process, ICaller caller);
+    public void RegisterProcessEnd(IProcess process);
+    public void RegisterProcessEnd(IProcess process, long netElapsedMilliseconds);
 
     public Sink GetSink(string location, string path, string format, IProcess process, string[] columns);
 

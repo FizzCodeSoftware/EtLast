@@ -60,7 +60,7 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
             exception.Data["TableName"] = ConnectionString.Unescape(TableName);
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = ExecutionInfo.Timer.Elapsed;
 
             ioCommand.Failed(exception);
             throw exception;

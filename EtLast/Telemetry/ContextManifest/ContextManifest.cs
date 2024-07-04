@@ -90,9 +90,11 @@ public class ContextManifest : IEtlContextListener
     {
         var manifestException = new ContextManifestException()
         {
-            ProcessId = process.InvocationInfo.ProcessId,
+            ProcessId = process.ExecutionInfo.Id,
             ProcessName = process.Name,
             ProcessTypeName = process.GetType().GetFriendlyTypeName(),
+            ProcessKind = process.Kind,
+            ProcessTopic = process.GetTopic(),
             Message = exception.Message,
             Details = exception.FormatExceptionWithDetails(true),
         };
@@ -113,7 +115,7 @@ public class ContextManifest : IEtlContextListener
             Location = sink.Location,
             Path = sink.Path,
             Format = sink.Format,
-            ProcessInvocationId = process.InvocationInfo.InvocationId,
+            ProcessId = process.ExecutionInfo.Id,
             ProcessType = process.GetType().GetFriendlyTypeName(),
             Columns = sink.Columns != null ? [.. sink.Columns] : [],
         };
@@ -136,50 +138,39 @@ public class ContextManifest : IEtlContextListener
         }
     }
 
-    public void OnProcessInvocationStart(IProcess process)
+    public void OnProcessStart(IProcess process)
     {
-        if (process.InvocationInfo.Caller is IEtlContext)
+        if (process.ExecutionInfo.Caller is IEtlContext)
         {
-            if (!_processes.TryGetValue(process.InvocationInfo.ProcessId, out var manifestProcess))
+            var manifestProcess = new ContextManifestProcess()
             {
-                manifestProcess = new ContextManifestProcess()
-                {
-                    ProcessId = process.InvocationInfo.ProcessId,
-                    Name = process.Name,
-                    TypeName = process.GetType().GetFriendlyTypeName(),
-                    Kind = process.Kind,
-                };
+                ProcessId = process.ExecutionInfo.Id,
+                Name = process.Name,
+                TypeName = process.GetType().GetFriendlyTypeName(),
+                Kind = process.Kind,
+                Topic = process.GetTopic(),
 
-                _processes[manifestProcess.ProcessId] = manifestProcess;
-            }
-
-            var manifestInvocation = new ContextManifestProcessInvocation()
-            {
                 StartedOnUtc = DateTimeOffset.UtcNow,
-                InvocationId = process.InvocationInfo.InvocationId,
-                ProcessInvocationCount = process.InvocationInfo.ProcessInvocationCount,
             };
 
-            manifestProcess.Invocations.Add(manifestInvocation);
+            _processes[manifestProcess.ProcessId] = manifestProcess;
 
             ManifestProcessStarted?.Invoke(this, manifestProcess);
             ManifestChanged?.Invoke(this);
         }
     }
 
-    public void OnProcessInvocationEnd(IProcess process)
+    public void OnProcessEnd(IProcess process)
     {
-        if (_processes.TryGetValue(process.InvocationInfo.InvocationId, out var manifestProcess))
+        if (_processes.TryGetValue(process.ExecutionInfo.Id, out var manifestProcess))
         {
-            var manifestInvocation = manifestProcess.Invocations[(int)process.InvocationInfo.ProcessInvocationCount - 1];
-
-            manifestInvocation.FinishedOnUtc = DateTimeOffset.UtcNow;
-            manifestInvocation.Success = !process.FlowState.Failed;
+            manifestProcess.FinishedOnUtc = DateTimeOffset.UtcNow;
+            manifestProcess.Success = !process.FlowState.Failed;
 
             if (process.FlowState.Failed)
                 AnyRootProcessFailed = true;
 
-            manifestInvocation.FailureExceptions.AddRange(process.FlowState.Exceptions.Select(ex =>
+            manifestProcess.FailureExceptions.AddRange(process.FlowState.Exceptions.Select(ex =>
             {
                 _exceptionMap.TryGetValue(ex, out var manifestException);
                 return manifestException;
@@ -237,7 +228,7 @@ public class ContextManifestSink
     public string Location { get; set; }
     public string Path { get; set; }
     public string Format { get; set; }
-    public long ProcessInvocationId { get; set; }
+    public long ProcessId { get; set; }
     public string ProcessType { get; set; }
 
     public long RowsWritten { get; set; }
@@ -257,30 +248,24 @@ public class ContextManifestIoTarget
 
 public class ContextManifestException
 {
-    public long ProcessId { get; set; }
-    public string ProcessName { get; set; }
-    public string ProcessTypeName { get; set; }
-
-    public string Message { get; set; }
-    public string Details { get; set; }
+    public required long ProcessId { get; init; }
+    public required string ProcessName { get; init; }
+    public required string ProcessTypeName { get; init; }
+    public required string ProcessKind { get; init; }
+    public required string ProcessTopic { get; init; }
+    public required string Message { get; init; }
+    public required string Details { get; init; }
 }
 
 public class ContextManifestProcess
 {
-    public long ProcessId { get; set; }
-    public string Name { get; set; }
-    public string TypeName { get; set; }
-    public string Kind { get; set; }
+    public required long ProcessId { get; init; }
+    public required string Name { get; init; }
+    public required string TypeName { get; init; }
+    public required string Kind { get; init; }
+    public required string Topic { get; init; }
 
-    public List<ContextManifestProcessInvocation> Invocations { get; } = [];
-}
-
-public class ContextManifestProcessInvocation
-{
     public DateTimeOffset StartedOnUtc { get; set; }
-    public long InvocationId { get; set; }
-    public long ProcessInvocationCount { get; set; }
-
     public DateTimeOffset? FinishedOnUtc { get; set; }
     public bool? Success { get; set; }
     public List<ContextManifestException> FailureExceptions { get; } = [];

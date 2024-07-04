@@ -60,7 +60,7 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
             exception.Data["IdentityColumn"] = IdentityColumnName;
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = ExecutionInfo.Timer.Elapsed;
 
             ioCommand.Failed(exception);
             throw exception;

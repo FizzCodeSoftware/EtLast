@@ -3,10 +3,10 @@
 public interface IProcess : ICaller
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ProcessInvocationInfo InvocationInfo { get; set; }
+    public ProcessExecutionInfo ExecutionInfo { get; set; }
 
     public string Name { get; }
-    public string InvocationName => InvocationInfo.InvocationId + "~" + Name;
+    public string UniqueName => ExecutionInfo.Id + "~" + Name;
 
     public string Kind { get; }
     public string GetTopic();

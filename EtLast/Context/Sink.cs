@@ -8,7 +8,7 @@ public class Sink
     public string Location { get; internal init; }
     public string Path { get; internal init; }
     public string Format { get; internal init; }
-    public long ProcessInvocationId { get; internal init; }
+    public long ProcessId { get; internal init; }
 
     public string[] Columns { get; internal init; }
 

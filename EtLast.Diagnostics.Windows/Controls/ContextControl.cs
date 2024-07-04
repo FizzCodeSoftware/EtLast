@@ -74,7 +74,7 @@ internal class ContextControl
     {
         if (logModel.Process != null)
         {
-            _overviewControl.ProcessInvocationList.SelectProcess(logModel.Process);
+            _overviewControl.ProcessList.SelectProcess(logModel.Process);
             _tabs.SelectedTab = _overviewContainer;
         }
     }
@@ -83,7 +83,7 @@ internal class ContextControl
     {
         if (ioCommandModel.Process != null)
         {
-            _overviewControl.ProcessInvocationList.SelectProcess(ioCommandModel.Process);
+            _overviewControl.ProcessList.SelectProcess(ioCommandModel.Process);
             _tabs.SelectedTab = _overviewContainer;
         }
     }

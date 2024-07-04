@@ -68,22 +68,22 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
 
         if (process != null)
         {
-            var proc = process.InvocationInfo.Caller as IProcess;
+            var proc = process.ExecutionInfo.Caller as IProcess;
             while (proc != null)
             {
                 sb.Append("  ");
-                proc = proc.InvocationInfo.Caller as IProcess;
+                proc = proc.ExecutionInfo.Caller as IProcess;
             }
 
             if (process is IEtlTask)
             {
                 sb.Append("{ActiveTask} ");
-                values.Add(process.InvocationName);
+                values.Add(process.UniqueName);
             }
             else
             {
                 sb.Append("{ActiveProcess} ");
-                values.Add(process.InvocationName);
+                values.Add(process.UniqueName);
             }
         }
 
@@ -205,11 +205,11 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
     {
     }
 
-    public void OnProcessInvocationStart(IProcess process)
+    public void OnProcessStart(IProcess process)
     {
     }
 
-    public void OnProcessInvocationEnd(IProcess process)
+    public void OnProcessEnd(IProcess process)
     {
     }
 

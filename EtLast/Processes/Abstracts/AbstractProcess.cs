@@ -6,7 +6,7 @@ namespace FizzCode.EtLast;
 public abstract class AbstractProcess : IProcess
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ProcessInvocationInfo InvocationInfo { get; set; }
+    public ProcessExecutionInfo ExecutionInfo { get; set; }
 
     public IEtlContext Context => FlowState?.Context;
 
@@ -42,18 +42,18 @@ public abstract class AbstractProcess : IProcess
         if (Name == typeName)
         {
             if (caller is IEtlTask asTask)
-                Context.Log(severity, this, "{ProcessKind} started by {Task}", Kind, asTask.InvocationName);
+                Context.Log(severity, this, "{ProcessKind} started by {Task}", Kind, asTask.UniqueName);
             else if (caller is IProcess asProcess)
-                Context.Log(severity, this, "{ProcessKind} started by {Process}", Kind, asProcess.InvocationName);
+                Context.Log(severity, this, "{ProcessKind} started by {Process}", Kind, asProcess.UniqueName);
             else
                 Context.Log(severity, this, "{ProcessKind} started", Kind);
         }
         else
         {
             if (caller is IEtlTask asTask)
-                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Task}", typeName, Kind, asTask.InvocationName);
+                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Task}", typeName, Kind, asTask.UniqueName);
             else if (caller is IProcess asProcess)
-                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Process}", typeName, Kind, asProcess.InvocationName);
+                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Process}", typeName, Kind, asProcess.UniqueName);
             else
                 Context.Log(severity, this, "{ProcessType}/{ProcessKind} started", typeName, Kind);
         }
@@ -66,12 +66,12 @@ public abstract class AbstractProcess : IProcess
             : LogSeverity.Debug;
 
         netTimeStopwatch.Stop();
-        Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+        Context.RegisterProcessEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
-        if (InvocationInfo.InvocationStarted.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
+        if (ExecutionInfo.Timer.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
         {
             Context.Log(severity, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
-                FlowState.StatusToLogString(), InvocationInfo.InvocationStarted.Elapsed, netTimeStopwatch.Elapsed);
+                FlowState.StatusToLogString(), ExecutionInfo.Timer.Elapsed, netTimeStopwatch.Elapsed);
         }
         else
         {
@@ -137,7 +137,7 @@ public abstract class AbstractProcess : IProcess
     {
         ArgumentNullException.ThrowIfNull(caller);
         FlowState = flowState ?? caller.FlowState;
-        Context.RegisterProcessInvocationStart(this, caller);
+        Context.RegisterProcessStart(this, caller);
         LogCall(caller);
 
         if (Context.Arguments == null)

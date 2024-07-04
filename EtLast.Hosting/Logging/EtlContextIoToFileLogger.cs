@@ -46,7 +46,7 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
     public void OnContextIoCommandStart(IoCommand ioCommand)
     {
         var sb = new StringBuilder();
-        sb.Append(ioCommand.Process?.InvocationName);
+        sb.Append(ioCommand.Process?.UniqueName);
         sb.Append('\t').Append(ioCommand.Id.ToString("D", CultureInfo.InvariantCulture));
         sb.Append('\t').Append(ioCommand.Kind.ToString());
         sb.Append('\t').Append("started");
@@ -68,7 +68,7 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
     public void OnContextIoCommandEnd(IoCommand ioCommand)
     {
         var sb = new StringBuilder();
-        sb.Append(ioCommand.Process?.InvocationName);
+        sb.Append(ioCommand.Process?.UniqueName);
         sb.Append('\t').Append(ioCommand.Id.ToString("D", CultureInfo.InvariantCulture));
         sb.Append('\t').Append(ioCommand.Kind.ToString());
         sb.Append('\t').Append(ioCommand.Exception != null ? "failed" : "succeeded");
@@ -111,11 +111,11 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
     {
     }
 
-    public void OnProcessInvocationStart(IProcess process)
+    public void OnProcessStart(IProcess process)
     {
     }
 
-    public void OnProcessInvocationEnd(IProcess process)
+    public void OnProcessEnd(IProcess process)
     {
     }
 
@@ -138,7 +138,7 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
                 {
                     var sb = new StringBuilder();
                     sb.Append("Timestamp");
-                    sb.Append('\t').Append("ProcessInvocationName");
+                    sb.Append('\t').Append("ProcessUniqueName");
                     sb.Append('\t').Append("Id");
                     sb.Append('\t').Append("Kind");
                     sb.Append('\t').Append("Action");

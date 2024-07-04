@@ -14,8 +14,8 @@ public interface IEtlContextListener
     void OnSinkStarted(IProcess process, Sink sink);
     void OnWriteToSink(Sink sink, IReadOnlyRow row);
 
-    void OnProcessInvocationStart(IProcess process);
-    void OnProcessInvocationEnd(IProcess process);
+    void OnProcessStart(IProcess process);
+    void OnProcessEnd(IProcess process);
     void OnContextIoCommandStart(IoCommand ioCommand);
     void OnContextIoCommandEnd(IoCommand ioCommand);
 
