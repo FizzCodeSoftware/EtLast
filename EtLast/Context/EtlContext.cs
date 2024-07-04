@@ -29,7 +29,6 @@ public sealed class EtlContext : IEtlContext
 
     private long _nextRowId;
     private long _nextProcessId;
-    private long _nextInvocationId;
     private long _nextSinkId;
     private long _nextIoCommandId;
     private readonly Dictionary<string, Sink> _sinks = [];
@@ -171,46 +170,44 @@ public sealed class EtlContext : IEtlContext
         return row;
     }
 
-    public void RegisterProcessInvocationStart(IProcess process, ICaller caller)
+    public void RegisterProcessStart(IProcess process, ICaller caller)
     {
-        process.InvocationInfo = new ProcessInvocationInfo()
+        process.ExecutionInfo = new ProcessExecutionInfo()
         {
-            ProcessId = process.InvocationInfo?.ProcessId ?? Interlocked.Increment(ref _nextProcessId),
-            ProcessInvocationCount = (process.InvocationInfo?.ProcessInvocationCount ?? 0) + 1L,
-            InvocationId = Interlocked.Increment(ref _nextInvocationId),
-            InvocationStarted = Stopwatch.StartNew(),
+            Id = Interlocked.Increment(ref _nextProcessId),
+            Timer = Stopwatch.StartNew(),
             Caller = caller,
         };
 
         foreach (var listener in Listeners)
-            listener.OnProcessInvocationStart(process);
+            listener.OnProcessStart(process);
     }
 
-    public void RegisterProcessInvocationEnd(IProcess process)
+    public void RegisterProcessEnd(IProcess process)
     {
-        if (process.InvocationInfo.LastInvocationFinishedLocal != null)
+        if (process.ExecutionInfo.FinishedOnLocal != null)
             Debugger.Break();
 
-        process.InvocationInfo.LastInvocationFinishedLocal = DateTimeOffset.Now;
-        process.InvocationInfo.LastInvocationFinishedUtc = process.InvocationInfo.LastInvocationFinishedLocal.Value.ToLocalTime();
+        process.ExecutionInfo.FinishedOnLocal = DateTimeOffset.Now;
+        process.ExecutionInfo.FinishedOnUtc = process.ExecutionInfo.FinishedOnLocal.Value.ToLocalTime();
 
         foreach (var listener in Listeners)
-            listener.OnProcessInvocationEnd(process);
+            listener.OnProcessEnd(process);
     }
 
-    public void RegisterProcessInvocationEnd(IProcess process, long netElapsedMilliseconds)
+    public void RegisterProcessEnd(IProcess process, long netElapsedMilliseconds)
     {
-        process.InvocationInfo.LastInvocationFinishedLocal = DateTimeOffset.Now;
-        process.InvocationInfo.LastInvocationFinishedUtc = process.InvocationInfo.LastInvocationFinishedLocal.Value.ToLocalTime();
-        process.InvocationInfo.LastInvocationNetTimeMilliseconds = netElapsedMilliseconds;
+        process.ExecutionInfo.FinishedOnLocal = DateTimeOffset.Now;
+        process.ExecutionInfo.FinishedOnUtc = process.ExecutionInfo.FinishedOnLocal.Value.ToLocalTime();
+        process.ExecutionInfo.NetTimeMilliseconds = netElapsedMilliseconds;
 
         foreach (var listener in Listeners)
-            listener.OnProcessInvocationEnd(process);
+            listener.OnProcessEnd(process);
     }
 
     public Sink GetSink(string location, string path, string format, IProcess process, string[] columns)
     {
-        var key = location + " / " + path + " / " + format + " / " + process.InvocationInfo.InvocationId.ToString("D", CultureInfo.InvariantCulture);
+        var key = location + " / " + path + " / " + format + " / " + process.ExecutionInfo.Id.ToString("D", CultureInfo.InvariantCulture);
         if (!_sinks.TryGetValue(key, out var sink))
         {
             _sinks[key] = sink = new Sink()
@@ -220,7 +217,7 @@ public sealed class EtlContext : IEtlContext
                 Location = location,
                 Path = path,
                 Format = format,
-                ProcessInvocationId = process.InvocationInfo.InvocationId,
+                ProcessId = process.ExecutionInfo.Id,
                 Columns = columns,
             };
 

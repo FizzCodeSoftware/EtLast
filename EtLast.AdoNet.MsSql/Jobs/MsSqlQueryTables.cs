@@ -69,7 +69,7 @@ public sealed class MsSqlQueryTables : AbstractSqlStatementWithResult<List<MsSql
             exception.Data["ConnectionStringName"] = ConnectionString.Name;
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = command.CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = ExecutionInfo.Timer.Elapsed;
 
             ioCommand.Failed(exception);
             throw exception;

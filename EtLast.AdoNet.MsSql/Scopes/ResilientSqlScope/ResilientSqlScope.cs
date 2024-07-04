@@ -132,7 +132,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
             InitializeScope();
             if (FlowState.Failed)
             {
-                Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", InvocationInfo.InvocationStarted.Elapsed);
+                Context.Log(LogSeverity.Information, this, "initialization failed after {Elapsed}", ExecutionInfo.Timer.Elapsed);
                 return;
             }
 

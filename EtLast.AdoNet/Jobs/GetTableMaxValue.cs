@@ -63,7 +63,7 @@ public sealed class GetTableMaxValue<TResult> : AbstractSqlStatementWithResult<T
             exception.Data["ColumnName"] = ConnectionString.Unescape(ColumnName);
             exception.Data["Statement"] = command.CommandText;
             exception.Data["Timeout"] = CommandTimeout;
-            exception.Data["Elapsed"] = InvocationInfo.InvocationStarted.Elapsed;
+            exception.Data["Elapsed"] = ExecutionInfo.Timer.Elapsed;
 
             ioCommand.Failed(exception);
             throw exception;

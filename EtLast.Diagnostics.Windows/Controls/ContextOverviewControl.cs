@@ -4,7 +4,7 @@ internal class ContextOverviewControl
 {
     public DiagContext Context { get; }
     public Control Container { get; }
-    public ContextProcessInvocationListControl ProcessInvocationList { get; }
+    public ContextProcessListControl ProcessList { get; }
     public ContextInlineIoCommandListControl IoCommandList { get; }
     public ContextSinkListControl SinkList { get; }
 
@@ -16,7 +16,7 @@ internal class ContextOverviewControl
 
         try
         {
-            ProcessInvocationList = new ContextProcessInvocationListControl(container, context);
+            ProcessList = new ContextProcessListControl(container, context);
 
             var ioCommandListContainer = new Panel()
             {
@@ -26,7 +26,7 @@ internal class ContextOverviewControl
 
             IoCommandList = new ContextInlineIoCommandListControl(ioCommandListContainer, context)
             {
-                LinkedProcessInvocationList = ProcessInvocationList,
+                LinkedProcessList = ProcessList,
             };
 
             var sinkListContainer = new Panel()
@@ -38,7 +38,7 @@ internal class ContextOverviewControl
 
             SinkList = new ContextSinkListControl(sinkListContainer, context);
 
-            ProcessInvocationList.OnSelectionChanged += ProcessInvocationList_OnSelectionChanged;
+            ProcessList.OnSelectionChanged += ProcessList_OnSelectionChanged;
 
             container.Resize += Container_Resize;
             Container_Resize(null, EventArgs.Empty);
@@ -49,7 +49,7 @@ internal class ContextOverviewControl
         }
     }
 
-    private void ProcessInvocationList_OnSelectionChanged(TrackedProcessInvocation process)
+    private void ProcessList_OnSelectionChanged(TrackedProcess process)
     {
         IoCommandList.HighlightedProcess = process;
     }
@@ -59,11 +59,11 @@ internal class ContextOverviewControl
         var cr = Container.ClientRectangle;
         var y = cr.Top;
         var h = cr.Height / 2;
-        ProcessInvocationList.ListView.Bounds = new Rectangle(cr.Left, y, cr.Width, h);
+        ProcessList.ListView.Bounds = new Rectangle(cr.Left, y, cr.Width, h);
 
-        y = ProcessInvocationList.ListView.Bottom;
+        y = ProcessList.ListView.Bottom;
         h = cr.Height - y;
         SinkList.Container.Bounds = new Rectangle(cr.Left, y, SinkList.Container.Width, h);
-        IoCommandList.Container.Bounds = new Rectangle(SinkList.Container.Right, ProcessInvocationList.ListView.Bottom, cr.Width - SinkList.Container.Width, h);
+        IoCommandList.Container.Bounds = new Rectangle(SinkList.Container.Right, ProcessList.ListView.Bottom, cr.Width - SinkList.Container.Width, h);
     }
 }

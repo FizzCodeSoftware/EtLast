@@ -1,18 +1,18 @@
 ﻿namespace FizzCode.EtLast.Diagnostics.Interface;
 
 public delegate void OnEventAddedDelegate(Playbook playbook, List<AbstractEvent> abstractEvents);
-public delegate void OnProcessInvokedDelegate(Playbook playbook, TrackedProcessInvocation process);
+public delegate void OnProcessStartedDelegate(Playbook playbook, TrackedProcess process);
 public delegate void OnSinkStartedDelegate(Playbook playbook, TrackedSink sink);
-public delegate void OnWriteToSinkDelegate(Playbook playbook, TrackedSink sink, TrackedProcessInvocation process, long rowId, KeyValuePair<string, object>[] values);
+public delegate void OnWriteToSinkDelegate(Playbook playbook, TrackedSink sink, TrackedProcess process, long rowId, KeyValuePair<string, object>[] values);
 
 public class Playbook(DiagContext context)
 {
     public DiagContext DiagContext { get; } = context;
 
     public Dictionary<long, TrackedSink> SinkList { get; } = [];
-    public Dictionary<long, TrackedProcessInvocation> ProcessList { get; } = [];
+    public Dictionary<long, TrackedProcess> ProcessList { get; } = [];
 
-    public OnProcessInvokedDelegate OnProcessInvoked { get; set; }
+    public OnProcessStartedDelegate OnProcessStarted { get; set; }
     public OnEventAddedDelegate OnEventsAdded { get; set; }
     public OnSinkStartedDelegate OnSinkStarted { get; set; }
     public OnWriteToSinkDelegate OnWriteToSink { get; set; }
@@ -27,33 +27,33 @@ public class Playbook(DiagContext context)
             {
                 case LogEvent evt:
                     {
-                        if (evt.ProcessInvocationId != null && !ProcessList.ContainsKey(evt.ProcessInvocationId.Value))
+                        if (evt.ProcessId != null && !ProcessList.ContainsKey(evt.ProcessId.Value))
                             continue;
                     }
                     break;
                 case IoCommandStartEvent evt:
                     {
-                        if (!ProcessList.ContainsKey(evt.ProcessInvocationId))
+                        if (!ProcessList.ContainsKey(evt.ProcessId))
                             continue;
                     }
                     break;
-                case ProcessInvocationStartEvent evt:
+                case ProcessStartEvent evt:
                     {
-                        if (!ProcessList.ContainsKey(evt.InvocationId))
+                        if (!ProcessList.ContainsKey(evt.ProcessId))
                         {
-                            TrackedProcessInvocation invoker = null;
-                            if (evt.CallerInvocationId != null && !ProcessList.TryGetValue(evt.CallerInvocationId.Value, out invoker))
+                            TrackedProcess caller = null;
+                            if (evt.CallerProcessId != null && !ProcessList.TryGetValue(evt.CallerProcessId.Value, out caller))
                                 continue;
 
-                            var process = new TrackedProcessInvocation(evt.InvocationId, evt.ProcessId, evt.InvocationCounter, invoker, evt.Type, evt.Kind, evt.Name, evt.Topic);
-                            ProcessList.Add(process.InvocationId, process);
-                            OnProcessInvoked?.Invoke(this, process);
+                            var process = new TrackedProcess(evt.ProcessId, caller, evt.Type, evt.Kind, evt.Name, evt.Topic);
+                            ProcessList.Add(process.Id, process);
+                            OnProcessStarted?.Invoke(this, process);
                         }
                     }
                     break;
-                case ProcessInvocationEndEvent evt:
+                case ProcessEndEvent evt:
                     {
-                        if (!ProcessList.TryGetValue(evt.InvocationId, out var process))
+                        if (!ProcessList.TryGetValue(evt.ProcessId, out var process))
                             continue;
 
                         process.ElapsedMillisecondsAfterFinished = TimeSpan.FromMilliseconds(evt.ElapsedMilliseconds);
@@ -65,7 +65,7 @@ public class Playbook(DiagContext context)
                     break;
                 case RowCreatedEvent evt:
                     {
-                        if (!ProcessList.TryGetValue(evt.ProcessInvocationId, out var process))
+                        if (!ProcessList.TryGetValue(evt.ProcessId, out var process))
                             continue;
 
                         process.CreateRow();
@@ -73,11 +73,11 @@ public class Playbook(DiagContext context)
                     break;
                 case RowOwnerChangedEvent evt:
                     {
-                        if (!ProcessList.TryGetValue(evt.PreviousProcessInvocationId, out var previousProcess))
+                        if (!ProcessList.TryGetValue(evt.PreviousProcessId, out var previousProcess))
                             continue;
 
-                        TrackedProcessInvocation newProcess = null;
-                        if (evt.NewProcessInvocationId != null && !ProcessList.TryGetValue(evt.NewProcessInvocationId.Value, out newProcess))
+                        TrackedProcess newProcess = null;
+                        if (evt.NewProcessId != null && !ProcessList.TryGetValue(evt.NewProcessId.Value, out newProcess))
                             continue;
 
                         if (newProcess != null)
@@ -102,7 +102,7 @@ public class Playbook(DiagContext context)
                     break;
                 case WriteToSinkEvent evt:
                     {
-                        if (!ProcessList.TryGetValue(evt.ProcessInvocationId, out var process))
+                        if (!ProcessList.TryGetValue(evt.ProcessId, out var process))
                             continue;
 
                         if (!SinkList.TryGetValue(evt.SinkId, out var sink))

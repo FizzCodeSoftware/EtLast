@@ -186,7 +186,7 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
                     writer.WriteNullable(transactionId);
                     writer.Write(text);
                     writer.Write((byte)severity);
-                    writer.WriteNullable7BitEncodedInt64(process?.InvocationInfo?.InvocationId);
+                    writer.WriteNullable7BitEncodedInt64(process?.ExecutionInfo?.Id);
                     writer.Write7BitEncodedInt(0);
                 });
 
@@ -201,7 +201,7 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
                 writer.WriteNullable(transactionId);
                 writer.Write(text);
                 writer.Write((byte)severity);
-                writer.WriteNullable7BitEncodedInt64(process?.InvocationInfo?.InvocationId);
+                writer.WriteNullable7BitEncodedInt64(process?.ExecutionInfo?.Id);
 
                 var argCount = 0;
                 for (var i = 0; i < tokens.Count && argCount < args.Length; i++)
@@ -263,7 +263,7 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
     {
         SendDiagnostics(DiagnosticsEventKind.RowCreated, writer =>
         {
-            writer.Write7BitEncodedInt64(row.Owner.InvocationInfo.InvocationId);
+            writer.Write7BitEncodedInt64(row.Owner.ExecutionInfo.Id);
             writer.Write7BitEncodedInt64(row.Id);
             writer.Write7BitEncodedInt(row.ValueCount);
             foreach (var kvp in row.Values)
@@ -279,8 +279,8 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
         SendDiagnostics(DiagnosticsEventKind.RowOwnerChanged, writer =>
         {
             writer.Write7BitEncodedInt64(row.Id);
-            writer.Write7BitEncodedInt64(previousProcess.InvocationInfo.InvocationId);
-            writer.WriteNullable7BitEncodedInt64(currentProcess?.InvocationInfo?.InvocationId);
+            writer.Write7BitEncodedInt64(previousProcess.ExecutionInfo.Id);
+            writer.WriteNullable7BitEncodedInt64(currentProcess?.ExecutionInfo?.Id);
         });
     }
 
@@ -289,7 +289,7 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
         SendDiagnostics(DiagnosticsEventKind.RowValueChanged, writer =>
         {
             writer.Write7BitEncodedInt64(row.Id);
-            writer.WriteNullable7BitEncodedInt64(row.Owner?.InvocationInfo?.InvocationId);
+            writer.WriteNullable7BitEncodedInt64(row.Owner?.ExecutionInfo?.Id);
 
             writer.Write7BitEncodedInt(values.Length);
             foreach (var kvp in values)
@@ -308,7 +308,7 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
             writer.WriteNullable(sink.Location);
             writer.WriteNullable(sink.Path);
             writer.WriteNullable(sink.Format);
-            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationId);
+            writer.Write7BitEncodedInt64(process.ExecutionInfo.Id);
         });
     }
 
@@ -317,7 +317,7 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
         SendDiagnostics(DiagnosticsEventKind.WriteToSink, writer =>
         {
             writer.Write7BitEncodedInt64(row.Id);
-            writer.Write7BitEncodedInt64(row.Owner.InvocationInfo.InvocationId);
+            writer.Write7BitEncodedInt64(row.Owner.ExecutionInfo.Id);
             writer.Write7BitEncodedInt64(sink.Id);
             writer.Write7BitEncodedInt(row.ValueCount);
             foreach (var kvp in row.Values)
@@ -328,28 +328,26 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
         });
     }
 
-    public void OnProcessInvocationStart(IProcess process)
+    public void OnProcessStart(IProcess process)
     {
-        SendDiagnostics(DiagnosticsEventKind.ProcessInvocationStart, writer =>
+        SendDiagnostics(DiagnosticsEventKind.ProcessStart, writer =>
         {
-            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationId);
-            writer.Write7BitEncodedInt64(process.InvocationInfo.ProcessId);
-            writer.Write7BitEncodedInt64(process.InvocationInfo.ProcessInvocationCount);
+            writer.Write7BitEncodedInt64(process.ExecutionInfo.Id);
             writer.Write(process.GetType().GetFriendlyTypeName());
             writer.WriteNullable(process.Kind);
             writer.Write(process.Name);
             writer.WriteNullable(process.GetTopic());
-            writer.WriteNullable7BitEncodedInt64((process.InvocationInfo.Caller as IProcess)?.InvocationInfo?.InvocationId);
+            writer.WriteNullable7BitEncodedInt64((process.ExecutionInfo.Caller as IProcess)?.ExecutionInfo?.Id);
         });
     }
 
-    public void OnProcessInvocationEnd(IProcess process)
+    public void OnProcessEnd(IProcess process)
     {
-        SendDiagnostics(DiagnosticsEventKind.ProcessInvocationEnd, writer =>
+        SendDiagnostics(DiagnosticsEventKind.ProcessEnd, writer =>
         {
-            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationId);
-            writer.Write7BitEncodedInt64(process.InvocationInfo.InvocationStarted.ElapsedMilliseconds);
-            writer.WriteNullable7BitEncodedInt64(process.InvocationInfo.LastInvocationNetTimeMilliseconds);
+            writer.Write7BitEncodedInt64(process.ExecutionInfo.Id);
+            writer.Write7BitEncodedInt64(process.ExecutionInfo.Timer.ElapsedMilliseconds);
+            writer.WriteNullable7BitEncodedInt64(process.ExecutionInfo.NetTimeMilliseconds);
         });
     }
 
@@ -358,7 +356,7 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
         SendDiagnostics(DiagnosticsEventKind.IoCommandStart, writer =>
         {
             writer.Write7BitEncodedInt64(ioCommand.Id);
-            writer.Write7BitEncodedInt64(ioCommand.Process.InvocationInfo.InvocationId);
+            writer.Write7BitEncodedInt64(ioCommand.Process.ExecutionInfo.Id);
             writer.Write((byte)ioCommand.Kind);
             writer.WriteNullable(ioCommand.Location);
             writer.WriteNullable(ioCommand.Path);

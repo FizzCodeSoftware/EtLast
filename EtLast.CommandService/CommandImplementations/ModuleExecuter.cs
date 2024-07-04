@@ -148,7 +148,7 @@ internal static class ModuleExecuter
                         {
                             var typ = callerProcess is IEtlTask ? "Task" : "Process";
                             sb.Append("in {Active").Append(typ).Append("} ");
-                            args.Add(callerProcess.InvocationName);
+                            args.Add(callerProcess.UniqueName);
                         }
 
                         sb.Append("is {Action}");

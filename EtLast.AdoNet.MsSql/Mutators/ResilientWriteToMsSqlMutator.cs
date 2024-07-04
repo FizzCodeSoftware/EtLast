@@ -225,7 +225,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 
                 if (retry == 0 && (ex is InvalidOperationException || ex is SqlException))
                 {
-                    var fileName = "bulk-copy-error-" + Context.Manifest.CreatedOnLocal.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture) + "-" + InvocationInfo.InvocationId.ToString("D", CultureInfo.InvariantCulture) + ".tsv";
+                    var fileName = "bulk-copy-error-" + Context.Manifest.CreatedOnLocal.ToString("yyyy-MM-dd-HH-mm-ss", CultureInfo.InvariantCulture) + "-" + ExecutionInfo.Id.ToString("D", CultureInfo.InvariantCulture) + ".tsv";
                     Context.LogCustom(fileName, this, "bulk copy error: " + ConnectionString.Name + "/" + ConnectionString.Unescape(TableName) + ", exception: " + ex.GetType().GetFriendlyTypeName() + ": " + ex.Message);
                     Context.LogCustom(fileName, this, string.Join("\t", _reader.ColumnIndexes.Select(kvp => kvp.Key)));
 

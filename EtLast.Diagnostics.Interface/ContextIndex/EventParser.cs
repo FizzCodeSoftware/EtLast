@@ -2,26 +2,24 @@
 
 public class EventParser
 {
-    public static ProcessInvocationStartEvent ReadProcessInvocationStartEvent(ExtendedBinaryReader reader)
+    public static ProcessStartEvent ReadProcessStartEvent(ExtendedBinaryReader reader)
     {
-        return new ProcessInvocationStartEvent
+        return new ProcessStartEvent
         {
-            InvocationId = reader.Read7BitEncodedInt64(),
             ProcessId = reader.Read7BitEncodedInt64(),
-            InvocationCounter = reader.Read7BitEncodedInt64(),
             Type = reader.ReadString(),
             Kind = reader.ReadNullableString(),
             Name = reader.ReadString(),
             Topic = reader.ReadNullableString(),
-            CallerInvocationId = reader.ReadNullable7BitEncodedInt64()
+            CallerProcessId = reader.ReadNullable7BitEncodedInt64()
         };
     }
 
-    public static ProcessInvocationEndEvent ReadProcessInvocationEndEvent(ExtendedBinaryReader reader)
+    public static ProcessEndEvent ReadProcessEndEvent(ExtendedBinaryReader reader)
     {
-        return new ProcessInvocationEndEvent
+        return new ProcessEndEvent
         {
-            InvocationId = reader.Read7BitEncodedInt64(),
+            ProcessId = reader.Read7BitEncodedInt64(),
             ElapsedMilliseconds = reader.Read7BitEncodedInt64(),
             NetTimeMilliseconds = reader.ReadNullable7BitEncodedInt64(),
         };
@@ -32,7 +30,7 @@ public class EventParser
         var evt = new IoCommandStartEvent
         {
             Id = reader.Read7BitEncodedInt64(),
-            ProcessInvocationId = reader.Read7BitEncodedInt64(),
+            ProcessId = reader.Read7BitEncodedInt64(),
             Kind = (IoCommandKind)reader.ReadByte(),
             Location = reader.ReadNullableString(),
             Path = reader.ReadNullableString(),
@@ -72,7 +70,7 @@ public class EventParser
     {
         var evt = new RowCreatedEvent
         {
-            ProcessInvocationId = reader.Read7BitEncodedInt64(),
+            ProcessId = reader.Read7BitEncodedInt64(),
             RowId = reader.Read7BitEncodedInt64()
         };
 
@@ -96,8 +94,8 @@ public class EventParser
         return new RowOwnerChangedEvent
         {
             RowId = reader.Read7BitEncodedInt64(),
-            PreviousProcessInvocationId = reader.Read7BitEncodedInt64(),
-            NewProcessInvocationId = reader.ReadNullable7BitEncodedInt64()
+            PreviousProcessId = reader.Read7BitEncodedInt64(),
+            NewProcessId = reader.ReadNullable7BitEncodedInt64()
         };
     }
 
@@ -106,7 +104,7 @@ public class EventParser
         var evt = new RowValueChangedEvent
         {
             RowId = reader.Read7BitEncodedInt64(),
-            ProcessInvocationId = reader.ReadNullable7BitEncodedInt64()
+            ProcessId = reader.ReadNullable7BitEncodedInt64()
         };
 
         var columnCount = reader.Read7BitEncodedInt();
@@ -132,7 +130,7 @@ public class EventParser
             Location = reader.ReadNullableString(),
             Path = reader.ReadNullableString(),
             Format = reader.ReadNullableString(),
-            ProcessInvocationId = reader.Read7BitEncodedInt64(),
+            ProcessId = reader.Read7BitEncodedInt64(),
         };
 
         return evt;
@@ -143,7 +141,7 @@ public class EventParser
         var evt = new WriteToSinkEvent
         {
             RowId = reader.Read7BitEncodedInt64(),
-            ProcessInvocationId = reader.Read7BitEncodedInt64(),
+            ProcessId = reader.Read7BitEncodedInt64(),
             SinkId = reader.Read7BitEncodedInt64()
         };
 
@@ -169,7 +167,7 @@ public class EventParser
             TransactionId = reader.ReadNullableString(),
             Text = reader.ReadString(),
             Severity = (LogSeverity)reader.ReadByte(),
-            ProcessInvocationId = reader.ReadNullable7BitEncodedInt64()
+            ProcessId = reader.ReadNullable7BitEncodedInt64()
         };
 
         var argCount = reader.Read7BitEncodedInt();

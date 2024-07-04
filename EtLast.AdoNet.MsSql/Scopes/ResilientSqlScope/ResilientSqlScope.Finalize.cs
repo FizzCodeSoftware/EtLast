@@ -172,7 +172,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
                     Context.RegisterScopeAction(new ScopeAction()
                     {
                         Context = Context,
-                        Caller = InvocationInfo.Caller,
+                        Caller = ExecutionInfo.Caller,
                         Scope = this,
                         Topic = ConnectionString.Unescape(tableFinalizers.Key),
                         Action = "finalized",

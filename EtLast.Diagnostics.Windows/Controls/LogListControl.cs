@@ -114,8 +114,8 @@ internal class LogListControl
             var item = new LogModel()
             {
                 Event = evt,
-                Process = evt.ProcessInvocationId != null
-                    ? playbook.DiagContext.WholePlaybook.ProcessList[evt.ProcessInvocationId.Value]
+                Process = evt.ProcessId != null
+                    ? playbook.DiagContext.WholePlaybook.ProcessList[evt.ProcessId.Value]
                     : null,
                 Text = text,
             };
@@ -127,7 +127,7 @@ internal class LogListControl
 
 internal class LogModel
 {
-    public TrackedProcessInvocation Process { get; set; }
+    public TrackedProcess Process { get; set; }
     public LogEvent Event { get; set; }
     public string Text { get; set; }
 }

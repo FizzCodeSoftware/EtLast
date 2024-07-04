@@ -3,7 +3,7 @@
 internal class ProcessRowListControl
 {
     public Control Container { get; }
-    public TrackedProcessInvocation Process { get; }
+    public TrackedProcess Process { get; }
     public List<TrackedEtlRow> Rows { get; }
 
     // filters
@@ -17,7 +17,7 @@ internal class ProcessRowListControl
 
     public ControlUpdater<ProcessRowModel> Updater { get; }
 
-    public ProcessRowListControl(Control container, TrackedProcessInvocation process, List<TrackedEtlRow> rows)
+    public ProcessRowListControl(Control container, TrackedProcess process, List<TrackedEtlRow> rows)
     {
         Container = container;
         Process = process;

@@ -58,6 +58,6 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
             _feederThread = null;
         }
 
-        Context.RegisterProcessInvocationEnd(this);
+        Context.RegisterProcessEnd(this);
     }
 }

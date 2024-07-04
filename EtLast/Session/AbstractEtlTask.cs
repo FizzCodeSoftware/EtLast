@@ -65,7 +65,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
         else
         {
             netTimeStopwatch.Stop();
-            Context.RegisterProcessInvocationEnd(this, netTimeStopwatch.ElapsedMilliseconds);
+            Context.RegisterProcessEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }
     }
 }

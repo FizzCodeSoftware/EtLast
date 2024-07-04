@@ -4,9 +4,9 @@
 public class TrackedEtlRow
 {
     public long Id { get; set; }
-    public TrackedProcessInvocation CreatorProcess { get; set; }
-    public TrackedProcessInvocation PreviousProcess { get; set; }
-    public TrackedProcessInvocation NextProcess { get; set; }
+    public TrackedProcess CreatorProcess { get; set; }
+    public TrackedProcess PreviousProcess { get; set; }
+    public TrackedProcess NextProcess { get; set; }
 
     public List<AbstractRowEvent> AllEvents { get; } = [];
 

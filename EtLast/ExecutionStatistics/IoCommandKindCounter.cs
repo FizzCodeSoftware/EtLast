@@ -46,11 +46,11 @@ public class IoCommandKindCounter : IEtlContextListener
     {
     }
 
-    public void OnProcessInvocationEnd(IProcess process)
+    public void OnProcessEnd(IProcess process)
     {
     }
 
-    public void OnProcessInvocationStart(IProcess process)
+    public void OnProcessStart(IProcess process)
     {
     }
 

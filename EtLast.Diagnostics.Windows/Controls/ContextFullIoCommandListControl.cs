@@ -193,7 +193,7 @@ internal class ContextFullIoCommandListControl
                     Timestamp = new DateTime(evt.Timestamp),
                     Playbook = playbook,
                     StartEvent = startEvent,
-                    Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessInvocationId],
+                    Process = playbook.DiagContext.WholePlaybook.ProcessList[startEvent.ProcessId],
                     ArgumentsPreview = startEvent.Arguments != null
                         ? string.Join(",", startEvent.Arguments.Where(x => !x.Value.GetType().IsArray).Select(x => x.Key + "=" + FormattingHelpers.ToDisplayValue(x.Value)))
                         : null,
@@ -228,7 +228,7 @@ public class IoCommandModel
 {
     public DateTime Timestamp { get; set; }
     public Playbook Playbook { get; set; }
-    public TrackedProcessInvocation Process { get; set; }
+    public TrackedProcess Process { get; set; }
     public IoCommandStartEvent StartEvent { get; set; }
     public IoCommandEndEvent EndEvent { get; set; }
     public TimeSpan? Elapsed { get; set; }

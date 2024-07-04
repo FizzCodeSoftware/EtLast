@@ -2,6 +2,6 @@
 
 public class RowOwnerChangedEvent : AbstractRowEvent
 {
-    public long PreviousProcessInvocationId { get; set; }
-    public long? NewProcessInvocationId { get; set; }
+    public long PreviousProcessId { get; set; }
+    public long? NewProcessId { get; set; }
 }
