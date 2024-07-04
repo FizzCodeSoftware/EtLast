@@ -107,6 +107,18 @@ public class ContextManifest : IEtlContextListener
         _exceptionMap[exception] = manifestException;
     }
 
+    public ContextManifestException[] GetFlowStateExceptions(IReadOnlyFlowState flowState)
+    {
+        return flowState.Exceptions
+            .Select(ex =>
+            {
+                _exceptionMap.TryGetValue(ex, out var manifestException);
+                return manifestException;
+            })
+            .Where(x => x != null)
+            .ToArray();
+    }
+
     public void OnSinkStarted(IProcess process, Sink sink)
     {
         var manifestSink = new ContextManifestSink()
@@ -170,11 +182,7 @@ public class ContextManifest : IEtlContextListener
             if (process.FlowState.Failed)
                 AnyRootProcessFailed = true;
 
-            manifestProcess.FailureExceptions.AddRange(process.FlowState.Exceptions.Select(ex =>
-            {
-                _exceptionMap.TryGetValue(ex, out var manifestException);
-                return manifestException;
-            }).Where(x => x != null));
+            manifestProcess.FailureExceptions.AddRange(GetFlowStateExceptions(process.FlowState));
 
             ManifestProcessFinished?.Invoke(this, manifestProcess);
             ManifestChanged?.Invoke(this);
