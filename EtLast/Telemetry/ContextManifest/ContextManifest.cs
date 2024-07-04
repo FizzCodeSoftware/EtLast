@@ -93,6 +93,8 @@ public class ContextManifest : IEtlContextListener
             ProcessId = process.InvocationInfo.ProcessId,
             ProcessName = process.Name,
             ProcessTypeName = process.GetType().GetFriendlyTypeName(),
+            ProcessKind = process.Kind,
+            ProcessTopic = process.GetTopic(),
             Message = exception.Message,
             Details = exception.FormatExceptionWithDetails(true),
         };
@@ -148,6 +150,7 @@ public class ContextManifest : IEtlContextListener
                     Name = process.Name,
                     TypeName = process.GetType().GetFriendlyTypeName(),
                     Kind = process.Kind,
+                    Topic = process.GetTopic(),
                 };
 
                 _processes[manifestProcess.ProcessId] = manifestProcess;
@@ -257,20 +260,22 @@ public class ContextManifestIoTarget
 
 public class ContextManifestException
 {
-    public long ProcessId { get; set; }
-    public string ProcessName { get; set; }
-    public string ProcessTypeName { get; set; }
-
-    public string Message { get; set; }
-    public string Details { get; set; }
+    public required long ProcessId { get; init; }
+    public required string ProcessName { get; init; }
+    public required string ProcessTypeName { get; init; }
+    public required string ProcessKind { get; init; }
+    public required string ProcessTopic { get; init; }
+    public required string Message { get; init; }
+    public required string Details { get; init; }
 }
 
 public class ContextManifestProcess
 {
-    public long ProcessId { get; set; }
-    public string Name { get; set; }
-    public string TypeName { get; set; }
-    public string Kind { get; set; }
+    public required long ProcessId { get; init; }
+    public required string Name { get; init; }
+    public required string TypeName { get; init; }
+    public required string Kind { get; init; }
+    public required string Topic { get; init; }
 
     public List<ContextManifestProcessInvocation> Invocations { get; } = [];
 }
