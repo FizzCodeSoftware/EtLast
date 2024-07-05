@@ -5,9 +5,10 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
     public required string Directory { get; init; }
     public required Func<ContextManifest, string> FileNameGenerator { get; init; }
     public int BufferTimeoutMilliseconds { get; init; } = 2000;
-    public JsonSerializerOptions JsonSerializerOptions { get; init; } = new()
+    public JsonSerializerOptions SerializerOptions { get; init; } = new()
     {
         WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     private Stopwatch _lastSave;
@@ -42,7 +43,7 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
             System.IO.Directory.CreateDirectory(Directory);
 
         var fileName = Path.Combine(Directory, FileNameGenerator.Invoke(manifest));
-        var content = JsonSerializer.Serialize(manifest, JsonSerializerOptions);
+        var content = JsonSerializer.Serialize(manifest, SerializerOptions);
         try
         {
             File.WriteAllText(fileName, content, Encoding.UTF8);
