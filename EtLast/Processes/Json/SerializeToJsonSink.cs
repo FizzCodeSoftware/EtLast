@@ -13,6 +13,7 @@ public sealed class SerializeToJsonSink<T> : AbstractJob
     public JsonSerializerOptions SerializerOptions { get; init; } = new JsonSerializerOptions()
     {
         WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)

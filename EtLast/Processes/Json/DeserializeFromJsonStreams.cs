@@ -10,6 +10,7 @@ public sealed class DeserializeFromJsonStreams<T> : AbstractProcessWithResult<IE
     public JsonSerializerOptions SerializerOptions { get; init; } = new JsonSerializerOptions()
     {
         WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     protected override IEnumerable<T> ExecuteImpl()

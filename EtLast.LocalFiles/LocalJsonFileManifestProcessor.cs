@@ -8,6 +8,7 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
     public JsonSerializerOptions JsonSerializerOptions { get; init; } = new()
     {
         WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     private Stopwatch _lastSave;

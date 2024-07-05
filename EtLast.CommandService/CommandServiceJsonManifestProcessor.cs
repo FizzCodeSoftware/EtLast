@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Text.Encodings.Web;
+
+namespace FizzCode.EtLast;
 
 internal class CommandServiceJsonManifestProcessor : IManifestProcessor
 {
@@ -8,6 +10,7 @@ internal class CommandServiceJsonManifestProcessor : IManifestProcessor
     public JsonSerializerOptions JsonSerializerOptions { get; init; } = new()
     {
         WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     private Stopwatch _lastSave = null;
