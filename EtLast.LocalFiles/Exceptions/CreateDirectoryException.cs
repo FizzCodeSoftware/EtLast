@@ -5,7 +5,7 @@
 public class CreateDirectoryException : EtlException
 {
     internal CreateDirectoryException(IProcess process, Exception innerException)
-        : base(process, "error during the creation of a local directory", innerException)
+        : base(process, "can't create local directory", innerException)
     {
     }
 }

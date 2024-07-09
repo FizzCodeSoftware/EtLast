@@ -5,7 +5,7 @@
 public class MatchActionDelegateException : EtlException
 {
     public MatchActionDelegateException(IProcess process, IReadOnlySlimRow row, Exception innerException)
-        : base(process, "error during the execution of a " + nameof(MatchAction) + "." + nameof(MatchAction.CustomAction) + " delegate", innerException)
+        : base(process, "error in a " + nameof(MatchAction) + "." + nameof(MatchAction.CustomAction) + " delegate", innerException)
     {
         Data["Row"] = row.ToDebugString(true);
     }

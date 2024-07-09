@@ -5,7 +5,7 @@
 public class KeyGeneratorException : EtlException
 {
     public KeyGeneratorException(IProcess process, IReadOnlySlimRow row, Exception innerException)
-        : base(process, "error during generating key for a row", innerException)
+        : base(process, "error in row key generator", innerException)
     {
         Data["Row"] = row.ToDebugString(true);
     }

@@ -54,7 +54,7 @@ public abstract class HttpCommandListener : ICommandListener
             }
             catch (Exception ex)
             {
-                commandService.Logger.Error(ex, "error during the execution of the http listener application");
+                commandService.Logger.Error(ex, "error in the http listener application");
             }
         }
         finally

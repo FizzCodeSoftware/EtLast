@@ -13,7 +13,7 @@ public sealed class CustomJob : AbstractJob
         }
         catch (Exception ex) when (ex is not EtlException)
         {
-            var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
+            var exception = new CustomCodeException(this, "error in custom code: " + ex.Message, ex);
             throw exception;
         }
     }

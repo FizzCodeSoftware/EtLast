@@ -105,7 +105,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
         }
         catch (Exception ex)
         {
-            FlowState.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+            FlowState.AddException(this, new CustomCodeException(this, "error in a custom sorter", ex));
         }
 
         if (sortedRowsEnumerator != null)
@@ -123,7 +123,7 @@ public class MemorySortMutator : AbstractSequence, IMutator
                 }
                 catch (Exception ex)
                 {
-                    FlowState.AddException(this, new CustomCodeException(this, "error during the execution of custom sort code", ex));
+                    FlowState.AddException(this, new CustomCodeException(this, "error in a custom sorter", ex));
                     break;
                 }
 

@@ -5,12 +5,12 @@
 public class ProcessExecutionException : EtlException
 {
     public ProcessExecutionException(IProcess process, Exception innerException)
-        : this(process, "error raised during the execution of a process", innerException)
+        : this(process, "error in a process", innerException)
     {
     }
 
     public ProcessExecutionException(IProcess process, IReadOnlySlimRow row, Exception innerException)
-        : this(process, "error raised during the execution of a process", innerException)
+        : this(process, "error in a process", innerException)
     {
         Data["Row"] = row.ToDebugString(true);
     }
