@@ -86,7 +86,7 @@ public class SortedReduceGroupToSingleRowMutatorTests
                 Selector = (proc, groupRows) =>
                 {
                     if (groupRows.Count < 2)
-                        throw new EtlException("wrong");
+                        throw new EtlException(proc, "wrong");
 
                     return groupRows[0];
                 },

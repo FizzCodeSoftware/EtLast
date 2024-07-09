@@ -5,7 +5,7 @@
 public class DeleteDirectoryException : EtlException
 {
     internal DeleteDirectoryException(IProcess process, Exception innerException)
-        : base(process, "error during the deletion of a local directory", innerException)
+        : base(process, "can't delete local directory", innerException)
     {
     }
 }

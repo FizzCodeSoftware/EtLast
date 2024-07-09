@@ -21,7 +21,7 @@ public sealed class CustomMutator : AbstractMutator
         }
         catch (Exception ex) when (ex is not EtlException)
         {
-            var exception = new CustomCodeException(this, "error during the execution of custom code", ex);
+            var exception = new CustomCodeException(this, "error in custom code", ex);
             exception.Data["RowInputIndex"] = rowInputIndex;
             exception.Data["Row"] = row.ToDebugString(true);
             throw exception;

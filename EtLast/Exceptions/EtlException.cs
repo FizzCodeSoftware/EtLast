@@ -8,24 +8,8 @@ public class EtlException : Exception
 {
     public static readonly string OpsMessageDataKey = "OpsMessage";
 
-    public EtlException(string message)
-        : base(message)
-    {
-        var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
-        if (trace != null)
-            Data["Trace"] = trace;
-    }
-
-    public EtlException(string message, Exception innerException)
-        : base(message, innerException)
-    {
-        var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
-        if (trace != null)
-            Data["Trace"] = trace;
-    }
-
     public EtlException(IProcess process, string message)
-        : base(message)
+      : base(message)
     {
         var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
         if (trace != null)
@@ -49,7 +33,7 @@ public class EtlException : Exception
     }
 
     public EtlException(IProcess process, string message, Exception innerException)
-        : base(message, innerException)
+        : base(message + " (" + innerException.Message + ")", innerException)
     {
         var trace = GetTraceFromStackFrames(new StackTrace(true).GetFrames());
         if (trace != null)
