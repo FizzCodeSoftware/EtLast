@@ -41,6 +41,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     /// </summary>
     public List<ColumnDataTypeInfo> ColumnInfoList { get; init; } = [];
 
+    public Func<string, string> SqlStatementCustomizer { get; init; }
+
     protected abstract CommandType GetCommandType();
 
     protected AbstractAdoNetDbReader()
@@ -68,6 +70,10 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
         Stopwatch swQuery;
 
         var sqlStatementProcessed = InlineArrayParametersIfNecessary(sqlStatement);
+
+        if (SqlStatementCustomizer != null)
+            sqlStatement = SqlStatementCustomizer.Invoke(sqlStatement);
+
         IoCommand ioCommand;
 
         using (var scope = new EtlTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
