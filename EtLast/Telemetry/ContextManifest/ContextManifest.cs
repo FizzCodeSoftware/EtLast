@@ -264,7 +264,7 @@ public class ContextManifestException
     public required string ProcessKind { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public required string ProcessTopic { get; init; }
+    public string ProcessTopic { get; init; }
 
     public required string Message { get; init; }
     public required string Details { get; init; }
