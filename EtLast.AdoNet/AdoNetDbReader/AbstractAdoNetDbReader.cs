@@ -41,6 +41,8 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     /// </summary>
     public List<ColumnDataTypeInfo> ColumnInfoList { get; init; } = [];
 
+    public Action<IReadOnlyList<ColumnDataTypeInfo>> ColumnInfoListTester { get; init; }
+
     public Func<string, string> SqlStatementCustomizer { get; init; }
 
     protected abstract CommandType GetCommandType();
@@ -76,264 +78,286 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
 
         IoCommand ioCommand;
 
-        using (var scope = new EtlTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
+        try
         {
-            if (CustomConnectionCreator != null)
+            using (var scope = new EtlTransactionScope(this, SuppressExistingTransactionScope ? TransactionScopeKind.Suppress : TransactionScopeKind.None, LogSeverity.Debug))
             {
-                CustomConnectionCreator.Invoke(this, out connection, out transaction);
-            }
-            else
-            {
-                connection = EtlConnectionManager.GetConnection(ConnectionString, this);
-            }
-
-            cmd = connection.Connection.CreateCommand();
-            cmd.CommandTimeout = CommandTimeout;
-            cmd.CommandText = sqlStatementProcessed;
-            cmd.CommandType = GetCommandType();
-            cmd.Transaction = transaction;
-            cmd.FillCommandParameters(Parameters);
-
-            var transactionId = (CustomConnectionCreator != null && cmd.Transaction != null)
-                ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
-                : Transaction.Current.ToIdentifierString();
-
-            ioCommand = RegisterIoCommand(transactionId, cmd.CommandTimeout, sqlStatement);
-
-            swQuery = Stopwatch.StartNew();
-            try
-            {
-                reader = cmd.ExecuteReader();
-            }
-            catch (Exception ex)
-            {
-                var exception = new SqlReadException(this, ex);
-                exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query, message: {0}, connection string key: {1}, SQL statement: {2}",
-                    ex.Message, ConnectionString.Name, sqlStatement));
-                exception.Data["ConnectionStringName"] = ConnectionString.Name;
-                exception.Data["Statement"] = cmd.CommandText;
-
-                ioCommand.Failed(exception);
-                throw exception;
-            }
-        }
-
-        LastDataRead = DateTime.Now;
-
-        var resultCount = 0L;
-        if (reader != null && !FlowState.IsTerminating)
-        {
-            var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-            // key is the SOURCE column name
-            var columnMap = Columns?.ToDictionary(kvp => kvp.Value?.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
-
-            var schemaTable = ColumnInfoList != null
-                ? reader.GetSchemaTable()
-                : null;
-
-            var fieldCount = reader.FieldCount;
-            var columns = new MappedColumn[fieldCount];
-            for (var i = 0; i < fieldCount; i++)
-            {
-                var fieldName = reader.GetName(i);
-
-                if (DefaultColumn != null)
+                if (CustomConnectionCreator != null)
                 {
-                    columns[i] = columnMap != null && columnMap.TryGetValue(fieldName, out var cc)
-                        ? new MappedColumn()
-                        {
-                            NameInRow = cc.rowColumn,
-                            Config = cc.config ?? DefaultColumn,
-                        }
-                        : new MappedColumn()
-                        {
-                            NameInRow = fieldName,
-                            Config = DefaultColumn,
-                        };
-                }
-                else if (columnMap != null)
-                {
-                    if (columnMap.TryGetValue(fieldName, out var cc))
-                    {
-                        columns[i] = new MappedColumn()
-                        {
-                            NameInRow = fieldName,
-                            Config = cc.config,
-                        };
-                    }
+                    CustomConnectionCreator.Invoke(this, out connection, out transaction);
                 }
                 else
                 {
-                    columns[i] = new MappedColumn()
-                    {
-                        NameInRow = fieldName,
-                        Config = null,
-                    };
+                    connection = EtlConnectionManager.GetConnection(ConnectionString, this);
                 }
 
-                if (schemaTable != null && columns[i] != null)
-                {
-                    var schemaRow = schemaTable.Rows[i];
-                    var properties = new Dictionary<string, object>();
-                    foreach (DataColumn c in schemaTable.Columns)
-                    {
-                        var fieldValue = schemaRow[c];
-                        if (fieldValue != null && fieldValue is not DBNull)
-                        {
-                            if (fieldValue is bool boolFieldValue && !boolFieldValue)
-                                continue;
+                cmd = connection.Connection.CreateCommand();
+                cmd.CommandTimeout = CommandTimeout;
+                cmd.CommandText = sqlStatementProcessed;
+                cmd.CommandType = GetCommandType();
+                cmd.Transaction = transaction;
+                cmd.FillCommandParameters(Parameters);
 
-                            if (fieldName is "ColumnName" or "ColumnOrdinal" or "ProviderType" or "NonVersionedProviderType"
-                                or "ProviderSpecificDataType" or "BaseColumnName" or "BaseTableName" or "BaseCatalogName" or "BaseSchemaName")
-                            {
-                                continue;
-                            }
+                var transactionId = (CustomConnectionCreator != null && cmd.Transaction != null)
+                    ? "custom (" + cmd.Transaction.IsolationLevel.ToString() + ")"
+                    : Transaction.Current.ToIdentifierString();
 
-                            properties[c.ColumnName] = fieldValue is Type type
-                                ? type.Name
-                                : fieldValue;
-                        }
-                    }
+                ioCommand = RegisterIoCommand(transactionId, cmd.CommandTimeout, sqlStatement);
 
-                    var dataTypeName = (string)null;
-                    if (properties.TryGetValue("DataTypeName", out var v) && v is string dataTypeNameTyped)
-                    {
-                        dataTypeName = dataTypeNameTyped;
-                    }
-
-                    var scale = (short?)null;
-                    if (properties.TryGetValue("NumericScale", out v) && v is short scaleType)
-                    {
-                        scale = scaleType;
-
-                        if (ConnectionString.GetAdoNetEngine() is AdoNetEngine.MsSql &&
-                            (string.Equals(dataTypeName, "money", StringComparison.InvariantCultureIgnoreCase)
-                            || string.Equals(dataTypeName, "smallmoney", StringComparison.InvariantCultureIgnoreCase)))
-                        {
-                            scale = 4;
-                        }
-                    }
-
-                    var info = new ColumnDataTypeInfo()
-                    {
-                        Name = columns[i].NameInRow,
-                        ClrType = reader.GetFieldType(i),
-                        ClrTypeName = reader.GetFieldType(i).Name,
-                        DataTypeName = dataTypeName,
-                        AllowNull = properties.TryGetValue("AllowDBNull", out v) && v is bool bv ? bv : null,
-                        Precision = properties.TryGetValue("NumericPrecision", out v) && v is short sv ? sv : null,
-                        Scale = scale,
-                        Size = properties.TryGetValue("ColumnSize", out v) && v is int iv ? iv : null,
-                        IsUnique = properties.TryGetValue("IsUnique", out v) && v is bool bv2 ? bv2 : null,
-                        IsKey = properties.TryGetValue("IsKey", out v) && v is bool bv3 ? bv3 : null,
-                        IsIdentity = properties.TryGetValue("IsIdentity", out v) && v is bool bv4 ? bv4 : null,
-                        IsAutoIncrement = properties.TryGetValue("IsAutoIncrement", out v) && v is bool bv5 ? bv5 : null,
-                        IsRowVersion = properties.TryGetValue("IsRowVersion", out v) && v is bool bv6 ? bv6 : null,
-                        AllProperties = properties.ToDictionary(x => x.Key, x => x.Value.ToString()),
-                    };
-
-                    columns[i].Info = info;
-                    ColumnInfoList.Add(info);
-                }
-            }
-
-            while (!FlowState.IsTerminating)
-            {
+                swQuery = Stopwatch.StartNew();
                 try
                 {
-                    if (!reader.Read())
-                        break;
+                    reader = cmd.ExecuteReader();
                 }
                 catch (Exception ex)
                 {
                     var exception = new SqlReadException(this, ex);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}",
-                        resultCount, ex.Message, ConnectionString.Name, sqlStatement));
+                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query, message: {0}, connection string key: {1}, SQL statement: {2}",
+                        ex.Message, ConnectionString.Name, sqlStatement));
                     exception.Data["ConnectionStringName"] = ConnectionString.Name;
                     exception.Data["Statement"] = cmd.CommandText;
-                    exception.Data["RowIndex"] = resultCount;
-                    exception.Data["SecondsSinceLastRead"] = LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture);
 
-                    ioCommand.AffectedDataCount += resultCount;
                     ioCommand.Failed(exception);
                     throw exception;
                 }
+            }
 
-                LastDataRead = DateTime.Now;
+            LastDataRead = DateTime.Now;
 
-                initialValues.Clear();
+            var resultCount = 0L;
+            if (reader != null && !FlowState.IsTerminating)
+            {
+                var initialValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+                // key is the SOURCE column name
+                var columnMap = Columns?.ToDictionary(kvp => kvp.Value?.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
+
+                var schemaTable = ColumnInfoList != null
+                    ? reader.GetSchemaTable()
+                    : null;
+
+                var fieldCount = reader.FieldCount;
+                var columns = new MappedColumn[fieldCount];
                 for (var i = 0; i < fieldCount; i++)
                 {
-                    var column = columns[i];
-                    if (column == null)
-                        continue;
+                    var fieldName = reader.GetName(i);
 
-                    var value = reader.GetValue(i);
-                    if (value is DBNull)
-                        value = null;
-
-                    if (usedSqlValueProcessors != null)
+                    if (DefaultColumn != null)
                     {
-                        foreach (var processor in usedSqlValueProcessors)
+                        columns[i] = columnMap != null && columnMap.TryGetValue(fieldName, out var cc)
+                            ? new MappedColumn()
+                            {
+                                NameInRow = cc.rowColumn,
+                                Config = cc.config ?? DefaultColumn,
+                            }
+                            : new MappedColumn()
+                            {
+                                NameInRow = fieldName,
+                                Config = DefaultColumn,
+                            };
+                    }
+                    else if (columnMap != null)
+                    {
+                        if (columnMap.TryGetValue(fieldName, out var cc))
                         {
-                            value = processor.ProcessValue(value, column.Info);
+                            columns[i] = new MappedColumn()
+                            {
+                                NameInRow = fieldName,
+                                Config = cc.config,
+                            };
                         }
                     }
-
-                    if (column.Config != null)
+                    else
                     {
-                        try
+                        columns[i] = new MappedColumn()
                         {
-                            value = column.Config.Process(this, value);
-                        }
-                        catch (Exception ex)
-                        {
-                            value = new EtlRowError(this, value, ex);
-                        }
+                            NameInRow = fieldName,
+                            Config = null,
+                        };
                     }
 
-                    initialValues[column.NameInRow] = value;
+                    if (schemaTable != null && columns[i] != null)
+                    {
+                        var schemaRow = schemaTable.Rows[i];
+                        var properties = new Dictionary<string, object>();
+                        foreach (DataColumn c in schemaTable.Columns)
+                        {
+                            var fieldValue = schemaRow[c];
+                            if (fieldValue != null && fieldValue is not DBNull)
+                            {
+                                if (fieldValue is bool boolFieldValue && !boolFieldValue)
+                                    continue;
+
+                                if (fieldName is "ColumnName" or "ColumnOrdinal" or "ProviderType" or "NonVersionedProviderType"
+                                    or "ProviderSpecificDataType" or "BaseColumnName" or "BaseTableName" or "BaseCatalogName" or "BaseSchemaName")
+                                {
+                                    continue;
+                                }
+
+                                properties[c.ColumnName] = fieldValue is Type type
+                                    ? type.Name
+                                    : fieldValue;
+                            }
+                        }
+
+                        var dataTypeName = (string)null;
+                        if (properties.TryGetValue("DataTypeName", out var v) && v is string dataTypeNameTyped)
+                        {
+                            dataTypeName = dataTypeNameTyped;
+                        }
+
+                        var scale = (short?)null;
+                        if (properties.TryGetValue("NumericScale", out v) && v is short scaleType)
+                        {
+                            scale = scaleType;
+
+                            if (ConnectionString.GetAdoNetEngine() is AdoNetEngine.MsSql &&
+                                (string.Equals(dataTypeName, "money", StringComparison.InvariantCultureIgnoreCase)
+                                || string.Equals(dataTypeName, "smallmoney", StringComparison.InvariantCultureIgnoreCase)))
+                            {
+                                scale = 4;
+                            }
+                        }
+
+                        var info = new ColumnDataTypeInfo()
+                        {
+                            Name = columns[i].NameInRow,
+                            ClrType = reader.GetFieldType(i),
+                            ClrTypeName = reader.GetFieldType(i).Name,
+                            DataTypeName = dataTypeName,
+                            AllowNull = properties.TryGetValue("AllowDBNull", out v) && v is bool bv ? bv : null,
+                            Precision = properties.TryGetValue("NumericPrecision", out v) && v is short sv ? sv : null,
+                            Scale = scale,
+                            Size = properties.TryGetValue("ColumnSize", out v) && v is int iv ? iv : null,
+                            IsUnique = properties.TryGetValue("IsUnique", out v) && v is bool bv2 ? bv2 : null,
+                            IsKey = properties.TryGetValue("IsKey", out v) && v is bool bv3 ? bv3 : null,
+                            IsIdentity = properties.TryGetValue("IsIdentity", out v) && v is bool bv4 ? bv4 : null,
+                            IsAutoIncrement = properties.TryGetValue("IsAutoIncrement", out v) && v is bool bv5 ? bv5 : null,
+                            IsRowVersion = properties.TryGetValue("IsRowVersion", out v) && v is bool bv6 ? bv6 : null,
+                            AllProperties = properties.ToDictionary(x => x.Key, x => x.Value.ToString()),
+                        };
+
+                        columns[i].Info = info;
+                        ColumnInfoList.Add(info);
+                    }
                 }
 
-                resultCount++;
-                yield return Context.CreateRow(this, initialValues);
+                if (ColumnInfoList != null && ColumnInfoListTester != null)
+                {
+                    try
+                    {
+                        ColumnInfoListTester.Invoke(ColumnInfoList);
+                    }
+                    catch (Exception ex)
+                    {
+                        var exception = new SqlSchemaException(this, "error in schema: " + ex.Message, ex);
+                        exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                        exception.Data["Statement"] = cmd.CommandText;
+                        exception.Data["ColumnNames"] = string.Join(',', ColumnInfoList.Select(x => x.Name));
+                        ioCommand.Failed(exception);
+                        throw exception;
+                    }
+                }
+
+                while (!FlowState.IsTerminating)
+                {
+                    try
+                    {
+                        if (!reader.Read())
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        var exception = new SqlReadException(this, ex);
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while executing query after successfully reading {0} rows, message: {1}, connection string key: {2}, SQL statement: {3}",
+                            resultCount, ex.Message, ConnectionString.Name, sqlStatement));
+                        exception.Data["ConnectionStringName"] = ConnectionString.Name;
+                        exception.Data["Statement"] = cmd.CommandText;
+                        exception.Data["RowIndex"] = resultCount;
+                        exception.Data["SecondsSinceLastRead"] = LastDataRead.Subtract(DateTime.Now).TotalSeconds.ToString(CultureInfo.InvariantCulture);
+
+                        ioCommand.AffectedDataCount += resultCount;
+                        ioCommand.Failed(exception);
+                        throw exception;
+                    }
+
+                    LastDataRead = DateTime.Now;
+
+                    initialValues.Clear();
+                    for (var i = 0; i < fieldCount; i++)
+                    {
+                        var column = columns[i];
+                        if (column == null)
+                            continue;
+
+                        var value = reader.GetValue(i);
+                        if (value is DBNull)
+                            value = null;
+
+                        if (usedSqlValueProcessors != null)
+                        {
+                            foreach (var processor in usedSqlValueProcessors)
+                            {
+                                value = processor.ProcessValue(value, column.Info);
+                            }
+                        }
+
+                        if (column.Config != null)
+                        {
+                            try
+                            {
+                                value = column.Config.Process(this, value);
+                            }
+                            catch (Exception ex)
+                            {
+                                value = new EtlRowError(this, value, ex);
+                            }
+                        }
+
+                        initialValues[column.NameInRow] = value;
+                    }
+
+                    resultCount++;
+                    yield return Context.CreateRow(this, initialValues);
+                }
             }
+
+            ioCommand.AffectedDataCount += resultCount;
+            ioCommand.End();
         }
-
-        ioCommand.AffectedDataCount += resultCount;
-        ioCommand.End();
-
-        if (reader != null)
+        finally
         {
-            try
+            if (reader != null)
             {
-                reader.Close();
-                reader.Dispose();
-                reader = null;
+                try
+                {
+                    reader.Close();
+                    reader.Dispose();
+                    reader = null;
+                }
+                catch (Exception)
+                {
+                    reader = null;
+                }
             }
-            catch (Exception)
-            {
-                reader = null;
-            }
-        }
 
-        if (cmd != null)
-        {
-            try
+            if (cmd != null)
             {
-                cmd.Dispose();
-                cmd = null;
+                try
+                {
+                    cmd.Dispose();
+                    cmd = null;
+                }
+                catch (Exception)
+                {
+                    cmd = null;
+                }
             }
-            catch (Exception)
-            {
-                cmd = null;
-            }
-        }
 
-        if (CustomConnectionCreator == null)
-        {
-            EtlConnectionManager.ReleaseConnection(this, ref connection);
+            if (CustomConnectionCreator == null)
+            {
+                EtlConnectionManager.ReleaseConnection(this, ref connection);
+            }
         }
     }
 
