@@ -12,6 +12,8 @@
     <RepositoryUrl>https://github.com/FizzcodeSoftware/EtLast</RepositoryUrl>
 
     <UseArtifactsOutput>true</UseArtifactsOutput>
-    
+
+    <NuGetAuditMode>direct</NuGetAuditMode>
+
   </PropertyGroup>
 </Project>
