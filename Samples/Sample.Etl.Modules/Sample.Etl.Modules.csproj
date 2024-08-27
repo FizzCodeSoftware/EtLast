@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -12,12 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.EtLast" Version="8.1.132" />
-    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="8.1.132" />
-    <PackageReference Include="FizzCode.EtLast.AdoNet.MsSql" Version="8.1.132" />
-    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="8.1.132" />
-    <PackageReference Include="FizzCode.EtLast.Hosting" Version="8.1.132" />
-    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="8.1.132" />
+    <PackageReference Include="FizzCode.EtLast" Version="8.1.133" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="8.1.133" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet.MsSql" Version="8.1.133" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="8.1.133" />
+    <PackageReference Include="FizzCode.EtLast.Hosting" Version="8.1.133" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="8.1.133" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.12.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
