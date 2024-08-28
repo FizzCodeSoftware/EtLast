@@ -6,5 +6,7 @@
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 
+    <NuGetAuditMode>direct</NuGetAuditMode>
+
   </PropertyGroup>
 </Project>
