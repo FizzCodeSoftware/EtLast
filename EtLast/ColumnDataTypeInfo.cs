@@ -7,10 +7,10 @@ public class ColumnDataTypeInfo
     public string Name { get; init; }
 
     [JsonIgnore]
-    public Type ExactClrType { get; init; }
+    public Type ClrType { get; init; }
 
-    public string ClrType { get; init; }
-    public string DataType { get; init; }
+    public string ClrTypeName { get; init; }
+    public string DataTypeName { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? AllowNull { get; init; }
@@ -41,6 +41,6 @@ public class ColumnDataTypeInfo
 
     public override string ToString()
     {
-        return Name + ", " + ClrType + ", " + DataType + (Precision != null && Scale != null ? " (" + Precision.Value.ToString(CultureInfo.InvariantCulture) + ", " + Scale.Value.ToString(CultureInfo.InvariantCulture) + ")" : "");
+        return Name + ", " + ClrTypeName + ", " + DataTypeName + (Precision != null && Scale != null ? " (" + Precision.Value.ToString(CultureInfo.InvariantCulture) + ", " + Scale.Value.ToString(CultureInfo.InvariantCulture) + ")" : "");
     }
 }

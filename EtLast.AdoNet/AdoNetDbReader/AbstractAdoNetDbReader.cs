@@ -228,9 +228,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         var info = new ColumnDataTypeInfo()
                         {
                             Name = columns[i].NameInRow,
-                            ExactClrType = reader.GetFieldType(i),
-                            ClrType = reader.GetFieldType(i).Name,
-                            DataType = dataTypeName,
+                            ClrType = reader.GetFieldType(i),
+                            ClrTypeName = reader.GetFieldType(i).Name,
+                            DataTypeName = dataTypeName,
                             AllowNull = properties.TryGetValue("AllowDBNull", out v) && v is bool bv ? bv : null,
                             Precision = hasPrecisionOrScale && properties.TryGetValue("NumericPrecision", out v) && v is short sv ? sv : null,
                             Scale = hasPrecisionOrScale ? scale : null,
