@@ -228,18 +228,17 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         var info = new ColumnDataTypeInfo()
                         {
                             Name = columns[i].NameInRow,
-                            ClrType = reader.GetFieldType(i),
-                            ClrTypeName = reader.GetFieldType(i).Name,
-                            DataTypeName = dataTypeName,
+                            ExactClrType = reader.GetFieldType(i),
+                            ClrType = reader.GetFieldType(i).Name,
+                            DataType = dataTypeName,
                             AllowNull = properties.TryGetValue("AllowDBNull", out v) && v is bool bv ? bv : null,
                             Precision = hasPrecisionOrScale && properties.TryGetValue("NumericPrecision", out v) && v is short sv ? sv : null,
                             Scale = hasPrecisionOrScale ? scale : null,
-                            Size = properties.TryGetValue("ColumnSize", out v) && v is int iv ? iv : null,
-                            IsUnique = properties.TryGetValue("IsUnique", out v) && v is bool bv2 ? bv2 : null,
-                            IsKey = properties.TryGetValue("IsKey", out v) && v is bool bv3 ? bv3 : null,
-                            IsIdentity = properties.TryGetValue("IsIdentity", out v) && v is bool bv4 ? bv4 : null,
-                            IsAutoIncrement = properties.TryGetValue("IsAutoIncrement", out v) && v is bool bv5 ? bv5 : null,
-                            IsRowVersion = properties.TryGetValue("IsRowVersion", out v) && v is bool bv6 ? bv6 : null,
+                            IsUnique = properties.TryGetValue("IsUnique", out v) && v is bool bv2 && bv2,
+                            IsKey = properties.TryGetValue("IsKey", out v) && v is bool bv3 && bv3,
+                            IsIdentity = properties.TryGetValue("IsIdentity", out v) && v is bool bv4 && bv4,
+                            IsAutoIncrement = properties.TryGetValue("IsAutoIncrement", out v) && v is bool bv5 && bv5,
+                            IsRowVersion = properties.TryGetValue("IsRowVersion", out v) && v is bool bv6 && bv6,
                             AllProperties = properties.ToDictionary(x => x.Key, x => x.Value.ToString()),
                         };
 
