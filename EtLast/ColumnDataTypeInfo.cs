@@ -21,6 +21,9 @@ public class ColumnDataTypeInfo
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public short? Scale { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? Size { get; init; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsUnique { get; init; }
 
