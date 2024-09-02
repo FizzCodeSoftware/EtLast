@@ -5,6 +5,7 @@ public abstract class AbstractJob : AbstractProcess
 {
     protected AbstractJob()
     {
+        PublicSettablePropertyLogSeverity = LogSeverity.Debug;
     }
 
     public override void Execute(ICaller caller, FlowState flowState = null)
@@ -12,8 +13,6 @@ public abstract class AbstractJob : AbstractProcess
         BeginExecution(caller, flowState);
         if (FlowState.IsTerminating)
             return;
-
-        LogPublicSettableProperties(LogSeverity.Verbose);
 
         var netTimeStopwatch = Stopwatch.StartNew();
 

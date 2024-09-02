@@ -18,8 +18,6 @@ public abstract class AbstractProcessWithResult<T> : AbstractProcess, IProcessWi
         if (FlowState.IsTerminating)
             return default;
 
-        LogPublicSettableProperties(LogSeverity.Verbose);
-
         var netTimeStopwatch = Stopwatch.StartNew();
         T result = default;
         try

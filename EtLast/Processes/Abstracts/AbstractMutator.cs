@@ -22,8 +22,6 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         if (FlowState.IsTerminating)
             yield break;
 
-        LogPublicSettableProperties(LogSeverity.Verbose);
-
         var netTimeStopwatch = Stopwatch.StartNew();
         try
         {
