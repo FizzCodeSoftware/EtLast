@@ -4,6 +4,7 @@ public interface IExecutionResult
 {
     public ExecutionStatusCode Status { get; }
     public List<TaskExecutionResult> TaskResults { get; }
+    public ContextManifest ContextManifest { get; }
 }
 
 public class TaskExecutionResult(IEtlTask task)

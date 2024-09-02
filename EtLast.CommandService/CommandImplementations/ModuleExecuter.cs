@@ -16,6 +16,7 @@ internal static class ModuleExecuter
 
         var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName, commandId);
+        executionResult.ContextManifest = context.Manifest;
 
         var sessionBuilder = new SessionBuilder()
         {
