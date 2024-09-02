@@ -13,6 +13,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
     protected AbstractEtlTask()
     {
+        PublicSettablePropertyLogSeverity = LogSeverity.Debug;
     }
 
     public override void Execute(ICaller caller, FlowState flowState = null)
@@ -20,8 +21,6 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
         BeginExecution(caller, flowState);
         if (FlowState.IsTerminating)
             return;
-
-        LogPublicSettableProperties(LogSeverity.Debug);
 
         var netTimeStopwatch = Stopwatch.StartNew();
         _statistics.Start();

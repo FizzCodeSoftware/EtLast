@@ -16,6 +16,8 @@ public abstract class AbstractProcess : IProcess
     public string Name { get; set; }
     public string Kind { get; }
 
+    protected LogSeverity PublicSettablePropertyLogSeverity { get; init; } = LogSeverity.Verbose;
+
     protected AbstractProcess()
     {
         Name = GetType().GetFriendlyTypeName();
@@ -91,7 +93,7 @@ public abstract class AbstractProcess : IProcess
         return null;
     }
 
-    protected void LogPublicSettableProperties(LogSeverity severity)
+    private void LogPublicSettableProperties()
     {
         var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
             .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
@@ -106,7 +108,7 @@ public abstract class AbstractProcess : IProcess
         foreach (var property in properties)
         {
             var value = property.GetValue(this);
-            Context.Log(severity, this, "parameter [{ParameterName}] = {ParameterValue}",
+            Context.Log(PublicSettablePropertyLogSeverity, this, "parameter [{ParameterName}] = {ParameterValue}",
                 property.Name, ValueFormatter.Default.Format(value, CultureInfo.InvariantCulture) ?? "<NULL>");
         }
     }
@@ -140,48 +142,50 @@ public abstract class AbstractProcess : IProcess
         Context.RegisterProcessStart(this, caller);
         LogCall(caller);
 
-        if (Context.Arguments == null)
-            return;
-
-        var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
-            .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
-            .Concat(typeof(AbstractMutator).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
-            .Select(x => x.Name)
-            .ToHashSet();
-
-        var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
-            .Where(p => p.SetMethod?.IsPrivate == false && !baseProperties.Contains(p.Name) && p.GetIndexParameters().Length == 0)
-            .ToList();
-
-        foreach (var property in properties)
+        if (Context.Arguments != null)
         {
-            if (!overwriteArguments && property.GetValue(this) != null)
-                continue;
+            var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                .Concat(typeof(AbstractProcess).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
+                .Concat(typeof(AbstractMutator).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly))
+                .Select(x => x.Name)
+                .ToHashSet();
 
-            var key = Context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
-            key ??= Context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
+            var properties = GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
+                .Where(p => p.SetMethod?.IsPrivate == false && !baseProperties.Contains(p.Name) && p.GetIndexParameters().Length == 0)
+                .ToList();
 
-            if (key != null)
+            foreach (var property in properties)
             {
-                if (Context.Arguments.HasKey(key))
-                {
-                    try
-                    {
-                        var value = Context.Arguments.Get(key);
-                        if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
-                            property.SetValue(this, value);
-                    }
-                    catch (Exception ex)
-                    {
-                        var exception = new ProcessExecutionException(this, "error while resolving argument", ex);
-                        exception.Data["argument"] = key;
+                if (!overwriteArguments && property.GetValue(this) != null)
+                    continue;
 
-                        flowState.AddException(this, exception);
-                        break;
+                var key = Context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
+                key ??= Context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
+
+                if (key != null)
+                {
+                    if (Context.Arguments.HasKey(key))
+                    {
+                        try
+                        {
+                            var value = Context.Arguments.Get(key);
+                            if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
+                                property.SetValue(this, value);
+                        }
+                        catch (Exception ex)
+                        {
+                            var exception = new ProcessExecutionException(this, "error while resolving argument", ex);
+                            exception.Data["argument"] = key;
+
+                            flowState.AddException(this, exception);
+                            break;
+                        }
                     }
                 }
             }
         }
+
+        LogPublicSettableProperties();
     }
 
     public void ValidateParameterAnnotations()

@@ -15,8 +15,6 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
         if (FlowState.IsTerminating)
             yield break;
 
-        LogPublicSettableProperties(LogSeverity.Verbose);
-
         var netTimeStopwatch = Stopwatch.StartNew();
         try
         {
