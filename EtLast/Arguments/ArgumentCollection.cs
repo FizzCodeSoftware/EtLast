@@ -5,7 +5,7 @@ public sealed class ArgumentCollection : IArgumentCollection
     public string Instance { get; }
     public IEnumerable<string> AllKeys => _values.Keys;
 
-    public ISecretProvider Secrets { get; private set; }
+    private readonly List<ISecretProvider> _secretProviders = [];
 
     private readonly Dictionary<string, object> _values;
 
@@ -63,6 +63,24 @@ public sealed class ArgumentCollection : IArgumentCollection
         return defaultValue;
     }
 
+    public string GetSecret(string name)
+    {
+        foreach (var provider in _secretProviders)
+        {
+            try
+            {
+                var value = provider.Get(name);
+                if (!string.IsNullOrEmpty(value))
+                    return value;
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        return null;
+    }
+
     public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, string instance, Dictionary<string, string> userArguments)
     {
         Instance = instance;
@@ -88,7 +106,7 @@ public sealed class ArgumentCollection : IArgumentCollection
             }
 
             if (provider.SecretProvider != null)
-                Secrets = provider.SecretProvider;
+                _secretProviders.Add(provider.SecretProvider);
         }
 
         if (userArguments != null)

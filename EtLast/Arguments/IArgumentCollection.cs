@@ -8,5 +8,5 @@ public interface IArgumentCollection
     object Get(string key, object defaultValue = default);
     bool HasKey(string key);
 
-    ISecretProvider Secrets { get; }
+    string GetSecret(string name);
 }
