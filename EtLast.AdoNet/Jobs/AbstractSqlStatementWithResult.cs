@@ -4,7 +4,7 @@
 public abstract class AbstractSqlStatementWithResult<T> : AbstractProcessWithResult<T>
 {
     [ProcessParameterMustHaveValue]
-    public required NamedConnectionString ConnectionString { get; set; }
+    public required IAdoNetSqlConnectionString ConnectionString { get; set; }
 
     /// <summary>
     /// Default value is 3600.

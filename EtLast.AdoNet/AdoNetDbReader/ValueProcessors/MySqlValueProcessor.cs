@@ -8,9 +8,9 @@ public class MySqlValueProcessor : ISqlValueProcessor
     private static PropertyInfo _mysqlDateTimeIsValidProp;
     private static PropertyInfo _mySqlDateTimeValueProp;
 
-    public bool Init(NamedConnectionString connectionString)
+    public bool Init(IAdoNetSqlConnectionString connectionString)
     {
-        return connectionString.GetAdoNetEngine() == AdoNetEngine.MySql;
+        return connectionString.SqlEngine == AdoNetEngine.MySql;
     }
 
     public object ProcessValue(object value, ColumnDataTypeInfo info)

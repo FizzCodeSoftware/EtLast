@@ -9,13 +9,13 @@ public sealed class DropViews : AbstractSqlStatements
     {
         base.ValidateParameters();
 
-        if (ConnectionString.GetAdoNetEngine() is not AdoNetEngine.MsSql and not AdoNetEngine.MySql)
+        if (ConnectionString.SqlEngine is not AdoNetEngine.MsSql and not AdoNetEngine.MySql)
         {
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient or MySql.Data.MySqlClient");
         }
     }
 
-    protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
+    protected override List<string> CreateSqlStatements(INamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {
         return TableNames.Select(viewName => "DROP VIEW IF EXISTS " + viewName + ";").ToList();
     }

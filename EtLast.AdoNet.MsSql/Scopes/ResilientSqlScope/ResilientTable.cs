@@ -50,9 +50,9 @@ public class ResilientTableBase
     public string TempTableName
     {
         get => _tempTableName
-            ?? Scope.ConnectionString.GetAdoNetHelper().ChangeObjectIdentifier(
+            ?? Scope.ConnectionString.ChangeObjectIdentifier(
                 TableName,
-                Scope.AutoTempTablePrefix + Scope.ConnectionString.Unescape(Scope.ConnectionString.GetAdoNetHelper().GetObjectIdentifier(TableName)) + Scope.AutoTempTablePostfix);
+                Scope.AutoTempTablePrefix + Scope.ConnectionString.Unescape(Scope.ConnectionString.GetObjectIdentifier(TableName)) + Scope.AutoTempTablePostfix);
         init => _tempTableName = value;
     }
 

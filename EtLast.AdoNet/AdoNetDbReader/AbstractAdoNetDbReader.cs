@@ -6,7 +6,7 @@ public delegate void ConnectionCreatorDelegate(AbstractAdoNetDbReader process, o
 public abstract class AbstractAdoNetDbReader : AbstractRowSource
 {
     [ProcessParameterMustHaveValue]
-    public required NamedConnectionString ConnectionString { get; init; }
+    public required IAdoNetSqlConnectionString ConnectionString { get; init; }
 
     public Dictionary<string, ReaderColumn> Columns { get; init; }
     public ReaderColumn DefaultColumn { get; init; }
@@ -211,7 +211,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         {
                             scale = scaleType;
 
-                            if (ConnectionString.GetAdoNetEngine() is AdoNetEngine.MsSql &&
+                            if (ConnectionString.SqlEngine is AdoNetEngine.MsSql &&
                                 (string.Equals(dataTypeName, "money", StringComparison.InvariantCultureIgnoreCase)
                                 || string.Equals(dataTypeName, "smallmoney", StringComparison.InvariantCultureIgnoreCase)))
                             {

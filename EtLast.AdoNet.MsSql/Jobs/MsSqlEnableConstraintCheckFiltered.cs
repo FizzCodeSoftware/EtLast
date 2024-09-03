@@ -5,7 +5,7 @@ public sealed class MsSqlEnableConstraintCheckFiltered : AbstractSqlStatements
     [ProcessParameterMustHaveValue]
     public List<KeyValuePair<string, List<string>>> ConstraintNames { get; init; }
 
-    protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
+    protected override List<string> CreateSqlStatements(INamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {
         return ConstraintNames.ConvertAll(kvp => "ALTER TABLE " + kvp.Key + " WITH CHECK CHECK CONSTRAINT " + string.Join(", ", kvp.Value) + ";");
     }

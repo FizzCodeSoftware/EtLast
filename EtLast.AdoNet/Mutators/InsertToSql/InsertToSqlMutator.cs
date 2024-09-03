@@ -3,7 +3,7 @@
 public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue]
-    public NamedConnectionString ConnectionString { get; init; }
+    public IAdoNetSqlConnectionString ConnectionString { get; init; }
 
     /// <summary>
     /// Default value is 3600.

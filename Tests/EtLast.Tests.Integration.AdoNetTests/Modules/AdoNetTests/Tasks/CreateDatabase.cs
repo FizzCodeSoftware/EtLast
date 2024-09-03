@@ -3,7 +3,7 @@
 public class CreateDatabase : AbstractEtlTask
 {
     [ProcessParameterMustHaveValue]
-    public NamedConnectionString ConnectionStringMaster { get; set; }
+    public IAdoNetSqlConnectionString ConnectionStringMaster { get; set; }
 
     [ProcessParameterMustHaveValue]
     public string DatabaseName { get; init; }

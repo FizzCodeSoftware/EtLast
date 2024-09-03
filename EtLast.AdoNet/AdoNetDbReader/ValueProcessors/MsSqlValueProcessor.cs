@@ -4,9 +4,9 @@ namespace FizzCode.EtLast;
 
 public class MsSqlValueProcessor : ISqlValueProcessor
 {
-    public bool Init(NamedConnectionString connectionString)
+    public bool Init(IAdoNetSqlConnectionString connectionString)
     {
-        return connectionString.GetAdoNetEngine() == AdoNetEngine.MsSql;
+        return connectionString.SqlEngine == AdoNetEngine.MsSql;
     }
 
     public object ProcessValue(object value, ColumnDataTypeInfo info)
@@ -14,7 +14,7 @@ public class MsSqlValueProcessor : ISqlValueProcessor
         if (value == null)
             return null;
 
-        if (value is byte[] bytes && bytes.Length == 8 && info.IsRowVersion == true)
+        if (value is byte[] bytes && bytes.Length == 8 && info.IsRowVersion)
         {
             value = BinaryPrimitives.ReadUInt64BigEndian(bytes);
         }

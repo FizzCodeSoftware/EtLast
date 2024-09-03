@@ -162,24 +162,33 @@ public abstract class AbstractProcess : IProcess
                 var key = Context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase));
                 key ??= Context.Arguments.AllKeys.FirstOrDefault(x => string.Equals(x, Name + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
 
-                if (key != null)
+                if (key != null && Context.Arguments.HasKey(key))
                 {
-                    if (Context.Arguments.HasKey(key))
+                    try
                     {
-                        try
+                        var argumentValue = Context.Arguments.Get(key);
+                        if (argumentValue != null)
                         {
-                            var value = Context.Arguments.Get(key);
-                            if (value != null && property.PropertyType.IsAssignableFrom(value.GetType()))
-                                property.SetValue(this, value);
+                            if (property.PropertyType.IsAssignableFrom(argumentValue.GetType()))
+                            {
+                                property.SetValue(this, argumentValue);
+                            }
+                            else
+                            {
+                                Context.Log(LogSeverity.Warning, this, "process property '{PropertyName}' ({PropertyType}) is not assignable to argument value type {ArgumentType}",
+                                    Name + "." + property.Name,
+                                    property.PropertyType.GetFriendlyTypeName(),
+                                    argumentValue.GetType().GetFriendlyTypeName());
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            var exception = new ProcessExecutionException(this, "error while resolving argument", ex);
-                            exception.Data["argument"] = key;
+                    }
+                    catch (Exception ex)
+                    {
+                        var exception = new ProcessExecutionException(this, "error while resolving argument", ex);
+                        exception.Data["argument"] = key;
 
-                            flowState.AddException(this, exception);
-                            break;
-                        }
+                        flowState.AddException(this, exception);
+                        break;
                     }
                 }
             }
