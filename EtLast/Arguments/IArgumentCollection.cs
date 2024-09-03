@@ -7,4 +7,6 @@ public interface IArgumentCollection
     T GetAs<T>(string key, T defaultValue = default);
     object Get(string key, object defaultValue = default);
     bool HasKey(string key);
+
+    ISecretProvider Secrets { get; }
 }

@@ -5,6 +5,8 @@ public sealed class ArgumentCollection : IArgumentCollection
     public string Instance { get; }
     public IEnumerable<string> AllKeys => _values.Keys;
 
+    public ISecretProvider Secrets { get; private set; }
+
     private readonly Dictionary<string, object> _values;
 
     public ArgumentCollection()
@@ -84,6 +86,9 @@ public sealed class ArgumentCollection : IArgumentCollection
                 foreach (var kvp in args)
                     values[kvp.Key] = kvp.Value;
             }
+
+            if (provider.SecretProvider != null)
+                Secrets = provider.SecretProvider;
         }
 
         if (userArguments != null)
