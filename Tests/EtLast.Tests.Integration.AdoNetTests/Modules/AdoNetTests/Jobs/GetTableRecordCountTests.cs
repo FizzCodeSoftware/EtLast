@@ -3,7 +3,7 @@
 public class GetTableRecordCountTests : AbstractEtlTask
 {
     [ProcessParameterMustHaveValue]
-    public NamedConnectionString ConnectionString { get; init; }
+    public IAdoNetSqlConnectionString ConnectionString { get; init; }
 
     public override void Execute(IFlow flow)
     {

@@ -40,11 +40,11 @@ public sealed class MsSqlDropViews : AbstractSqlStatements
                 break;
         }
 
-        if (ConnectionString.GetAdoNetEngine() != AdoNetEngine.MsSql)
+        if (ConnectionString.SqlEngine != AdoNetEngine.MsSql)
             throw new InvalidProcessParameterException(this, nameof(ConnectionString), ConnectionString.ProviderName, "provider name must be Microsoft.Data.SqlClient");
     }
 
-    protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
+    protected override List<string> CreateSqlStatements(INamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {
         switch (Mode)
         {

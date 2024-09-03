@@ -27,7 +27,7 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
     /// </summary>
     public ResilientSqlScopeTempTableMode TempTableMode { get; init; } = ResilientSqlScopeTempTableMode.KeepOnlyOnFailure;
 
-    public NamedConnectionString ConnectionString { get; init; }
+    public MsSqlConnectionString ConnectionString { get; init; }
 
     /// <summary>
     /// Allows the execution of initializers BEFORE the individual table processes are created and executed.

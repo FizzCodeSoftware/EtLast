@@ -13,7 +13,7 @@ public sealed class GenericInsertSqlStatementCreator : IInsertToSqlStatementCrea
         _columnNamesConcat = string.Join(", ", _columns.Select(x => x.NameInDatabase));
     }
 
-    public string CreateRowStatement(NamedConnectionString connectionString, IReadOnlySlimRow row, InsertToSqlMutator process)
+    public string CreateRowStatement(IAdoNetSqlConnectionString connectionString, IReadOnlySlimRow row, InsertToSqlMutator process)
     {
         var startIndex = process.ParameterCount;
         foreach (var column in _columns)
@@ -23,7 +23,7 @@ public sealed class GenericInsertSqlStatementCreator : IInsertToSqlStatementCrea
         return statement;
     }
 
-    public string CreateStatement(NamedConnectionString connectionString, List<string> rowStatements)
+    public string CreateStatement(IAdoNetSqlConnectionString connectionString, List<string> rowStatements)
     {
         return "INSERT INTO " + _tableName + " (" + _columnNamesConcat + ") VALUES \n" + string.Join(",\n", rowStatements) + ";";
     }

@@ -3,7 +3,7 @@
 public class LoadThenInsertCountries : AbstractEtlTask
 {
     [ProcessParameterMustHaveValue]
-    public NamedConnectionString ConnectionString { get; init; }
+    public MsSqlConnectionString ConnectionString { get; init; }
 
     public override void Execute(IFlow flow)
     {

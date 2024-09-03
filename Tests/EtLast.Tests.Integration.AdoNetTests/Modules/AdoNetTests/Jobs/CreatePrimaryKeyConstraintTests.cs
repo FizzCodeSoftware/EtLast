@@ -3,7 +3,7 @@
 public class CreatePrimaryKeyConstraintTests : AbstractEtlTask
 {
     [ProcessParameterMustHaveValue]
-    public NamedConnectionString ConnectionString { get; init; }
+    public IAdoNetSqlConnectionString ConnectionString { get; init; }
 
     [ProcessParameterMustHaveValue]
     public string DatabaseName { get; init; }

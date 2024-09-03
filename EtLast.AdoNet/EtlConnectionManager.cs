@@ -2,12 +2,12 @@
 
 public static class EtlConnectionManager
 {
-    private static readonly ConnectionManager _connectionManager = new()
+    private static readonly AdoNetSqlConnectionManager _connectionManager = new()
     {
         SeparateConnectionsByThreadId = false,
     };
 
-    public static DatabaseConnection GetConnection(NamedConnectionString connectionString, IProcess process, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
+    public static DatabaseConnection GetConnection(IAdoNetSqlConnectionString connectionString, IProcess process, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
     {
         if (string.IsNullOrEmpty(connectionString.ProviderName))
         {
@@ -58,7 +58,7 @@ public static class EtlConnectionManager
             });
     }
 
-    public static DatabaseConnection GetNewConnection(NamedConnectionString connectionString, IProcess process, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
+    public static DatabaseConnection GetNewConnection(IAdoNetSqlConnectionString connectionString, IProcess process, int maxRetryCount = 5, int retryDelayMilliseconds = 2000)
     {
         if (string.IsNullOrEmpty(connectionString.ProviderName))
         {
@@ -143,7 +143,7 @@ public static class EtlConnectionManager
         connection = null;
     }
 
-    public static void TestConnection(NamedConnectionString connectionString)
+    public static void TestConnection(IAdoNetSqlConnectionString connectionString)
     {
         _connectionManager.TestConnection(connectionString);
     }

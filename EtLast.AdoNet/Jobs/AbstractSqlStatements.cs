@@ -57,7 +57,7 @@ public abstract class AbstractSqlStatements : AbstractSqlStatementBase
         }
     }
 
-    protected abstract List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId);
+    protected abstract List<string> CreateSqlStatements(INamedConnectionString connectionString, IDbConnection connection, string transactionId);
     protected abstract void RunCommand(IDbCommand command, int statementIndex, Stopwatch startedOn, string transactionId);
     protected abstract void LogSucceeded(int lastSucceededIndex, string transactionId);
 }

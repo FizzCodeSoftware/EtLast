@@ -5,7 +5,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
     [ProcessParameterMustHaveValue]
     public required List<TableCopyConfiguration> Configuration { get; init; }
 
-    protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
+    protected override List<string> CreateSqlStatements(INamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {
         var statements = new List<string>();
         var sb = new StringBuilder();
@@ -16,7 +16,7 @@ public sealed class CopyTableStructure : AbstractSqlStatements
                 ? "*"
                  : string.Join(", ", config.Columns.Select(column => (column.Value ?? column.Key) + (column.Value != null ? " AS " + column.Key : "")));
 
-            var dropTableStatement = (ConnectionString.GetAdoNetEngine(), ConnectionString.Version) switch
+            var dropTableStatement = (ConnectionString.SqlEngine, ConnectionString.Version) switch
             {
                 (AdoNetEngine.MsSql, "2005" or "2008" or "2008 R2" or "2008R2" or "2012" or "2014")
                     => "IF OBJECT_ID('" + config.TargetTableName + "', 'U') IS NOT NULL DROP TABLE " + config.TargetTableName,

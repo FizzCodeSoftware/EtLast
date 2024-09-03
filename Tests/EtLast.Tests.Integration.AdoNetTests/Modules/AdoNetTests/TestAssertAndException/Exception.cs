@@ -3,7 +3,7 @@
 public class Exception : AbstractEtlTask
 {
     [ProcessParameterMustHaveValue]
-    public NamedConnectionString ConnectionString { get; init; }
+    public INamedConnectionString ConnectionString { get; init; }
 
     public override void Execute(IFlow flow)
     {

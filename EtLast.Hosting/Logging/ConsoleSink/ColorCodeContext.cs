@@ -19,7 +19,7 @@ internal struct ColorCodeContext(TextWriter builder) : IDisposable
         [ColorCode.LvlTokenDbg] = "\x1b[38;5;8m",
         [ColorCode.LvlTokenInf] = "\x1b[38;5;15m",
         [ColorCode.LvlTokenWrn] = "\x1b[38;5;0m\x1b[48;5;214m",
-        [ColorCode.LvlTokenErr] = "\x1b[38;5;196m",
+        [ColorCode.LvlTokenErr] = "\x1b[38;5;197m",
         [ColorCode.LvlTokenFtl] = "\x1b[38;5;15m\x1b[48;5;196m",
         //[ColorCode.Module] = "\x1b[38;5;0007m",
         //[ColorCode.Plugin] = "\x1b[38;5;0007m",

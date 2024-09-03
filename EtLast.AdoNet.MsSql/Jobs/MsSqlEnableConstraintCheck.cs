@@ -9,10 +9,10 @@ public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
     {
         return ConnectionString != null && TableNames?.Length > 0
             ? string.Join(",", TableNames.Select(ConnectionString.Unescape))
-            : null;
+        : null;
     }
 
-    protected override List<string> CreateSqlStatements(NamedConnectionString connectionString, IDbConnection connection, string transactionId)
+    protected override List<string> CreateSqlStatements(INamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {
         return TableNames
             .Select(tableName => "ALTER TABLE " + tableName + " WITH CHECK CHECK CONSTRAINT ALL;")

@@ -1,10 +1,9 @@
-﻿
-namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
+﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
 public class DropDatabase : AbstractEtlTask
 {
     [ProcessParameterMustHaveValue]
-    public NamedConnectionString ConnectionStringMaster { get; set; }
+    public IAdoNetSqlConnectionString ConnectionStringMaster { get; set; }
 
     [ProcessParameterMustHaveValue]
     public string DatabaseName { get; init; }

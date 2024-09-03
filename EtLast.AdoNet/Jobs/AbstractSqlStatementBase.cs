@@ -4,7 +4,7 @@
 public abstract class AbstractSqlStatementBase : AbstractJob
 {
     [ProcessParameterMustHaveValue]
-    public required NamedConnectionString ConnectionString { get; init; }
+    public required IAdoNetSqlConnectionString ConnectionString { get; init; }
 
     /// <summary>
     /// Default value is 600.

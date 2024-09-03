@@ -3,7 +3,7 @@
 public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue]
-    public NamedConnectionString ConnectionString { get; init; }
+    public MsSqlConnectionString ConnectionString { get; init; }
 
     /// <summary>
     /// Default value is 3600.
@@ -274,7 +274,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
     {
         base.ValidateParameters();
 
-        if (ConnectionString.GetAdoNetEngine() != AdoNetEngine.MsSql)
+        if (ConnectionString.SqlEngine != AdoNetEngine.MsSql)
             throw new InvalidProcessParameterException(this, "ConnectionString", nameof(ConnectionString.ProviderName), "provider name must be Microsoft.Data.SqlClient");
     }
 }

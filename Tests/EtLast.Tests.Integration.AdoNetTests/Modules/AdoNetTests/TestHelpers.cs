@@ -2,7 +2,7 @@
 
 public static class TestHelpers
 {
-    public static CustomJob CreateReadSqlTableAndAssertExactMatch(NamedConnectionString connectionString, string table, params Dictionary<string, object>[] expectedRows)
+    public static CustomJob CreateReadSqlTableAndAssertExactMatch(IAdoNetSqlConnectionString connectionString, string table, params Dictionary<string, object>[] expectedRows)
     {
         var expectedRowsList = new List<Dictionary<string, object>>(expectedRows);
         return new CustomJob()
@@ -12,18 +12,18 @@ public static class TestHelpers
         };
     }
 
-    public static void ReadSqlTableAndAssertExactMacth(IProcess caller, NamedConnectionString connectionString, string table, List<Dictionary<string, object>> expectedRows)
+    public static void ReadSqlTableAndAssertExactMacth(IProcess caller, IAdoNetSqlConnectionString connectionString, string table, List<Dictionary<string, object>> expectedRows)
     {
         var rows = ReadRows(caller, connectionString, table);
         Assert.That.ExactMatch(rows, expectedRows);
     }
 
-    public static List<ISlimRow> ReadRows(IProcess caller, NamedConnectionString connectionString, string table)
+    public static List<ISlimRow> ReadRows(IProcess caller, IAdoNetSqlConnectionString connectionString, string table)
     {
         return ReadRows(caller, connectionString, null, table);
     }
 
-    public static List<ISlimRow> ReadRows(IProcess caller, NamedConnectionString connectionString, string schema, string table)
+    public static List<ISlimRow> ReadRows(IProcess caller, IAdoNetSqlConnectionString connectionString, string schema, string table)
     {
         return new AdoNetDbReader()
         {

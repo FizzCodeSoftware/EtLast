@@ -2,6 +2,6 @@
 
 public interface ISqlValueProcessor
 {
-    bool Init(NamedConnectionString connectionString);
+    bool Init(IAdoNetSqlConnectionString connectionString);
     object ProcessValue(object value, ColumnDataTypeInfo info);
 }
