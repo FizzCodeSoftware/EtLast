@@ -8,8 +8,8 @@ public interface ICommandService
 
     public void Terminate();
     public CancellationToken CancellationToken { get; }
-    public IExecutionResult RunCommand(string source, string commandId, string command, Func<IExecutionResult, Task> resultHandler = null);
-    public IExecutionResult RunCommand(string source, string commandId, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null);
+    public IExecutionResult RunCommand(string source, string commandId, string originalCommand, Func<IExecutionResult, Task> resultHandler = null);
+    public IExecutionResult RunCommand(string source, string commandId, string originalCommand, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null);
 
     public List<Func<ICommandService, IArgumentCollection, ICommandListener>> CommandListenerCreators { get; }
     public Dictionary<string, string> CommandAliases { get; }

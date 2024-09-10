@@ -46,7 +46,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
     protected abstract ILogger CreateServiceLogger();
     protected abstract IArgumentCollection LoadServiceArguments();
-    protected abstract IExecutionResult RunCustomCommand(string commandId, string[] commandParts);
+    protected abstract IExecutionResult RunCustomCommand(string commandId, string originalCommand, string[] commandParts);
 
     protected abstract void ListCommands();
     protected abstract void ListModules();
@@ -64,7 +64,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         {
             Logger.Debug("command line arguments: {CommandLineArguments}", commandLineArgs);
 
-            var result = RunCommand("command line arguments", Guid.NewGuid().ToString(), commandLineArgs).Status;
+            var result = RunCommand("command line arguments", Guid.NewGuid().ToString(), string.Join(' ', commandLineArgs), commandLineArgs).Status;
 
             if (Debugger.IsAttached)
             {
@@ -139,28 +139,28 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         }
     }
 
-    public IExecutionResult RunCommand(string source, string commandId, string command, Func<IExecutionResult, Task> resultHandler = null)
+    public IExecutionResult RunCommand(string source, string commandId, string originalCommand, Func<IExecutionResult, Task> resultHandler = null)
     {
         var commandParts = QuoteSplitterRegex
-            .Matches(command.Trim())
+            .Matches(originalCommand.Trim())
             .Select(x => x.Value)
             .ToArray();
 
-        return RunCommand(source, commandId, commandParts, resultHandler);
+        return RunCommand(source, commandId, originalCommand, commandParts, resultHandler);
     }
 
-    public IExecutionResult RunCommand(string source, string commandId, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
+    public IExecutionResult RunCommand(string source, string commandId, string originalCommand, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
         Logger.Information("command {CommandId} started by {CommandSource}: {Command}", commandId, source, string.Join(' ', commandParts));
-        var result = RunCommandInternal(commandId, commandParts);
+        var result = RunCommandInternal(commandId, originalCommand, commandParts);
         resultHandler?.Invoke(result)?.Wait();
         Interlocked.Decrement(ref _activeCommandCounter);
         Logger.Information("command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
         return result;
     }
 
-    private IExecutionResult RunCommandInternal(string commandId, string[] commandParts)
+    private IExecutionResult RunCommandInternal(string commandId, string originalCommand, string[] commandParts)
     {
         if (commandParts?.Length >= 1 && CommandAliases.TryGetValue(commandParts[0], out var alias))
         {
@@ -169,6 +169,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
                 .Select(x => x.Value)
                 .Concat(commandParts.Skip(1))
                 .ToArray();
+
+            originalCommand = string.Join(' ', commandParts);
         }
 
         try
@@ -189,7 +191,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
                     return new ExecutionResult(ExecutionStatusCode.Success);
             }
 
-            return RunCustomCommand(commandId, commandParts);
+            return RunCustomCommand(commandId, originalCommand, commandParts);
         }
         catch (Exception ex)
         {

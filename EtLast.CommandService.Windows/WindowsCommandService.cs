@@ -23,7 +23,7 @@ public class WindowsCommandService : CommandService
         Logger.Write(LogEventLevel.Debug, "interprocess semaphore is {CreatedOrTaken}: {Name}", createdNew ? "CREATED" : "TAKEN", semaphoreName);
     }
 
-    protected override IExecutionResult RunCustomCommand(string commandId, string[] commandParts)
+    protected override IExecutionResult RunCustomCommand(string commandId, string originalCommand, string[] commandParts)
     {
         switch (commandParts[0].ToLowerInvariant())
         {
@@ -38,7 +38,7 @@ public class WindowsCommandService : CommandService
                 return new ExecutionResult(ExecutionStatusCode.Success);
         }
 
-        return base.RunCustomCommand(commandId, commandParts);
+        return base.RunCustomCommand(commandId, originalCommand, commandParts);
     }
 
     private void StopAllAndWait()
