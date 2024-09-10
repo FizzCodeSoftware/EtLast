@@ -16,8 +16,9 @@ public delegate void ContextManifestIoTargetChangedEvent(ContextManifest manifes
 public class ContextManifest : IEtlContextListener
 {
     public long ContextId { get; init; }
-    public string CommandId { get; init; }
     public string ContextName { get; init; }
+    public string CommandId { get; init; }
+    public string OriginalCommand { get; set; }
     public string Instance { get; init; }
     public string UserName { get; init; }
     public string UserDomainName { get; init; }

@@ -2,7 +2,7 @@
 
 internal static class ModuleExecuter
 {
-    public static IExecutionResult Execute(CommandService host, string commandId, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments)
+    public static IExecutionResult Execute(CommandService host, string commandId, string originalCommand, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments)
     {
         var executionResult = new ExecutionResult();
         var instance = Environment.MachineName;
@@ -16,6 +16,8 @@ internal static class ModuleExecuter
 
         var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName, commandId);
+        context.Manifest.OriginalCommand = originalCommand;
+
         executionResult.ContextManifest = context.Manifest;
 
         var sessionBuilder = new SessionBuilder()
