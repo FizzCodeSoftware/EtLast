@@ -169,6 +169,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
                 .Select(x => x.Value)
                 .Concat(commandParts.Skip(1))
                 .ToArray();
+
+            originalCommand = string.Join(' ', commandParts);
         }
 
         try
