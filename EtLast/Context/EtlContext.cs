@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Reflection;
+
+namespace FizzCode.EtLast;
 
 public sealed class EtlContext : IEtlContext
 {
@@ -52,6 +54,10 @@ public sealed class EtlContext : IEtlContext
             CommandId = commandId,
             ContextName = customName ?? Guid.NewGuid().ToString("D"),
             Instance = arguments?.Instance ?? Environment.MachineName,
+            EtLastVersion = typeof(IEtlContext).Assembly.GetName().Version.ToString(),
+            HostVersion = Assembly.GetEntryAssembly().GetName().Version.ToString(),
+            RuntimeMajorVersion = Environment.Version.Major,
+            RuntimeVersion = Environment.Version.ToString(),
             UserName = Environment.UserName,
             UserDomainName = Environment.UserDomainName,
             OSVersion = Environment.OSVersion.ToString(),
