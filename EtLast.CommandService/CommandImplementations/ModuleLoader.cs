@@ -36,7 +36,10 @@ internal static class ModuleLoader
 
             ForceLoadLocalDllsToAppDomain();
 
-            var appDomainTasks = FindTypesFromAppDomain<IEtlTask>(moduleName);
+            var appDomainTasks = FindTypesFromAppDomain<IEtlTask>(moduleName)
+                .Where(x => x.Name != null).ToList();
+            var indirectTasks = FindIndirectTypesFromAppDomain<IEtlTask>(moduleName)
+                .Where(x => x.Name != null).ToList();
             var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
             var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
@@ -49,14 +52,13 @@ internal static class ModuleLoader
                 Startup = startup,
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
-                TaskTypes = appDomainTasks.Where(x => x.Name != null).ToList(),
+                TaskTypes = appDomainTasks,
+                IndirectTaskTypes = null,
                 LoadContext = null,
             };
 
-            var tasks = module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlTask)));
-
             host.Logger.Debug("{TaskCount} task(s) found: {Task}",
-                tasks.Count(), tasks.Select(task => task.Name).ToArray());
+                module.TaskTypes.Count, module.TaskTypes.Select(task => task.Name).ToArray());
 
             return ExecutionStatusCode.Success;
         }
@@ -103,7 +105,11 @@ internal static class ModuleLoader
             var assemblyLoadContext = new AssemblyLoadContext(null, isCollectible: true);
             var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
-            var compiledTasks = FindTypesFromAssembly<IEtlTask>(assembly);
+            var compiledTasks = FindTypesFromAssembly<IEtlTask>(assembly)
+                .Where(x => x.Name != null).ToList();
+            var indirectTasks = FindIndirectTypesFromAssembly<IEtlTask>(assemblyLoadContext, assembly)
+                .Where(x => x.Name != null).ToList();
+
             var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAssembly<IInstanceArgumentProvider>(assembly);
             var defaultConfigurationProviders = LoadInstancesFromAssembly<IDefaultArgumentProvider>(assembly);
@@ -116,14 +122,19 @@ internal static class ModuleLoader
                 Startup = compiledStartup,
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
-                TaskTypes = compiledTasks.Where(x => x.Name != null).ToList(),
+                TaskTypes = compiledTasks,
+                IndirectTaskTypes = indirectTasks.Count > 0 ? indirectTasks : null,
                 LoadContext = assemblyLoadContext,
             };
 
-            var tasks = module.TaskTypes.Where(x => x.IsAssignableTo(typeof(AbstractEtlTask)));
-
             host.Logger.Debug("{TaskCount} task(s) found: {Task}",
-                tasks.Count(), tasks.Select(task => task.Name).ToArray());
+                module.TaskTypes.Count, module.TaskTypes.Select(task => task.Name).ToArray());
+
+            if (module.IndirectTaskTypes != null)
+            {
+                host.Logger.Debug("{TaskCount} indirect task(s) found: {Task}",
+                    module.IndirectTaskTypes.Count, module.IndirectTaskTypes.Select(task => task.FullName).ToArray());
+            }
 
             return ExecutionStatusCode.Success;
         }
@@ -186,6 +197,7 @@ internal static class ModuleLoader
         host.Logger.Debug("unloading module {Module}", module.Name);
 
         module.TaskTypes.Clear();
+        module.IndirectTaskTypes?.Clear();
 
         module.LoadContext?.Unload();
     }
@@ -236,6 +248,39 @@ internal static class ModuleLoader
             .ToList();
     }
 
+    private static List<Type> FindIndirectTypesFromAssembly<T>(AssemblyLoadContext loadContext, Assembly assembly)
+    {
+        var alreadyLoaded = new HashSet<AssemblyName>();
+        var resultList = new List<Type>();
+
+        // ignore the assembly, we only need references
+        foreach (var asmName in assembly.GetReferencedAssemblies())
+        {
+            FindIndirectTypesFromAssemblyRecursive(typeof(T), loadContext, asmName, alreadyLoaded, resultList);
+        }
+
+        return resultList;
+    }
+
+    private static void FindIndirectTypesFromAssemblyRecursive(Type interfaceType, AssemblyLoadContext loadContext, AssemblyName assemblyName, HashSet<AssemblyName> alreadyLoaded, List<Type> resultList)
+    {
+        if (alreadyLoaded.Contains(assemblyName))
+            return;
+
+        try
+        {
+            var assembly = loadContext.LoadFromAssemblyName(assemblyName);
+            alreadyLoaded.Add(assemblyName);
+
+            resultList.AddRange(assembly.GetTypes()
+                .Where(x => interfaceType.IsAssignableFrom(x) && x.IsClass && !x.IsAbstract));
+        }
+        catch (Exception)
+        {
+            // ignore
+        }
+    }
+
     private static List<Type> FindTypesFromAppDomain<T>(string moduleName)
     {
         var result = new List<Type>();
@@ -246,6 +291,25 @@ internal static class ModuleLoader
             {
                 var matchingTypes = assembly.GetTypes()
                     .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
+
+                result.AddRange(matchingTypes);
+            }
+            catch (Exception) { }
+        }
+
+        return result;
+    }
+
+    private static List<Type> FindIndirectTypesFromAppDomain<T>(string moduleName)
+    {
+        var result = new List<Type>();
+        var interfaceType = typeof(T);
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            try
+            {
+                var matchingTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && !t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
 
                 result.AddRange(matchingTypes);
             }
