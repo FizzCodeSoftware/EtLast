@@ -44,13 +44,6 @@ public static class CommandServiceFluent
         return service;
     }
 
-    public static T SetModuleCompilationMode<T>(this T service, ModuleCompilationMode moduleCompilationMode)
-        where T : CommandService
-    {
-        service.ModuleCompilationMode = moduleCompilationMode;
-        return service;
-    }
-
     public delegate void SessionBuilderAction(ISessionBuilder builder, IArgumentCollection sessionArguments);
 
     public static T ConfigureSession<T>(this T service, SessionBuilderAction builderAction)

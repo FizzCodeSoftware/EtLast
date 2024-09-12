@@ -252,7 +252,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
         if (Environment.UserInteractive)
         {
-            Logger.Information("EtLast service started: {ProgramName} {ProgramVersion}", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
+            Logger.Information("EtLast service started: {ProgramName} {HostVersion}", Name, Assembly.GetEntryAssembly().GetName().Version.ToString());
             Logger.Debug("Environment:");
             Logger.Debug("  {0,-23} = {1}", "EtLast", typeof(IEtlContext).Assembly.GetName().Version.ToString());
             Logger.Debug("  {0,-23} = {1}", "Instance", Environment.MachineName);

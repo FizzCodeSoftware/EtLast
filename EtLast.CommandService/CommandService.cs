@@ -12,7 +12,6 @@ public class CommandService : AbstractCommandService
     public string OpsLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log", "ops");
 
     public List<string> ReferenceAssemblyDirectories { get; } = [];
-    public ModuleCompilationMode ModuleCompilationMode { get; internal set; } = ModuleCompilationMode.Dynamic;
 
     private string _modulesDirectory;
     public string ModulesDirectory
@@ -93,14 +92,16 @@ public class CommandService : AbstractCommandService
 
     protected override IExecutionResult RunCustomCommand(string commandId, string originalCommand, string[] commandParts)
     {
-        switch (commandParts[0].ToLowerInvariant())
+        var cmd = commandParts[0].ToLowerInvariant();
+        switch (cmd)
         {
             case "run":
+            case "rundomain":
                 {
                     var moduleName = commandParts.Skip(1).FirstOrDefault();
                     if (string.IsNullOrEmpty(moduleName))
                     {
-                        Console.WriteLine("Missing module name. Usage: `run <moduleName> <taskNames>`");
+                        Console.WriteLine("Missing module name. Usage: `" + cmd + " <moduleName> <taskNames>`");
                         return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
                     }
 
@@ -143,7 +144,8 @@ public class CommandService : AbstractCommandService
                         return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
                     }
 
-                    return RunModule(commandId, originalCommand, moduleName, taskNames, userArguments);
+                    return RunModule(useAppDomain: cmd == "runad",
+                        commandId, originalCommand, moduleName, taskNames, userArguments);
                 }
             case "test-modules":
                 var moduleNames = commandParts.Skip(2).ToList();
@@ -163,7 +165,7 @@ public class CommandService : AbstractCommandService
         {
             Logger.Information("loading module {Module}", moduleName);
 
-            ModuleLoader.LoadModule(this, moduleName, ModuleCompilationMode.ForceCompilation, out var module);
+            ModuleLoader.LoadModule(this, moduleName, false, out var module);
             if (module != null)
             {
                 ModuleLoader.UnloadModule(this, module);
@@ -179,11 +181,11 @@ public class CommandService : AbstractCommandService
         return result;
     }
 
-    private IExecutionResult RunModule(string commandId, string originalCommand, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments)
+    private IExecutionResult RunModule(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments)
     {
         Logger.Information("loading module {Module}", moduleName);
 
-        var loadResult = ModuleLoader.LoadModule(this, moduleName, ModuleCompilationMode, out var module);
+        var loadResult = ModuleLoader.LoadModule(this, moduleName, useAppDomain, out var module);
         if (loadResult != ExecutionStatusCode.Success)
             return new ExecutionResult(loadResult);
 
@@ -228,7 +230,8 @@ public class CommandService : AbstractCommandService
     {
         Console.WriteLine();
         Console.WriteLine("Commands:");
-        Console.WriteLine("  run          <moduleName> <taskNames>");
+        Console.WriteLine("  run          <moduleName> <taskNames> [property=value]");
+        Console.WriteLine("  rundomain    <moduleName> <taskNames> [property=value]");
         Console.WriteLine("  list-modules");
         Console.WriteLine("  test-modules [moduleNames]");
         Console.WriteLine("  exit");

@@ -8,7 +8,7 @@ internal static class ModuleLoader
 {
     private static long _moduleAutoincrementId;
 
-    public static ExecutionStatusCode LoadModule(CommandService host, string moduleName, ModuleCompilationMode compilationMode, out CompiledModule module)
+    public static ExecutionStatusCode LoadModule(CommandService host, string moduleName, bool useAppDomain, out CompiledModule module)
     {
         module = null;
 
@@ -27,8 +27,6 @@ internal static class ModuleLoader
         moduleName = Path.GetFileName(moduleDirectory);
 
         var startedOn = Stopwatch.StartNew();
-
-        var useAppDomain = (compilationMode == ModuleCompilationMode.ForceAppDomain) || (compilationMode == ModuleCompilationMode.Dynamic && Debugger.IsAttached);
 
         if (useAppDomain)
         {
