@@ -169,16 +169,72 @@ public abstract class AbstractProcess : IProcess
                         var argumentValue = Context.Arguments.Get(key);
                         if (argumentValue != null)
                         {
-                            if (property.PropertyType.IsAssignableFrom(argumentValue.GetType()))
+                            var argumentType = argumentValue.GetType();
+                            if (property.PropertyType.IsAssignableFrom(argumentType))
                             {
                                 property.SetValue(this, argumentValue);
                             }
                             else
                             {
-                                Context.Log(LogSeverity.Warning, this, "process property '{PropertyName}' ({PropertyType}) is not assignable to argument value type {ArgumentType}",
-                                    Name + "." + property.Name,
-                                    property.PropertyType.GetFriendlyTypeName(),
-                                    argumentValue.GetType().GetFriendlyTypeName());
+                                object convertedArgumentValue = null;
+                                if (argumentValue is string argumentValueAsString)
+                                {
+                                    argumentValueAsString = argumentValueAsString.Trim();
+
+                                    if (property.PropertyType == typeof(int))
+                                    {
+                                        if (int.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                            convertedArgumentValue = v;
+                                    }
+                                    else if (property.PropertyType == typeof(uint))
+                                    {
+                                        if (uint.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                            convertedArgumentValue = v;
+                                    }
+                                    if (property.PropertyType == typeof(short))
+                                    {
+                                        if (short.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                            convertedArgumentValue = v;
+                                    }
+                                    else if (property.PropertyType == typeof(ushort))
+                                    {
+                                        if (ushort.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                            convertedArgumentValue = v;
+                                    }
+                                    else if (property.PropertyType == typeof(long))
+                                    {
+                                        if (long.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                            convertedArgumentValue = v;
+                                    }
+                                    else if (property.PropertyType == typeof(ulong))
+                                    {
+                                        if (ulong.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                            convertedArgumentValue = v;
+                                    }
+                                    else if (property.PropertyType == typeof(bool))
+                                    {
+                                        convertedArgumentValue =
+                                               argumentValueAsString.Equals("true", StringComparison.InvariantCultureIgnoreCase)
+                                            || argumentValueAsString == "1"
+                                            || argumentValueAsString == "yes"
+                                            || argumentValueAsString == "on"
+                                            || argumentValueAsString == "enabled"
+                                            || argumentValueAsString == "allowed"
+                                            || argumentValueAsString == "active";
+                                    }
+                                }
+
+                                if (convertedArgumentValue != null)
+                                {
+                                    property.SetValue(this, convertedArgumentValue);
+                                }
+                                else
+                                {
+                                    Context.Log(LogSeverity.Warning, this, "process property '{PropertyName}' ({PropertyType}) is not assignable to argument value type {ArgumentType}",
+                                        Name + "." + property.Name,
+                                        property.PropertyType.GetFriendlyTypeName(),
+                                        argumentType.GetFriendlyTypeName());
+                                }
                             }
                         }
                     }
