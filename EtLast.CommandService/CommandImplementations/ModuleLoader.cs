@@ -53,7 +53,7 @@ internal static class ModuleLoader
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
                 TaskTypes = appDomainTasks,
-                IndirectTaskTypes = null,
+                IndirectTaskTypes = indirectTasks,
                 LoadContext = null,
             };
 
