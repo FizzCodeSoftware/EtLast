@@ -9,9 +9,9 @@ public static class AssertOrderedMatchCSharpGenerator
         sb.Append("\t\tAssert.AreEqual(").Append(result.MutatedRows.Count.ToString("D", CultureInfo.InvariantCulture)).AppendLine(", result.MutatedRows.Count);");
         if (result.MutatedRows.Count > 0)
         {
-            sb.AppendLine("Assert.That.ExactMatch(result.MutatedRows, new List<CaseInsensitiveStringKeyDictionary<object>>() {");
+            sb.AppendLine("\t\tAssert.That.ExactMatch(result.MutatedRows, [");
             sb.AppendJoin(",\n", result.MutatedRows.Select(row => "\t\t\tnew() { " + string.Join(", ", row.Values.Select(kvp => "[\"" + kvp.Key + "\"] = " + FormatToCSharpVariable(row[kvp.Key]))) + " }"));
-            sb.AppendLine(" });");
+            sb.AppendLine("]);");
         }
 
         var exceptions = result.Process.FlowState.Exceptions;

@@ -159,10 +159,11 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
                 var str = (kvp.Value?.CustomFormatter ?? DelimitedValueFormatter.Default).Format(value, FormatProvider);
                 if (str != null)
                 {
-                    var quoteRequired = str.IndexOfAny(_quoteRequiredChars) > -1
+                    var quoteRequired =
+                        str.Length == 0
+                        || str.IndexOfAny(_quoteRequiredChars) > -1
                         || str[0] == ' '
-                        || str[^1] == ' '
-                        || str.Length == 0;
+                        || str[^1] == ' ';
 
                     if (quoteRequired)
                     {
