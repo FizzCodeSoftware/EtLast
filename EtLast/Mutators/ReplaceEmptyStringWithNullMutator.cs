@@ -43,7 +43,7 @@ public static class ReplaceEmptyStringWithNullMutatorFluent
         return builder.AddMutator(mutator);
     }
 
-    public static IFluentSequenceMutatorBuilder ReplaceEmptyStringWithNull(this IFluentSequenceMutatorBuilder builder, params string[] columns)
+    public static IFluentSequenceMutatorBuilder ReplaceEmptyStringWithNull(this IFluentSequenceMutatorBuilder builder, string[] columns)
     {
         return builder.AddMutator(new ReplaceEmptyStringWithNullMutator()
         {
