@@ -50,6 +50,78 @@ public class WriteToDelimitedMutatorTests
     }
 
     [TestMethod]
+    public void EmptyStringQuoteTest()
+    {
+        using (var outputStream = new MemoryStream())
+        {
+            var context = TestExecuter.GetContext();
+            var builder = SequenceBuilder.Fluent
+                .ImportEnumerable(new EnumerableImporter()
+                {
+                    InputGenerator = _ => new ISlimRow[]
+                    {
+                        new SlimRow() { ["Id"] = 1, ["Name"] = "apple", ["Color"] = "Red" },
+                        new SlimRow() { ["Id"] = 2, ["Name"] = "", ["Color"] = null },
+                        new SlimRow() { ["Id"] = 3, ["Name"] = null, ["Color"] = ""  },
+                    },
+                })
+                .WriteToDelimitedFile(new WriteToDelimitedMutator()
+                {
+                    Columns = new()
+                    {
+                        ["Id"] = null,
+                        ["Name"] = null,
+                        ["Color"] = null,
+                    },
+                    SinkProvider = new MemorySinkProvider()
+                    {
+                        Stream = outputStream,
+                        AutomaticallyDispose = false,
+                    },
+                });
+            var result = TestExecuter.Execute(context, builder);
+            outputStream.Position = 0;
+            var data = Encoding.UTF8.GetString(outputStream.ToArray());
+
+            Assert.AreEqual("""
+Id;Name;Color
+1;apple;Red
+2;"";
+3;;""
+
+""", data);
+
+            outputStream.Position = 0;
+
+            context = TestExecuter.GetContext();
+            builder = SequenceBuilder.Fluent
+                .ReadDelimitedLines(new DelimitedLineReader()
+                {
+                    StreamProvider = new OneMemoryStreamProvider()
+                    {
+                        Stream = outputStream,
+                    },
+                    Columns = new()
+                    {
+                        ["Id"] = new TextReaderColumn().AsInt(),
+                        ["Name"] = new TextReaderColumn(),
+                        ["Color"] = new TextReaderColumn(),
+                    },
+                    Header = DelimitedLineHeader.HasHeader,
+                    Delimiter = ';',
+                });
+
+            result = TestExecuter.Execute(context, builder);
+            Assert.AreEqual(3, result.MutatedRows.Count);
+            Assert.That.ExactMatch(result.MutatedRows, [
+            new() { ["Id"] = 1, ["Name"] = "apple", ["Color"] = "Red" },
+            new() { ["Id"] = 2, ["Name"] = "", ["Color"] = null },
+            new() { ["Id"] = 3, ["Name"] = null, ["Color"] = "" }]);
+            Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
+        }
+    }
+
+    [TestMethod]
     public void PersonWriterWithReaderTest()
     {
         using (var outputStream = new MemoryStream())

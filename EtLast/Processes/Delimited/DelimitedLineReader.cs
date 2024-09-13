@@ -229,60 +229,22 @@ public sealed class DelimitedLineReader : AbstractRowSource
                             if (builderLength > 0 && isQuote && quotes > 0 && nc != '\"')
                                 quotes--;
 
-                            // newLineInQuotedCell
-                            if (builderLength > 0 && cellStartsWithQuote)
+                            var emptyStringEndedWithDelimiter = cellStartsWithQuote && quotes == 0 && builderLength == 2 && c == delimiter;
+
+                            if (!emptyStringEndedWithDelimiter)
                             {
-                                if (!isQuote && lastCharInLine)
+                                // newLineInQuotedCell
+                                if (builderLength > 0 && cellStartsWithQuote)
                                 {
-                                    // add char
-                                    builder.Append(c);
-
-                                    // add newline
-                                    builder.Append(nc);
-
-                                    builderLength += 2;
-
-                                    // skip newline
-                                    bufferPosition++;
-
-                                    // peek for a possible \n after \r
-                                    if (bufferPosition < bufferLength)
+                                    if (!isQuote && lastCharInLine)
                                     {
-                                        var secondNewLineC = buffer[bufferPosition];
-                                        if (secondNewLineC is '\r' or '\n')
-                                        {
-                                            builder.Append(secondNewLineC);
-                                            builderLength++;
-
-                                            bufferPosition++;
-                                        }
-                                    }
-                                    //lastCharInLine = false;
-                                    continue;
-                                }
-                                else if (isQuote && nc == '\"'/*nextCharIsQuote*/ && bufferPosition <= bufferLength - 3)
-                                {
-                                    var nnc = buffer[bufferPosition + 1];
-                                    if (nnc is '\r' or '\n')
-                                    {
+                                        // add char
                                         builder.Append(c);
 
-                                        if (quotes > 0 && builderLength > 0)
-                                        {
-                                            // Skip next quote. RFC 4180, 2/7: If double-quotes are used to enclose fields, then a double-quote appearing inside a field must be escaped by preceding it with another double quote.
-                                        }
-                                        else
-                                        {
-                                            builder.Append(nc);
-                                            builderLength++;
-                                        }
-
-                                        builder.Append(nnc);
+                                        // add newline
+                                        builder.Append(nc);
 
                                         builderLength += 2;
-
-                                        // skip quote
-                                        bufferPosition++;
 
                                         // skip newline
                                         bufferPosition++;
@@ -295,32 +257,79 @@ public sealed class DelimitedLineReader : AbstractRowSource
                                             {
                                                 builder.Append(secondNewLineC);
                                                 builderLength++;
+
                                                 bufferPosition++;
                                             }
                                         }
-
                                         //lastCharInLine = false;
                                         continue;
                                     }
+                                    else if (isQuote && nc == '\"'/*nextCharIsQuote*/ && bufferPosition <= bufferLength - 3)
+                                    {
+                                        var nnc = buffer[bufferPosition + 1];
+                                        if (nnc is '\r' or '\n')
+                                        {
+                                            builder.Append(c);
+
+                                            if (quotes > 0 && builderLength > 0)
+                                            {
+                                                // Skip next quote. RFC 4180, 2/7: If double-quotes are used to enclose fields, then a double-quote appearing inside a field must be escaped by preceding it with another double quote.
+                                            }
+                                            else
+                                            {
+                                                builder.Append(nc);
+                                                builderLength++;
+                                            }
+
+                                            builder.Append(nnc);
+
+                                            builderLength += 2;
+
+                                            // skip quote
+                                            bufferPosition++;
+
+                                            // skip newline
+                                            bufferPosition++;
+
+                                            // peek for a possible \n after \r
+                                            if (bufferPosition < bufferLength)
+                                            {
+                                                var secondNewLineC = buffer[bufferPosition];
+                                                if (secondNewLineC is '\r' or '\n')
+                                                {
+                                                    builder.Append(secondNewLineC);
+                                                    builderLength++;
+                                                    bufferPosition++;
+                                                }
+                                            }
+
+                                            //lastCharInLine = false;
+                                            continue;
+                                        }
+                                    }
                                 }
-                            }
 
-                            if (quotes > 0 || c != delimiter)
-                            {
-                                builder.Append(c);
-                                if (builderLength == 0 && isQuote)
-                                    cellStartsWithQuote = true;
-
-                                if (quotes > 0 && isQuote && nc == '\"'/*nextCharIsQuote*/ && builderLength > 0)
+                                if (quotes > 0 || c != delimiter)
                                 {
-                                    bufferPosition++;
-                                    // Skip next quote. RFC 4180, 2/7: If double-quotes are used to enclose fields, then a double-quote appearing inside a field must be escaped by preceding it with another double quote.
-                                }
+                                    builder.Append(c);
+                                    if (builderLength == 0 && isQuote)
+                                        cellStartsWithQuote = true;
 
-                                builderLength++;
+                                    if (quotes > 0 && isQuote && nc == '\"'/*nextCharIsQuote*/ && builderLength > 0)
+                                    {
+                                        bufferPosition++;
+                                        // Skip next quote. RFC 4180, 2/7: If double-quotes are used to enclose fields, then a double-quote appearing inside a field must be escaped by preceding it with another double quote.
+                                    }
+
+                                    builderLength++;
+                                }
                             }
 
-                            if (quotes == 0 && (lastCharInLine || c == delimiter))
+                            if (quotes == 0 && (
+                                lastCharInLine
+                                || c == delimiter
+                                //|| (builderLength == 2 && cellStartsWithQuote && isQuote )
+                                ))
                             {
                                 if (builderLength > 0)
                                 {
@@ -476,8 +485,13 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
     private void NewMethod(Dictionary<string, (string rowColumn, TextReaderColumn config)> columnMap, Dictionary<string, object> initialValues, int columnCount, TextBuilder builder, bool removeSurroundingDoubleQuotes, List<MappedColumn> columns, bool hasColumnNames)
     {
+        var isEmptyString = builder.IsEmptyString();
+
         if (removeSurroundingDoubleQuotes)
+        {
+            var origLength = builder.Length;
             builder.RemoveSurroundingDoubleQuotes();
+        }
 
         if (hasColumnNames)
         {
@@ -490,7 +504,7 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
             try
             {
-                initialValues[col.NameInRow] = col.Column.Process(this, builder);
+                initialValues[col.NameInRow] = col.Column.Process(this, builder, isEmptyString);
             }
             catch (Exception ex)
             {

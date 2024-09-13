@@ -51,9 +51,9 @@ public class TextReaderColumn
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public virtual object Process(IProcess process, TextBuilder source)
+    public virtual object Process(IProcess process, TextBuilder source, bool isEmptyString)
     {
-        if (source.Length == 0)
+        if (source.Length == 0 && !isEmptyString)
         {
             return SourceIsNullAction switch
             {
@@ -72,6 +72,9 @@ public class TextReaderColumn
                 _ => throw new NotImplementedException(FailedTypeConversionAction.ToString() + " is not supported yet"),
             };
         }
+
+        if (isEmptyString)
+            return "";
 
         return source.GetContentAsString();
     }

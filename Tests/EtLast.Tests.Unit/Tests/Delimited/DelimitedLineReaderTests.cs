@@ -183,16 +183,19 @@ public class DelimitedLineReaderTests
             .ReadDelimitedLines(GetSimpleReader(@"TestData\QuotedSample3.csv"));
 
         var result = TestExecuter.Execute(context, builder);
-        Assert.AreEqual(8, result.MutatedRows.Count);
+        Assert.AreEqual(11, result.MutatedRows.Count);
         Assert.That.ExactMatch(result.MutatedRows, [
-            new() { ["Id"] = 1, ["Name"] = null, ["Value"] = "A" },
-            new() { ["Id"] = 2, ["Name"] = "B", ["Value"] = null },
+            new() { ["Id"] = 1, ["Name"] = "", ["Value"] = "A" },
+            new() { ["Id"] = 2, ["Name"] = "B", ["Value"] = "" },
             new() { ["Id"] = 3, ["Name"] = "C", ["Value"] = "\"" },
             new() { ["Id"] = 4, ["Name"] = "\"", ["Value"] = "D" },
             new() { ["Id"] = 5, ["Name"] = "E", ["Value"] = "\"\"" },
             new() { ["Id"] = 6, ["Name"] = "\"\"", ["Value"] = "F" },
             new() { ["Id"] = 7, ["Name"] = "G", ["Value"] = "\"a\"" },
-            new() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" }]);
+            new() { ["Id"] = 8, ["Name"] = "\"b\"", ["Value"] = "H" },
+            new() { ["Id"] = 9, ["Name"] = null, ["Value"] = "A" },
+            new() { ["Id"] = 10, ["Name"] = "B", ["Value"] = null },
+            new() { ["Id"] = 11, ["Name"] = null, ["Value"] = "\"A\"\r\nwas not nice" }]);
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
 

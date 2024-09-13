@@ -56,4 +56,9 @@ public class TextBuilder
     {
         return new ReadOnlySpan<char>(_buffer, Start, Length);
     }
+
+    internal bool IsEmptyString()
+    {
+        return Length == 2 && _buffer[0] == '\"' && _buffer[1] == '\"';
+    }
 }
