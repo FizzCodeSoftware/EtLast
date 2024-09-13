@@ -161,9 +161,11 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
 
                 var str = ValueFormatter.Format(value, FormatProvider);
 
-                if (!string.IsNullOrEmpty(str))
+                if (str != null)
                 {
-                    var quoteRequired = str.IndexOfAny(_quoteRequiredChars) > -1
+                    var quoteRequired =
+                        str.Length == 0
+                        || str.IndexOfAny(_quoteRequiredChars) > -1
                         || str[0] == ' '
                         || str[^1] == ' '
                         || str.Contains(LineEnding, StringComparison.Ordinal);
@@ -172,13 +174,16 @@ public sealed class WriteToDynamicDelimitedMutator : AbstractMutator, IRowSink
                     {
                         sinkEntry.Buffer.Write(_quoteBytes);
 
-                        if (str.Contains(Quote))
+                        if (str.Length > 0)
                         {
-                            sinkEntry.Buffer.Write(Encoding.GetBytes(str.Replace(_quoteAsString, _escapedQuote, StringComparison.Ordinal)));
-                        }
-                        else
-                        {
-                            sinkEntry.Buffer.Write(Encoding.GetBytes(str));
+                            if (str.Contains(Quote))
+                            {
+                                sinkEntry.Buffer.Write(Encoding.GetBytes(str.Replace(_quoteAsString, _escapedQuote, StringComparison.Ordinal)));
+                            }
+                            else
+                            {
+                                sinkEntry.Buffer.Write(Encoding.GetBytes(str));
+                            }
                         }
 
                         sinkEntry.Buffer.Write(_quoteBytes);
