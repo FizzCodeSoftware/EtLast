@@ -157,23 +157,27 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
                 var value = row[kvp.Value?.SourceColumn ?? kvp.Key];
 
                 var str = (kvp.Value?.CustomFormatter ?? DelimitedValueFormatter.Default).Format(value, FormatProvider);
-                if (!string.IsNullOrEmpty(str))
+                if (str != null)
                 {
                     var quoteRequired = str.IndexOfAny(_quoteRequiredChars) > -1
                         || str[0] == ' '
-                        || str[^1] == ' ';
+                        || str[^1] == ' '
+                        || str.Length == 0;
 
                     if (quoteRequired)
                     {
                         sinkEntry.Buffer.Write(_quoteBytes);
 
-                        if (str.Contains(Quote))
+                        if (str.Length > 0)
                         {
-                            sinkEntry.Buffer.Write(Encoding.GetBytes(str.Replace(_quoteAsString, _escapedQuote, StringComparison.Ordinal)));
-                        }
-                        else
-                        {
-                            sinkEntry.Buffer.Write(Encoding.GetBytes(str));
+                            if (str.Contains(Quote))
+                            {
+                                sinkEntry.Buffer.Write(Encoding.GetBytes(str.Replace(_quoteAsString, _escapedQuote, StringComparison.Ordinal)));
+                            }
+                            else
+                            {
+                                sinkEntry.Buffer.Write(Encoding.GetBytes(str));
+                            }
                         }
 
                         sinkEntry.Buffer.Write(_quoteBytes);
