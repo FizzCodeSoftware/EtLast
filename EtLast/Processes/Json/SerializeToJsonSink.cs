@@ -22,9 +22,11 @@ public sealed class SerializeToJsonSink<T> : AbstractJob
         try
         {
             var content = JsonSerializer.Serialize(Data, SerializerOptions);
-
-            namedSink.Stream.Write(Encoding.GetBytes(content));
-            namedSink.IncreaseRowsWritten();
+            var contentBytes = Encoding.GetBytes(content);
+            namedSink.Stream.Write(contentBytes);
+            namedSink.IncreaseRows();
+            namedSink.IncreaseBytes(contentBytes.Length);
+            namedSink.IncreaseCharacters(content.Length);
 
             namedSink.IoCommand.AffectedDataCount += 1;
             namedSink.IoCommand.End();

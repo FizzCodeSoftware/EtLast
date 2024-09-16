@@ -9,6 +9,8 @@ public class LocalFileSinkProvider : IOneSinkProvider
     [ProcessParameterMustHaveValue]
     public required string Path { get; init; }
 
+    public SinkRegistry SinkRegistry { get; init; }
+
     /// <summary>
     /// Default value is <see cref="LocalSinkFileExistsAction.ThrowException"/>.
     /// </summary>
@@ -104,9 +106,10 @@ public class LocalFileSinkProvider : IOneSinkProvider
         try
         {
             var sink = caller.Context.GetSink(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path), sinkFormat, caller, columns);
-
             var stream = new FileStream(Path, FileMode, FileAccess, FileShare);
-            return new NamedSink(Path, stream, ioCommand, sink);
+            var namedSink = new NamedSink(Path, stream, ioCommand, sink);
+            SinkRegistry?.Add(namedSink);
+            return namedSink;
         }
         catch (Exception ex)
         {

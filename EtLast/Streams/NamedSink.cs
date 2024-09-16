@@ -4,12 +4,6 @@ public class NamedSink(string name, Stream stream, IoCommand ioCommand, Sink sin
     : NamedStream(name, stream, ioCommand)
 {
     public Sink Sink { get; } = sink;
-    public long RowsWritten { get; private set; }
-
-    public void IncreaseRowsWritten(int count = 1)
-    {
-        RowsWritten += count;
-    }
 
     public long SafeGetPosition()
     {

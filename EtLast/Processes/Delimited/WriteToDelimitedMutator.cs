@@ -200,7 +200,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
         }
         catch (Exception ex)
         {
-            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.RowsWritten;
+            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.Rows;
             sinkEntry.NamedSink.IoCommand.Failed(ex);
             throw;
         }
@@ -215,7 +215,8 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
 
         var data = sinkEntry.Buffer.ToArray();
         sinkEntry.NamedSink.Stream.Write(data, 0, data.Length);
-        sinkEntry.NamedSink.IncreaseRowsWritten(sinkEntry.RowCount);
+        sinkEntry.NamedSink.IncreaseRows(sinkEntry.RowCount);
+        sinkEntry.NamedSink.IncreaseBytes(data.Length);
         sinkEntry.RowCount = 0;
         sinkEntry.Buffer.SetLength(0);
     }
@@ -224,7 +225,7 @@ public sealed class WriteToDelimitedMutator : AbstractMutator, IRowSink
     {
         public required NamedSink NamedSink { get; init; }
         public required MemoryStream Buffer { get; init; }
-        public int RowCount = 0;
+        public long RowCount = 0L;
     }
 }
 

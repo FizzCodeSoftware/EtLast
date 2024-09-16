@@ -39,7 +39,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
         var buffer = new MemoryStream();
         var sinkEntry = _sinkEntry = new SinkEntry()
         {
-            NamedSink = SinkProvider.GetSink(this, "dynamicbinarytable", ColumnNames),
+            NamedSink = SinkProvider.GetSink(this, "sbt", ColumnNames),
             Buffer = buffer,
             BufferWriter = new BinaryWriter(buffer),
         };
@@ -58,7 +58,6 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
             }
 
             WriteBuffer();
-            sinkEntry.NamedSink.IncreaseRowsWritten();
         }
 
         return sinkEntry;
@@ -120,7 +119,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
         }
         catch (Exception ex)
         {
-            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.RowsWritten;
+            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.Rows;
             sinkEntry.NamedSink.IoCommand.Failed(ex);
             throw;
         }
@@ -137,7 +136,8 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
 
         var data = _sinkEntry.Buffer.ToArray();
         _sinkEntry.NamedSink.Stream.Write(data, 0, data.Length);
-        _sinkEntry.NamedSink.IncreaseRowsWritten(_sinkEntry.RowCount);
+        _sinkEntry.NamedSink.IncreaseRows(_sinkEntry.RowCount);
+        _sinkEntry.NamedSink.IncreaseBytes(data.Length);
         _sinkEntry.RowCount = 0;
         _sinkEntry.Buffer.SetLength(0);
     }
@@ -147,7 +147,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
         public required NamedSink NamedSink { get; init; }
         public required MemoryStream Buffer { get; init; }
         public required BinaryWriter BufferWriter { get; init; }
-        public int RowCount = 0;
+        public long RowCount = 0;
     }
 }
 

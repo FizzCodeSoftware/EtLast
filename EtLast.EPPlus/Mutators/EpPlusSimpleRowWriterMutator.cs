@@ -151,7 +151,7 @@ public sealed class EpPlusSimpleRowWriterMutator : AbstractMutator, IRowSink
             exception.Data["Sink"] = sinkEntry.NamedSink.Name;
             exception.Data["SheetName"] = SheetName;
 
-            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.RowsWritten;
+            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.Rows;
             sinkEntry.NamedSink.IoCommand.Failed(exception);
             throw exception;
         }
