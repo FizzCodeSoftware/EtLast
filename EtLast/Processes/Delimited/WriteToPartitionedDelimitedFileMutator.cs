@@ -163,7 +163,7 @@ public sealed class WriteToPartitionedDelimitedFileMutator : AbstractMutator, IR
         _rowCounter++;
 
         var sinkEntry = GetSinkEntry(partitionKey);
-        sinkEntry.NamedSink.Sink.RegisterWrite(row);
+        sinkEntry.NamedSink.Sink.RegisterRow(row);
 
         try
         {
@@ -214,7 +214,7 @@ public sealed class WriteToPartitionedDelimitedFileMutator : AbstractMutator, IR
         }
         catch (Exception ex)
         {
-            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.Rows;
+            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.Sink.Rows;
             sinkEntry.NamedSink.IoCommand.Failed(ex);
             throw;
         }
@@ -229,8 +229,7 @@ public sealed class WriteToPartitionedDelimitedFileMutator : AbstractMutator, IR
 
         var data = sinkEntry.Buffer.ToArray();
         sinkEntry.NamedSink.Stream.Write(data, 0, data.Length);
-        sinkEntry.NamedSink.IncreaseRows(sinkEntry.RowCount);
-        sinkEntry.NamedSink.IncreaseBytes(data.Length);
+        sinkEntry.NamedSink.Sink.IncreaseBytes(data.Length);
         sinkEntry.RowCount = 0;
         sinkEntry.Buffer.SetLength(0);
     }

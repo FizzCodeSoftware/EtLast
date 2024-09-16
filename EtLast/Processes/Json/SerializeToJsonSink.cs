@@ -18,15 +18,16 @@ public sealed class SerializeToJsonSink<T> : AbstractJob
 
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
-        var namedSink = SinkProvider.GetSink(this, "json", []);
+        var namedSink = SinkProvider.GetSink(this, "json", null);
         try
         {
             var content = JsonSerializer.Serialize(Data, SerializerOptions);
             var contentBytes = Encoding.GetBytes(content);
             namedSink.Stream.Write(contentBytes);
-            namedSink.IncreaseRows();
-            namedSink.IncreaseBytes(contentBytes.Length);
-            namedSink.IncreaseCharacters(content.Length);
+
+            namedSink.Sink.IncreaseRows(1);
+            namedSink.Sink.IncreaseBytes(contentBytes.Length);
+            namedSink.Sink.IncreaseCharacters(content.Length);
 
             namedSink.IoCommand.AffectedDataCount += 1;
             namedSink.IoCommand.End();

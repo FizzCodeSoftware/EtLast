@@ -80,7 +80,7 @@ public sealed class EpPlusSingleExcelStreamWriterMutator<TState> : AbstractMutat
 
             if (_sink != null)
             {
-                _sink.RegisterWrite(row);
+                _sink.RegisterRow(row);
                 _rowCount++;
             }
         }
