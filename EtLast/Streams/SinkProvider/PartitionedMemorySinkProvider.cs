@@ -6,6 +6,8 @@ public class PartitionedMemorySinkProvider : IOneSinkProvider, IPartitionedSinkP
     [ProcessParameterMustHaveValue]
     public required Func<string, MemoryStream> StreamCreator { get; init; }
 
+    public SinkRegistry SinkRegistry { get; init; }
+
     private readonly string _sinkName = "MemorySink";
     private readonly string _sinkLocation = "memory";
     private readonly string _sinkPath = "memory";
@@ -34,9 +36,10 @@ public class PartitionedMemorySinkProvider : IOneSinkProvider, IPartitionedSinkP
         try
         {
             var sink = caller.Context.GetSink(_sinkLocation, _sinkPath, sinkFormat, caller, columns);
-
             var stream = StreamCreator.Invoke(partitionKey);
-            return new NamedSink(_sinkName, stream, ioCommand, sink);
+            var namedSink = new NamedSink(_sinkName, stream, ioCommand, sink);
+            SinkRegistry?.Add(namedSink);
+            return namedSink;
         }
         catch (Exception ex)
         {
