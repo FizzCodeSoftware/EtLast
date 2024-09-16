@@ -3,7 +3,7 @@
 public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue] public required IOneSinkProvider SinkProvider { get; init; }
-    [ProcessParameterMustHaveValue] public Func<Dictionary<string, Type>> DynamicColumns { get; init; }
+    [ProcessParameterMustHaveValue] public required Func<Dictionary<string, Type>> DynamicColumns { get; init; }
 
     /// <summary>
     /// Default value is 10000
@@ -52,7 +52,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
             foreach (var column in columns)
             {
                 sinkEntry.BufferWriter.Write(column.Key);
-                sinkEntry.BufferWriter.Write(column.Value.AssemblyQualifiedName);
+                sinkEntry.BufferWriter.Write(column.Value.FullName);
                 sinkEntry.BufferWriter.Write((byte)ColumnTypeCodes[colIdx]);
                 colIdx++;
             }
