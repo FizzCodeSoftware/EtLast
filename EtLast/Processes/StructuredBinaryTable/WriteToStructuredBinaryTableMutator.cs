@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public sealed class WriteToDynamicBinaryTableMutator : AbstractMutator, IRowSink
+public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue] public required IOneSinkProvider SinkProvider { get; init; }
     [ProcessParameterMustHaveValue] public Func<Dictionary<string, Type>> DynamicColumns { get; init; }
@@ -30,10 +30,9 @@ public sealed class WriteToDynamicBinaryTableMutator : AbstractMutator, IRowSink
         var colIdx = 0;
         foreach (var (columnName, columnType) in columns)
         {
-            var typeCode = BinaryTypeCodeEncoder.GetTypeCode(columnType);
             ColumnNames[colIdx] = columnName;
             ColumnTypes[colIdx] = columnType;
-            ColumnTypeCodes[colIdx] = typeCode;
+            ColumnTypeCodes[colIdx] = BinaryTypeCodeEncoder.GetTypeCode(columnType);
             colIdx++;
         }
 
@@ -89,31 +88,29 @@ public sealed class WriteToDynamicBinaryTableMutator : AbstractMutator, IRowSink
 
         try
         {
-            var colIdx = 0;
-            foreach (var columnName in ColumnNames)
+            for (var i = 0; i < ColumnNames.Length; i++)
             {
-                var value = row[columnName];
+                var value = row[ColumnNames[i]];
                 if (value != null)
                 {
-                    var columnType = ColumnTypes[colIdx];
-                    if (value.GetType() == columnType)
+                    var valueType = value.GetType();
+                    if (valueType == ColumnTypes[i])
                     {
-                        sinkEntry.BufferWriter.Write((byte)1);
-                        var typeCode = ColumnTypeCodes[colIdx];
+                        var typeCode = ColumnTypeCodes[i];
+                        sinkEntry.BufferWriter.Write((byte)typeCode);
                         BinaryTypeCodeEncoder.Write(sinkEntry.BufferWriter, value, typeCode);
                     }
                     else
                     {
-                        sinkEntry.BufferWriter.Write((byte)2);
-                        sinkEntry.BufferWriter.Write(value.ToString());
+                        var typeCode = BinaryTypeCodeEncoder.GetTypeCode(valueType);
+                        sinkEntry.BufferWriter.Write((byte)typeCode);
+                        BinaryTypeCodeEncoder.Write(sinkEntry.BufferWriter, value, typeCode);
                     }
                 }
                 else
                 {
-                    sinkEntry.BufferWriter.Write((byte)0);
+                    sinkEntry.BufferWriter.Write((byte)BinaryTypeCode._null);
                 }
-
-                colIdx++;
             }
 
             sinkEntry.RowCount++;
@@ -158,9 +155,9 @@ public sealed class WriteToDynamicBinaryTableMutator : AbstractMutator, IRowSink
 public static class WriteToDynamicBinaryTableMutatorFluent
 {
     /// <summary>
-    /// Write rows to a dynamic binary table stream. The first row if each partition is used to determine the columns of the output.
+    /// Write rows to a structured binary table (SBT) stream.
     /// </summary>
-    public static IFluentSequenceMutatorBuilder WriteToDynamicBinaryTable(this IFluentSequenceMutatorBuilder builder, WriteToDynamicBinaryTableMutator mutator)
+    public static IFluentSequenceMutatorBuilder WriteToStructuredBinaryTable(this IFluentSequenceMutatorBuilder builder, WriteToStructuredBinaryTableMutator mutator)
     {
         return builder.AddMutator(mutator);
     }

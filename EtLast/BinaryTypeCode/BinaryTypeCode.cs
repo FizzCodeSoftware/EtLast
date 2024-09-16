@@ -24,6 +24,10 @@ public enum BinaryTypeCode : byte
     _bytearray = 18,
     _char = 19,
     _uint128 = 20,
+    _int128 = 21,
+    _dateonly = 22,
+    _timeonly = 23,
+    _color = 24,
     _null = 254,
     _unknown = 255,
 };

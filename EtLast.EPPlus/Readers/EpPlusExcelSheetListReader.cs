@@ -6,6 +6,11 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
     public required IManyStreamProvider StreamProvider { get; init; }
 
     /// <summary>
+    /// First row index is (long) 0
+    /// </summary>
+    public string AddRowIndexToColumn { get; init; }
+
+    /// <summary>
     /// Default value is "Stream".
     /// </summary>
     public string AddStreamNameToColumn { get; init; } = "Stream";
@@ -82,6 +87,9 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
                     {
                         initialValues["Stream"] = stream.Name;
                     }
+
+                    if (AddRowIndexToColumn != null)
+                        initialValues[AddRowIndexToColumn] = rowCount;
 
                     rowCount++;
                     yield return Context.CreateRow(this, initialValues);
