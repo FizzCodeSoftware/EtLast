@@ -3,7 +3,7 @@
 public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowSink
 {
     [ProcessParameterMustHaveValue] public required IOneSinkProvider SinkProvider { get; init; }
-    [ProcessParameterMustHaveValue] public Func<Dictionary<string, Type>> DynamicColumns { get; init; }
+    [ProcessParameterMustHaveValue] public required Func<Dictionary<string, Type>> DynamicColumns { get; init; }
 
     /// <summary>
     /// Default value is 10000
