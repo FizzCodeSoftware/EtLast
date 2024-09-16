@@ -16,11 +16,6 @@ public sealed class DelimitedLineReader : AbstractRowSource
     public required DelimitedLineHeader Header { get; init; }
 
     /// <summary>
-    /// Default true.
-    /// </summary>
-    public bool TreatEmptyStringAsNull { get; init; } = true;
-
-    /// <summary>
     /// Default true. If a value starts and ends with double quote (") characters, then both will be removed (this happens before type conversion)
     /// </summary>
     public bool RemoveSurroundingDoubleQuotes { get; init; } = true;
@@ -60,6 +55,11 @@ public sealed class DelimitedLineReader : AbstractRowSource
     /// </summary>
     public string AddStreamIndexToColumn { get; init; }
 
+    /// <summary>
+    /// First row index is (long) 0
+    /// </summary>
+    public string AddRowIndexToColumn { get; init; }
+
     public override string GetTopic()
     {
         return StreamProvider?.GetTopic();
@@ -94,10 +94,17 @@ public sealed class DelimitedLineReader : AbstractRowSource
 
         // capture for performance
         var delimiter = Delimiter;
-        var treatEmptyStringAsNull = TreatEmptyStringAsNull;
         var removeSurroundingDoubleQuotes = RemoveSurroundingDoubleQuotes;
         var ignoreColumns = IgnoreColumns?.ToHashSet();
         var skipLines = SkipLinesAtBeginning;
+
+        var addStreamIndex = !string.IsNullOrEmpty(AddStreamIndexToColumn)
+            ? AddStreamIndexToColumn
+            : null;
+
+        var addRowIndex = !string.IsNullOrEmpty(AddRowIndexToColumn)
+            ? AddRowIndexToColumn
+            : null;
 
         var streams = StreamProvider.GetStreams(this);
         if (streams == null)
@@ -448,8 +455,11 @@ public sealed class DelimitedLineReader : AbstractRowSource
                         quotes = 0;
                         cellStartsWithQuote = false;
 
-                        if (!string.IsNullOrEmpty(AddStreamIndexToColumn))
-                            initialValues[AddStreamIndexToColumn] = streamIndex;
+                        if (!string.IsNullOrEmpty(addStreamIndex))
+                            initialValues[addStreamIndex] = streamIndex;
+
+                        if (!string.IsNullOrEmpty(addRowIndex))
+                            initialValues[addRowIndex] = resultCount;
 
                         resultCount++;
                         yield return Context.CreateRow(this, initialValues);

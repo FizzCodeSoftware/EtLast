@@ -16,12 +16,6 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
     /// </summary>
     public bool IgnoreNullOrEmptyRows { get; init; } = true;
 
-    /// <summary>
-    /// First row index is (integer) 1
-    /// </summary>
-    public string AddRowIndexToColumn { get; init; }
-
-    private int _currentRowIndex;
     protected bool AutomaticallyEvaluateAndYieldInputProcessRows { get; init; } = true;
 
     protected AbstractRowSource()
@@ -76,11 +70,6 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
 
         if (IgnoreNullOrEmptyRows && row.IsNullOrEmpty())
             return false;
-
-        if (AddRowIndexToColumn != null && !row.HasValue(AddRowIndexToColumn))
-            row[AddRowIndexToColumn] = _currentRowIndex;
-
-        _currentRowIndex++;
 
         return true;
     }

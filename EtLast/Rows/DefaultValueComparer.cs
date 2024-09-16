@@ -17,6 +17,11 @@ public static class DefaultValueComparer
                 : e1.OriginalValue != e2.OriginalValue;
         }
 
+        if (leftValue is byte[] ba1 && rightValue is byte[] ba2)
+        {
+            return ba1.SequenceEqual(ba2);
+        }
+
         if (leftValue is System.Drawing.Color c1 && rightValue is System.Drawing.Color c2)
         {
             return c1.ToArgb().Equals(c2.ToArgb());

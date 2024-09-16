@@ -10,6 +10,8 @@ public sealed class InMemoryRowCache : AbstractRowSource
     /// </summary>
     public required ISequence InputProcess { get; init; }
 
+    public int CurrentRowCount => _cache?.Count ?? 0;
+
     protected override void ValidateImpl()
     {
         if (InputProcess == null)
@@ -67,7 +69,7 @@ public static class InMemoryRowCacheFluent
         return builder.ReadFrom(cache);
     }
 
-    public static ISequence BuildToInMemoryRowCache(this IFluentSequenceMutatorBuilder builder, string name = null)
+    public static InMemoryRowCache BuildToInMemoryRowCache(this IFluentSequenceMutatorBuilder builder, string name = null)
     {
         return new InMemoryRowCache()
         {

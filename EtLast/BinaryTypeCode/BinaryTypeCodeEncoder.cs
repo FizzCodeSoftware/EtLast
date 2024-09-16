@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Drawing;
+
+namespace FizzCode.EtLast;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class BinaryTypeCodeEncoder
@@ -26,6 +28,10 @@ public static class BinaryTypeCodeEncoder
         [typeof(byte[])] = BinaryTypeCode._bytearray,
         [typeof(char)] = BinaryTypeCode._char,
         [typeof(UInt128)] = BinaryTypeCode._uint128,
+        [typeof(Int128)] = BinaryTypeCode._int128,
+        [typeof(DateOnly)] = BinaryTypeCode._dateonly,
+        [typeof(TimeOnly)] = BinaryTypeCode._timeonly,
+        [typeof(System.Drawing.Color)] = BinaryTypeCode._color,
     };
 
     public static BinaryTypeCode GetTypeCode(Type type)
@@ -113,6 +119,20 @@ public static class BinaryTypeCodeEncoder
                 writer.Write((ulong)(uint128 >> 64)); // upper
                 writer.Write((ulong)uint128); // lower
                 break;
+            case BinaryTypeCode._int128:
+                var int128 = (Int128)value;
+                writer.Write((ulong)(int128 >> 64)); // upper
+                writer.Write((ulong)int128); // lower
+                break;
+            case BinaryTypeCode._dateonly:
+                writer.Write(((DateOnly)value).DayNumber);
+                break;
+            case BinaryTypeCode._timeonly:
+                writer.Write(((TimeOnly)value).Ticks);
+                break;
+            case BinaryTypeCode._color:
+                writer.Write(((System.Drawing.Color)value).ToArgb());
+                break;
         }
     }
 
@@ -169,6 +189,14 @@ public static class BinaryTypeCodeEncoder
                 return reader.ReadChar();
             case BinaryTypeCode._uint128:
                 return new UInt128(reader.ReadUInt64(), reader.ReadUInt64()); // upper, lower
+            case BinaryTypeCode._int128:
+                return new Int128(reader.ReadUInt64(), reader.ReadUInt64()); // upper, lower
+            case BinaryTypeCode._dateonly:
+                return DateOnly.FromDayNumber(reader.ReadInt32());
+            case BinaryTypeCode._timeonly:
+                return new TimeOnly(reader.ReadInt64());
+            case BinaryTypeCode._color:
+                return Color.FromArgb(reader.ReadInt32());
         }
 
         return null;
