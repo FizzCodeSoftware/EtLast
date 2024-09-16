@@ -98,7 +98,7 @@ public sealed class ResilientWriteToMsSqlMutator : AbstractMutator, IRowSink
         _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", this,
             Columns.Select(x => x.Value ?? x.Key).ToArray());
 
-        _sink.RegisterWrite(row);
+        _sink.RegisterRow(row);
 
         var rc = _reader.RowCount;
         var i = 0;

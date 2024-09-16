@@ -100,7 +100,7 @@ public sealed class MsSqlMergeToSqlMutator : AbstractMutator, IRowSink
         _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", this,
             KeyColumns.Concat(ValueColumns).Distinct().Select(x => x.NameInDatabase).ToArray());
 
-        _sink.RegisterWrite(row);
+        _sink.RegisterRow(row);
 
         InitConnection();
 

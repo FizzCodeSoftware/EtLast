@@ -11,7 +11,7 @@ public class PartitionedLocalFileSinkProvider : IPartitionedSinkProvider
     [ProcessParameterMustHaveValue]
     public required Func<string, string> PathGenerator { get; init; }
 
-    public SinkRegistry SinkRegistry { get; init; }
+    public SinkMetadataEnricher SinkMetadataEnricher { get; init; }
 
     /// <summary>
     /// Default value is <see cref="LocalSinkFileExistsAction.ThrowException"/>.
@@ -105,7 +105,7 @@ public class PartitionedLocalFileSinkProvider : IPartitionedSinkProvider
             var sink = caller.Context.GetSink(Path.GetDirectoryName(path), Path.GetFileName(path), sinkFormat, caller, columns);
             var stream = new FileStream(path, FileMode, FileAccess, FileShare);
             var namedSink = new NamedSink(path, stream, ioCommand, sink);
-            SinkRegistry?.Add(namedSink);
+            SinkMetadataEnricher?.Enrich(namedSink.Sink);
             return namedSink;
         }
         catch (Exception ex)

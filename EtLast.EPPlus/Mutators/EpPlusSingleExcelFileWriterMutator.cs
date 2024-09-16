@@ -79,7 +79,7 @@ public sealed class EpPlusSingleExcelFileWriterMutator<TState> : AbstractMutator
 
             if (_sink != null)
             {
-                _sink.RegisterWrite(row);
+                _sink.RegisterRow(row);
                 _rowCount++;
             }
         }

@@ -6,7 +6,7 @@ public class MemorySinkProvider : IOneSinkProvider
     [ProcessParameterMustHaveValue]
     public required MemoryStream Stream { get; init; }
 
-    public SinkRegistry SinkRegistry { get; init; }
+    public SinkMetadataEnricher SinkMetadataEnricher { get; init; }
 
     public string Name { get; init; } = "MemorySink";
 
@@ -33,7 +33,7 @@ public class MemorySinkProvider : IOneSinkProvider
         {
             var sink = caller.Context.GetSink(_sinkLocation, _sinkPath, sinkFormat, caller, columns);
             var namedSink = new NamedSink(Name, Stream, ioCommand, sink);
-            SinkRegistry?.Add(namedSink);
+            SinkMetadataEnricher?.Enrich(namedSink.Sink);
             return namedSink;
         }
         catch (Exception ex)

@@ -23,18 +23,25 @@ public sealed class WriteTextToSink : AbstractJob
             ? Encoding.GetBytes(content)
             : [];
 
-        var sink = SinkProvider.GetSink(this, "txt", null);
-        Context.Log(LogSeverity.Information, this, "saving text file to sink {SinkName}", sink.Name);
+        var namedSink = SinkProvider.GetSink(this, "txt", null);
+        Context.Log(LogSeverity.Information, this, "saving text file to sink {SinkName}", namedSink.Name);
 
         try
         {
-            sink.Stream.Write(contentBytes);
-            sink.Close();
+            if (contentBytes.Length > 0)
+            {
+                namedSink.Stream.Write(contentBytes);
+                namedSink.Sink.IncreaseRows(1);
+                namedSink.Sink.IncreaseBytes(contentBytes.Length);
+                namedSink.Sink.IncreaseCharacters(content?.Length ?? 0);
+            }
+
+            namedSink.Close();
         }
         catch (Exception ex)
         {
             var exception = new ProcessExecutionException(this, "text file write failed", ex);
-            exception.Data["SinkName"] = sink.Name;
+            exception.Data["SinkName"] = namedSink.Name;
             throw exception;
         }
     }

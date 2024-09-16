@@ -83,7 +83,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
         var sinkEntry = GetSinkEntry();
-        sinkEntry.NamedSink.Sink.RegisterWrite(row);
+        sinkEntry.NamedSink.Sink.RegisterRow(row);
 
         try
         {
@@ -119,7 +119,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
         }
         catch (Exception ex)
         {
-            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.Rows;
+            sinkEntry.NamedSink.IoCommand.AffectedDataCount += sinkEntry.NamedSink.Sink.Rows;
             sinkEntry.NamedSink.IoCommand.Failed(ex);
             throw;
         }
@@ -136,8 +136,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
 
         var data = _sinkEntry.Buffer.ToArray();
         _sinkEntry.NamedSink.Stream.Write(data, 0, data.Length);
-        _sinkEntry.NamedSink.IncreaseRows(_sinkEntry.RowCount);
-        _sinkEntry.NamedSink.IncreaseBytes(data.Length);
+        _sinkEntry.NamedSink.Sink.IncreaseBytes(data.Length);
         _sinkEntry.RowCount = 0;
         _sinkEntry.Buffer.SetLength(0);
     }

@@ -82,7 +82,7 @@ public sealed class InsertToSqlMutator : AbstractMutator, IRowSink
         _sink ??= Context.GetSink(ConnectionString.Name, ConnectionString.Unescape(TableName), "sql", this,
             Columns.Select(x => x.NameInDatabase).ToArray());
 
-        _sink.RegisterWrite(row);
+        _sink.RegisterRow(row);
 
         if (!_prepared)
         {
