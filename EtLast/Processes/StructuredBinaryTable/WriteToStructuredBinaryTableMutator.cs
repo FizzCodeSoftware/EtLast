@@ -52,7 +52,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
             foreach (var column in columns)
             {
                 sinkEntry.BufferWriter.Write(column.Key);
-                sinkEntry.BufferWriter.Write(column.Value.AssemblyQualifiedName);
+                sinkEntry.BufferWriter.Write(column.Value.FullName);
                 sinkEntry.BufferWriter.Write((byte)ColumnTypeCodes[colIdx]);
                 colIdx++;
             }
