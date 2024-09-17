@@ -104,7 +104,7 @@ public class PartitionedLocalFileSinkProvider : IPartitionedSinkProvider
         {
             var sink = caller.Context.GetSink(Path.GetDirectoryName(path), Path.GetFileName(path), sinkFormat, caller, columns);
             var stream = new FileStream(path, FileMode, FileAccess, FileShare);
-            var namedSink = new NamedSink(path, stream, ioCommand, sink);
+            var namedSink = new NamedSink(PathHelpers.GetFriendlyPathName(path), stream, ioCommand, sink);
             SinkMetadataEnricher?.Enrich(namedSink.Sink);
             return namedSink;
         }

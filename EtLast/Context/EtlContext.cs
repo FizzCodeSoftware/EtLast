@@ -33,7 +33,8 @@ public sealed class EtlContext : IEtlContext
     private long _nextProcessId;
     private long _nextSinkId;
     private long _nextIoCommandId;
-    private readonly Dictionary<string, Sink> _sinks = [];
+    private readonly Dictionary<string, Sink> _sinksByKey = new(StringComparer.InvariantCultureIgnoreCase);
+    private readonly Dictionary<string, List<Sink>> _sinksByLocationAndPath = new(StringComparer.InvariantCultureIgnoreCase);
 
     private readonly List<ScopeAction> _scopeActions = [];
 
@@ -213,10 +214,10 @@ public sealed class EtlContext : IEtlContext
 
     public Sink GetSink(string location, string path, string format, IProcess process, string[] columns)
     {
-        var key = location + " / " + path + " / " + format + " / " + process.ExecutionInfo.Id.ToString("D", CultureInfo.InvariantCulture);
-        if (!_sinks.TryGetValue(key, out var sink))
+        var key = location + '\0' + path + '\0' + format + '\0' + process.ExecutionInfo.Id.ToString("D", CultureInfo.InvariantCulture);
+        if (!_sinksByKey.TryGetValue(key, out var sink))
         {
-            _sinks[key] = sink = new Sink()
+            _sinksByKey[key] = sink = new Sink()
             {
                 Id = Interlocked.Increment(ref _nextSinkId),
                 Context = this,
@@ -227,11 +228,31 @@ public sealed class EtlContext : IEtlContext
                 Columns = columns,
             };
 
+            key = location + '\0' + path;
+            if (!_sinksByLocationAndPath.TryGetValue(key, out var list))
+            {
+                _sinksByLocationAndPath[key] =
+                [
+                    sink
+                ];
+            }
+            else
+            {
+                list.Add(sink);
+            }
+
             foreach (var listener in Listeners)
                 listener.OnSinkStarted(process, sink);
         }
 
         return sink;
+    }
+
+    public List<Sink> QuerySinks(string location, string path)
+    {
+        var key = location + '\0' + path;
+        _sinksByLocationAndPath.TryGetValue(key, out var list);
+        return list;
     }
 
     public void Close()
