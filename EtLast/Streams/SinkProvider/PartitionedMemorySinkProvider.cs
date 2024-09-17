@@ -8,9 +8,7 @@ public class PartitionedMemorySinkProvider : IOneSinkProvider, IPartitionedSinkP
 
     public SinkMetadataEnricher SinkMetadataEnricher { get; init; }
 
-    private readonly string _sinkName = "MemorySink";
     private readonly string _sinkLocation = "memory";
-    private readonly string _sinkPath = "memory";
 
     /// <summary>
     /// Default value is false
@@ -24,32 +22,32 @@ public class PartitionedMemorySinkProvider : IOneSinkProvider, IPartitionedSinkP
 
     public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat, string[] columns)
     {
-        var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
-        {
-            Process = caller,
-            Kind = IoCommandKind.memoryWrite,
-            Location = _sinkLocation,
-            Path = _sinkPath,
-            Message = "writing to memory stream",
-        });
+        var name = Guid.NewGuid().ToString("N");
 
         try
         {
-            var sink = caller.Context.GetSink(_sinkLocation, _sinkPath, sinkFormat, caller, columns);
+            var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()
+            {
+                Process = caller,
+                Kind = IoCommandKind.memoryWrite,
+                Location = _sinkLocation,
+                Path = name,
+                Message = "writing to memory stream",
+            });
+
             var stream = StreamCreator.Invoke(partitionKey);
-            var namedSink = new NamedSink(_sinkName, stream, ioCommand, sink);
+
+            var sink = caller.Context.GetSink(_sinkLocation, name, sinkFormat, caller, columns);
+            var namedSink = new NamedSink(name, stream, ioCommand, sink);
             SinkMetadataEnricher?.Enrich(namedSink.Sink);
             return namedSink;
         }
         catch (Exception ex)
         {
-            var exception = new EtlException(caller, "error while writing memory stream", ex);
-            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while writing memory stream: {0}, message: {1}",
-                _sinkName, ex.Message));
+            var exception = new EtlException(caller, "error while creating memory stream", ex);
+            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while creating memory stream: message: {0}",
+                ex.Message));
 
-            exception.Data["SinkName"] = _sinkName;
-
-            ioCommand.Failed(exception);
             throw exception;
         }
     }

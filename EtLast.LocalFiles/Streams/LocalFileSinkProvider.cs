@@ -107,7 +107,7 @@ public class LocalFileSinkProvider : IOneSinkProvider
         {
             var sink = caller.Context.GetSink(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path), sinkFormat, caller, columns);
             var stream = new FileStream(Path, FileMode, FileAccess, FileShare);
-            var namedSink = new NamedSink(Path, stream, ioCommand, sink);
+            var namedSink = new NamedSink(PathHelpers.GetFriendlyPathName(Path), stream, ioCommand, sink);
             SinkMetadataEnricher?.Enrich(namedSink.Sink);
             return namedSink;
         }

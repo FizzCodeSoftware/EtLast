@@ -1,9 +1,20 @@
 ﻿namespace FizzCode.EtLast;
 
-public class NamedSink(string name, Stream stream, IoCommand ioCommand, Sink sink)
-    : NamedStream(name, stream, ioCommand)
+public class NamedSink
 {
-    public Sink Sink { get; } = sink;
+    public string Name { get; }
+    public Stream Stream { get; private set; }
+    public IoCommand IoCommand { get; }
+
+    public Sink Sink { get; }
+
+    public NamedSink(string name, Stream stream, IoCommand ioCommand, Sink sink)
+    {
+        Name = name;
+        Stream = stream;
+        IoCommand = ioCommand;
+        Sink = sink;
+    }
 
     public long SafeGetPosition()
     {
@@ -18,9 +29,14 @@ public class NamedSink(string name, Stream stream, IoCommand ioCommand, Sink sin
         return 0;
     }
 
-    public override void Close()
+    public void Close()
     {
         Stream?.Flush();
-        base.Close();
+
+        if (Stream != null)
+        {
+            Stream.Dispose();
+            Stream = null;
+        }
     }
 }
