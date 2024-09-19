@@ -8,6 +8,6 @@ internal class CompiledModule
     public required List<IDefaultArgumentProvider> DefaultArgumentProviders { get; init; }
     public required IStartup Startup { get; init; }
     public required List<Type> TaskTypes { get; init; }
-    public required List<Type> IndirectTaskTypes { get; init; }
+    public required List<Type> PreCompiledTaskTypes { get; init; }
     public required AssemblyLoadContext LoadContext { get; init; }
 }

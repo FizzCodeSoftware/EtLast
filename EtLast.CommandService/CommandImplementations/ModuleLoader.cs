@@ -28,15 +28,16 @@ internal static class ModuleLoader
 
         var startedOn = Stopwatch.StartNew();
 
+        ForceLoadLocalDllsToAppDomain();
+
+        var preCompiledTasks = FindTypesFromAppDomain<IEtlTask>()
+            .Where(x => x.Name != null).ToList();
+
         if (useAppDomain)
         {
             host.Logger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
 
-            ForceLoadLocalDllsToAppDomain();
-
             var appDomainTasks = FindTypesFromAppDomain<IEtlTask>(moduleName)
-                .Where(x => x.Name != null).ToList();
-            var indirectTasks = FindIndirectTypesFromAppDomain<IEtlTask>(moduleName)
                 .Where(x => x.Name != null).ToList();
             var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
@@ -51,12 +52,15 @@ internal static class ModuleLoader
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
                 TaskTypes = appDomainTasks,
-                IndirectTaskTypes = indirectTasks,
+                PreCompiledTaskTypes = preCompiledTasks.ToList(),
                 LoadContext = null,
             };
 
-            host.Logger.Debug("{TaskCount} task(s) found: {Task}",
+            host.Logger.Debug("{TaskCount} module tasks found: {Task}",
                 module.TaskTypes.Count, module.TaskTypes.Select(task => task.Name).ToArray());
+
+            host.Logger.Debug("{TaskCount} indirect tasks found: {Task}",
+                module.PreCompiledTaskTypes.Count, module.PreCompiledTaskTypes.Select(task => task.FullName).ToArray());
 
             return ExecutionStatusCode.Success;
         }
@@ -105,8 +109,6 @@ internal static class ModuleLoader
 
             var compiledTasks = FindTypesFromAssembly<IEtlTask>(assembly)
                 .Where(x => x.Name != null).ToList();
-            var indirectTasks = FindIndirectTypesFromAssembly<IEtlTask>(assemblyLoadContext, assembly)
-                .Where(x => x.Name != null).ToList();
 
             var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAssembly<IInstanceArgumentProvider>(assembly);
@@ -121,18 +123,15 @@ internal static class ModuleLoader
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
                 TaskTypes = compiledTasks,
-                IndirectTaskTypes = indirectTasks.Count > 0 ? indirectTasks : null,
+                PreCompiledTaskTypes = preCompiledTasks.ToList(),
                 LoadContext = assemblyLoadContext,
             };
 
-            host.Logger.Debug("{TaskCount} task(s) found: {Task}",
+            host.Logger.Debug("{TaskCount} module tasks found: {Task}",
                 module.TaskTypes.Count, module.TaskTypes.Select(task => task.Name).ToArray());
 
-            if (module.IndirectTaskTypes != null)
-            {
-                host.Logger.Debug("{TaskCount} indirect task(s) found: {Task}",
-                    module.IndirectTaskTypes.Count, module.IndirectTaskTypes.Select(task => task.FullName).ToArray());
-            }
+            host.Logger.Debug("{TaskCount} precompiled tasks found: {Task}",
+                module.PreCompiledTaskTypes.Count, module.PreCompiledTaskTypes.Select(task => task.FullName).ToArray());
 
             return ExecutionStatusCode.Success;
         }
@@ -195,7 +194,7 @@ internal static class ModuleLoader
         host.Logger.Debug("unloading module {Module}", module.Name);
 
         module.TaskTypes.Clear();
-        module.IndirectTaskTypes?.Clear();
+        module.PreCompiledTaskTypes?.Clear();
 
         module.LoadContext?.Unload();
     }
@@ -277,6 +276,25 @@ internal static class ModuleLoader
         {
             // ignore
         }
+    }
+
+    private static List<Type> FindTypesFromAppDomain<T>()
+    {
+        var result = new List<Type>();
+        var interfaceType = typeof(T);
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            try
+            {
+                var matchingTypes = assembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t));
+
+                result.AddRange(matchingTypes);
+            }
+            catch (Exception) { }
+        }
+
+        return result;
     }
 
     private static List<Type> FindTypesFromAppDomain<T>(string moduleName)
