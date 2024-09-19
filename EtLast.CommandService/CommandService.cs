@@ -192,7 +192,7 @@ public class CommandService : AbstractCommandService
         foreach (var taskName in taskNames)
         {
             var taskType = module.TaskTypes.Find(x => string.Equals(x.Name, taskName, StringComparison.InvariantCultureIgnoreCase))
-                ?? module.IndirectTaskTypes?.Find(x => string.Equals(x.FullName, taskName, StringComparison.InvariantCultureIgnoreCase));
+                ?? module.PreCompiledTaskTypes?.Find(x => string.Equals(x.FullName, taskName, StringComparison.InvariantCultureIgnoreCase));
 
             if (taskType == null)
             {
