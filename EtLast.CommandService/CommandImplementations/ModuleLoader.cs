@@ -245,20 +245,6 @@ internal static class ModuleLoader
             .ToList();
     }
 
-    private static List<Type> FindIndirectTypesFromAssembly<T>(AssemblyLoadContext loadContext, Assembly assembly)
-    {
-        var alreadyLoaded = new HashSet<AssemblyName>();
-        var resultList = new List<Type>();
-
-        // ignore the assembly, we only need references
-        foreach (var asmName in assembly.GetReferencedAssemblies())
-        {
-            FindIndirectTypesFromAssemblyRecursive(typeof(T), loadContext, asmName, alreadyLoaded, resultList);
-        }
-
-        return resultList;
-    }
-
     private static void FindIndirectTypesFromAssemblyRecursive(Type interfaceType, AssemblyLoadContext loadContext, AssemblyName assemblyName, HashSet<AssemblyName> alreadyLoaded, List<Type> resultList)
     {
         if (alreadyLoaded.Contains(assemblyName))
@@ -307,25 +293,6 @@ internal static class ModuleLoader
             {
                 var matchingTypes = assembly.GetTypes()
                     .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
-
-                result.AddRange(matchingTypes);
-            }
-            catch (Exception) { }
-        }
-
-        return result;
-    }
-
-    private static List<Type> FindIndirectTypesFromAppDomain<T>(string moduleName)
-    {
-        var result = new List<Type>();
-        var interfaceType = typeof(T);
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            try
-            {
-                var matchingTypes = assembly.GetTypes()
-                    .Where(t => t.IsClass && !t.IsAbstract && interfaceType.IsAssignableFrom(t) && !t.Namespace.EndsWith(moduleName, StringComparison.OrdinalIgnoreCase));
 
                 result.AddRange(matchingTypes);
             }
