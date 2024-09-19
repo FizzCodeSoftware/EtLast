@@ -1,6 +1,5 @@
 ﻿namespace FizzCode.EtLast;
 
-[EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class AbstractJob : AbstractProcess
 {
     protected AbstractJob()
