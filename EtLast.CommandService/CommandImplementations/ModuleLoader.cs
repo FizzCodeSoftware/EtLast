@@ -81,7 +81,7 @@ internal static class ModuleLoader
         {
             var id = Interlocked.Increment(ref _moduleAutoincrementId);
             var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
-                optimizationLevel: OptimizationLevel.Release,
+                optimizationLevel: OptimizationLevel.Debug,
                 assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default);
 
             var compilation = CSharpCompilation.Create("compiled_" + id.ToString("D", CultureInfo.InvariantCulture) + ".dll", syntaxTrees, metadataReferences, compilationOptions);
