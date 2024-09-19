@@ -22,7 +22,7 @@ public static class EtlConnectionManager
         return _connectionManager.GetConnection(connectionString, maxRetryCount, retryDelayMilliseconds,
             onOpening: (connectionString, connection) =>
             {
-                ioCommand = process.Context.RegisterIoCommand(new IoCommand()
+                ioCommand = process?.Context.RegisterIoCommand(new IoCommand()
                 {
                     Process = process,
                     Kind = IoCommandKind.dbConnection,
@@ -33,17 +33,17 @@ public static class EtlConnectionManager
                     MessageExtra = connectionString.GetFriendlyProviderName(),
                 });
             },
-            onOpened: (connectionString, connection, retryCount) => ioCommand.End(),
+            onOpened: (connectionString, connection, retryCount) => ioCommand?.End(),
             onError: (connectionString, connection, retryCount, ex) =>
             {
-                ioCommand.Failed(ex);
+                ioCommand?.Failed(ex);
 
                 if (retryCount < maxRetryCount)
                 {
-                    process.Context.Log(LogSeverity.Error, process, "can't connect to database, connection string key: {ConnectionStringName} ({Provider}), retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                    process?.Context.Log(LogSeverity.Error, process, "can't connect to database, connection string key: {ConnectionStringName} ({Provider}), retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
                         connectionString.Name, connectionString.GetFriendlyProviderName(), retryDelayMilliseconds * (retryCount + 1), retryCount, ex.Message);
 
-                    process.Context.LogOps(LogSeverity.Error, process, "can't connect to database, connection string key: {ConnectionStringName} ({Provider}), retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
+                    process?.Context.LogOps(LogSeverity.Error, process, "can't connect to database, connection string key: {ConnectionStringName} ({Provider}), retrying in {DelayMsec} msec (#{AttemptIndex}): {ExceptionMessage}",
                         connectionString.Name, connectionString.GetFriendlyProviderName(), retryDelayMilliseconds * (retryCount + 1), retryCount, ex.Message);
                 }
                 else
