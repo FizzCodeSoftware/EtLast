@@ -80,12 +80,12 @@ public sealed class ArgumentCollection : IArgumentCollection
         return null;
     }
 
-    public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, Dictionary<string, string> userArguments, Dictionary<string, object> overrides)
+    public ArgumentCollection(List<ArgumentProvider> defaultProviders, List<InstanceArgumentProvider> instanceProviders, Dictionary<string, string> userArguments, Dictionary<string, object> overrides)
     {
         var values = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
         foreach (var provider in defaultProviders)
         {
-            var args = provider.Arguments;
+            var args = provider.CreateArguments(this);
             if (args != null)
             {
                 foreach (var kvp in args)
@@ -95,7 +95,7 @@ public sealed class ArgumentCollection : IArgumentCollection
 
         foreach (var provider in instanceProviders.Where(x => string.Equals(x.Instance, Environment.MachineName, StringComparison.InvariantCultureIgnoreCase)))
         {
-            var args = provider.Arguments;
+            var args = provider.CreateArguments(this);
             if (args != null)
             {
                 foreach (var kvp in args)

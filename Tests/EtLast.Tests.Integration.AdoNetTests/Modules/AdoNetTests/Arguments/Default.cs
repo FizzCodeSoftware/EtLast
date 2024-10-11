@@ -1,8 +1,8 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.AdoNetTests;
 
-internal class Default : IDefaultArgumentProvider
+internal class Default : ArgumentProvider
 {
-    public Dictionary<string, object> Arguments => new()
+    public override Dictionary<string, object> CreateArguments(IArgumentCollection all) => new()
     {
         ["DatabaseName"] = "EtLastIntegrationTest",
         ["ConnectionString"] = () => new MsSqlConnectionString("test", "Data Source=(local);Initial Catalog=\"EtLastIntegrationTest\";Integrated Security=SSPI;Connection Timeout=5;Encrypt=False", "2016"),
