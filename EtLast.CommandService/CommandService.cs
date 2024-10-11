@@ -55,6 +55,11 @@ public class CommandService : AbstractCommandService
         AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
     }
 
+    protected override IExecutionResult RunCustomCommand(string commandId, string originalCommand, string[] commandParts)
+    {
+        return new ExecutionResult(ExecutionStatusCode.Success);
+    }
+
     protected override ILogger CreateServiceLogger()
     {
         var config = new LoggerConfiguration();
@@ -90,76 +95,11 @@ public class CommandService : AbstractCommandService
         return ServiceArgumentsLoader.LoadServiceArguments(this);
     }
 
-    protected override IExecutionResult RunCustomCommand(string commandId, string originalCommand, string[] commandParts)
+    protected override IExecutionResult TestModulesInternal(List<string> moduleNames)
     {
-        var cmd = commandParts[0].ToLowerInvariant();
-        switch (cmd)
-        {
-            case "run":
-            case "rundomain":
-                {
-                    var moduleName = commandParts.Skip(1).FirstOrDefault();
-                    if (string.IsNullOrEmpty(moduleName))
-                    {
-                        Console.WriteLine("Missing module name. Usage: `" + cmd + " <moduleName> <taskNames>`");
-                        return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
-                    }
+        if (moduleNames.Count == 0)
+            moduleNames = ModuleLister.GetAllModules(ModulesDirectory);
 
-                    var userArguments = new Dictionary<string, string>();
-
-                    var taskNames = commandParts.Skip(2).ToList();
-                    var temp = taskNames.ToArray();
-                    for (var i = 0; i < temp.Length; i++)
-                    {
-                        var taskName = temp[i];
-                        var idx = taskName.IndexOf('=');
-                        if (idx > -1)
-                        {
-                            if (idx < taskName.Length - 1)
-                            {
-                                taskNames.Remove(taskName);
-                                userArguments[taskName[..idx]] = taskName[(idx + 1)..];
-                            }
-                            else
-                            {
-                                taskNames.Remove(taskName);
-                                if (i < temp.Length - 1)
-                                {
-                                    userArguments[taskName[..idx]] = temp[i + 1];
-                                    taskNames.Remove(temp[i + 1]);
-                                }
-                                else
-                                {
-                                    userArguments[taskName[..idx]] = null;
-                                }
-
-                                i++;
-                            }
-                        }
-                    }
-
-                    if (taskNames.Count == 0)
-                    {
-                        Console.WriteLine("Missing task name(s). Usage: `run <moduleName> <taskNames>`");
-                        return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
-                    }
-
-                    return RunModule(useAppDomain: cmd == "runad",
-                        commandId, originalCommand, moduleName, taskNames, userArguments);
-                }
-            case "test-modules":
-                var moduleNames = commandParts.Skip(2).ToList();
-                if (moduleNames.Count == 0)
-                    moduleNames = ModuleLister.GetAllModules(ModulesDirectory);
-
-                return TestModules(moduleNames);
-        }
-
-        return new ExecutionResult(ExecutionStatusCode.Success);
-    }
-
-    private IExecutionResult TestModules(List<string> moduleNames)
-    {
         var result = new ExecutionResult();
         foreach (var moduleName in moduleNames)
         {
@@ -181,7 +121,7 @@ public class CommandService : AbstractCommandService
         return result;
     }
 
-    private IExecutionResult RunModule(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments)
+    protected override IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides)
     {
         Logger.Information("loading module {Module}", moduleName);
 
@@ -201,7 +141,7 @@ public class CommandService : AbstractCommandService
             }
         }
 
-        var executionResult = ModuleExecuter.Execute(this, commandId, originalCommand, module, [.. taskNames], userArguments);
+        var executionResult = ModuleExecuter.Execute(this, commandId, originalCommand, module, [.. taskNames], userArguments, argumentOverrides);
 
         ModuleLoader.UnloadModule(this, module);
         return executionResult;

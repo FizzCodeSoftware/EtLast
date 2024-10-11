@@ -62,7 +62,7 @@ internal static class ServiceArgumentsLoader
             var defaultArgumentProviders = defaultConfigurationProviders;
 
             var instance = Environment.MachineName;
-            var collection = new ArgumentCollection(defaultArgumentProviders, instanceArgumentProviders, instance, null);
+            var collection = new ArgumentCollection(defaultArgumentProviders, instanceArgumentProviders, instance, null, null);
 
             assemblyLoadContext.Unload();
 
