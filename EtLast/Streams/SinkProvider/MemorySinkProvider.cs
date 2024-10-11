@@ -17,7 +17,7 @@ public class MemorySinkProvider : IOneSinkProvider
 
     public NamedSink GetSink(IProcess caller, string sinkFormat, string[] columns)
     {
-        var name = Guid.NewGuid().ToString("N");
+        var name = Guid.CreateVersion7().ToString("N");
 
         try
         {

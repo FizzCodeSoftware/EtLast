@@ -53,7 +53,7 @@ public sealed class EtlContext : IEtlContext
         {
             ContextId = long.Parse(DateTime.UtcNow.ToString("yyyyMMddHHmmssfffff", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
             CommandId = commandId,
-            ContextName = customName ?? Guid.NewGuid().ToString("D"),
+            ContextName = customName ?? Guid.CreateVersion7().ToString("D"),
             Instance = arguments?.Instance ?? Environment.MachineName,
             EtLastVersion = typeof(IEtlContext).Assembly.GetName().Version.ToString(),
             HostVersion = Assembly.GetEntryAssembly().GetName().Version.ToString(),

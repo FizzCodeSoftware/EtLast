@@ -23,7 +23,7 @@ public class LocalFileCommandListener : ICommandListener
             if (command != null)
             {
                 File.Move(CommandFilePath, Path.ChangeExtension(CommandFilePath, ".old"));
-                commandService.RunCommand("file", Guid.NewGuid().ToString("D"), command);
+                commandService.RunCommand("file", Guid.CreateVersion7().ToString("D"), command);
             }
             else
             {
