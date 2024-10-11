@@ -2,7 +2,6 @@
 
 public sealed class ArgumentCollection : IArgumentCollection
 {
-    public string Instance { get; }
     public IEnumerable<string> AllKeys => _values.Keys;
 
     private readonly List<ISecretProvider> _secretProviders = [];
@@ -81,10 +80,8 @@ public sealed class ArgumentCollection : IArgumentCollection
         return null;
     }
 
-    public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, string instance, Dictionary<string, string> userArguments, Dictionary<string, object> overrides)
+    public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, Dictionary<string, string> userArguments, Dictionary<string, object> overrides)
     {
-        Instance = instance;
-
         var values = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
         foreach (var provider in defaultProviders)
         {
@@ -96,7 +93,7 @@ public sealed class ArgumentCollection : IArgumentCollection
             }
         }
 
-        foreach (var provider in instanceProviders.Where(x => string.Equals(x.Instance, instance, StringComparison.InvariantCultureIgnoreCase)))
+        foreach (var provider in instanceProviders.Where(x => string.Equals(x.Instance, Environment.MachineName, StringComparison.InvariantCultureIgnoreCase)))
         {
             var args = provider.Arguments;
             if (args != null)

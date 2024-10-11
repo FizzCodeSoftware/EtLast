@@ -48,6 +48,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     protected abstract IArgumentCollection LoadServiceArguments();
     protected abstract IExecutionResult RunCustomCommand(string commandId, string originalCommand, string[] commandParts);
     protected abstract IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides);
+    protected abstract IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<IEtlTask> tasks, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides);
     protected abstract IExecutionResult TestModulesInternal(List<string> moduleNames);
 
     protected abstract void ListCommands();
@@ -156,6 +157,17 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         Interlocked.Increment(ref _activeCommandCounter);
         Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
         var result = RunModuleInternal(useAppDomain, source, commandId, moduleName, taskNames, userArguments: null, argumentOverrides);
+        resultHandler?.Invoke(result)?.Wait();
+        Interlocked.Decrement(ref _activeCommandCounter);
+        Logger.Information("module execution command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
+        return result;
+    }
+
+    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<IEtlTask> tasks, Dictionary<string, object> argumentOverrides, Func<IExecutionResult, Task> resultHandler = null)
+    {
+        Interlocked.Increment(ref _activeCommandCounter);
+        Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
+        var result = RunModuleInternal(useAppDomain, source, commandId, moduleName, tasks, userArguments: null, argumentOverrides);
         resultHandler?.Invoke(result)?.Wait();
         Interlocked.Decrement(ref _activeCommandCounter);
         Logger.Information("module execution command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);

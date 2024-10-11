@@ -129,22 +129,53 @@ public class CommandService : AbstractCommandService
         if (loadResult != ExecutionStatusCode.Success)
             return new ExecutionResult(loadResult);
 
+        var tasks = new List<IEtlTask>();
         foreach (var taskName in taskNames)
         {
             var taskType = module.TaskTypes.Find(x => string.Equals(x.Name, taskName, StringComparison.InvariantCultureIgnoreCase))
                 ?? module.PreCompiledTaskTypes?.Find(x => string.Equals(x.FullName, taskName, StringComparison.InvariantCultureIgnoreCase));
 
-            if (taskType == null)
+            if (taskType != null)
             {
-                Logger.Warning("unknown task type: " + taskName);
-                break;
+                tasks.Add((IEtlTask)Activator.CreateInstance(taskType));
+            }
+            else
+            {
+                Logger.Error("unknown task type: " + taskName);
+                return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
             }
         }
 
-        var executionResult = ModuleExecuter.Execute(this, commandId, originalCommand, module, [.. taskNames], userArguments, argumentOverrides);
+        try
+        {
+            var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
+            var executionResult = TaskExecuter.Execute(this, commandId, module, tasks, arguments);
+            return executionResult;
+        }
+        finally
+        {
+            ModuleLoader.UnloadModule(this, module);
+        }
+    }
 
-        ModuleLoader.UnloadModule(this, module);
-        return executionResult;
+    protected override IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<IEtlTask> tasks, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides)
+    {
+        Logger.Information("loading module {Module}", moduleName);
+
+        var loadResult = ModuleLoader.LoadModule(this, moduleName, useAppDomain, out var module);
+        if (loadResult != ExecutionStatusCode.Success)
+            return new ExecutionResult(loadResult);
+
+        try
+        {
+            var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
+            var executionResult = TaskExecuter.Execute(this, commandId, module, tasks, arguments);
+            return executionResult;
+        }
+        finally
+        {
+            ModuleLoader.UnloadModule(this, module);
+        }
     }
 
     private void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)

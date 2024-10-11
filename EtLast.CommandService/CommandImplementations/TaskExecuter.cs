@@ -1,22 +1,18 @@
 ﻿namespace FizzCode.EtLast;
 
-internal static class ModuleExecuter
+internal static class TaskExecuter
 {
-    public static IExecutionResult Execute(CommandService host, string commandId, string originalCommand, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides)
+    public static IExecutionResult Execute(CommandService host, string commandId, CompiledModule module, List<IEtlTask> tasks, ArgumentCollection arguments)
     {
         var executionResult = new ExecutionResult();
-        var instance = Environment.MachineName;
-        var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance, userArguments, argumentOverrides);
-
         var moduleDirectoryName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
-        var tasksDirectoryName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
+        var tasksDirectoryName = string.Join('+', tasks.Select(task => string.Join("_", task.GetType().Name.Split(Path.GetInvalidFileNameChars()))));
 
         var currentDevLogDirectory = Path.Combine(host.DevLogDirectory, moduleDirectoryName, tasksDirectoryName);
         var currentOpsLogDirectory = Path.Combine(host.OpsLogDirectory, moduleDirectoryName, tasksDirectoryName);
 
-        var contextName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
+        var contextName = string.Join('+', tasks.Select(task => string.Join("_", task.GetType().Name.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName, commandId);
-        context.Manifest.OriginalCommand = originalCommand;
 
         executionResult.ContextManifest = context.Manifest;
 
@@ -27,7 +23,7 @@ internal static class ModuleExecuter
             TasksDirectoryName = tasksDirectoryName,
             DevLogDirectory = currentDevLogDirectory,
             OpsLogDirectory = currentOpsLogDirectory,
-            TaskNames = taskNames,
+            TaskNames = tasks.Select(x => x.GetType().Name).ToArray(),
         };
 
         module.Startup?.BuildSession(sessionBuilder, arguments);
@@ -36,16 +32,7 @@ internal static class ModuleExecuter
             configurator?.Invoke(sessionBuilder, arguments);
 
         context.Manifest.Extra["ModuleName"] = module.Name;
-        context.Manifest.Extra["TaskNames"] = taskNames;
-
-        if (userArguments != null)
-        {
-            foreach (var kvp in userArguments)
-            {
-                if (kvp.Value != null)
-                    context.Manifest.Extra[kvp.Key] = kvp.Value;
-            }
-        }
+        context.Manifest.Extra["TaskNames"] = tasks.Select(x => x.GetType().Name).ToArray();
 
         foreach (var manifestProcessor in sessionBuilder.ManifestProcessors)
             manifestProcessor?.RegisterToManifestEvents(context, context.Manifest);
@@ -83,24 +70,10 @@ internal static class ModuleExecuter
 
         try
         {
-            foreach (var taskName in taskNames)
+            foreach (var task in tasks)
             {
                 if (flowState.IsTerminating)
                     break;
-
-                IEtlTask task = null;
-
-                var taskType = module.TaskTypes.Find(x => string.Equals(x.Name, taskName, StringComparison.InvariantCultureIgnoreCase))
-                    ?? module.PreCompiledTaskTypes?.Find(x => string.Equals(x.FullName, taskName, StringComparison.InvariantCultureIgnoreCase));
-
-                if (taskType != null)
-                    task = (IEtlTask)Activator.CreateInstance(taskType);
-
-                if (task == null)
-                {
-                    context.Log(LogSeverity.Error, null, "unknown task type: " + taskName);
-                    break;
-                }
 
                 try
                 {
