@@ -10,16 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.EtLast.CommandService" Version="8.1.152" />
-    <PackageReference Include="FizzCode.EtLast.Diagnostics.HttpSender" Version="8.1.152" />
-    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="8.1.152" />
-    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="8.1.152" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.5">
+    <PackageReference Include="FizzCode.EtLast.CommandService" Version="8.1.165" />
+    <PackageReference Include="FizzCode.EtLast.Diagnostics.HttpSender" Version="8.1.165" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="8.1.165" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="8.1.165" />
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,4 @@
-﻿
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public abstract class InstanceArgumentProvider : ArgumentProvider
 {

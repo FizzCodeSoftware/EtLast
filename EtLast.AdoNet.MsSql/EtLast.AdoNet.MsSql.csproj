@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="FizzCode.LightWeight.AdoNet.DbConnection" Version="8.0.18" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.5">
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

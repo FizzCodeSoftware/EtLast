@@ -1,6 +1,6 @@
 ﻿namespace SampleHost.SampleModule;
 
-public class Default : IDefaultArgumentProvider
+public class Default : ArgumentProvider
 {
-    public Dictionary<string, object> Arguments => [];
+    public override Dictionary<string, object> CreateArguments(IArgumentCollection all) => [];
 }
