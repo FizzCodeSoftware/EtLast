@@ -81,7 +81,7 @@ public sealed class ArgumentCollection : IArgumentCollection
         return null;
     }
 
-    public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, string instance, Dictionary<string, string> userArguments)
+    public ArgumentCollection(List<IDefaultArgumentProvider> defaultProviders, List<IInstanceArgumentProvider> instanceProviders, string instance, Dictionary<string, string> userArguments, Dictionary<string, object> overrides)
     {
         Instance = instance;
 
@@ -112,6 +112,14 @@ public sealed class ArgumentCollection : IArgumentCollection
         if (userArguments != null)
         {
             foreach (var kvp in userArguments)
+            {
+                values[kvp.Key] = kvp.Value;
+            }
+        }
+
+        if (overrides != null)
+        {
+            foreach (var kvp in overrides)
             {
                 values[kvp.Key] = kvp.Value;
             }

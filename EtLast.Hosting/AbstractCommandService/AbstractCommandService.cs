@@ -47,6 +47,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     protected abstract ILogger CreateServiceLogger();
     protected abstract IArgumentCollection LoadServiceArguments();
     protected abstract IExecutionResult RunCustomCommand(string commandId, string originalCommand, string[] commandParts);
+    protected abstract IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides);
+    protected abstract IExecutionResult TestModulesInternal(List<string> moduleNames);
 
     protected abstract void ListCommands();
     protected abstract void ListModules();
@@ -149,18 +151,29 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         return RunCommand(source, commandId, originalCommand, commandParts, resultHandler);
     }
 
-    public IExecutionResult RunCommand(string source, string commandId, string originalCommand, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
+    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<string> taskNames, Dictionary<string, object> argumentOverrides, Func<IExecutionResult, Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
-        Logger.Information("command {CommandId} started by {CommandSource}: {Command}", commandId, source, string.Join(' ', commandParts));
-        var result = RunCommandInternal(commandId, originalCommand, commandParts);
+        Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
+        var result = RunModuleInternal(useAppDomain, source, commandId, moduleName, taskNames, userArguments: null, argumentOverrides);
         resultHandler?.Invoke(result)?.Wait();
         Interlocked.Decrement(ref _activeCommandCounter);
-        Logger.Information("command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
+        Logger.Information("module execution command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
         return result;
     }
 
-    private IExecutionResult RunCommandInternal(string commandId, string originalCommand, string[] commandParts)
+    public IExecutionResult RunCommand(string source, string commandId, string originalCommand, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
+    {
+        Interlocked.Increment(ref _activeCommandCounter);
+        Logger.Information("generic command {CommandId} started by {CommandSource}: {Command}", commandId, source, string.Join(' ', commandParts));
+        var result = RunCommandImpl(commandId, originalCommand, commandParts);
+        resultHandler?.Invoke(result)?.Wait();
+        Interlocked.Decrement(ref _activeCommandCounter);
+        Logger.Information("generic command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
+        return result;
+    }
+
+    private IExecutionResult RunCommandImpl(string commandId, string originalCommand, string[] commandParts)
     {
         if (commandParts?.Length >= 1 && CommandAliases.TryGetValue(commandParts[0], out var alias))
         {
@@ -175,7 +188,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
         try
         {
-            switch (commandParts[0].ToLowerInvariant())
+            var cmd = commandParts[0].ToLowerInvariant();
+            switch (cmd)
             {
                 case "stop":
                     StopAllCommandListeners();
@@ -189,6 +203,61 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
                 case "list-modules":
                     ListModules();
                     return new ExecutionResult(ExecutionStatusCode.Success);
+                case "run":
+                case "rundomain":
+                    {
+                        var moduleName = commandParts.Skip(1).FirstOrDefault();
+                        if (string.IsNullOrEmpty(moduleName))
+                        {
+                            Console.WriteLine("Missing module name. Usage: `" + cmd + " <moduleName> <taskNames>`");
+                            return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
+                        }
+
+                        var userArguments = new Dictionary<string, string>();
+
+                        var taskNames = commandParts.Skip(2).ToList();
+                        var temp = taskNames.ToArray();
+                        for (var i = 0; i < temp.Length; i++)
+                        {
+                            var taskName = temp[i];
+                            var idx = taskName.IndexOf('=');
+                            if (idx > -1)
+                            {
+                                if (idx < taskName.Length - 1)
+                                {
+                                    taskNames.Remove(taskName);
+                                    userArguments[taskName[..idx]] = taskName[(idx + 1)..];
+                                }
+                                else
+                                {
+                                    taskNames.Remove(taskName);
+                                    if (i < temp.Length - 1)
+                                    {
+                                        userArguments[taskName[..idx]] = temp[i + 1];
+                                        taskNames.Remove(temp[i + 1]);
+                                    }
+                                    else
+                                    {
+                                        userArguments[taskName[..idx]] = null;
+                                    }
+
+                                    i++;
+                                }
+                            }
+                        }
+
+                        if (taskNames.Count == 0)
+                        {
+                            Console.WriteLine("Missing task name(s). Usage: `run <moduleName> <taskNames>`");
+                            return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
+                        }
+
+                        return RunModuleInternal(useAppDomain: cmd == "runad",
+                            commandId, originalCommand, moduleName, taskNames, userArguments, argumentOverrides: null);
+                    }
+                case "test-modules":
+                    var moduleNames = commandParts.Skip(2).ToList();
+                    return TestModulesInternal(moduleNames);
             }
 
             return RunCustomCommand(commandId, originalCommand, commandParts);

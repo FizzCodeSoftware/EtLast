@@ -2,11 +2,11 @@
 
 internal static class ModuleExecuter
 {
-    public static IExecutionResult Execute(CommandService host, string commandId, string originalCommand, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments)
+    public static IExecutionResult Execute(CommandService host, string commandId, string originalCommand, CompiledModule module, string[] taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides)
     {
         var executionResult = new ExecutionResult();
         var instance = Environment.MachineName;
-        var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance, userArguments);
+        var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, instance, userArguments, argumentOverrides);
 
         var moduleDirectoryName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
         var tasksDirectoryName = string.Join('+', taskNames.Select(taskName => string.Join("_", taskName.Split(Path.GetInvalidFileNameChars()))));
