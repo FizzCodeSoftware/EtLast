@@ -2,9 +2,9 @@
 
 namespace FizzCode.EtLast.Tests.Integration;
 
-internal class Default : IDefaultArgumentProvider
+internal class Default : ArgumentProvider
 {
-    public Dictionary<string, object> Arguments => new()
+    public override Dictionary<string, object> CreateArguments(IArgumentCollection all) => new()
     {
         ["TestMessage"] = () => "This is a dynamically compiled host argument file! Host config file on steroids!!!",
     };

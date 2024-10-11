@@ -40,8 +40,8 @@ internal static class ModuleLoader
             var appDomainTasks = FindTypesFromAppDomain<IEtlTask>(moduleName)
                 .Where(x => x.Name != null).ToList();
             var startup = LoadInstancesFromAppDomain<IStartup>(moduleName).FirstOrDefault();
-            var instanceConfigurationProviders = LoadInstancesFromAppDomain<IInstanceArgumentProvider>(moduleName);
-            var defaultConfigurationProviders = LoadInstancesFromAppDomain<IDefaultArgumentProvider>(moduleName);
+            var instanceConfigurationProviders = LoadInstancesFromAppDomain<InstanceArgumentProvider>(moduleName);
+            var defaultConfigurationProviders = LoadInstancesFromAppDomain<ArgumentProvider>(moduleName);
             host.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()
@@ -111,8 +111,8 @@ internal static class ModuleLoader
                 .Where(x => x.Name != null).ToList();
 
             var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
-            var instanceConfigurationProviders = LoadInstancesFromAssembly<IInstanceArgumentProvider>(assembly);
-            var defaultConfigurationProviders = LoadInstancesFromAssembly<IDefaultArgumentProvider>(assembly);
+            var instanceConfigurationProviders = LoadInstancesFromAssembly<InstanceArgumentProvider>(assembly);
+            var defaultConfigurationProviders = LoadInstancesFromAssembly<ArgumentProvider>(assembly);
             host.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
             module = new CompiledModule()

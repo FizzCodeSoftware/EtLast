@@ -19,7 +19,6 @@ public class ContextManifest : IEtlContextListener
     public string CommandId { get; init; }
     public string ContextName { get; init; }
     public string Instance { get; init; }
-    public string OriginalCommand { get; set; }
     public string EtLastVersion { get; init; }
     public string HostVersion { get; init; }
     public int RuntimeMajorVersion { get; init; }

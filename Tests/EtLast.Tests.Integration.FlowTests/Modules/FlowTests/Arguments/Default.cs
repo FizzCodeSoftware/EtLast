@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast.Tests.Integration.Modules.FlowTests;
 
-internal class Default : IDefaultArgumentProvider
+internal class Default : ArgumentProvider
 {
-    public Dictionary<string, object> Arguments => [];
+    public override Dictionary<string, object> CreateArguments(IArgumentCollection all) => [];
 }

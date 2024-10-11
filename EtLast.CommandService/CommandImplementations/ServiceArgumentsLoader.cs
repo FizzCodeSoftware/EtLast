@@ -54,15 +54,14 @@ internal static class ServiceArgumentsLoader
             var assemblyLoadContext = new AssemblyLoadContext(null, isCollectible: true);
             var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
-            var instanceConfigurationProviders = LoadInstancesFromAssembly<IInstanceArgumentProvider>(assembly);
-            var defaultConfigurationProviders = LoadInstancesFromAssembly<IDefaultArgumentProvider>(assembly);
+            var instanceConfigurationProviders = LoadInstancesFromAssembly<InstanceArgumentProvider>(assembly);
+            var defaultConfigurationProviders = LoadInstancesFromAssembly<ArgumentProvider>(assembly);
             commandService.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
             var instanceArgumentProviders = instanceConfigurationProviders;
             var defaultArgumentProviders = defaultConfigurationProviders;
 
-            var instance = Environment.MachineName;
-            var collection = new ArgumentCollection(defaultArgumentProviders, instanceArgumentProviders, instance, null, null);
+            var collection = new ArgumentCollection(defaultArgumentProviders, instanceArgumentProviders, null, null);
 
             assemblyLoadContext.Unload();
 

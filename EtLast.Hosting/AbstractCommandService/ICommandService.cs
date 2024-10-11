@@ -10,6 +10,7 @@ public interface ICommandService
     public CancellationToken CancellationToken { get; }
 
     public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<string> taskNames, Dictionary<string, object> argumentOverrides, Func<IExecutionResult, Task> resultHandler = null);
+    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<IEtlTask> tasks, Dictionary<string, object> argumentOverrides, Func<IExecutionResult, Task> resultHandler = null);
     public IExecutionResult RunCommand(string source, string commandId, string originalCommand, Func<IExecutionResult, Task> resultHandler = null);
     public IExecutionResult RunCommand(string source, string commandId, string originalCommand, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null);
 
