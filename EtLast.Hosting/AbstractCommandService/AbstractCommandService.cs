@@ -152,7 +152,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         return RunCommand(source, commandId, originalCommand, commandParts, resultHandler);
     }
 
-    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<string> taskNames, Dictionary<string, object> argumentOverrides, Func<IExecutionResult, Task> resultHandler = null)
+    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<string> taskNames, Dictionary<string, object> argumentOverrides = null, Func<IExecutionResult, Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
         Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
@@ -163,7 +163,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         return result;
     }
 
-    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<IEtlTask> tasks, Dictionary<string, object> argumentOverrides, Func<IExecutionResult, Task> resultHandler = null)
+    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<IEtlTask> tasks, Dictionary<string, object> argumentOverrides = null, Func<IExecutionResult, Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
         Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
