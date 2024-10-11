@@ -195,7 +195,7 @@ public class CommandService : AbstractCommandService
         var referenceDllFilePaths = new List<string>();
         foreach (var referenceAssemblyDirectory in ReferenceAssemblyDirectories)
         {
-            var directory = Directory.GetDirectories(referenceAssemblyDirectory, "8.*")
+            var directory = Directory.GetDirectories(referenceAssemblyDirectory, "9.*")
                 .OrderByDescending(x => new DirectoryInfo(x).CreationTime)
                 .FirstOrDefault();
 

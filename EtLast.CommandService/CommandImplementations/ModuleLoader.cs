@@ -245,7 +245,7 @@ internal static class ModuleLoader
             .ToList();
     }
 
-    private static void FindIndirectTypesFromAssemblyRecursive(Type interfaceType, AssemblyLoadContext loadContext, AssemblyName assemblyName, HashSet<AssemblyName> alreadyLoaded, List<Type> resultList)
+    /*private static void FindIndirectTypesFromAssemblyRecursive(Type interfaceType, AssemblyLoadContext loadContext, AssemblyName assemblyName, HashSet<AssemblyName> alreadyLoaded, List<Type> resultList)
     {
         if (alreadyLoaded.Contains(assemblyName))
             return;
@@ -262,7 +262,7 @@ internal static class ModuleLoader
         {
             // ignore
         }
-    }
+    }*/
 
     private static List<Type> FindTypesFromAppDomain<T>()
     {

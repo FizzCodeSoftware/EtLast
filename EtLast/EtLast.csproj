@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <PackageId>FizzCode.EtLast</PackageId>
     <Description>EtLast ETL (Extract, Transform and Load) library for .NET</Description>
     <AssemblyName>FizzCode.EtLast</AssemblyName>
