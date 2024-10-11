@@ -8,7 +8,7 @@ internal static class ModuleLoader
 {
     private static long _moduleAutoincrementId;
 
-    public static ExecutionStatusCode LoadModule(CommandService host, string moduleName, bool useAppDomain, out CompiledModule module)
+    public static ExecutionStatusCode LoadModule(CommandService host, string moduleName, bool useAppDomain, bool discoverTasks, out CompiledModule module)
     {
         module = null;
 
@@ -30,9 +30,6 @@ internal static class ModuleLoader
 
         ForceLoadLocalDllsToAppDomain();
 
-        var preCompiledTasks = FindTypesFromAppDomain<IEtlTask>()
-            .Where(x => x.Name != null).ToList();
-
         if (useAppDomain)
         {
             host.Logger.Information("loading module directly from AppDomain where namespace ends with '{Module}'", moduleName);
@@ -52,15 +49,22 @@ internal static class ModuleLoader
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
                 TaskTypes = appDomainTasks,
-                PreCompiledTaskTypes = preCompiledTasks.ToList(),
+                PreCompiledTaskTypes = discoverTasks
+                    ? FindTypesFromAppDomain<IEtlTask>()
+                        .Where(x => x.Name != null)
+                        .ToList()
+                    : [],
                 LoadContext = null,
             };
 
-            host.Logger.Debug("{TaskCount} module tasks found: {Task}",
-                module.TaskTypes.Count, module.TaskTypes.Select(task => task.Name).ToArray());
+            if (discoverTasks)
+            {
+                host.Logger.Debug("{TaskCount} module tasks found: {Task}",
+                    module.TaskTypes.Count, module.TaskTypes.Select(task => task.Name).ToArray());
 
-            host.Logger.Debug("{TaskCount} indirect tasks found: {Task}",
-                module.PreCompiledTaskTypes.Count, module.PreCompiledTaskTypes.Select(task => task.FullName).ToArray());
+                host.Logger.Debug("{TaskCount} indirect tasks found: {Task}",
+                    module.PreCompiledTaskTypes.Count, module.PreCompiledTaskTypes.Select(task => task.FullName).ToArray());
+            }
 
             return ExecutionStatusCode.Success;
         }
@@ -107,9 +111,6 @@ internal static class ModuleLoader
             var assemblyLoadContext = new AssemblyLoadContext(null, isCollectible: true);
             var assembly = assemblyLoadContext.LoadFromStream(assemblyStream);
 
-            var compiledTasks = FindTypesFromAssembly<IEtlTask>(assembly)
-                .Where(x => x.Name != null).ToList();
-
             var compiledStartup = LoadInstancesFromAssembly<IStartup>(assembly).FirstOrDefault();
             var instanceConfigurationProviders = LoadInstancesFromAssembly<InstanceArgumentProvider>(assembly);
             var defaultConfigurationProviders = LoadInstancesFromAssembly<ArgumentProvider>(assembly);
@@ -122,16 +123,25 @@ internal static class ModuleLoader
                 Startup = compiledStartup,
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
-                TaskTypes = compiledTasks,
-                PreCompiledTaskTypes = preCompiledTasks.ToList(),
+                TaskTypes = discoverTasks
+                    ? FindTypesFromAssembly<IEtlTask>(assembly)
+                        .Where(x => x.Name != null).ToList()
+                    : [],
+                PreCompiledTaskTypes = discoverTasks
+                    ? FindTypesFromAppDomain<IEtlTask>()
+                        .Where(x => x.Name != null).ToList()
+                    : null,
                 LoadContext = assemblyLoadContext,
             };
 
-            host.Logger.Debug("{TaskCount} module tasks found: {Task}",
-                module.TaskTypes.Count, module.TaskTypes.Select(task => task.Name).ToArray());
+            if (discoverTasks)
+            {
+                host.Logger.Debug("{TaskCount} module tasks found: {Task}",
+                    module.TaskTypes.Count, module.TaskTypes.Select(task => task.Name).ToArray());
 
-            host.Logger.Debug("{TaskCount} precompiled tasks found: {Task}",
-                module.PreCompiledTaskTypes.Count, module.PreCompiledTaskTypes.Select(task => task.FullName).ToArray());
+                host.Logger.Debug("{TaskCount} precompiled tasks found: {Task}",
+                    module.PreCompiledTaskTypes.Count, module.PreCompiledTaskTypes.Select(task => task.FullName).ToArray());
+            }
 
             return ExecutionStatusCode.Success;
         }

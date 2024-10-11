@@ -3,7 +3,7 @@
 public interface ICommandService
 {
     public string Name { get; }
-    public Serilog.ILogger Logger { get; }
+    public ILogger Logger { get; }
     public Microsoft.Extensions.Logging.ILoggerProvider LoggerProvider { get; }
 
     public void Terminate();
