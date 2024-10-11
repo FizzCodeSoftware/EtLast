@@ -42,7 +42,7 @@ public class ConsoleCommandListener : ICommandListener
 
             if (command != null)
             {
-                commandService.RunCommand("console", Guid.NewGuid().ToString(), command);
+                commandService.RunCommand("console", Guid.CreateVersion7().ToString(), command);
             }
             else
             {

@@ -66,7 +66,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         {
             Logger.Debug("command line arguments: {CommandLineArguments}", commandLineArgs);
 
-            var result = RunCommand("command line arguments", Guid.NewGuid().ToString(), string.Join(' ', commandLineArgs), commandLineArgs).Status;
+            var result = RunCommand("command line arguments", Guid.CreateVersion7().ToString(), string.Join(' ', commandLineArgs), commandLineArgs).Status;
 
             if (Debugger.IsAttached)
             {

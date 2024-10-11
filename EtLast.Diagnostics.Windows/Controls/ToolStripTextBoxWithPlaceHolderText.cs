@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace FizzCode.EtLast.Diagnostics.Windows;
 
@@ -15,6 +16,7 @@ public class ToolStripTextBoxWithPlaceHolderText : ToolStripTextBox
         };
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
     public string PlaceHolderText
     {
         get => _placeHolder;

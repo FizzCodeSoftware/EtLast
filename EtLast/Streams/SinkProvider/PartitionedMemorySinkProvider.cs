@@ -22,7 +22,7 @@ public class PartitionedMemorySinkProvider : IOneSinkProvider, IPartitionedSinkP
 
     public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat, string[] columns)
     {
-        var name = Guid.NewGuid().ToString("N");
+        var name = Guid.CreateVersion7().ToString("N");
 
         try
         {
