@@ -102,8 +102,9 @@ public sealed class ArgumentCollection : IArgumentCollection
                     values[kvp.Key] = kvp.Value;
             }
 
-            if (provider.SecretProvider != null)
-                _secretProviders.Add(provider.SecretProvider);
+            var sp = provider.CreateSecretProvider();
+            if (sp != null)
+                _secretProviders.Add(sp);
         }
 
         if (userArguments != null)
