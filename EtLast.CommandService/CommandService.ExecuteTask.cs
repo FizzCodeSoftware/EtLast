@@ -1,15 +1,15 @@
 ﻿namespace FizzCode.EtLast;
 
-internal static class TaskExecuter
+public partial class CommandService
 {
-    public static IExecutionResult Execute(CommandService host, string commandId, CompiledModule module, List<IEtlTask> tasks, ArgumentCollection arguments)
+    private IExecutionResult ExecuteTask(string commandId, CompiledModule module, List<IEtlTask> tasks, ArgumentCollection arguments)
     {
         var executionResult = new ExecutionResult();
         var moduleDirectoryName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
         var tasksDirectoryName = string.Join('+', tasks.Select(task => string.Join("_", task.GetType().Name.Split(Path.GetInvalidFileNameChars()))));
 
-        var currentDevLogDirectory = Path.Combine(host.DevLogDirectory, moduleDirectoryName, tasksDirectoryName);
-        var currentOpsLogDirectory = Path.Combine(host.OpsLogDirectory, moduleDirectoryName, tasksDirectoryName);
+        var currentDevLogDirectory = Path.Combine(DevLogDirectory, moduleDirectoryName, tasksDirectoryName);
+        var currentOpsLogDirectory = Path.Combine(OpsLogDirectory, moduleDirectoryName, tasksDirectoryName);
 
         var contextName = string.Join('+', tasks.Select(task => string.Join("_", task.GetType().Name.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName, commandId);
@@ -28,7 +28,7 @@ internal static class TaskExecuter
 
         module.Startup?.BuildSession(sessionBuilder, arguments);
 
-        foreach (var configurator in host.SessionConfigurators)
+        foreach (var configurator in SessionConfigurators)
             configurator?.Invoke(sessionBuilder, arguments);
 
         context.Manifest.Extra["ModuleName"] = module.Name;
@@ -39,9 +39,9 @@ internal static class TaskExecuter
 
         try
         {
-            if (host.EtlContextListenerCreators?.Count > 0)
+            if (EtlContextListenerCreators?.Count > 0)
             {
-                foreach (var listenerCreator in host.EtlContextListenerCreators)
+                foreach (var listenerCreator in EtlContextListenerCreators)
                 {
                     if (listenerCreator != null)
                     {

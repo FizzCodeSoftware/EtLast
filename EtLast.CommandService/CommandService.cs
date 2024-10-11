@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class CommandService : AbstractCommandService
+public partial class CommandService : AbstractCommandService
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     public string ServiceLogDirectory { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.UserInteractive ? "log-interactive" : "log", "svc");
@@ -105,7 +105,7 @@ public class CommandService : AbstractCommandService
         {
             Logger.Information("loading module {Module}", moduleName);
 
-            ModuleLoader.LoadModule(this, moduleName, false, out var module);
+            ModuleLoader.LoadModule(this, moduleName, false, true, out var module);
             if (module != null)
             {
                 ModuleLoader.UnloadModule(this, module);
@@ -125,7 +125,7 @@ public class CommandService : AbstractCommandService
     {
         Logger.Information("loading module {Module}", moduleName);
 
-        var loadResult = ModuleLoader.LoadModule(this, moduleName, useAppDomain, out var module);
+        var loadResult = ModuleLoader.LoadModule(this, moduleName, useAppDomain, discoverTasks: true, out var module);
         if (loadResult != ExecutionStatusCode.Success)
             return new ExecutionResult(loadResult);
 
@@ -149,7 +149,7 @@ public class CommandService : AbstractCommandService
         try
         {
             var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
-            var executionResult = TaskExecuter.Execute(this, commandId, module, tasks, arguments);
+            var executionResult = ExecuteTask(commandId, module, tasks, arguments);
             return executionResult;
         }
         finally
@@ -162,14 +162,14 @@ public class CommandService : AbstractCommandService
     {
         Logger.Information("loading module {Module}", moduleName);
 
-        var loadResult = ModuleLoader.LoadModule(this, moduleName, useAppDomain, out var module);
+        var loadResult = ModuleLoader.LoadModule(this, moduleName, useAppDomain, discoverTasks: false, out var module);
         if (loadResult != ExecutionStatusCode.Success)
             return new ExecutionResult(loadResult);
 
         try
         {
             var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
-            var executionResult = TaskExecuter.Execute(this, commandId, module, tasks, arguments);
+            var executionResult = ExecuteTask(commandId, module, tasks, arguments);
             return executionResult;
         }
         finally
