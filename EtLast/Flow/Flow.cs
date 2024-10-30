@@ -273,6 +273,23 @@ public sealed class Flow : IFlow
         return this;
     }
 
+    public IFlow HandleError<T>(string name, Action action)
+        where T : IProcess
+    {
+        if (_flowState.IsTerminating && _flowState.Exceptions.Count > 0)
+        {
+            var process = new CustomJob()
+            {
+                Name = name,
+                Action = _ => action?.Invoke(),
+            };
+
+            process?.Execute(_caller, new FlowState(Context));
+        }
+
+        return this;
+    }
+
     public IFlow ThrowOnError()
     {
         if (!_flowState.IsTerminating)
