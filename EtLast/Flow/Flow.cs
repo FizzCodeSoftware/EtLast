@@ -158,12 +158,15 @@ public sealed class Flow : IFlow
         if (_flowState.IsTerminating)
             return this;
 
-        foreach (var element in elements)
+        if (elements != null)
         {
-            action.Invoke(element);
+            foreach (var element in elements)
+            {
+                action.Invoke(element);
 
-            if (_flowState.IsTerminating)
-                break;
+                if (_flowState.IsTerminating)
+                    break;
+            }
         }
 
         return this;
@@ -174,14 +177,17 @@ public sealed class Flow : IFlow
         if (_flowState.IsTerminating)
             return this;
 
-        foreach (var element in elements)
+        if (elements != null)
         {
-            var ok = action.Invoke(element);
-            if (!ok)
-                break;
+            foreach (var element in elements)
+            {
+                var ok = action.Invoke(element);
+                if (!ok)
+                    break;
 
-            if (_flowState.IsTerminating)
-                break;
+                if (_flowState.IsTerminating)
+                    break;
+            }
         }
 
         return this;
@@ -192,12 +198,15 @@ public sealed class Flow : IFlow
         if (_flowState.IsTerminating)
             return this;
 
-        foreach (var element in elements)
+        if (elements != null)
         {
-            action.Invoke(element, new Flow(Context, _caller, new FlowState(Context)));
+            foreach (var element in elements)
+            {
+                action.Invoke(element, new Flow(Context, _caller, new FlowState(Context)));
 
-            if (_flowState.IsTerminating)
-                break;
+                if (_flowState.IsTerminating)
+                    break;
+            }
         }
 
         return this;
@@ -208,14 +217,17 @@ public sealed class Flow : IFlow
         if (_flowState.IsTerminating)
             return this;
 
-        foreach (var element in elements)
+        if (elements != null)
         {
-            var ok = action.Invoke(element, new Flow(Context, _caller, new FlowState(Context)));
-            if (!ok)
-                break;
+            foreach (var element in elements)
+            {
+                var ok = action.Invoke(element, new Flow(Context, _caller, new FlowState(Context)));
+                if (!ok)
+                    break;
 
-            if (_flowState.IsTerminating)
-                break;
+                if (_flowState.IsTerminating)
+                    break;
+            }
         }
 
         return this;
