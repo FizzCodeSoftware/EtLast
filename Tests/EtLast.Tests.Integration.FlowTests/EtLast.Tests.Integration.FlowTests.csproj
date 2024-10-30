@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="MSTest.TestFramework" Version="3.6.1" />
-    <PackageReference Include="Roslynator.Analyzers" Version="4.12.8">
+    <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
