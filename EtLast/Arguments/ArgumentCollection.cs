@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Reflection;
+
+namespace FizzCode.EtLast;
 
 public sealed class ArgumentCollection : IArgumentCollection
 {
@@ -185,5 +187,129 @@ public sealed class ArgumentCollection : IArgumentCollection
         }
 
         _values = values;
+    }
+
+    public void Inject(object target, string scopeName, HashSet<string> excludedPropertyNames = null, bool overwriteArguments = false)
+    {
+        var properties = target.GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
+            .Where(p => p.SetMethod?.IsPrivate == false && (excludedPropertyNames?.Contains(p.Name) != true) && p.GetIndexParameters().Length == 0)
+            .ToList();
+
+        foreach (var property in properties)
+        {
+            var argumentKey = AllKeys
+                .FirstOrDefault(x => string.Equals(x, property.Name, StringComparison.InvariantCultureIgnoreCase)
+                                  || string.Equals(x, "!" + property.Name, StringComparison.InvariantCultureIgnoreCase));
+
+            if (scopeName != null)
+            {
+                argumentKey ??= AllKeys
+                    .FirstOrDefault(x => string.Equals(x, scopeName + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase)
+                                      || string.Equals(x, "!" + scopeName + ":" + property.Name, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            if (argumentKey == null || !HasKey(argumentKey))
+                continue;
+
+            var overwrite = overwriteArguments || argumentKey.StartsWith('!');
+
+            if (!overwrite)
+            {
+                var existingValue = property.GetValue(target);
+                if (existingValue != null)
+                {
+                    if (existingValue.GetType().IsValueType)
+                    {
+                        var defaultValue = Activator.CreateInstance(existingValue.GetType());
+                        if (!existingValue.Equals(defaultValue))
+                            continue;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            try
+            {
+                var argumentValue = Get(argumentKey);
+                if (argumentValue != null)
+                {
+                    var argumentType = argumentValue.GetType();
+                    if (property.PropertyType.IsAssignableFrom(argumentType))
+                    {
+                        property.SetValue(target, argumentValue);
+                    }
+                    else
+                    {
+                        object convertedArgumentValue = null;
+                        if (argumentValue is string argumentValueAsString)
+                        {
+                            argumentValueAsString = argumentValueAsString.Trim();
+
+                            if (property.PropertyType == typeof(int))
+                            {
+                                if (int.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                    convertedArgumentValue = v;
+                            }
+                            else if (property.PropertyType == typeof(uint))
+                            {
+                                if (uint.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                    convertedArgumentValue = v;
+                            }
+                            if (property.PropertyType == typeof(short))
+                            {
+                                if (short.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                    convertedArgumentValue = v;
+                            }
+                            else if (property.PropertyType == typeof(ushort))
+                            {
+                                if (ushort.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                    convertedArgumentValue = v;
+                            }
+                            else if (property.PropertyType == typeof(long))
+                            {
+                                if (long.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                    convertedArgumentValue = v;
+                            }
+                            else if (property.PropertyType == typeof(ulong))
+                            {
+                                if (ulong.TryParse(argumentValueAsString, CultureInfo.InvariantCulture, out var v))
+                                    convertedArgumentValue = v;
+                            }
+                            else if (property.PropertyType == typeof(bool))
+                            {
+                                convertedArgumentValue =
+                                       argumentValueAsString.Equals("true", StringComparison.InvariantCultureIgnoreCase)
+                                    || argumentValueAsString == "1"
+                                    || argumentValueAsString == "yes"
+                                    || argumentValueAsString == "on"
+                                    || argumentValueAsString == "enabled"
+                                    || argumentValueAsString == "allowed"
+                                    || argumentValueAsString == "active";
+                            }
+                        }
+
+                        if (convertedArgumentValue != null)
+                        {
+                            property.SetValue(target, convertedArgumentValue);
+                        }
+                        else
+                        {
+                            var exception = new Exception("property '" + property.Name + "' (" + property.PropertyType.GetFriendlyTypeName() + ") is not assignable to argument value type " + argumentType.GetFriendlyTypeName());
+                            exception.Data["argument"] = argumentKey;
+                            throw exception;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var exception = new Exception("can't resolve arguments for type " + target.GetType().GetFriendlyTypeName(), ex);
+                exception.Data["argument"] = argumentKey;
+                throw exception;
+            }
+        }
     }
 }

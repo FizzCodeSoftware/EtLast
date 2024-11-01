@@ -8,6 +8,8 @@ public interface ICommandService
     public ILogger Logger { get; }
     public Microsoft.Extensions.Logging.ILoggerProvider LoggerProvider { get; }
 
+    public IArgumentCollection ServiceArguments { get; }
+
     public void Terminate();
     public CancellationToken CancellationToken { get; }
 
