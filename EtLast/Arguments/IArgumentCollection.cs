@@ -2,10 +2,11 @@
 
 public interface IArgumentCollection
 {
-    IEnumerable<string> AllKeys { get; }
-    T GetAs<T>(string key, T defaultValue = default);
-    object Get(string key, object defaultValue = default);
-    bool HasKey(string key);
+    public IEnumerable<string> AllKeys { get; }
+    public T GetAs<T>(string key, T defaultValue = default);
+    public object Get(string key, object defaultValue = default);
+    public bool HasKey(string key);
 
-    string GetSecret(string name);
+    public string GetSecret(string name);
+    public void Inject(object target, string scopeName, HashSet<string> excludedPropertyNames = null, bool overwriteArguments = false);
 }

@@ -10,6 +10,18 @@ public static class AbstractCommandServiceFluent
         return commandService;
     }
 
+    public static T AddCommandListener<T>(this T commandService, Type listenerType)
+    where T : AbstractCommandService
+    {
+        commandService.CommandListenerCreators.Add((service, arguments) =>
+        {
+            var listener = (ICommandListener)Activator.CreateInstance(listenerType);
+            arguments.Inject(listener, null);
+            return listener;
+        });
+        return commandService;
+    }
+
     public static T RegisterEtlContextListener<T>(this T commandService, Func<IEtlContext, IEtlContextListener> listenerCreator)
         where T : AbstractCommandService
     {

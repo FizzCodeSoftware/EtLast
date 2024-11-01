@@ -21,10 +21,12 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
     public override void Execute(ICaller caller, FlowState flowState = null)
     {
-        if (FlowState.IsTerminating)
-            return;
-
         BeginExecution(caller, flowState);
+        if (FlowState.IsTerminating)
+        {
+            Context.RegisterProcessEnd(this, 0);
+            return;
+        }
 
         var netTimeStopwatch = Stopwatch.StartNew();
         _statistics.Start();

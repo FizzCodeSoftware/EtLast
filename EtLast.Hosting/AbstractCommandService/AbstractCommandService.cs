@@ -61,7 +61,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
     private readonly ConcurrentDictionary<int, ICommandListener> commandListeners = [];
 
-    protected ArgumentCollection ServiceArguments = null;
+    public IArgumentCollection ServiceArguments => _serviceArguments;
+    protected ArgumentCollection _serviceArguments;
 
     private void StartCommandListeners()
     {
@@ -87,8 +88,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
         try
         {
-            ServiceArguments = LoadServiceArguments();
-            if (ServiceArguments == null)
+            _serviceArguments = LoadServiceArguments();
+            if (_serviceArguments == null)
             {
                 Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling service arguments");
                 return;
@@ -171,7 +172,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         Interlocked.Increment(ref _activeCommandCounter);
         Logger.Information("command {CommandId} started by {CommandSource}", commandId, source);
 
-        var arguments = new ArgumentCollection(ServiceArguments, overrides: argumentOverrides);
+        var arguments = new ArgumentCollection(_serviceArguments, overrides: argumentOverrides);
         var result = RunTasks(commandId, moduleName: "-", buildSession, tasks, arguments);
         resultHandler?.Invoke(result)?.Wait();
         Interlocked.Decrement(ref _activeCommandCounter);
