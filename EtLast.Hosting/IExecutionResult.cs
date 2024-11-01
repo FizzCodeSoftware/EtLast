@@ -14,7 +14,7 @@ public class TaskExecutionResult(IEtlTask task)
     public string TaskKind { get; } = task.Kind;
     public string TaskTopic { get; } = task.GetTopic();
     public IExecutionStatistics Statistics { get; } = task.Statistics;
-    public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; } = task.IoCommandCounters;
+    public IReadOnlyList<IIoCommandCounter> IoCommandCounters { get; } = task.IoCommandCounters.ToList();
     public bool Failed { get; } = task.FlowState.Failed;
     public List<Exception> Exceptions { get; } = [.. task.FlowState.Exceptions];
 }

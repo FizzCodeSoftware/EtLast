@@ -5,9 +5,12 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
     private readonly ExecutionStatistics _statistics = new();
     public IExecutionStatistics Statistics => _statistics;
 
-    public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> IoCommandCounters => _ioCommandCounterCollection.Counters;
+    public IEnumerable<IIoCommandCounter> IoCommandCounters => _ioCommandListener.Counters;
 
-    private readonly IoCommandKindCounter _ioCommandCounterCollection = new();
+    private readonly IoCommandListener _ioCommandListener = new();
+
+    public Action<IFlow> ExecuteBefore { get; init; }
+    public Action<IFlow> ExecuteAfter { get; init; }
 
     public abstract void Execute(IFlow flow);
 
@@ -18,9 +21,10 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
     public override void Execute(ICaller caller, FlowState flowState = null)
     {
-        BeginExecution(caller, flowState);
         if (FlowState.IsTerminating)
             return;
+
+        BeginExecution(caller, flowState);
 
         var netTimeStopwatch = Stopwatch.StartNew();
         _statistics.Start();
@@ -37,11 +41,15 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
 
         if (!FlowState.IsTerminating)
         {
-            Context.Listeners.Add(_ioCommandCounterCollection);
+            Context.Listeners.Add(_ioCommandListener);
             try
             {
                 var flow = new Flow(Context, this, FlowState);
+                ExecuteBefore?.Invoke(flow);
+
                 Execute(flow);
+
+                ExecuteAfter?.Invoke(flow);
             }
             catch (Exception ex)
             {
@@ -49,7 +57,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
             }
             finally
             {
-                Context.Listeners.Remove(_ioCommandCounterCollection);
+                Context.Listeners.Remove(_ioCommandListener);
             }
 
             _statistics.Finish();
@@ -63,6 +71,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
         }
         else
         {
+            _statistics.Finish();
             netTimeStopwatch.Stop();
             Context.RegisterProcessEnd(this, netTimeStopwatch.ElapsedMilliseconds);
         }

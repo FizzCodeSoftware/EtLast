@@ -3,7 +3,10 @@
 public interface IEtlTask : IProcess
 {
     public IExecutionStatistics Statistics { get; }
-    public IReadOnlyDictionary<IoCommandKind, IoCommandCounter> IoCommandCounters { get; }
+    public IEnumerable<IIoCommandCounter> IoCommandCounters { get; }
+
+    public Action<IFlow> ExecuteBefore { get; init; }
+    public Action<IFlow> ExecuteAfter { get; init; }
 
     public void ValidateParameters();
 }
