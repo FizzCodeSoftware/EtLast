@@ -10,14 +10,6 @@ internal class EtlContextDevToFileLogger : IEtlContextListener
     {
         _directory = directory;
         var config = new LoggerConfiguration()
-            .WriteTo.File(new Serilog.Formatting.Compact.CompactJsonFormatter(), Path.Combine(directory, "events-.json"),
-                restrictedToMinimumLevel: (LogEventLevel)minimumLogLevel,
-                buffered: true,
-                flushToDiskInterval: TimeSpan.FromSeconds(1),
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: infoFileCount,
-                encoding: Encoding.UTF8)
-
             .WriteTo.File(Path.Combine(directory, "2-info-.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Information,
                 outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",

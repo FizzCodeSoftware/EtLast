@@ -2,14 +2,24 @@
 
 public partial class CommandService
 {
-    private IExecutionResult ExecuteTask(string commandId, CompiledModule module, List<IEtlTask> tasks, ArgumentCollection arguments)
+    protected override IExecutionResult RunTasks(string commandId, string moduleName, StartupDelegate startup, List<IEtlTask> tasks, ArgumentCollection arguments)
     {
         var executionResult = new ExecutionResult();
-        var moduleDirectoryName = string.Join("_", module.Name.Split(Path.GetInvalidFileNameChars()));
         var tasksDirectoryName = string.Join('+', tasks.Select(task => string.Join("_", task.GetType().Name.Split(Path.GetInvalidFileNameChars()))));
 
-        var currentDevLogDirectory = Path.Combine(DevLogDirectory, moduleDirectoryName, tasksDirectoryName);
-        var currentOpsLogDirectory = Path.Combine(OpsLogDirectory, moduleDirectoryName, tasksDirectoryName);
+        string currentDevLogDirectory;
+        string currentOpsLogDirectory;
+        if (moduleName != null)
+        {
+            var moduleDirectoryName = string.Join("_", moduleName.Split(Path.GetInvalidFileNameChars()));
+            currentDevLogDirectory = Path.Combine(DevLogDirectory, moduleDirectoryName, tasksDirectoryName);
+            currentOpsLogDirectory = Path.Combine(OpsLogDirectory, moduleDirectoryName, tasksDirectoryName);
+        }
+        else
+        {
+            currentDevLogDirectory = Path.Combine(DevLogDirectory, tasksDirectoryName);
+            currentOpsLogDirectory = Path.Combine(OpsLogDirectory, tasksDirectoryName);
+        }
 
         var contextName = string.Join('+', tasks.Select(task => string.Join("_", task.GetType().Name.Split(Path.GetInvalidFileNameChars()))));
         var context = new EtlContext(arguments, contextName, commandId);
@@ -19,20 +29,21 @@ public partial class CommandService
         var sessionBuilder = new SessionBuilder()
         {
             Context = context,
-            ModuleDirectoryName = moduleDirectoryName,
             TasksDirectoryName = tasksDirectoryName,
             DevLogDirectory = currentDevLogDirectory,
             OpsLogDirectory = currentOpsLogDirectory,
-            TaskNames = tasks.Select(x => x.GetType().Name).ToArray(),
+            Tasks = tasks.ToArray(),
         };
 
-        module.Startup?.BuildSession(sessionBuilder, arguments);
+        startup?.Invoke(sessionBuilder, arguments);
 
         foreach (var configurator in SessionConfigurators)
             configurator?.Invoke(sessionBuilder, arguments);
 
-        context.Manifest.Extra["ModuleName"] = module.Name;
-        context.Manifest.Extra["TaskNames"] = tasks.Select(x => x.GetType().Name).ToArray();
+        if (moduleName != null)
+            context.Manifest.Extra["ModuleName"] = moduleName;
+
+        context.Manifest.Extra["TaskNames"] = tasks.Select(x => x.GetType().GetFriendlyTypeName()).ToArray();
 
         foreach (var manifestProcessor in sessionBuilder.ManifestProcessors)
             manifestProcessor?.RegisterToManifestEvents(context, context.Manifest);
@@ -58,9 +69,6 @@ public partial class CommandService
             context.Log(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
             context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
         }
-
-        if (module.Startup == null)
-            context.Log(LogSeverity.Warning, null, "Can't find a startup class implementing {StartupClassName}", nameof(IStartup));
 
         context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Manifest.ContextName, context.Manifest.ContextId);
 
@@ -109,7 +117,7 @@ public partial class CommandService
                 context.Log(LogSeverity.Information, null, "-------------");
                 context.Log(LogSeverity.Information, null, "SCOPE ACTIONS");
                 context.Log(LogSeverity.Information, null, "-------------");
-                var topics = scopeActions.Select(x => x.Topic).Distinct().ToArray().OrderBy(x => x);
+                var topics = scopeActions.Select(x => x.Topic).Distinct().ToArray().Order();
                 var sb = new StringBuilder();
                 var args = new List<object>();
                 foreach (var topic in topics)

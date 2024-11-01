@@ -45,10 +45,11 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     }
 
     protected abstract ILogger CreateServiceLogger();
-    protected abstract IArgumentCollection LoadServiceArguments();
+    protected abstract ArgumentCollection LoadServiceArguments();
     protected abstract IExecutionResult RunCustomCommand(string commandId, string originalCommand, string[] commandParts);
-    protected abstract IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides);
-    protected abstract IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<IEtlTask> tasks, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides);
+    protected abstract IExecutionResult RunTasksInModuleByNameInternal(bool useAppDomain, string commandId, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides);
+    protected abstract IExecutionResult RunTasksInModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<IEtlTask> tasks, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides);
+    protected abstract IExecutionResult RunTasks(string commandId, string moduleName, StartupDelegate buildSession, List<IEtlTask> tasks, ArgumentCollection arguments);
     protected abstract IExecutionResult TestModulesInternal(List<string> moduleNames);
 
     protected abstract void ListCommands();
@@ -59,6 +60,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     protected CancellationTokenSource CommandListenerTerminationTokenSource { get; } = new CancellationTokenSource();
 
     private readonly ConcurrentDictionary<int, ICommandListener> commandListeners = [];
+
+    protected ArgumentCollection ServiceArguments = null;
 
     private void StartCommandListeners()
     {
@@ -82,11 +85,10 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         ListCommands();
         ListModules();
 
-        IArgumentCollection serviceArguments = null;
         try
         {
-            serviceArguments = LoadServiceArguments();
-            if (serviceArguments == null)
+            ServiceArguments = LoadServiceArguments();
+            if (ServiceArguments == null)
             {
                 Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling service arguments");
                 return;
@@ -102,7 +104,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
         foreach (var creator in CommandListenerCreators)
         {
-            var listener = creator.Invoke(this, serviceArguments);
+            var listener = creator.Invoke(this, ServiceArguments);
             if (listener == null)
                 continue;
 
@@ -142,51 +144,56 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         }
     }
 
-    public IExecutionResult RunCommand(string source, string commandId, string originalCommand, Func<IExecutionResult, Task> resultHandler = null)
+    public IExecutionResult RunTasksInModuleByName(bool useAppDomain, string source, string commandId, string moduleName, List<string> taskNames, Dictionary<string, object> argumentOverrides = null, Func<IExecutionResult, Task> resultHandler = null)
+    {
+        Interlocked.Increment(ref _activeCommandCounter);
+        Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
+        var result = RunTasksInModuleByNameInternal(useAppDomain, commandId, moduleName, taskNames, userArguments: null, argumentOverrides);
+        resultHandler?.Invoke(result)?.Wait();
+        Interlocked.Decrement(ref _activeCommandCounter);
+        Logger.Information("module execution command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
+        return result;
+    }
+
+    public IExecutionResult RunTasksInModule(bool useAppDomain, string source, string commandId, string moduleName, List<IEtlTask> tasks, Dictionary<string, object> argumentOverrides = null, Func<IExecutionResult, Task> resultHandler = null)
+    {
+        Interlocked.Increment(ref _activeCommandCounter);
+        Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
+        var result = RunTasksInModuleInternal(useAppDomain, commandId, null, moduleName, tasks, userArguments: null, argumentOverrides);
+        resultHandler?.Invoke(result)?.Wait();
+        Interlocked.Decrement(ref _activeCommandCounter);
+        Logger.Information("module execution command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
+        return result;
+    }
+
+    public IExecutionResult RunTasks(string source, string commandId, StartupDelegate buildSession, List<IEtlTask> tasks, Dictionary<string, object> argumentOverrides = null, Func<IExecutionResult, Task> resultHandler = null)
+    {
+        Interlocked.Increment(ref _activeCommandCounter);
+        Logger.Information("command {CommandId} started by {CommandSource}", commandId, source);
+
+        var arguments = new ArgumentCollection(ServiceArguments, overrides: argumentOverrides);
+        var result = RunTasks(commandId, moduleName: "-", buildSession, tasks, arguments);
+        resultHandler?.Invoke(result)?.Wait();
+        Interlocked.Decrement(ref _activeCommandCounter);
+        Logger.Information("command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
+        return result;
+    }
+
+    public IExecutionResult RunCommand(string source, string commandId, string command, Func<IExecutionResult, Task> resultHandler = null)
     {
         var commandParts = QuoteSplitterRegex
-            .Matches(originalCommand.Trim())
+            .Matches(command.Trim())
             .Select(x => x.Value)
             .ToArray();
 
-        return RunCommand(source, commandId, originalCommand, commandParts, resultHandler);
-    }
-
-    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<string> taskNames, Dictionary<string, object> argumentOverrides = null, Func<IExecutionResult, Task> resultHandler = null)
-    {
-        Interlocked.Increment(ref _activeCommandCounter);
-        Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
-        var result = RunModuleInternal(useAppDomain, source, commandId, moduleName, taskNames, userArguments: null, argumentOverrides);
-        resultHandler?.Invoke(result)?.Wait();
-        Interlocked.Decrement(ref _activeCommandCounter);
-        Logger.Information("module execution command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
-        return result;
-    }
-
-    public IExecutionResult RunModule(bool useAppDomain, string source, string commandId, string moduleName, List<IEtlTask> tasks, Dictionary<string, object> argumentOverrides = null, Func<IExecutionResult, Task> resultHandler = null)
-    {
-        Interlocked.Increment(ref _activeCommandCounter);
-        Logger.Information("module execution command {CommandId} started by {CommandSource}", commandId, source);
-        var result = RunModuleInternal(useAppDomain, source, commandId, moduleName, tasks, userArguments: null, argumentOverrides);
-        resultHandler?.Invoke(result)?.Wait();
-        Interlocked.Decrement(ref _activeCommandCounter);
-        Logger.Information("module execution command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
-        return result;
+        return RunCommand(source, commandId, command, commandParts, resultHandler);
     }
 
     public IExecutionResult RunCommand(string source, string commandId, string originalCommand, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null)
     {
         Interlocked.Increment(ref _activeCommandCounter);
         Logger.Information("generic command {CommandId} started by {CommandSource}: {Command}", commandId, source, string.Join(' ', commandParts));
-        var result = RunCommandImpl(commandId, originalCommand, commandParts);
-        resultHandler?.Invoke(result)?.Wait();
-        Interlocked.Decrement(ref _activeCommandCounter);
-        Logger.Information("generic command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
-        return result;
-    }
 
-    private IExecutionResult RunCommandImpl(string commandId, string originalCommand, string[] commandParts)
-    {
         if (commandParts?.Length >= 1 && CommandAliases.TryGetValue(commandParts[0], out var alias))
         {
             commandParts = QuoteSplitterRegex
@@ -198,6 +205,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
             originalCommand = string.Join(' ', commandParts);
         }
 
+        IExecutionResult result = null;
         try
         {
             var cmd = commandParts[0].ToLowerInvariant();
@@ -205,16 +213,20 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
             {
                 case "stop":
                     StopAllCommandListeners();
-                    return new ExecutionResult(ExecutionStatusCode.Success);
+                    result = new ExecutionResult(ExecutionStatusCode.Success);
+                    break;
                 case "exit":
                     Terminate();
-                    return new ExecutionResult(ExecutionStatusCode.Success);
+                    result = new ExecutionResult(ExecutionStatusCode.Success);
+                    break;
                 case "help":
                     ListCommands();
-                    return new ExecutionResult(ExecutionStatusCode.Success);
+                    result = new ExecutionResult(ExecutionStatusCode.Success);
+                    break;
                 case "list-modules":
                     ListModules();
-                    return new ExecutionResult(ExecutionStatusCode.Success);
+                    result = new ExecutionResult(ExecutionStatusCode.Success);
+                    break;
                 case "run":
                 case "rundomain":
                     {
@@ -261,26 +273,36 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
                         if (taskNames.Count == 0)
                         {
                             Console.WriteLine("Missing task name(s). Usage: `run <moduleName> <taskNames>`");
-                            return new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
+                            result = new ExecutionResult(ExecutionStatusCode.CommandArgumentError);
                         }
-
-                        return RunModuleInternal(useAppDomain: cmd == "runad",
-                            commandId, originalCommand, moduleName, taskNames, userArguments, argumentOverrides: null);
+                        else
+                        {
+                            result = RunTasksInModuleByNameInternal(useAppDomain: cmd == "runad",
+                                commandId, moduleName, taskNames, userArguments, argumentOverrides: null);
+                        }
+                        break;
                     }
                 case "test-modules":
                     var moduleNames = commandParts.Skip(2).ToList();
-                    return TestModulesInternal(moduleNames);
+                    result = TestModulesInternal(moduleNames);
+                    break;
+                default:
+                    result = RunCustomCommand(commandId, originalCommand, commandParts);
+                    break;
             }
-
-            return RunCustomCommand(commandId, originalCommand, commandParts);
         }
         catch (Exception ex)
         {
             var formattedMessage = ex.FormatExceptionWithDetails();
             Logger.Write(LogEventLevel.Fatal, "unexpected error during execution of command {CommandId}: {ErrorMessage}", commandId, formattedMessage);
 
-            return new ExecutionResult(ExecutionStatusCode.UnexpectedError);
+            result = new ExecutionResult(ExecutionStatusCode.UnexpectedError);
         }
+
+        resultHandler?.Invoke(result)?.Wait();
+        Interlocked.Decrement(ref _activeCommandCounter);
+        Logger.Information("generic command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
+        return result;
     }
 
     private void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
