@@ -3,8 +3,7 @@
 public class SessionBuilder : ISessionBuilder
 {
     public required IEtlContext Context { get; init; }
-    public required string[] TaskNames { get; init; }
-    public required string ModuleDirectoryName { get; init; }
+    public required IEtlTask[] Tasks { get; init; }
     public required string TasksDirectoryName { get; init; }
     public required string DevLogDirectory { get; init; }
     public required string OpsLogDirectory { get; init; }

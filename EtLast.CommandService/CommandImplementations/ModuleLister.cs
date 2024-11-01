@@ -15,7 +15,7 @@ internal static class ModuleLister
              {
                  var moduleConfigFileName = Path.Combine(dir, "Startup.cs");
                  return File.Exists(moduleConfigFileName);
-             }).OrderBy(x => x)
+             }).Order()
             .ToList();
 
         return moduleDirectories.ConvertAll(Path.GetFileName);

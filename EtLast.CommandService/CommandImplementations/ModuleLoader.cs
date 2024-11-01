@@ -41,11 +41,14 @@ internal static class ModuleLoader
             var defaultConfigurationProviders = LoadInstancesFromAppDomain<ArgumentProvider>(moduleName);
             host.Logger.Debug("finished in {Elapsed}", startedOn.Elapsed);
 
+            if (startup == null)
+                host.Logger.Warning("Can't find a startup class implementing {StartupName}", nameof(IStartup));
+
             module = new CompiledModule()
             {
                 Name = moduleName,
                 Directory = moduleDirectory,
-                Startup = startup,
+                Startup = startup != null ? startup.BuildSession : null,
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
                 TaskTypes = appDomainTasks,
@@ -116,11 +119,14 @@ internal static class ModuleLoader
             var defaultConfigurationProviders = LoadInstancesFromAssembly<ArgumentProvider>(assembly);
             host.Logger.Debug("compilation finished in {Elapsed}", startedOn.Elapsed);
 
+            if (compiledStartup == null)
+                host.Logger.Warning("Can't find a startup class implementing {StartupName}", nameof(IStartup));
+
             module = new CompiledModule()
             {
                 Name = moduleName,
                 Directory = moduleDirectory,
-                Startup = compiledStartup,
+                Startup = compiledStartup != null ? compiledStartup.BuildSession : null,
                 InstanceArgumentProviders = instanceConfigurationProviders,
                 DefaultArgumentProviders = defaultConfigurationProviders,
                 TaskTypes = discoverTasks

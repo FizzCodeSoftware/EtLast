@@ -6,7 +6,7 @@ namespace FizzCode.EtLast;
 
 internal static class ServiceArgumentsLoader
 {
-    public static IArgumentCollection LoadServiceArguments(CommandService commandService)
+    public static ArgumentCollection LoadServiceArguments(CommandService commandService)
     {
         var argumentsDirectory = commandService.ServiceArgumentsDirectory;
         if (!Directory.Exists(argumentsDirectory))

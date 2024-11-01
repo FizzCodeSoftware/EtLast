@@ -26,7 +26,7 @@ public static class SessionBuilderFluent
         if (maxFileCount != null)
         {
             var files = Directory.GetFiles(directory)
-                .OrderBy(x => x)
+                .Order()
                 .ToArray();
 
             if (files.Length >= maxFileCount.Value)

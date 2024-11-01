@@ -125,4 +125,65 @@ public sealed class ArgumentCollection : IArgumentCollection
 
         _values = values;
     }
+
+    public ArgumentCollection(ArgumentCollection baseArgumentCollection, List<ArgumentProvider> defaultProviders, List<InstanceArgumentProvider> instanceProviders, Dictionary<string, string> userArguments, Dictionary<string, object> overrides)
+    {
+        var values = new Dictionary<string, object>(baseArgumentCollection._values, StringComparer.InvariantCultureIgnoreCase);
+        foreach (var provider in defaultProviders)
+        {
+            var args = provider.CreateArguments(this);
+            if (args != null)
+            {
+                foreach (var kvp in args)
+                    values[kvp.Key] = kvp.Value;
+            }
+        }
+
+        foreach (var provider in instanceProviders.Where(x => string.Equals(x.Instance, Environment.MachineName, StringComparison.InvariantCultureIgnoreCase)))
+        {
+            var args = provider.CreateArguments(this);
+            if (args != null)
+            {
+                foreach (var kvp in args)
+                    values[kvp.Key] = kvp.Value;
+            }
+
+            var sp = provider.CreateSecretProvider();
+            if (sp != null)
+                _secretProviders.Add(sp);
+        }
+
+        if (userArguments != null)
+        {
+            foreach (var kvp in userArguments)
+            {
+                values[kvp.Key] = kvp.Value;
+            }
+        }
+
+        if (overrides != null)
+        {
+            foreach (var kvp in overrides)
+            {
+                values[kvp.Key] = kvp.Value;
+            }
+        }
+
+        _values = values;
+    }
+
+    public ArgumentCollection(ArgumentCollection baseArgumentCollection, Dictionary<string, object> overrides)
+    {
+        var values = new Dictionary<string, object>(baseArgumentCollection._values, StringComparer.InvariantCultureIgnoreCase);
+
+        if (overrides != null)
+        {
+            foreach (var kvp in overrides)
+            {
+                values[kvp.Key] = kvp.Value;
+            }
+        }
+
+        _values = values;
+    }
 }

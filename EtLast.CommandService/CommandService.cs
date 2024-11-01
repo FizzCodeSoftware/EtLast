@@ -90,7 +90,7 @@ public partial class CommandService : AbstractCommandService
         ModuleLister.ListModules(this);
     }
 
-    protected override IArgumentCollection LoadServiceArguments()
+    protected override ArgumentCollection LoadServiceArguments()
     {
         return ServiceArgumentsLoader.LoadServiceArguments(this);
     }
@@ -121,7 +121,7 @@ public partial class CommandService : AbstractCommandService
         return result;
     }
 
-    protected override IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides)
+    protected override IExecutionResult RunTasksInModuleByNameInternal(bool useAppDomain, string commandId, string moduleName, List<string> taskNames, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides)
     {
         Logger.Information("loading module {Module}", moduleName);
 
@@ -148,9 +148,9 @@ public partial class CommandService : AbstractCommandService
 
         try
         {
-            var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
-            var executionResult = ExecuteTask(commandId, module, tasks, arguments);
-            return executionResult;
+            var arguments = new ArgumentCollection(ServiceArguments, module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
+            var result = RunTasks(commandId, module.Name, module.Startup, tasks, arguments);
+            return result;
         }
         finally
         {
@@ -158,7 +158,7 @@ public partial class CommandService : AbstractCommandService
         }
     }
 
-    protected override IExecutionResult RunModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<IEtlTask> tasks, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides)
+    protected override IExecutionResult RunTasksInModuleInternal(bool useAppDomain, string commandId, string originalCommand, string moduleName, List<IEtlTask> tasks, Dictionary<string, string> userArguments, Dictionary<string, object> argumentOverrides)
     {
         Logger.Information("loading module {Module}", moduleName);
 
@@ -168,9 +168,9 @@ public partial class CommandService : AbstractCommandService
 
         try
         {
-            var arguments = new ArgumentCollection(module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
-            var executionResult = ExecuteTask(commandId, module, tasks, arguments);
-            return executionResult;
+            var arguments = new ArgumentCollection(ServiceArguments, module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
+            var result = RunTasks(commandId, module.Name, module.Startup, tasks, arguments);
+            return result;
         }
         finally
         {
