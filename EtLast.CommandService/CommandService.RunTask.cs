@@ -177,15 +177,15 @@ public partial class CommandService
 
     private static void LogTaskCounters(IEtlContext context, IEtlTask task)
     {
-        if (task.IoCommandCounters.Count == 0)
+        if (!task.IoCommandCounters.Any())
             return;
 
         const string kind = "kind";
         const string invocation = "invoc.";
         const string affected = "affected";
 
-        var maxKeyLength = Math.Max(kind.Length, task.IoCommandCounters.Max(x => x.Key.ToString().Length));
-        var maxInvocationLength = Math.Max(invocation.Length, task.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length));
+        var maxKeyLength = Math.Max(kind.Length, task.IoCommandCounters.Max(x => x.Kind.ToString().Length));
+        var maxInvocationLength = Math.Max(invocation.Length, task.IoCommandCounters.Max(x => x.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length));
 
         context.Log(LogSeverity.Debug, task, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kind,
             "".PadRight(maxKeyLength - kind.Length, ' '),
@@ -193,20 +193,20 @@ public partial class CommandService
             "".PadRight(maxInvocationLength - invocation.Length, ' '),
             affected);
 
-        foreach (var kvp in task.IoCommandCounters.OrderBy(kvp => kvp.Key.ToString()))
+        foreach (var kvp in task.IoCommandCounters.OrderBy(x => x.Kind.ToString()))
         {
-            if (kvp.Value.AffectedDataCount != null)
+            if (kvp.AffectedDataCount != null)
             {
-                context.Log(LogSeverity.Debug, task, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kvp.Key.ToString(),
-                    "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
-                    kvp.Value.InvocationCount,
-                    "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
-                    kvp.Value.AffectedDataCount);
+                context.Log(LogSeverity.Debug, task, "{Kind}{spacing1} {InvocationCount}{spacing2}   {AffectedDataCount}", kvp.Kind.ToString(),
+                    "".PadRight(maxKeyLength - kvp.Kind.ToString().Length, ' '),
+                    kvp.InvocationCount,
+                    "".PadRight(maxInvocationLength - kvp.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                    kvp.AffectedDataCount);
             }
             else
             {
-                context.Log(LogSeverity.Debug, task, "{Kind}{spacing1} {InvocationCount}", kvp.Key.ToString(),
-                    "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '), kvp.Value.InvocationCount);
+                context.Log(LogSeverity.Debug, task, "{Kind}{spacing1} {InvocationCount}", kvp.Kind.ToString(),
+                    "".PadRight(maxKeyLength - kvp.Kind.ToString().Length, ' '), kvp.InvocationCount);
             }
         }
     }
@@ -229,26 +229,26 @@ public partial class CommandService
 
         if (result.IoCommandCounters.Count > 0)
         {
-            var maxKeyLength = result.IoCommandCounters.Max(x => x.Key.ToString().Length);
-            var maxInvocationLength = result.IoCommandCounters.Max(x => x.Value.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
+            var maxKeyLength = result.IoCommandCounters.Max(x => x.Kind.ToString().Length);
+            var maxInvocationLength = result.IoCommandCounters.Max(x => x.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length);
 
-            foreach (var kvp in result.IoCommandCounters.OrderBy(kvp => kvp.Key.ToString()))
+            foreach (var ioc in result.IoCommandCounters.OrderBy(kvp => kvp.Kind.ToString()))
             {
-                if (kvp.Value.AffectedDataCount != null)
+                if (ioc.AffectedDataCount != null)
                 {
                     context.Log(LogSeverity.Information, null, "{spacing1} {Kind}{spacing2} {InvocationCount}{spacing3}   {AffectedDataCount}", spacing1WithoutName,
-                        kvp.Key.ToString(),
-                        "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
-                        kvp.Value.InvocationCount,
-                        "".PadRight(maxInvocationLength - kvp.Value.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
-                        kvp.Value.AffectedDataCount);
+                        ioc.Kind.ToString(),
+                        "".PadRight(maxKeyLength - ioc.Kind.ToString().Length, ' '),
+                        ioc.InvocationCount,
+                        "".PadRight(maxInvocationLength - ioc.InvocationCount.ToString(SinkValueFormatter.DefaultIntegerFormat, CultureInfo.InvariantCulture).Length, ' '),
+                        ioc.AffectedDataCount);
                 }
                 else
                 {
                     context.Log(LogSeverity.Information, null, "{spacing1} {Kind}{spacing2} {InvocationCount}", spacing1WithoutName,
-                        kvp.Key.ToString(),
-                        "".PadRight(maxKeyLength - kvp.Key.ToString().Length, ' '),
-                        kvp.Value.InvocationCount);
+                        ioc.Kind.ToString(),
+                        "".PadRight(maxKeyLength - ioc.Kind.ToString().Length, ' '),
+                        ioc.InvocationCount);
                 }
             }
         }

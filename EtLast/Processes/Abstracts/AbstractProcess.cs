@@ -16,7 +16,7 @@ public abstract class AbstractProcess : IProcess
     public string Name { get; set; }
     public string Kind { get; }
 
-    protected LogSeverity PublicSettablePropertyLogSeverity { get; init; } = LogSeverity.Verbose;
+    public LogSeverity PublicSettablePropertyLogSeverity { get; init; } = LogSeverity.Verbose;
 
     protected AbstractProcess()
     {
