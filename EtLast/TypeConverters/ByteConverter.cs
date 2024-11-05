@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-public class ByteConverter : ITypeConverter
+public class ByteConverter : ITypeConverter, ITextConverter
 {
     public string[] RemoveSubString { get; init; }
 
@@ -60,11 +60,34 @@ public class ByteConverter : ITypeConverter
 
         return null;
     }
+
+    public object Convert(TextBuilder source)
+    {
+        if (RemoveSubString != null)
+        {
+            var stringValue = source.GetContentAsString();
+            foreach (var subStr in RemoveSubString)
+            {
+                stringValue = stringValue.Replace(subStr, "", StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            if (byte.TryParse(stringValue, NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+        else
+        {
+            if (byte.TryParse(source.GetContentAsSpan(), NumberStyles.Any, CultureInfo.InvariantCulture, out var value))
+                return value;
+        }
+
+        return null;
+    }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class ByteConverterFluent
 {
     public static ReaderColumn AsByte(this ReaderColumn column) => column.WithTypeConverter(new ByteConverter());
+    public static TextReaderColumn AsByte(this TextReaderColumn column) => column.WithTypeConverter(new ByteConverter());
     public static IConvertMutatorBuilder_NullStrategy ToByte(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new ByteConverter());
 }
