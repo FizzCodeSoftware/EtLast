@@ -9,13 +9,6 @@ public sealed class GetTableRecordCount : AbstractSqlStatementWithResult<int>
     /// </summary>
     public required string WhereClause { get; init; }
 
-    public override string GetTopic()
-    {
-        return TableName != null
-            ? ConnectionString?.Unescape(TableName)
-            : null;
-    }
-
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
         return string.IsNullOrEmpty(WhereClause)

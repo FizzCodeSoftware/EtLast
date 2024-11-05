@@ -336,7 +336,6 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
             writer.Write(process.GetType().GetFriendlyTypeName());
             writer.WriteNullable(process.Kind);
             writer.Write(process.Name);
-            writer.WriteNullable(process.GetTopic());
             writer.WriteNullable7BitEncodedInt64((process.ExecutionInfo.Caller as IProcess)?.ExecutionInfo?.Id);
         });
     }

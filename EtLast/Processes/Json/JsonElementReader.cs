@@ -8,11 +8,6 @@ public sealed class JsonElementReader<T> : AbstractRowSource
     [ProcessParameterMustHaveValue]
     public required string ColumnName { get; init; }
 
-    public override string GetTopic()
-    {
-        return StreamProvider?.GetTopic();
-    }
-
     protected override void ValidateImpl()
     {
     }

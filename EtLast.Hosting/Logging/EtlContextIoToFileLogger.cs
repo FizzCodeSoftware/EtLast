@@ -60,7 +60,6 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
         sb.Append('\t').Append(ioCommand.MessageExtra?.ReplaceLineEndings("\\n"));
 
         sb.Append('\t').Append(ioCommand.Command?.ReplaceLineEndings("\\n"));
-        sb.Append('\t').Append(ioCommand.Process?.GetTopic()?.ReplaceLineEndings("\\n"));
 
         _logger.Write(LogEventLevel.Information, sb.ToString());
     }
@@ -85,8 +84,6 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
             sb.Append('\t').Append("exception"); // message
             sb.Append(ioCommand.Exception.FormatExceptionWithDetails().ReplaceLineEndings("\\n")); // messageExtra
         }
-
-        // topic
 
         _logger.Write(LogEventLevel.Information, sb.ToString());
     }
@@ -150,7 +147,6 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
                     sb.Append('\t').Append("Message");
                     sb.Append('\t').Append("Message Extra");
                     sb.Append('\t').Append("Command");
-                    sb.Append('\t').Append("Topic");
 
                     writer.WriteLine(sb.ToString());
                     writer.Flush();

@@ -97,13 +97,6 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
         if (args != null)
             values.AddRange(args);
 
-        var topic = process?.GetTopic();
-        if (topic != null)
-        {
-            sb.Append(" TPC#{ActiveTopic}");
-            values.Add(topic);
-        }
-
         _logger.Write((LogEventLevel)severity, sb.ToString(), [.. values]);
     }
 
@@ -127,12 +120,7 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
 
         var filePath = Path.Combine(_directory, fileName);
 
-        var topic = process?.GetTopic();
-
         var line = new StringBuilder()
-            .Append(!string.IsNullOrEmpty(topic)
-                ? topic + "\t"
-                : "")
             .Append(process != null
                 ? process.Name + "\t"
                 : "")

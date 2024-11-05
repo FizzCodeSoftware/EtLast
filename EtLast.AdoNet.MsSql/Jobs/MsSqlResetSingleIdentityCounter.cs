@@ -8,13 +8,6 @@ public sealed class MsSqlResetSingleIdentityCounter : AbstractSqlStatement
     [ProcessParameterMustHaveValue]
     public string IdentityColumnName { get; init; }
 
-    public override string GetTopic()
-    {
-        return TableName != null
-            ? ConnectionString?.Unescape(TableName)
-            : null;
-    }
-
     public override void ValidateParameters()
     {
         base.ValidateParameters();

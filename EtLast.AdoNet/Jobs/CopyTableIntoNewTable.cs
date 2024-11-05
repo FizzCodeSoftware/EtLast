@@ -10,13 +10,6 @@ public sealed class CopyTableIntoNewTable : AbstractSqlStatement
     /// </summary>
     public string WhereClause { get; init; }
 
-    public override string GetTopic()
-    {
-        return Configuration?.TargetTableName != null
-            ? ConnectionString?.Unescape(Configuration.TargetTableName)
-            : null;
-    }
-
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
         var columnList = (Configuration.Columns == null || Configuration.Columns.Count == 0)

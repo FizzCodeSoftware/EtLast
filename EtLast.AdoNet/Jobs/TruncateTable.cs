@@ -5,13 +5,6 @@ public sealed class TruncateTable : AbstractSqlStatement
     [ProcessParameterMustHaveValue]
     public string TableName { get; init; }
 
-    public override string GetTopic()
-    {
-        return TableName != null
-            ? ConnectionString?.Unescape(TableName)
-            : null;
-    }
-
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
         return "TRUNCATE TABLE " + TableName;

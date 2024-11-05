@@ -89,11 +89,6 @@ internal class ContextFullIoCommandListControl
         });
         _updater.ListView.Columns.Add(new OLVColumn()
         {
-            Text = "Topic",
-            AspectGetter = x => (x as IoCommandModel)?.Process.Topic,
-        });
-        _updater.ListView.Columns.Add(new OLVColumn()
-        {
             Text = "Transaction",
             AspectGetter = x => (x as IoCommandModel)?.StartEvent.TransactionId,
         });

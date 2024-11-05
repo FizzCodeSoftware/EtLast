@@ -23,7 +23,7 @@ internal struct ColorCodeContext(TextWriter builder) : IDisposable
         [ColorCode.LvlTokenFtl] = "\x1b[38;5;15m\x1b[48;5;196m",
         //[ColorCode.Module] = "\x1b[38;5;0007m",
         //[ColorCode.Plugin] = "\x1b[38;5;0007m",
-        [ColorCode.Topic] = "\x1b[38;5;133m",
+        [ColorCode.UNUSED] = "\x1b[38;5;133m",
         [ColorCode.Process] = "\x1b[38;5;228m",
         [ColorCode.Task] = "\x1b[38;5;209m",
         [ColorCode.Operation] = "\x1b[38;5;85m",

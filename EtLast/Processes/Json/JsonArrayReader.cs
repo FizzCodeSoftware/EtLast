@@ -15,11 +15,6 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
     /// </summary>
     public string AddStreamIndexToColumn { get; init; }
 
-    public override string GetTopic()
-    {
-        return StreamProvider?.GetTopic();
-    }
-
     protected override void ValidateImpl()
     {
     }

@@ -26,13 +26,6 @@ public class LocalFilesStreamProvider : IManyStreamProvider
     /// </summary>
     public bool ThrowExceptionWhenFileNotFound { get; init; } = true;
 
-    public string GetTopic()
-    {
-        return Paths?.Length > 0
-            ? PathHelpers.GetFriendlyPathName(Paths[0]) + "+" + Paths.Length.ToString("D", CultureInfo.InvariantCulture) + ""
-            : null;
-    }
-
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
         foreach (var path in Paths)

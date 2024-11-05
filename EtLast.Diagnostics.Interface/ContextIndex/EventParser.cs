@@ -10,7 +10,6 @@ public class EventParser
             Type = reader.ReadString(),
             Kind = reader.ReadNullableString(),
             Name = reader.ReadString(),
-            Topic = reader.ReadNullableString(),
             CallerProcessId = reader.ReadNullable7BitEncodedInt64()
         };
     }

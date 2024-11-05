@@ -20,8 +20,6 @@ public class HttpStreamProvider : IManyStreamProvider, IOneStreamProvider
     /// </summary>
     public bool ThrowExceptionWhenFailed { get; init; } = true;
 
-    public string GetTopic() => Url;
-
     public NamedStream GetStream(IProcess caller)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()

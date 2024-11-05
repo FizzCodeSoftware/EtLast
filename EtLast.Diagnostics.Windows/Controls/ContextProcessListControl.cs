@@ -14,7 +14,6 @@ internal class ContextProcessListControl
     private Color IsSelectedBackColor { get; } = Color.FromArgb(100, 100, 200);
     private Color IsOutputBackColor { get; } = Color.FromArgb(180, 255, 180);
     private Color IsInputBackColor { get; } = Color.FromArgb(255, 230, 185);
-    private Color TopicHighlightBackColor { get; } = Color.FromArgb(220, 220, 255);
 
     private readonly List<ListViewItem> _allItems = [];
     private readonly Dictionary<long, ListViewItem> _itemsByProcessId = [];
@@ -46,7 +45,6 @@ internal class ContextProcessListControl
         ListView.Columns.Add("#", 40);
         ListView.Columns.Add("time", 60);
 
-        ListView.Columns.Add("topic", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Right;
         ListView.Columns.Add("process", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
         ListView.Columns.Add("kind", 60).TextAlign = HorizontalAlignment.Left;
         ListView.Columns.Add("type", (ListView.Width - SystemInformation.VerticalScrollBarWidth - 4 - fix) / 3 * 2 / 3).TextAlign = HorizontalAlignment.Left;
@@ -217,7 +215,6 @@ internal class ContextProcessListControl
                 var itemIsSelected = itemProcess == selectedProcess;
                 var itemIsInput = itemProcess.InputRowCountByPreviousProcess.ContainsKey(selectedProcess.Id);
                 var itemIsOutput = selectedProcess.InputRowCountByPreviousProcess.ContainsKey(itemProcess.Id);
-                var topicHighlight = itemProcess.Topic != null && selectedProcess.Topic == itemProcess.Topic/* || itemProcess.HasParentWithTopic(selectedProcess.Topic)*/;
 
                 for (var i = 0; i < item.SubItems.Count; i++)
                 {
@@ -225,47 +222,35 @@ internal class ContextProcessListControl
                     if (itemIsSelected)
                     {
                         subItem.BackColor = IsSelectedBackColor;
-                        if (i is not 6 and not 11)
+                        if (i is not 5 and not 10)
                             subItem.ForeColor = IsSelectedForeColor;
                     }
                     else
                     {
                         subItem.BackColor = ListView.BackColor;
-                        if (i is not 6 and not 11)
+                        if (i is not 5 and not 10)
                             subItem.ForeColor = ListView.ForeColor;
                     }
                 }
 
-                if (!itemIsSelected)
-                {
-                    item.SubItems[2].BackColor = topicHighlight
-                        ? TopicHighlightBackColor
-                        : item.BackColor;
-                }
-
                 if (itemIsSelected)
                 {
-                    item.SubItems[6].BackColor = IsOutputBackColor;
-                    item.SubItems[11].BackColor = IsInputBackColor;
+                    item.SubItems[5].BackColor = IsOutputBackColor;
+                    item.SubItems[10].BackColor = IsInputBackColor;
                 }
                 else if (itemIsInput)
                 {
-                    item.SubItems[3].BackColor = item.SubItems[6].BackColor = IsInputBackColor;
-                    item.SubItems[11].BackColor = item.BackColor;
+                    item.SubItems[2].BackColor = item.SubItems[5].BackColor = IsInputBackColor;
+                    item.SubItems[10].BackColor = item.BackColor;
                 }
                 else if (itemIsOutput)
                 {
-                    item.SubItems[3].BackColor = item.SubItems[11].BackColor = IsOutputBackColor;
-                    item.SubItems[6].BackColor = item.BackColor;
-                }
-                else if (topicHighlight)
-                {
-                    item.SubItems[3].BackColor = TopicHighlightBackColor;
-                    item.SubItems[6].BackColor = item.SubItems[11].BackColor = item.BackColor;
+                    item.SubItems[2].BackColor = item.SubItems[10].BackColor = IsOutputBackColor;
+                    item.SubItems[5].BackColor = item.BackColor;
                 }
                 else
                 {
-                    item.SubItems[3].BackColor = item.SubItems[6].BackColor = item.SubItems[11].BackColor = item.BackColor;
+                    item.SubItems[2].BackColor = item.SubItems[5].BackColor = item.SubItems[10].BackColor = item.BackColor;
                 }
             }
             else
@@ -283,7 +268,6 @@ internal class ContextProcessListControl
         };
 
         item.SubItems.Add("-");
-        item.SubItems.Add(process.Topic);
         item.SubItems.Add(process.IdentedName);
         item.SubItems.Add(process.KindToString());
         item.SubItems.Add(process.Type);
@@ -341,12 +325,12 @@ internal class ContextProcessListControl
                     break;
                 }
 
-                if (item.SubItems[6].Text != process.GetFormattedInputRowCount()
-                    || item.SubItems[7].Text != process.CreatedRowCount.FormatToStringNoZero()
-                    || item.SubItems[8].Text != process.DroppedRowCount.FormatToStringNoZero()
-                    || item.SubItems[9].Text != process.WrittenRowCount.FormatToStringNoZero()
-                    || item.SubItems[10].Text != process.AliveRowCount.FormatToStringNoZero()
-                    || item.SubItems[11].Text != process.PassedRowCount.FormatToStringNoZero())
+                if (item.SubItems[5].Text != process.GetFormattedInputRowCount()
+                    || item.SubItems[6].Text != process.CreatedRowCount.FormatToStringNoZero()
+                    || item.SubItems[7].Text != process.DroppedRowCount.FormatToStringNoZero()
+                    || item.SubItems[8].Text != process.WrittenRowCount.FormatToStringNoZero()
+                    || item.SubItems[9].Text != process.AliveRowCount.FormatToStringNoZero()
+                    || item.SubItems[10].Text != process.PassedRowCount.FormatToStringNoZero())
                 {
                     changed = true;
                     break;
@@ -362,12 +346,12 @@ internal class ContextProcessListControl
                     {
                         var process = item.Tag as TrackedProcess;
                         item.SubItems[1].SetIfChanged(process.NetTimeAfterFinishedAsString);
-                        item.SubItems[6].SetIfChanged(process.GetFormattedInputRowCount());
-                        item.SubItems[7].SetIfChanged(process.CreatedRowCount.FormatToStringNoZero());
-                        item.SubItems[8].SetIfChanged(process.DroppedRowCount.FormatToStringNoZero());
-                        item.SubItems[9].SetIfChanged(process.WrittenRowCount.FormatToStringNoZero());
-                        item.SubItems[10].SetIfChanged(process.AliveRowCount.FormatToStringNoZero());
-                        item.SubItems[11].SetIfChanged(process.PassedRowCount.FormatToStringNoZero());
+                        item.SubItems[5].SetIfChanged(process.GetFormattedInputRowCount());
+                        item.SubItems[6].SetIfChanged(process.CreatedRowCount.FormatToStringNoZero());
+                        item.SubItems[7].SetIfChanged(process.DroppedRowCount.FormatToStringNoZero());
+                        item.SubItems[8].SetIfChanged(process.WrittenRowCount.FormatToStringNoZero());
+                        item.SubItems[9].SetIfChanged(process.AliveRowCount.FormatToStringNoZero());
+                        item.SubItems[10].SetIfChanged(process.PassedRowCount.FormatToStringNoZero());
                     }
                 }
                 finally

@@ -10,13 +10,6 @@ public sealed class DeleteTable : AbstractSqlStatement
     /// </summary>
     public required string WhereClause { get; init; }
 
-    public override string GetTopic()
-    {
-        return TableName != null
-            ? ConnectionString?.Unescape(TableName)
-            : null;
-    }
-
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
         return string.IsNullOrEmpty(WhereClause)

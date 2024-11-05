@@ -81,11 +81,6 @@ public abstract class AbstractProcess : IProcess
         return typeName + (Name != typeName ? " (" + Name + ")" : "");
     }
 
-    public virtual string GetTopic()
-    {
-        return null;
-    }
-
     private void LogPublicSettableProperties()
     {
         var baseProperties = typeof(AbstractEtlTask).GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.DeclaredOnly)

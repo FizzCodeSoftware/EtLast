@@ -60,11 +60,6 @@ public sealed class DelimitedLineReader : AbstractRowSource
     /// </summary>
     public string AddRowIndexToColumn { get; init; }
 
-    public override string GetTopic()
-    {
-        return StreamProvider?.GetTopic();
-    }
-
     protected override void ValidateImpl()
     {
         if (Header != DelimitedLineHeader.HasHeader && (ColumnNames == null || ColumnNames.Length == 0))

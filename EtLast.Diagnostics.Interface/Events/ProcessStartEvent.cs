@@ -6,6 +6,5 @@ public class ProcessStartEvent : AbstractEvent
     public string Type { get; set; }
     public string Kind { get; set; }
     public string Name { get; set; }
-    public string Topic { get; set; }
     public long? CallerProcessId { get; set; }
 }

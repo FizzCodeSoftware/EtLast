@@ -9,7 +9,6 @@ public interface IProcess : ICaller
     public string UniqueName => ExecutionInfo.Id + "~" + Name;
 
     public string Kind { get; }
-    public string GetTopic();
 
     public void Execute(ICaller caller, FlowState flowState = null);
 }

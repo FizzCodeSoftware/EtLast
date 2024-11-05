@@ -17,14 +17,6 @@ public class LocalFilesInDirectoryStreamProvider : IManyStreamProvider
     /// </summary>
     public bool ThrowExceptionWhenFileNotFound { get; init; } = true;
 
-    public string GetTopic()
-    {
-        return Directory != null
-            ? PathHelpers.GetFriendlyPathName(Directory)
-                + (SearchPattern != null ? @"\" + SearchPattern : "")
-            : null;
-    }
-
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
         var paths = new List<string>();

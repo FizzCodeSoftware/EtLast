@@ -10,8 +10,6 @@ public sealed class MoveLocalFile : AbstractJob
 
     public required bool Overwrite { get; init; }
 
-    public override string GetTopic() => SourceFileName;
-
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         try

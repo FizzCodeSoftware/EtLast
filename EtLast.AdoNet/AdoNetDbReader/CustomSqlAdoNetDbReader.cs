@@ -9,10 +9,6 @@ public sealed class CustomSqlAdoNetDbReader : AbstractAdoNetDbReader
 
     protected override CommandType GetCommandType() => CommandType.Text;
 
-    public override string GetTopic() => MainTableName != null
-        ? ConnectionString?.Unescape(MainTableName)
-        : null;
-
     protected override string CreateSqlStatement()
     {
         return Sql;

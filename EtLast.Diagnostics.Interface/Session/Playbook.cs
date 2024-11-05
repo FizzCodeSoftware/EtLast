@@ -45,7 +45,7 @@ public class Playbook(DiagContext context)
                             if (evt.CallerProcessId != null && !ProcessList.TryGetValue(evt.CallerProcessId.Value, out caller))
                                 continue;
 
-                            var process = new TrackedProcess(evt.ProcessId, caller, evt.Type, evt.Kind, evt.Name, evt.Topic);
+                            var process = new TrackedProcess(evt.ProcessId, caller, evt.Type, evt.Kind, evt.Name);
                             ProcessList.Add(process.Id, process);
                             OnProcessStarted?.Invoke(this, process);
                         }

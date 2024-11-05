@@ -15,11 +15,6 @@ public sealed class StructuredBinaryTableReader : AbstractRowSource
     /// </summary>
     public string AddRowIndexToColumn { get; init; }
 
-    public override string GetTopic()
-    {
-        return StreamProvider?.GetTopic();
-    }
-
     protected override void ValidateImpl()
     {
     }

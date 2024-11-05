@@ -17,10 +17,6 @@ public class EtlException : Exception
 
         Data["ProcessName"] = process.Name;
 
-        var topic = process.GetTopic();
-        if (topic != null)
-            Data["ProcessTopic"] = topic;
-
         Data["ProcessType"] = process.GetType().GetFriendlyTypeName();
 
         var assembly = process.GetType().Assembly?.GetName()?.Name;
@@ -40,10 +36,6 @@ public class EtlException : Exception
             Data["Trace"] = trace;
 
         Data["ProcessName"] = process.Name;
-        var topic = process.GetTopic();
-        if (topic != null)
-            Data["ProcessTopic"] = topic;
-
         Data["ProcessType"] = process.GetType().GetFriendlyTypeName();
 
         var assembly = process.GetType().Assembly?.GetName()?.Name;
@@ -215,13 +207,6 @@ public class EtlException : Exception
                 builder.Append(" (\"");
                 builder.Append(p.Name);
                 builder.Append("\")");
-            }
-
-            var topic = p.GetTopic();
-            if (topic != null)
-            {
-                builder.Append(", topic: ");
-                builder.Append(topic);
             }
 
             builder.Append(", kind: ");

@@ -5,8 +5,6 @@ public sealed class DeleteLocalDirectory : AbstractJob
     [ProcessParameterMustHaveValue] public required string Path { get; init; }
     public required bool Recursive { get; init; }
 
-    public override string GetTopic() => Path;
-
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         try

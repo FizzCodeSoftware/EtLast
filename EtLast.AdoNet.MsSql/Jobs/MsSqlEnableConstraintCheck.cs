@@ -5,13 +5,6 @@ public sealed class MsSqlEnableConstraintCheck : AbstractSqlStatements
     [ProcessParameterMustHaveValue]
     public string[] TableNames { get; init; }
 
-    public override string GetTopic()
-    {
-        return ConnectionString != null && TableNames?.Length > 0
-            ? string.Join(",", TableNames.Select(ConnectionString.Unescape))
-        : null;
-    }
-
     protected override List<string> CreateSqlStatements(INamedConnectionString connectionString, IDbConnection connection, string transactionId)
     {
         return TableNames

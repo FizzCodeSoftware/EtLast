@@ -12,7 +12,6 @@ public class TaskExecutionResult(IEtlTask task)
     public Type TaskType { get; } = task.GetType();
     public string TaskName { get; } = task.Name;
     public string TaskKind { get; } = task.Kind;
-    public string TaskTopic { get; } = task.GetTopic();
     public IExecutionStatistics Statistics { get; } = task.Statistics;
     public IReadOnlyList<IIoCommandCounter> IoCommandCounters { get; } = task.IoCommandCounters.ToList();
     public bool Failed { get; } = task.FlowState.Failed;

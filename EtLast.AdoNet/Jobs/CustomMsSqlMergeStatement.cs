@@ -32,13 +32,6 @@ public sealed class CustomMsSqlMergeStatement : AbstractSqlStatement
     /// </summary>
     public bool InlineArrayParameters { get; init; } = true;
 
-    public override string GetTopic()
-    {
-        return TargetTableName != null
-            ? ConnectionString?.Unescape(TargetTableName)
-            : null;
-    }
-
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
         var sb = new StringBuilder();
