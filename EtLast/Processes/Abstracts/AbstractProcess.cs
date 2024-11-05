@@ -17,6 +17,7 @@ public abstract class AbstractProcess : IProcess
     public string Kind { get; }
 
     public LogSeverity PublicSettablePropertyLogSeverity { get; init; } = LogSeverity.Verbose;
+    public LogSeverity CallLogSeverity { get; init; } = LogSeverity.Debug;
 
     protected AbstractProcess()
     {
@@ -36,48 +37,40 @@ public abstract class AbstractProcess : IProcess
 
     protected void LogCall(ICaller caller)
     {
-        var severity = this is IEtlTask or IScope
-            ? LogSeverity.Information
-            : LogSeverity.Debug;
-
         var typeName = GetType().GetFriendlyTypeName();
         if (Name == typeName)
         {
             if (caller is IEtlTask asTask)
-                Context.Log(severity, this, "{ProcessKind} started by {Task}", Kind, asTask.UniqueName);
+                Context.Log(CallLogSeverity, this, "{ProcessKind} started by {Task}", Kind, asTask.UniqueName);
             else if (caller is IProcess asProcess)
-                Context.Log(severity, this, "{ProcessKind} started by {Process}", Kind, asProcess.UniqueName);
+                Context.Log(CallLogSeverity, this, "{ProcessKind} started by {Process}", Kind, asProcess.UniqueName);
             else
-                Context.Log(severity, this, "{ProcessKind} started", Kind);
+                Context.Log(CallLogSeverity, this, "{ProcessKind} started", Kind);
         }
         else
         {
             if (caller is IEtlTask asTask)
-                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Task}", typeName, Kind, asTask.UniqueName);
+                Context.Log(CallLogSeverity, this, "{ProcessType}/{ProcessKind} started by {Task}", typeName, Kind, asTask.UniqueName);
             else if (caller is IProcess asProcess)
-                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started by {Process}", typeName, Kind, asProcess.UniqueName);
+                Context.Log(CallLogSeverity, this, "{ProcessType}/{ProcessKind} started by {Process}", typeName, Kind, asProcess.UniqueName);
             else
-                Context.Log(severity, this, "{ProcessType}/{ProcessKind} started", typeName, Kind);
+                Context.Log(CallLogSeverity, this, "{ProcessType}/{ProcessKind} started", typeName, Kind);
         }
     }
 
     protected void LogResult(Stopwatch netTimeStopwatch)
     {
-        var severity = this is IEtlTask or IScope
-            ? LogSeverity.Information
-            : LogSeverity.Debug;
-
         netTimeStopwatch.Stop();
         Context.RegisterProcessEnd(this, netTimeStopwatch.ElapsedMilliseconds);
 
         if (ExecutionInfo.Timer.Elapsed.TotalMilliseconds >= Context.ElapsedMillisecondsLimitToLog)
         {
-            Context.Log(severity, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
+            Context.Log(CallLogSeverity, this, "{ProcessResult} in {Elapsed}/{ElapsedWallClock}",
                 FlowState.StatusToLogString(), ExecutionInfo.Timer.Elapsed, netTimeStopwatch.Elapsed);
         }
         else
         {
-            Context.Log(severity, this, "{ProcessResult}",
+            Context.Log(CallLogSeverity, this, "{ProcessResult}",
                 FlowState.StatusToLogString());
         }
     }

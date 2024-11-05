@@ -45,6 +45,13 @@ public sealed partial class ResilientSqlScope : AbstractJob, IScope
     public Action<ResilientSqlScopeProcessBuilder> PostFinalizers { get; init; }
 
     private List<ResilientTable> _tables;
+
+    public ResilientSqlScope()
+        : base()
+    {
+        CallLogSeverity = LogSeverity.Information;
+    }
+
     public List<ResilientTable> Tables
     {
         get => _tables;
