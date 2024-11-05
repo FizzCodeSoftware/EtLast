@@ -86,6 +86,6 @@ public class UShortConverter : ITypeConverter, ITextConverter
 public static class UShortConverterFluent
 {
     public static ReaderColumn AsUShort(this ReaderColumn column) => column.WithTypeConverter(new UShortConverter());
-    public static TextReaderColumn AsUIntUShort(this TextReaderColumn column) => column.WithTypeConverter(new UShortConverter());
+    public static TextReaderColumn AsUShort(this TextReaderColumn column) => column.WithTypeConverter(new UShortConverter());
     public static IConvertMutatorBuilder_NullStrategy ToUShort(this IConvertMutatorBuilder_WithTypeConverter builder) => builder.WithTypeConverter(new UShortConverter());
 }
