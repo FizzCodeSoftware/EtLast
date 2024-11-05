@@ -17,6 +17,7 @@ public abstract class AbstractEtlTask : AbstractProcess, IEtlTask
     protected AbstractEtlTask()
     {
         PublicSettablePropertyLogSeverity = LogSeverity.Debug;
+        CallLogSeverity = LogSeverity.Information;
     }
 
     public override void Execute(ICaller caller, FlowState flowState = null)
