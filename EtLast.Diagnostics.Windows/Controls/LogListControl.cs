@@ -65,11 +65,6 @@ internal class LogListControl
         });
         _updater.ListView.Columns.Add(new OLVColumn()
         {
-            Text = "Topic",
-            AspectGetter = x => (x as LogModel)?.Process?.Topic,
-        });
-        _updater.ListView.Columns.Add(new OLVColumn()
-        {
             Text = "Message",
             AspectGetter = x => (x as LogModel)?.Text,
         });

@@ -62,13 +62,6 @@ internal class EtlContextDevToSeqLogger : IEtlContextListener
         if (args != null)
             values.AddRange(args);
 
-        var topic = process?.GetTopic();
-        if (topic != null)
-        {
-            sb.Append(" TPC#{ActiveTopic}");
-            values.Add(topic);
-        }
-
         _logger.Write((LogEventLevel)severity, sb.ToString(), [.. values]);
     }
 

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace FizzCode.EtLast;
+﻿namespace FizzCode.EtLast;
 
 public delegate void ContextManifestChangedEvent(ContextManifest manifest);
 
@@ -100,7 +98,6 @@ public class ContextManifest : IEtlContextListener
             ProcessName = process.Name,
             ProcessTypeName = process.GetType().GetFriendlyTypeName(),
             ProcessKind = process.Kind,
-            ProcessTopic = process.GetTopic(),
             Message = exception.Message,
             Details = exception.FormatExceptionWithDetails(true),
         };
@@ -166,8 +163,6 @@ public class ContextManifest : IEtlContextListener
                 Name = process.Name,
                 TypeName = process.GetType().GetFriendlyTypeName(),
                 Kind = process.Kind,
-                Topic = process.GetTopic(),
-
                 StartedOnUtc = DateTimeOffset.UtcNow,
             };
 
@@ -266,10 +261,6 @@ public class ContextManifestException
     public required string ProcessName { get; init; }
     public required string ProcessTypeName { get; init; }
     public required string ProcessKind { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public string ProcessTopic { get; init; }
-
     public required string Message { get; init; }
     public required string Details { get; init; }
 }
@@ -280,9 +271,6 @@ public class ContextManifestProcess
     public required string Name { get; init; }
     public required string TypeName { get; init; }
     public required string Kind { get; init; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public required string Topic { get; init; }
 
     public DateTimeOffset StartedOnUtc { get; set; }
     public DateTimeOffset? FinishedOnUtc { get; set; }

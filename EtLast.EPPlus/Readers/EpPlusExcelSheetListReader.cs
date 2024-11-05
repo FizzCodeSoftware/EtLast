@@ -15,11 +15,6 @@ public sealed class EpPlusExcelSheetListReader : AbstractRowSource
     /// </summary>
     public string AddStreamNameToColumn { get; init; } = "Stream";
 
-    public override string GetTopic()
-    {
-        return StreamProvider.GetTopic() + "[SheetList]";
-    }
-
     protected override void ValidateImpl()
     {
     }

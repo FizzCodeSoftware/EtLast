@@ -182,9 +182,6 @@ internal class ContextInlineIoCommandListControl
         if (HighlightedProcess == null)
             return true;
 
-        if (item.Process.Topic != HighlightedProcess.Topic)
-            return false;
-
         if (item.StartEvent.Kind == IoCommandKind.dbTransaction && !ShowDbTransactionKind.Checked)
             return false;
 

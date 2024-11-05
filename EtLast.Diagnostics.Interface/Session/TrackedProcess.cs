@@ -12,7 +12,6 @@ public class TrackedProcess
 
     public string Type { get; }
     public string Name { get; }
-    public string Topic { get; }
     public string Kind { get; }
 
     private TimeSpan? _elapsedMillisecondsAfterFinished;
@@ -65,7 +64,7 @@ public class TrackedProcess
     public Dictionary<long, long> InputRowCountByPreviousProcess { get; } = [];
     public long InputRowCount { get; private set; }
 
-    public TrackedProcess(long processId, TrackedProcess caller, string type, string kind, string name, string topic)
+    public TrackedProcess(long processId, TrackedProcess caller, string type, string kind, string name)
     {
         Id = processId;
 
@@ -73,7 +72,6 @@ public class TrackedProcess
 
         Kind = kind;
         Name = name;
-        Topic = topic;
 
         Caller = caller;
         Caller?.Children.Add(this);
@@ -86,9 +84,7 @@ public class TrackedProcess
             ? string.Concat(Enumerable.Range(1, ParentInvokerCount).Select(x => "   ")) + Name
             : Name;
 
-        DisplayName = (topic != null
-            ? topic + " :: " + Name
-            : name)
+        DisplayName = name
             + " (" + processId.ToString("D", CultureInfo.InvariantCulture) + ")";
     }
 
@@ -199,20 +195,6 @@ public class TrackedProcess
         while (invoker != null)
         {
             if (invoker == process)
-                return true;
-
-            invoker = invoker.Caller;
-        }
-
-        return false;
-    }
-
-    public bool HasParentWithTopic(string topic)
-    {
-        var invoker = Caller;
-        while (invoker != null)
-        {
-            if (invoker.Topic == topic)
                 return true;
 
             invoker = invoker.Caller;

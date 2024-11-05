@@ -117,39 +117,32 @@ public partial class CommandService
                 context.Log(LogSeverity.Information, null, "-------------");
                 context.Log(LogSeverity.Information, null, "SCOPE ACTIONS");
                 context.Log(LogSeverity.Information, null, "-------------");
-                var topics = scopeActions.Select(x => x.Topic).Distinct().ToArray().Order();
                 var sb = new StringBuilder();
                 var args = new List<object>();
-                foreach (var topic in topics)
+                foreach (var action in scopeActions)
                 {
-                    var actions = scopeActions.Where(x => x.Topic == topic).ToArray();
-                    foreach (var action in actions)
+                    sb.Clear();
+                    args.Clear();
+
+                    if (action.Caller is IProcess callerProcess)
                     {
-                        sb.Clear();
-                        args.Clear();
-
-                        sb.Append("\tTPC#{ActiveTopic} ");
-                        args.Add(action.Topic);
-                        if (action.Caller is IProcess callerProcess)
-                        {
-                            var typ = callerProcess is IEtlTask ? "Task" : "Process";
-                            sb.Append("in {Active").Append(typ).Append("} ");
-                            args.Add(callerProcess.UniqueName);
-                        }
-
-                        sb.Append("is {Action}");
-                        args.Add(action.Action);
-
-                        if (action.Process != null)
-                        {
-                            var typ = action.Process is IEtlTask ? "Task" : "Process";
-                            sb.Append(" by {").Append(typ).Append("}, {ProcessType}");
-                            args.Add(action.Process.Name);
-                            args.Add(action.Process.GetType().GetFriendlyTypeName());
-                        }
-
-                        context.Log(LogSeverity.Information, null, sb.ToString(), [.. args]);
+                        var typ = callerProcess is IEtlTask ? "Task" : "Process";
+                        sb.Append("in {Active").Append(typ).Append("} ");
+                        args.Add(callerProcess.UniqueName);
                     }
+
+                    sb.Append("is {Action}");
+                    args.Add(action.Action);
+
+                    if (action.Process != null)
+                    {
+                        var typ = action.Process is IEtlTask ? "Task" : "Process";
+                        sb.Append(" by {").Append(typ).Append("}, {ProcessType}");
+                        args.Add(action.Process.Name);
+                        args.Add(action.Process.GetType().GetFriendlyTypeName());
+                    }
+
+                    context.Log(LogSeverity.Information, null, sb.ToString(), [.. args]);
                 }
 
                 if (taskResults.Count > 0)

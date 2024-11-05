@@ -10,14 +10,6 @@ public sealed class EpPlusExcelReader : AbstractEpPlusExcelReader
     /// </summary>
     public string AddStreamIndexToColumn { get; init; }
 
-    public override string GetTopic()
-    {
-        if (string.IsNullOrEmpty(SheetName))
-            return StreamProvider.GetTopic() + "[" + SheetIndex.ToString("D", CultureInfo.InvariantCulture) + "]";
-        else
-            return StreamProvider.GetTopic() + "[" + SheetName + "]";
-    }
-
     protected override void ValidateImpl()
     {
         if (string.IsNullOrEmpty(SheetName) && SheetIndex == -1)

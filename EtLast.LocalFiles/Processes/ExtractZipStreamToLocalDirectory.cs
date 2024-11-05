@@ -10,8 +10,6 @@ public sealed class ExtractZipStreamToLocalDirectory : AbstractJob
 
     public bool OverwriteFiles { get; init; } = true;
 
-    public override string GetTopic() => Path;
-
     protected override void ExecuteImpl(Stopwatch netTimeStopwatch)
     {
         var stream = StreamProvider.GetStream(this);

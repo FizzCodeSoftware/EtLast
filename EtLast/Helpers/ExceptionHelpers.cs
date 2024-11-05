@@ -29,9 +29,6 @@ public static class ExceptionHelpers
                     if (cex.Data?["ProcessName"] is string processName && processName != processType)
                         msg += " (\"" + processName + "\")";
 
-                    if (cex.Data?["ProcessTopic"] is string processTopic)
-                        msg += ", topic: " + processTopic;
-
                     if (cex.Data?["ProcessKind"] is string processKind)
                         msg += ", kind: " + processKind;
                 }
@@ -42,7 +39,7 @@ public static class ExceptionHelpers
                     foreach (var key in cex.Data.Keys)
                     {
                         var k = key.ToString();
-                        if (k is "ProcessName" or "ProcessKind" or "ProcessTopic" or "ProcessType" or "ProcessTypeAssembly" or "CallChain" or "OpsMessage" or "Trace" or "Row")
+                        if (k is "ProcessName" or "ProcessKind" or "ProcessType" or "ProcessTypeAssembly" or "CallChain" or "OpsMessage" or "Trace" or "Row")
                             continue;
 
                         if (k.Contains("Row", StringComparison.InvariantCultureIgnoreCase) && cex.Data[key] is string rowStr && rowStr.StartsWith("id", StringComparison.InvariantCultureIgnoreCase))

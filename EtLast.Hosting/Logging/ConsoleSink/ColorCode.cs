@@ -18,7 +18,7 @@ internal enum ColorCode
     BooleanValue = 13,
     ScalarValue = 14,
     TimeSpanValue = 15,
-    Topic = 18,
+    UNUSED = 18, // previously used for Topic
     Process = 19,
     Operation = 20,
     Job = 21,

@@ -8,11 +8,6 @@ public class MemoryStreamProvider : IManyStreamProvider
 
     private readonly string _streamName = "MemoryStream";
 
-    public string GetTopic()
-    {
-        return _streamName;
-    }
-
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
         var ioCommand = caller.Context.RegisterIoCommand(new IoCommand()

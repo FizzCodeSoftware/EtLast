@@ -11,13 +11,6 @@ public sealed class AdoNetDbReader : AbstractAdoNetDbReader
 
     protected override CommandType GetCommandType() => CommandType.Text;
 
-    public override string GetTopic()
-    {
-        return TableName != null
-            ? ConnectionString?.Unescape(TableName)
-            : null;
-    }
-
     protected override string CreateSqlStatement()
     {
         var columnList = "*";

@@ -26,13 +26,6 @@ public class LocalFileStreamProvider : IManyStreamProvider, IOneStreamProvider
     /// </summary>
     public bool ThrowExceptionWhenFileNotFound { get; init; } = true;
 
-    public string GetTopic()
-    {
-        return Path != null
-            ? PathHelpers.GetFriendlyPathName(Path)
-            : null;
-    }
-
     public static LocalFileStreamProvider ReadFrom(string path) => new()
     {
         Path = path,

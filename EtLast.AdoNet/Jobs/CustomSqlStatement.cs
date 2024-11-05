@@ -16,13 +16,6 @@ public sealed class CustomSqlStatement : AbstractSqlStatement
     /// </summary>
     public bool InlineArrayParameters { get; init; } = true;
 
-    public override string GetTopic()
-    {
-        return MainTableName != null
-            ? ConnectionString?.Unescape(MainTableName)
-            : null;
-    }
-
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
         if (Parameters != null)

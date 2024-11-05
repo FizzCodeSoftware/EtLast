@@ -7,14 +7,6 @@ public sealed class EpPlusPreLoadedExcelReader : AbstractEpPlusExcelReader
     /// </summary>
     public required ExcelPackage PreLoadedFile { get; init; }
 
-    public override string GetTopic()
-    {
-        if (PreLoadedFile.File?.Name != null)
-            return Path.GetFileName(PreLoadedFile.File.Name);
-
-        return null;
-    }
-
     protected override void ValidateImpl()
     {
         if (PreLoadedFile == null)

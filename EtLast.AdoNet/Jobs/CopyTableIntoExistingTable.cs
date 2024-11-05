@@ -17,13 +17,6 @@ public sealed class CopyTableIntoExistingTable : AbstractSqlStatement
 
     public Dictionary<string, object> ColumnDefaults { get; init; }
 
-    public override string GetTopic()
-    {
-        return Configuration?.TargetTableName != null
-            ? ConnectionString?.Unescape(Configuration.TargetTableName)
-            : null;
-    }
-
     protected override string CreateSqlStatement(Dictionary<string, object> parameters)
     {
         var statement = "";

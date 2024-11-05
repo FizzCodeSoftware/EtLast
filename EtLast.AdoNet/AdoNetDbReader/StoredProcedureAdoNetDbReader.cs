@@ -12,10 +12,6 @@ public sealed class StoredProcedureAdoNetDbReader : AbstractAdoNetDbReader
 
     protected override CommandType GetCommandType() => CommandType.StoredProcedure;
 
-    public override string GetTopic() => MainTableName != null
-        ? ConnectionString?.Unescape(MainTableName)
-        : null;
-
     protected override string CreateSqlStatement()
     {
         return Sql;
