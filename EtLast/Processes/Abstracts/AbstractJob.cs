@@ -5,6 +5,7 @@ public abstract class AbstractJob : AbstractProcess
     protected AbstractJob()
     {
         PublicSettablePropertyLogSeverity = LogSeverity.Debug;
+        CallLogSeverity = LogSeverity.Information;
     }
 
     public override void Execute(ICaller caller, FlowState flowState = null)
