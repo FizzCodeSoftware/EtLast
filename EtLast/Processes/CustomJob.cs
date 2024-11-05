@@ -36,11 +36,31 @@ public static class CustomJobFluent
         });
     }
 
+    public static IFlow CustomJob(this IFlow builder, string name, LogSeverity callLogSeverity, Action<CustomJob> action)
+    {
+        return builder.ExecuteProcess(() => new CustomJob()
+        {
+            Name = name,
+            CallLogSeverity = callLogSeverity,
+            Action = action,
+        });
+    }
+
     public static IFlow CustomJob(this IFlow builder, string name, Action action)
     {
         return builder.ExecuteProcess(() => new CustomJob()
         {
             Name = name,
+            Action = _ => action?.Invoke(),
+        });
+    }
+
+    public static IFlow CustomJob(this IFlow builder, string name, LogSeverity callLogSeverity, Action action)
+    {
+        return builder.ExecuteProcess(() => new CustomJob()
+        {
+            Name = name,
+            CallLogSeverity = callLogSeverity,
             Action = _ => action?.Invoke(),
         });
     }
