@@ -56,6 +56,7 @@ public sealed class EtlContext : IEtlContext
             ContextName = customName ?? Guid.CreateVersion7().ToString("D"),
             Instance = Environment.MachineName,
             EtLastVersion = typeof(IEtlContext).Assembly.GetName().Version.ToString(),
+            RamUseInitial = GC.GetTotalMemory(true),
             HostVersion = Assembly.GetEntryAssembly().GetName().Version.ToString(),
             RuntimeMajorVersion = Environment.Version.Major,
             RuntimeVersion = Environment.Version.ToString(),
