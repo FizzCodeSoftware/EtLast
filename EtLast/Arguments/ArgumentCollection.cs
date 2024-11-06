@@ -20,6 +20,16 @@ public sealed class ArgumentCollection : IArgumentCollection
         _values = new Dictionary<string, object>(values, StringComparer.InvariantCultureIgnoreCase);
     }
 
+    public void Add(string key, object value)
+    {
+        _values.Add(key, value);
+    }
+
+    public void Add(string key, Func<object> valueFunc)
+    {
+        _values.Add(key, valueFunc);
+    }
+
     public bool HasKey(string key)
     {
         return _values.ContainsKey(key);
@@ -49,8 +59,8 @@ public sealed class ArgumentCollection : IArgumentCollection
     {
         if (_values.TryGetValue(key, out var value))
         {
-            if (value is Func<object> func)
-                value = func.Invoke();
+            if (value is Func<object> valueFunc)
+                value = valueFunc.Invoke();
 
             if (value is Func<IArgumentCollection, object> funcWithArgs)
             {
@@ -189,7 +199,15 @@ public sealed class ArgumentCollection : IArgumentCollection
         _values = values;
     }
 
-    public void Inject(object target, string scopeName, HashSet<string> excludedPropertyNames = null, bool overwriteArguments = false)
+    public T CreateAndInject<T>(string scopeName = null, HashSet<string> excludedPropertyNames = null, bool overwriteArguments = false)
+        where T : new()
+    {
+        var target = new T();
+        Inject(target, scopeName, excludedPropertyNames, overwriteArguments);
+        return target;
+    }
+
+    public void Inject(object target, string scopeName = null, HashSet<string> excludedPropertyNames = null, bool overwriteArguments = false)
     {
         var properties = target.GetType().GetProperties(BindingFlags.Instance | BindingFlags.SetProperty | BindingFlags.Public)
             .Where(p => p.SetMethod?.IsPrivate == false && (excludedPropertyNames?.Contains(p.Name) != true) && p.GetIndexParameters().Length == 0)

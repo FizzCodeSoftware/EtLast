@@ -30,10 +30,16 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     public Dictionary<string, string> CommandAliases { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public List<Func<ICommandService, IArgumentCollection, ICommandListener>> CommandListenerCreators { get; } = [];
+    public List<Func<ICommandService, ICommandListener>> CommandListenerCreators { get; } = [];
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public List<Action<ICommandService>> CustomActions { get; } = [];
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListenerCreators { get; } = [];
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public ArgumentCollection CommandListenerArguments { get; } = new ArgumentCollection();
 
     protected static readonly Regex QuoteSplitterRegex = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
@@ -61,8 +67,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
     private readonly ConcurrentDictionary<int, ICommandListener> commandListeners = [];
 
-    public IArgumentCollection ServiceArguments => _serviceArguments;
-    protected ArgumentCollection _serviceArguments;
+    public ArgumentCollection ServiceArguments { get; private set; }
 
     private void StartCommandListeners()
     {
@@ -88,8 +93,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
         try
         {
-            _serviceArguments = LoadServiceArguments();
-            if (_serviceArguments == null)
+            ServiceArguments = LoadServiceArguments();
+            if (ServiceArguments == null)
             {
                 Logger.Write(LogEventLevel.Fatal, "unexpected exception while compiling service arguments");
                 return;
@@ -103,11 +108,19 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
         SetMaxTransactionTimeout(MaxTransactionTimeout);
 
+        foreach (var action in CustomActions)
+        {
+            action.Invoke(this);
+        }
+
         foreach (var creator in CommandListenerCreators)
         {
-            var listener = creator.Invoke(this, ServiceArguments);
+            var listener = creator.Invoke(this);
             if (listener == null)
                 continue;
+
+            CommandListenerArguments.Inject(listener);
+            ServiceArguments.Inject(listener);
 
             var thread = new Thread(() =>
             {
@@ -172,7 +185,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         Interlocked.Increment(ref _activeCommandCounter);
         Logger.Information("command {CommandId} started by {CommandSource}", commandId, source);
 
-        var arguments = new ArgumentCollection(_serviceArguments, overrides: argumentOverrides);
+        var arguments = new ArgumentCollection(ServiceArguments, overrides: argumentOverrides);
         var result = RunTasks(commandId, moduleName: "-", buildSession, tasks, arguments);
         resultHandler?.Invoke(result)?.Wait();
         Interlocked.Decrement(ref _activeCommandCounter);

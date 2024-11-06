@@ -3,7 +3,14 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class AbstractCommandServiceFluent
 {
-    public static T AddCommandListener<T>(this T commandService, Func<ICommandService, IArgumentCollection, ICommandListener> listenerCreator)
+    public static T AddCustomAction<T>(this T commandService, Action<ICommandService> action)
+        where T : AbstractCommandService
+    {
+        commandService.CustomActions.Add(action);
+        return commandService;
+    }
+
+    public static T AddCommandListener<T>(this T commandService, Func<ICommandService, ICommandListener> listenerCreator)
         where T : AbstractCommandService
     {
         commandService.CommandListenerCreators.Add(listenerCreator);
@@ -13,12 +20,7 @@ public static class AbstractCommandServiceFluent
     public static T AddCommandListener<T>(this T commandService, Type listenerType)
     where T : AbstractCommandService
     {
-        commandService.CommandListenerCreators.Add((service, arguments) =>
-        {
-            var listener = (ICommandListener)Activator.CreateInstance(listenerType);
-            arguments.Inject(listener, null);
-            return listener;
-        });
+        commandService.CommandListenerCreators.Add(_ => (ICommandListener)Activator.CreateInstance(listenerType));
         return commandService;
     }
 

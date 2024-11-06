@@ -7,12 +7,12 @@ var builder = new HostApplicationBuilder();
 builder.Services.AddLogging(x => x.ClearProviders());
 
 builder.Services.AddEtlCommandService(() => new WindowsCommandService("EtLast Integration Tests", "EtLastIntegrationTest")
-    .AddCommandListener((service, serviceArgs) =>
+    .AddCommandListener(service =>
     {
         service.Logger.Debug("list of automatically compiled service argument values:");
-        foreach (var key in serviceArgs.AllKeys)
+        foreach (var key in service.ServiceArguments.AllKeys)
         {
-            var v = serviceArgs.GetAs<string>(key);
+            var v = service.ServiceArguments.GetAs<string>(key);
             if (v != null)
                 service.Logger.Debug("[" + key + "] = [" + v + "]");
         }

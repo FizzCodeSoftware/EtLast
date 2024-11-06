@@ -148,7 +148,7 @@ public partial class CommandService : AbstractCommandService
 
         try
         {
-            var arguments = new ArgumentCollection(_serviceArguments, module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
+            var arguments = new ArgumentCollection(ServiceArguments, module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
             var result = RunTasks(commandId, module.Name, module.Startup, tasks, arguments);
             return result;
         }
@@ -168,7 +168,7 @@ public partial class CommandService : AbstractCommandService
 
         try
         {
-            var arguments = new ArgumentCollection(_serviceArguments, module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
+            var arguments = new ArgumentCollection(ServiceArguments, module.DefaultArgumentProviders, module.InstanceArgumentProviders, userArguments, argumentOverrides);
             var result = RunTasks(commandId, module.Name, module.Startup, tasks, arguments);
             return result;
         }
