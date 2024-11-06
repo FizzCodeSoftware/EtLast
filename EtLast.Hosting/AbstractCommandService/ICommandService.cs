@@ -8,7 +8,8 @@ public interface ICommandService
     public ILogger Logger { get; }
     public Microsoft.Extensions.Logging.ILoggerProvider LoggerProvider { get; }
 
-    public IArgumentCollection ServiceArguments { get; }
+    public ArgumentCollection ServiceArguments { get; }
+    public ArgumentCollection CommandListenerArguments { get; }
 
     public void Terminate();
     public CancellationToken CancellationToken { get; }
@@ -20,7 +21,7 @@ public interface ICommandService
     public IExecutionResult RunCommand(string source, string commandId, string command, Func<IExecutionResult, Task> resultHandler = null);
     public IExecutionResult RunCommand(string source, string commandId, string originalCommand, string[] commandParts, Func<IExecutionResult, Task> resultHandler = null);
 
-    public List<Func<ICommandService, IArgumentCollection, ICommandListener>> CommandListenerCreators { get; }
+    public List<Func<ICommandService, ICommandListener>> CommandListenerCreators { get; }
     public Dictionary<string, string> CommandAliases { get; }
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListenerCreators { get; }
     public TimeSpan MaxTransactionTimeout { get; set; }
