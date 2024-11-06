@@ -25,13 +25,17 @@ internal class CommandServiceJsonManifestProcessor : IManifestProcessor
 
     private void ManifestClosed(ContextManifest manifest)
     {
+        manifest.RamUse = GC.GetTotalMemory(true);
         SaveManifest(manifest);
     }
 
     private void ManifestChanged(ContextManifest manifest)
     {
         if (_lastSave == null || _lastSave.ElapsedMilliseconds > BufferTimeoutMilliseconds)
+        {
+            manifest.RamUse = GC.GetTotalMemory(false);
             SaveManifest(manifest);
+        }
     }
 
     private void SaveManifest(ContextManifest manifest)
