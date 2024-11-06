@@ -9,7 +9,6 @@ public interface ICommandService
     public Microsoft.Extensions.Logging.ILoggerProvider LoggerProvider { get; }
 
     public ArgumentCollection ServiceArguments { get; }
-    public ArgumentCollection CommandListenerArguments { get; }
 
     public void Terminate();
     public CancellationToken CancellationToken { get; }
@@ -27,4 +26,6 @@ public interface ICommandService
     public TimeSpan MaxTransactionTimeout { get; set; }
     public bool ModuleLoggingEnabled { get; set; }
     public bool ServiceLoggingEnabled { get; set; }
+
+    public T SharedService<T>() where T : ISharedCommandService, new();
 }

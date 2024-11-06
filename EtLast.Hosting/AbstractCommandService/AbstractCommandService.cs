@@ -38,9 +38,6 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     [EditorBrowsable(EditorBrowsableState.Never)]
     public List<Func<IEtlContext, IEtlContextListener>> EtlContextListenerCreators { get; } = [];
 
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public ArgumentCollection CommandListenerArguments { get; } = new ArgumentCollection();
-
     protected static readonly Regex QuoteSplitterRegex = new("(?<=\")[^\"]*(?=\")|[^\" ]+");
 
     public IHostApplicationLifetime HostLifetime { get; set; }
@@ -119,7 +116,6 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
             if (listener == null)
                 continue;
 
-            CommandListenerArguments.Inject(listener);
             ServiceArguments.Inject(listener);
 
             var thread = new Thread(() =>
@@ -430,5 +426,25 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         }
 
         return Task.CompletedTask;
+    }
+
+    private readonly Dictionary<Type, ISharedCommandService> _sharedServices = [];
+
+    public T SharedService<T>()
+        where T : ISharedCommandService, new()
+    {
+        lock (_sharedServices)
+        {
+            if (_sharedServices.TryGetValue(typeof(T), out var service))
+                return (T)service;
+
+            var newService = new T();
+            ServiceArguments.Inject(newService);
+
+            newService.Start(this);
+            _sharedServices.Add(typeof(T), newService);
+
+            return newService;
+        }
     }
 }
