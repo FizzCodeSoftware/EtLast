@@ -42,10 +42,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
     public IHostApplicationLifetime HostLifetime { get; set; }
 
-    protected AbstractCommandService(string name)
-    {
-        Name = name;
-    }
+    public ArgumentCollection ServiceArguments { get; private set; }
 
     protected abstract ILogger CreateServiceLogger();
     protected abstract ArgumentCollection LoadServiceArguments();
@@ -60,11 +57,14 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
 
     private int _activeCommandCounter;
 
-    protected CancellationTokenSource CommandListenerTerminationTokenSource { get; } = new CancellationTokenSource();
+    private readonly CancellationTokenSource CommandListenerTerminationTokenSource = new();
 
     private readonly ConcurrentDictionary<int, ICommandListener> commandListeners = [];
 
-    public ArgumentCollection ServiceArguments { get; private set; }
+    protected AbstractCommandService(string name)
+    {
+        Name = name;
+    }
 
     private void StartCommandListeners()
     {
@@ -152,6 +152,17 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
             Logger.Write(LogEventLevel.Information, "stopping all command listeners...");
             CommandListenerTerminationTokenSource.Cancel();
         }
+
+        foreach (var sharedService in _sharedServices.Values)
+        {
+            try
+            {
+                sharedService.Stop();
+            }
+            catch (Exception) { }
+        }
+
+        _sharedServices.Clear();
     }
 
     public IExecutionResult RunTasksInModuleByName(bool useAppDomain, string source, string commandId, string moduleName, List<string> taskNames, Dictionary<string, object> argumentOverrides = null, Func<IExecutionResult, Task> resultHandler = null)
