@@ -84,7 +84,8 @@ public sealed class EtlContext : IEtlContext
         return [.. _scopeActions];
     }
 
-    public T Service<T>() where T : IEtlService, new()
+    public T Service<T>()
+        where T : IEtlService, new()
     {
         var service = _services.OfType<T>().FirstOrDefault();
         if (service != null)
