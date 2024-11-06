@@ -193,7 +193,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         Logger.Information("command {CommandId} started by {CommandSource}", commandId, source);
 
         var arguments = new ArgumentCollection(ServiceArguments, overrides: argumentOverrides);
-        var result = RunTasks(commandId, moduleName: "-", buildSession, tasks, arguments);
+        var result = RunTasks(commandId, moduleName: null, buildSession, tasks, arguments);
         resultHandler?.Invoke(result)?.Wait();
         Interlocked.Decrement(ref _activeCommandCounter);
         Logger.Information("command {CommandId} finished, active command count: {CommandCount}", commandId, _activeCommandCounter);
