@@ -25,7 +25,10 @@ internal class CommandServiceJsonManifestProcessor : IManifestProcessor
 
     private void ManifestClosed(ContextManifest manifest)
     {
-        manifest.RamUse = GC.GetTotalMemory(true);
+        var ramUse = manifest.RamUse = GC.GetTotalMemory(true);
+        if (ramUse > manifest.PeakRamUse)
+            manifest.PeakRamUse = ramUse;
+
         SaveManifest(manifest);
     }
 
@@ -33,7 +36,10 @@ internal class CommandServiceJsonManifestProcessor : IManifestProcessor
     {
         if (_lastSave == null || _lastSave.ElapsedMilliseconds > BufferTimeoutMilliseconds)
         {
-            manifest.RamUse = GC.GetTotalMemory(false);
+            var ramUse = manifest.RamUse = GC.GetTotalMemory(false);
+            if (ramUse > manifest.PeakRamUse)
+                manifest.PeakRamUse = ramUse;
+
             SaveManifest(manifest);
         }
     }
