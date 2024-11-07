@@ -24,8 +24,8 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
     private void ManifestClosed(ContextManifest manifest)
     {
         var ramUse = manifest.RamUse = GC.GetTotalMemory(true);
-        if (ramUse > manifest.PeakRamUse)
-            manifest.PeakRamUse = ramUse;
+        if (ramUse > manifest.RamUsePeak)
+            manifest.RamUsePeak = ramUse;
 
         SaveManifest(manifest);
     }
@@ -35,8 +35,8 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
         if (_lastSave == null || _lastSave.ElapsedMilliseconds > BufferTimeoutMilliseconds)
         {
             var ramUse = manifest.RamUse = GC.GetTotalMemory(false);
-            if (ramUse > manifest.PeakRamUse)
-                manifest.PeakRamUse = ramUse;
+            if (ramUse > manifest.RamUsePeak)
+                manifest.RamUsePeak = ramUse;
 
             SaveManifest(manifest);
         }
