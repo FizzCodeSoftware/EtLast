@@ -34,6 +34,7 @@ public class ContextManifest : IEtlContextListener
     public DateTimeOffset? ClosedOnUtc { get; private set; }
     public DateTimeOffset? ClosedOnLocal { get; private set; }
     public long RamUseInitial { get; init; }
+    public long PeakRamUse { get; set; }
     public long RamUse { get; set; }
     public long? RunMilliseconds { get; private set; }
 
