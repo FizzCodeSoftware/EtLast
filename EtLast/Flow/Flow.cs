@@ -153,10 +153,20 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ExecuteForEach<TElement>(IEnumerable<TElement> elements, Action<TElement> action)
+    public IFlow ExecuteForEach<TElement>(Func<IEnumerable<TElement>> elementsFunc, Action<TElement> action)
     {
         if (_flowState.IsTerminating)
             return this;
+
+        IEnumerable<TElement> elements = null;
+        try
+        {
+            elements = elementsFunc?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _flowState.AddException(_caller, ex);
+        }
 
         if (elements != null)
         {
@@ -172,10 +182,20 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ExecuteForEachConditional<TElement>(IEnumerable<TElement> elements, Func<TElement, bool> action)
+    public IFlow ExecuteForEachConditional<TElement>(Func<IEnumerable<TElement>> elementsFunc, Func<TElement, bool> action)
     {
         if (_flowState.IsTerminating)
             return this;
+
+        IEnumerable<TElement> elements = null;
+        try
+        {
+            elements = elementsFunc?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _flowState.AddException(_caller, ex);
+        }
 
         if (elements != null)
         {
@@ -193,10 +213,20 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ExecuteForEachIsolated<TElement>(IEnumerable<TElement> elements, Action<TElement, IFlow> action)
+    public IFlow ExecuteForEachIsolated<TElement>(Func<IEnumerable<TElement>> elementsFunc, Action<TElement, IFlow> action)
     {
         if (_flowState.IsTerminating)
             return this;
+
+        IEnumerable<TElement> elements = null;
+        try
+        {
+            elements = elementsFunc?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _flowState.AddException(_caller, ex);
+        }
 
         if (elements != null)
         {
@@ -212,10 +242,20 @@ public sealed class Flow : IFlow
         return this;
     }
 
-    public IFlow ExecuteForEachIsolatedConditional<TElement>(IEnumerable<TElement> elements, Func<TElement, IFlow, bool> action)
+    public IFlow ExecuteForEachIsolatedConditional<TElement>(Func<IEnumerable<TElement>> elementsFunc, Func<TElement, IFlow, bool> action)
     {
         if (_flowState.IsTerminating)
             return this;
+
+        IEnumerable<TElement> elements = null;
+        try
+        {
+            elements = elementsFunc?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            _flowState.AddException(_caller, ex);
+        }
 
         if (elements != null)
         {

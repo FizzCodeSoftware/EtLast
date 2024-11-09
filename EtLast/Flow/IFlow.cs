@@ -12,8 +12,8 @@ public interface IFlow
     public IFlow ExecuteProcess<T>(Func<T> processCreator) where T : IProcess;
     public IFlow ExecuteProcess<T>(out T createdProcess, Func<T> processCreator) where T : IProcess;
     public IFlow ExecuteProcessWithResult<TProcess, TResult>(out TResult result, Func<TProcess> processCreator) where TProcess : IProcessWithResult<TResult>;
-    public IFlow ExecuteForEach<TElement>(IEnumerable<TElement> elements, Action<TElement> action);
-    public IFlow ExecuteForEachIsolated<TElement>(IEnumerable<TElement> elements, Action<TElement, IFlow> action);
+    public IFlow ExecuteForEach<TElement>(Func<IEnumerable<TElement>> elements, Action<TElement> action);
+    public IFlow ExecuteForEachIsolated<TElement>(Func<IEnumerable<TElement>> elements, Action<TElement, IFlow> action);
 
     public IFlow CaptureValue<T>(out T variable, Func<T> calculatorFunc);
     public IFlow InitializeVariable<T>(out Variable<T> variable, Func<T> valueFunc, string name = null);
@@ -21,12 +21,12 @@ public interface IFlow
     /// <summary>
     /// Only continue the execution with the next element when the supplied action returns true.
     /// </summary>
-    public IFlow ExecuteForEachConditional<TElement>(IEnumerable<TElement> elements, Func<TElement, bool> action);
+    public IFlow ExecuteForEachConditional<TElement>(Func<IEnumerable<TElement>> elements, Func<TElement, bool> action);
 
     /// <summary>
     /// Only continue the execution with the next element when the supplied action returns true.
     /// </summary>
-    public IFlow ExecuteForEachIsolatedConditional<TElement>(IEnumerable<TElement> elements, Func<TElement, IFlow, bool> action);
+    public IFlow ExecuteForEachIsolatedConditional<TElement>(Func<IEnumerable<TElement>> elements, Func<TElement, IFlow, bool> action);
 
     public IFlow Isolate(Action<IFlow> builder);
     public IFlow TransactionScope(TransactionScopeKind kind, Action builder, LogSeverity logSeverity = LogSeverity.Information);
