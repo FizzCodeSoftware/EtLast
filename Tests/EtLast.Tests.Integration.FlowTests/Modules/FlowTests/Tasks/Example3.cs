@@ -13,7 +13,7 @@ public class Example3 : AbstractEtlTask
                 Message = "awesome...",
             })
             .ThrowOnError()
-            .ExecuteForEachIsolated(getFilesTask.Paths, (path, isolatedFlow) => isolatedFlow
+            .ExecuteForEachIsolated(() => getFilesTask.Paths, (path, isolatedFlow) => isolatedFlow
                 .ExecuteProcess(() => new ShowMessage()
                 {
                     Name = "ShowMessageForFile",

@@ -26,13 +26,26 @@ internal static class ServiceArgumentsLoader
 
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
         var syntaxTrees = csFileNames
-            .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn))
-            .ToArray();
+            .ConvertAll(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn));
+
+        var globalUsing = new StringBuilder()
+            .AppendLine("global using global::System;")
+            .AppendLine("global using global::System.Collections.Generic;")
+            .AppendLine("global using global::System.IO;")
+            .AppendLine("global using global::System.Linq;")
+            .AppendLine("global using global::System.Net.Http;")
+            .AppendLine("global using global::System.Threading;")
+            .AppendLine("global using global::System.Threading.Tasks;")
+            .AppendLine("global using global::FizzCode.EtLast;")
+            .AppendLine("global using global::FizzCode.LightWeight;");
+
+        syntaxTrees.Add(SyntaxFactory.ParseSyntaxTree(SourceText.From(globalUsing.ToString()), parseOptions));
 
         using (var assemblyStream = new MemoryStream())
         {
             var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
                 optimizationLevel: OptimizationLevel.Release,
+                allowUnsafe: true,
                 assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default);
 
             var compilation = CSharpCompilation.Create("compiled_service_arguments.dll", syntaxTrees, metadataReferences, compilationOptions);
