@@ -17,6 +17,11 @@ public class LocalFilesInDirectoryStreamProvider : IManyStreamProvider
     /// </summary>
     public bool ThrowExceptionWhenFileNotFound { get; init; } = true;
 
+    /// <summary>
+    /// Default value is 4096.
+    /// </summary>
+    public int BufferSize { get; init; } = 4096;
+
     public IEnumerable<NamedStream> GetStreams(IProcess caller)
     {
         var paths = new List<string>();
@@ -75,7 +80,7 @@ public class LocalFilesInDirectoryStreamProvider : IManyStreamProvider
 
         try
         {
-            var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize);
             return new NamedStream(path, stream, ioCommand);
         }
         catch (Exception ex)

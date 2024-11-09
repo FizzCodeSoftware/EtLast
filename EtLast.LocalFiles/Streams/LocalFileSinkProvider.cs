@@ -31,6 +31,11 @@ public class LocalFileSinkProvider : IOneSinkProvider
     /// </summary>
     public FileShare FileShare { get; init; } = FileShare.Read;
 
+    /// <summary>
+    /// Default value is 4096.
+    /// </summary>
+    public int BufferSize { get; init; } = 4096;
+
     public bool AutomaticallyDispose => true;
 
     public static LocalFileSinkProvider CreateOrOverwrite(string path) => new()
@@ -106,7 +111,7 @@ public class LocalFileSinkProvider : IOneSinkProvider
         try
         {
             var sink = caller.Context.GetSink(System.IO.Path.GetDirectoryName(Path), System.IO.Path.GetFileName(Path), sinkFormat, caller, columns);
-            var stream = new FileStream(Path, FileMode, FileAccess, FileShare);
+            var stream = new FileStream(Path, FileMode, FileAccess, FileShare, BufferSize);
             var namedSink = new NamedSink(PathHelpers.GetFriendlyPathName(Path), stream, ioCommand, sink);
             SinkMetadataEnricher?.Enrich(namedSink.Sink);
             return namedSink;

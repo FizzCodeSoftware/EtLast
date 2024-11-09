@@ -33,6 +33,11 @@ public class PartitionedLocalFileSinkProvider : IPartitionedSinkProvider
     /// </summary>
     public FileShare FileShare { get; init; } = FileShare.Read;
 
+    /// <summary>
+    /// Default value is 4096.
+    /// </summary>
+    public int BufferSize { get; init; } = 4096;
+
     public bool AutomaticallyDispose => true;
 
     public NamedSink GetSink(IProcess caller, string partitionKey, string sinkFormat, string[] columns)
@@ -103,7 +108,7 @@ public class PartitionedLocalFileSinkProvider : IPartitionedSinkProvider
         try
         {
             var sink = caller.Context.GetSink(Path.GetDirectoryName(path), Path.GetFileName(path), sinkFormat, caller, columns);
-            var stream = new FileStream(path, FileMode, FileAccess, FileShare);
+            var stream = new FileStream(path, FileMode, FileAccess, FileShare, BufferSize);
             var namedSink = new NamedSink(PathHelpers.GetFriendlyPathName(path), stream, ioCommand, sink);
             SinkMetadataEnricher?.Enrich(namedSink.Sink);
             return namedSink;
