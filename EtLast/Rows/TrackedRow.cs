@@ -4,8 +4,6 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class TrackedRow(IRow originalRow) : IRow
 {
-    public bool KeepNulls { get => true; set { } }
-
     public IProcess Owner => originalRow.Owner;
     public long Id => originalRow.Id;
     public object Tag { get => originalRow.Tag; set => originalRow.Tag = value; }
@@ -84,10 +82,6 @@ public sealed class TrackedRow(IRow originalRow) : IRow
         }
 
         _changes = null;
-    }
-
-    public void Init(IEtlContext context, IProcess creatorProcess, long id, IEnumerable<KeyValuePair<string, object>> initialValues)
-    {
     }
 
     public void MergeWith(IEnumerable<KeyValuePair<string, object>> values)

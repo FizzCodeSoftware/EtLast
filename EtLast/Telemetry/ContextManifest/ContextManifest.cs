@@ -229,9 +229,6 @@ public class ContextManifest : IEtlContextListener
 
     public void OnCustomLog(bool forOps, string fileName, IProcess process, string text, params object[] args) { }
     public void OnLog(LogSeverity severity, bool forOps, string transactionId, IProcess process, string text, params object[] args) { }
-    public void OnRowCreated(IReadOnlyRow row) { }
-    public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess) { }
-    public void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values) { }
 }
 
 public class ContextManifestSink

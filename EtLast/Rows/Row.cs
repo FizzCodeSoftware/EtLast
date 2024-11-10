@@ -27,7 +27,7 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
         var previousOwner = Owner;
         Owner = newOwner;
 
-        foreach (var listener in _context.Listeners)
+        foreach (var listener in _context.RowListeners)
             listener.OnRowOwnerChanged(this, previousOwner, newOwner);
     }
 
@@ -36,34 +36,48 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
         get => _values.TryGetValue(column, out var value) ? value : null;
         set
         {
-            var stored = _values.TryGetValue(column, out var previousValue);
-            if (value == null)
+            if (_context.RowListeners.Count > 0)
             {
-                if (previousValue != null)
+                var stored = _values.TryGetValue(column, out var previousValue);
+                if (value == null)
                 {
-                    foreach (var listener in _context.Listeners)
-                        listener.OnRowValueChanged(this, [new KeyValuePair<string, object>(column, null)]);
-                }
+                    if (previousValue != null)
+                    {
+                        foreach (var listener in _context.RowListeners)
+                            listener.OnRowValueChanged(this, [new KeyValuePair<string, object>(column, null)]);
+                    }
 
-                _values[column] = null;
+                    _values[column] = null;
+                }
+                else if (value is EtlRowRemovedValue)
+                {
+                    if (stored)
+                    {
+                        _values.Remove(column);
+                        foreach (var listener in _context.RowListeners)
+                            listener.OnRowValueChanged(this, [new KeyValuePair<string, object>(column, value)]);
+                    }
+                }
+                else if (previousValue == null || value != previousValue)
+                {
+                    foreach (var listener in _context.RowListeners)
+                    {
+                        listener.OnRowValueChanged(this, new KeyValuePair<string, object>(column, value));
+                    }
+
+                    _values[column] = value;
+                }
             }
-            else if (value is EtlRowRemovedValue)
+            else
             {
-                if (stored)
+                if (value is EtlRowRemovedValue)
                 {
                     _values.Remove(column);
-                    foreach (var listener in _context.Listeners)
-                        listener.OnRowValueChanged(this, [new KeyValuePair<string, object>(column, value)]);
                 }
-            }
-            else if (previousValue == null || value != previousValue)
-            {
-                foreach (var listener in _context.Listeners)
+                else
                 {
-                    listener.OnRowValueChanged(this, new KeyValuePair<string, object>(column, value));
+                    _values[column] = value;
                 }
-
-                _values[column] = value;
             }
         }
     }
@@ -203,49 +217,66 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
 
     public void MergeWith(IEnumerable<KeyValuePair<string, object>> values)
     {
-        List<KeyValuePair<string, object>> changedValues = null;
-        foreach (var kvp in values)
+        if (_context.RowListeners.Count > 0)
         {
-            var stored = _values.TryGetValue(kvp.Key, out var currentValue);
-
-            if (kvp.Value == null)
+            List<KeyValuePair<string, object>> changedValues = null;
+            foreach (var kvp in values)
             {
-                if (currentValue != null)
+                var stored = _values.TryGetValue(kvp.Key, out var currentValue);
+
+                if (kvp.Value == null)
+                {
+                    if (currentValue != null)
+                    {
+                        changedValues ??= [];
+                        changedValues.Add(kvp);
+                        _values[kvp.Key] = null;
+                    }
+                    else
+                    {
+                        if (!stored)
+                            _values[kvp.Key] = null;
+                    }
+                }
+                else if (kvp.Value is EtlRowRemovedValue)
+                {
+                    if (stored)
+                    {
+                        _values.Remove(kvp.Key);
+                        changedValues ??= [];
+                        changedValues.Add(kvp);
+                    }
+                }
+                else if (currentValue == null || kvp.Value != currentValue)
                 {
                     changedValues ??= [];
                     changedValues.Add(kvp);
-                    _values[kvp.Key] = null;
+
+                    if (kvp.Value != null)
+                        _values[kvp.Key] = kvp.Value;
+                }
+            }
+
+            if (changedValues != null)
+            {
+                foreach (var listener in _context.RowListeners)
+                {
+                    listener.OnRowValueChanged(this, [.. changedValues]);
+                }
+            }
+        }
+        else
+        {
+            foreach (var kvp in values)
+            {
+                if (kvp.Value is EtlRowRemovedValue)
+                {
+                    _values.Remove(kvp.Key);
                 }
                 else
                 {
-                    if (!stored)
-                        _values[kvp.Key] = null;
-                }
-            }
-            else if (kvp.Value is EtlRowRemovedValue)
-            {
-                if (stored)
-                {
-                    _values.Remove(kvp.Key);
-                    changedValues ??= [];
-                    changedValues.Add(kvp);
-                }
-            }
-            else if (currentValue == null || kvp.Value != currentValue)
-            {
-                changedValues ??= [];
-                changedValues.Add(kvp);
-
-                if (kvp.Value != null)
                     _values[kvp.Key] = kvp.Value;
-            }
-        }
-
-        if (changedValues != null)
-        {
-            foreach (var listener in _context.Listeners)
-            {
-                listener.OnRowValueChanged(this, [.. changedValues]);
+                }
             }
         }
     }
@@ -255,46 +286,61 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
         if (_values.Count == 0)
             return;
 
-        List<KeyValuePair<string, object>> changedValues = null;
-        foreach (var kvp in _values)
+        if (_context.RowListeners.Count > 0)
         {
-            if (kvp.Value != null)
+            List<KeyValuePair<string, object>> changedValues = null;
+            foreach (var kvp in _values)
             {
-                changedValues ??= [];
-                changedValues.Add(new KeyValuePair<string, object>(kvp.Key, null));
+                if (kvp.Value != null)
+                {
+                    changedValues ??= [];
+                    changedValues.Add(new KeyValuePair<string, object>(kvp.Key, null));
+                }
+            }
+
+            _values.Clear();
+
+            if (changedValues != null)
+            {
+                foreach (var listener in _context.RowListeners)
+                {
+                    listener.OnRowValueChanged(this, [.. changedValues]);
+                }
             }
         }
-
-        _values.Clear();
-
-        if (changedValues != null)
+        else
         {
-            foreach (var listener in _context.Listeners)
-            {
-                listener.OnRowValueChanged(this, [.. changedValues]);
-            }
+            _values.Clear();
         }
     }
 
     public void RemoveColumns(params string[] columns)
     {
-        List<KeyValuePair<string, object>> changedValues = null;
-        foreach (var col in columns)
+        if (_context.RowListeners.Count > 0)
         {
-            _values.Remove(col, out var value);
-            if (value != null)
+            List<KeyValuePair<string, object>> changedValues = null;
+            foreach (var col in columns)
             {
-                changedValues ??= [];
-                changedValues.Add(new KeyValuePair<string, object>(col, null));
+                _values.Remove(col, out var value);
+                if (value != null)
+                {
+                    changedValues ??= [];
+                    changedValues.Add(new KeyValuePair<string, object>(col, null));
+                }
+            }
+
+            if (changedValues != null)
+            {
+                foreach (var listener in _context.RowListeners)
+                {
+                    listener.OnRowValueChanged(this, [.. changedValues]);
+                }
             }
         }
-
-        if (changedValues != null)
+        else
         {
-            foreach (var listener in _context.Listeners)
-            {
-                listener.OnRowValueChanged(this, [.. changedValues]);
-            }
+            foreach (var col in columns)
+                _values.Remove(col);
         }
     }
 }

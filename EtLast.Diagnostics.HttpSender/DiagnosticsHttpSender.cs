@@ -3,7 +3,7 @@ using System.Web;
 
 namespace FizzCode.EtLast;
 
-public class DiagnosticsHttpSender : IDisposable, IEtlContextListener
+public class DiagnosticsHttpSender : IDisposable, IEtlContextListener, IEtlContextRowListener
 {
     /// <summary>
     /// Default value is 2.

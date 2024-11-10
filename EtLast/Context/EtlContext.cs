@@ -11,6 +11,7 @@ public sealed class EtlContext : IEtlContext
     public FlowState FlowState => new(this);
 
     public List<IEtlContextListener> Listeners { get; }
+    public List<IEtlContextRowListener> RowListeners { get; } = new();
 
     /// <summary>
     /// Default value: 4 hours, but .NET maximizes the timeout in 10 minutes.
@@ -150,7 +151,7 @@ public sealed class EtlContext : IEtlContext
     {
         var row = new Row(this, process, Interlocked.Increment(ref _nextRowId), null);
 
-        foreach (var listener in Listeners)
+        foreach (var listener in RowListeners)
             listener.OnRowCreated(row);
 
         return row;
@@ -160,7 +161,7 @@ public sealed class EtlContext : IEtlContext
     {
         var row = new Row(this, process, Interlocked.Increment(ref _nextRowId), initialValues);
 
-        foreach (var listener in Listeners)
+        foreach (var listener in RowListeners)
             listener.OnRowCreated(row);
 
         return row;
@@ -173,7 +174,7 @@ public sealed class EtlContext : IEtlContext
             Tag = source.Tag
         };
 
-        foreach (var listener in Listeners)
+        foreach (var listener in RowListeners)
             listener.OnRowCreated(row);
 
         return row;

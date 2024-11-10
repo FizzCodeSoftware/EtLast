@@ -9,22 +9,37 @@ public sealed class CustomMutator : AbstractMutator
 
     protected override IEnumerable<IRow> MutateRow(IRow row, long rowInputIndex)
     {
-        var tracker = new TrackedRow(row);
         bool keep;
-        try
+        if (Context.RowListeners.Count > 0)
         {
-            keep = Action.Invoke(tracker);
-            if (keep)
+            var tracker = new TrackedRow(row);
+            try
             {
-                tracker.ApplyChanges();
+                keep = Action.Invoke(tracker);
+                if (keep)
+                    tracker.ApplyChanges();
+            }
+            catch (Exception ex) when (ex is not EtlException)
+            {
+                var exception = new CustomCodeException(this, "error in custom code", ex);
+                exception.Data["RowInputIndex"] = rowInputIndex;
+                exception.Data["Row"] = row.ToDebugString(true);
+                throw exception;
             }
         }
-        catch (Exception ex) when (ex is not EtlException)
+        else
         {
-            var exception = new CustomCodeException(this, "error in custom code", ex);
-            exception.Data["RowInputIndex"] = rowInputIndex;
-            exception.Data["Row"] = row.ToDebugString(true);
-            throw exception;
+            try
+            {
+                keep = Action.Invoke(row);
+            }
+            catch (Exception ex) when (ex is not EtlException)
+            {
+                var exception = new CustomCodeException(this, "error in custom code", ex);
+                exception.Data["RowInputIndex"] = rowInputIndex;
+                exception.Data["Row"] = row.ToDebugString(true);
+                throw exception;
+            }
         }
 
         if (keep)

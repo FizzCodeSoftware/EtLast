@@ -8,9 +8,6 @@ public interface IEtlContextListener
     void OnCustomLog(bool forOps, string fileName, IProcess process, string text, params object[] args);
     void OnException(IProcess process, Exception exception);
 
-    void OnRowCreated(IReadOnlyRow row);
-    void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess);
-    void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values);
     void OnSinkStarted(IProcess process, Sink sink);
     void OnWriteToSink(Sink sink, IReadOnlyRow row);
 
