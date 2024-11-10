@@ -1,4 +1,6 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Drawing;
+
+namespace FizzCode.EtLast;
 
 [DebuggerDisplay("{" + nameof(ToDebugString) + "()}")]
 [EditorBrowsable(EditorBrowsableState.Never)]
@@ -97,7 +99,6 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
                     + (_values.Count > 0
                         ? string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
                         : "no values");
-
         }
         else
         {
@@ -353,5 +354,370 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
             foreach (var col in columns)
                 _values.Remove(col);
         }
+    }
+
+    public long GetRowChecksumForSpecificColumns(string[] columns)
+    {
+        Span<byte> buffer = stackalloc byte[16];
+
+        var hash = 0xCBF29CE484222325;
+
+        foreach (var col in columns)
+        {
+            var value = this[col];
+            if (value != null)
+            {
+                if (value is int iv)
+                {
+                    hash ^= unchecked((uint)iv);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is uint uiv)
+                {
+                    hash ^= uiv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is long lv)
+                {
+                    hash ^= unchecked((ulong)lv);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is ulong ulv)
+                {
+                    hash ^= ulv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is sbyte sbv)
+                {
+                    hash ^= (byte)sbv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is byte bv)
+                {
+                    hash ^= bv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is short sv)
+                {
+                    hash ^= unchecked((ushort)sv);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is ushort usv)
+                {
+                    hash ^= usv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is string str)
+                {
+                    for (var i = 0; i < str.Length; i++)
+                    {
+                        hash ^= (byte)str[i];
+                        hash *= 0x100000001B3;
+                    }
+                    continue;
+                }
+                else if (value is DateTime dt)
+                {
+                    hash ^= unchecked((ulong)dt.Ticks);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is DateTimeOffset dto)
+                {
+                    hash ^= unchecked((ulong)dto.Ticks);
+                    hash *= 0x100000001B3;
+                    hash ^= unchecked((ulong)dto.Offset.Ticks);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is TimeSpan ts)
+                {
+                    hash ^= unchecked((ulong)ts.Ticks);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is Guid guidv)
+                {
+                    guidv.TryWriteBytes(buffer);
+                    for (var i = 0; i < 16; i++)
+                    {
+                        hash ^= buffer[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is bool boolcv)
+                {
+                    hash ^= boolcv ? 39u : 999u;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is float fv)
+                {
+                    MemoryMarshal.Write(buffer, in fv);
+                    for (var i = 0; i < 4; i++)
+                    {
+                        hash ^= buffer[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is double dv)
+                {
+                    MemoryMarshal.Write(buffer, in dv);
+                    for (var i = 0; i < 8; i++)
+                    {
+                        hash ^= buffer[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is decimal dec)
+                {
+                    MemoryMarshal.Write(buffer, in dec);
+                    for (var i = 0; i < 16; i++)
+                    {
+                        hash ^= buffer[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is Half half)
+                {
+                    MemoryMarshal.Write(buffer, in half);
+                    hash ^= buffer[0];
+                    hash *= 0x100000001B3;
+                    hash ^= buffer[1];
+                    hash *= 0x100000001B3;
+                }
+                else if (value is byte[] ba)
+                {
+                    for (var i = 0; i < ba.Length; i++)
+                    {
+                        hash ^= ba[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is char cv)
+                {
+                    hash ^= (byte)cv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is UInt128 ui128)
+                {
+                    hash ^= (ulong)(ui128 >> 64);
+                    hash ^= (ulong)ui128;
+                }
+                else if (value is Int128 i128)
+                {
+                    hash ^= (ulong)(i128 >> 64);
+                    hash ^= (ulong)i128;
+                }
+                else if (value is DateOnly don)
+                {
+                    hash ^= unchecked((uint)don.DayNumber);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is TimeOnly ton)
+                {
+                    hash ^= unchecked((ulong)ton.Ticks);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is Color color)
+                {
+                    hash ^= unchecked((uint)color.ToArgb());
+                    hash *= 0x100000001B3;
+                }
+                else
+                {
+                    Debugger.Break();
+                }
+            }
+        }
+
+        var keyHashCode = unchecked((long)hash);
+        return keyHashCode;
+    }
+
+    public long GetRowChecksumForAllColumns(string[] exceptColumns)
+    {
+        Span<byte> buffer = stackalloc byte[16];
+
+        var hash = 0xCBF29CE484222325;
+
+        foreach (var kvp in _values)
+        {
+            if (exceptColumns?.Length > 0)
+            {
+                var ok = false;
+                for (var i = 0; i < exceptColumns.Length; i++)
+                {
+                    if (string.Equals(exceptColumns[i], kvp.Key, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (!ok)
+                    continue;
+            }
+
+            var value = kvp.Value;
+            if (value != null)
+            {
+                if (value is int iv)
+                {
+                    hash ^= unchecked((uint)iv);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is uint uiv)
+                {
+                    hash ^= uiv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is long lv)
+                {
+                    hash ^= unchecked((ulong)lv);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is ulong ulv)
+                {
+                    hash ^= ulv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is sbyte sbv)
+                {
+                    hash ^= (byte)sbv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is byte bv)
+                {
+                    hash ^= bv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is short sv)
+                {
+                    hash ^= unchecked((ushort)sv);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is ushort usv)
+                {
+                    hash ^= usv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is string str)
+                {
+                    for (var i = 0; i < str.Length; i++)
+                    {
+                        hash ^= (byte)str[i];
+                        hash *= 0x100000001B3;
+                    }
+                    continue;
+                }
+                else if (value is DateTime dt)
+                {
+                    hash ^= unchecked((ulong)dt.Ticks);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is DateTimeOffset dto)
+                {
+                    hash ^= unchecked((ulong)dto.Ticks);
+                    hash *= 0x100000001B3;
+                    hash ^= unchecked((ulong)dto.Offset.Ticks);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is TimeSpan ts)
+                {
+                    hash ^= unchecked((ulong)ts.Ticks);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is Guid guidv)
+                {
+                    guidv.TryWriteBytes(buffer);
+                    for (var i = 0; i < 16; i++)
+                    {
+                        hash ^= buffer[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is bool boolcv)
+                {
+                    hash ^= boolcv ? 39u : 999u;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is float fv)
+                {
+                    MemoryMarshal.Write(buffer, in fv);
+                    for (var i = 0; i < 4; i++)
+                    {
+                        hash ^= buffer[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is double dv)
+                {
+                    MemoryMarshal.Write(buffer, in dv);
+                    for (var i = 0; i < 8; i++)
+                    {
+                        hash ^= buffer[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is decimal dec)
+                {
+                    MemoryMarshal.Write(buffer, in dec);
+                    for (var i = 0; i < 16; i++)
+                    {
+                        hash ^= buffer[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is Half half)
+                {
+                    MemoryMarshal.Write(buffer, in half);
+                    hash ^= buffer[0];
+                    hash *= 0x100000001B3;
+                    hash ^= buffer[1];
+                    hash *= 0x100000001B3;
+                }
+                else if (value is byte[] ba)
+                {
+                    for (var i = 0; i < ba.Length; i++)
+                    {
+                        hash ^= ba[i];
+                        hash *= 0x100000001B3;
+                    }
+                }
+                else if (value is char cv)
+                {
+                    hash ^= (byte)cv;
+                    hash *= 0x100000001B3;
+                }
+                else if (value is UInt128 ui128)
+                {
+                    hash ^= (ulong)(ui128 >> 64);
+                    hash ^= (ulong)ui128;
+                }
+                else if (value is Int128 i128)
+                {
+                    hash ^= (ulong)(i128 >> 64);
+                    hash ^= (ulong)i128;
+                }
+                else if (value is DateOnly don)
+                {
+                    hash ^= unchecked((uint)don.DayNumber);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is TimeOnly ton)
+                {
+                    hash ^= unchecked((ulong)ton.Ticks);
+                    hash *= 0x100000001B3;
+                }
+                else if (value is Color color)
+                {
+                    hash ^= unchecked((uint)color.ToArgb());
+                    hash *= 0x100000001B3;
+                }
+                else
+                {
+                    Debugger.Break();
+                }
+            }
+        }
+
+        var keyHashCode = unchecked((long)hash);
+        return keyHashCode;
     }
 }
