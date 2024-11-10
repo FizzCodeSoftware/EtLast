@@ -59,6 +59,9 @@ public partial class CommandService
                         var listener = listenerCreator.Invoke(context);
                         listener.Start();
                         context.Listeners.Add(listener);
+
+                        if (listener is IEtlContextRowListener rowListener)
+                            context.RowListeners.Add(rowListener);
                     }
                 }
             }

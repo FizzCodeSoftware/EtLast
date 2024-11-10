@@ -54,23 +54,11 @@ internal class IoCommandListener : IEtlContextListener
     {
     }
 
-    public void OnRowCreated(IReadOnlyRow row)
-    {
-    }
-
-    public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
-    {
-    }
-
     public void OnWriteToSink(Sink sink, IReadOnlyRow row)
     {
     }
 
     public void OnSinkStarted(IProcess process, Sink sink)
-    {
-    }
-
-    public void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values)
     {
     }
 }
