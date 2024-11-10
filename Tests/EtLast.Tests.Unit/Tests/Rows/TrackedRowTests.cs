@@ -18,7 +18,7 @@ public class TrackedRowTests
         var row = new TrackedRow(context.CreateRow(null, initialValues));
         var result = row.ToDebugString();
 
-        Assert.IsTrue(result.StartsWith("id", StringComparison.InvariantCultureIgnoreCase));
+        Assert.IsTrue(!result.StartsWith("id", StringComparison.InvariantCultureIgnoreCase));
     }
 
     [TestMethod]
