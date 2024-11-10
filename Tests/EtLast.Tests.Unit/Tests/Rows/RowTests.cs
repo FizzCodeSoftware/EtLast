@@ -7,6 +7,7 @@ public class RowKeepNullTests
     public void ToDebugStringStartsWithId()
     {
         var context = TestExecuter.GetContext();
+        context.RowListeners.Add(new FakeListener());
 
         var initialValues = new Dictionary<string, object>()
         {
@@ -282,5 +283,20 @@ public class RowKeepNullTests
         Assert.AreEqual(2, row.Values.Count());
         Assert.AreEqual(6, row.GetAs<int>("id"));
         Assert.AreEqual(null, row.GetAs<string>("name"));
+    }
+}
+
+internal class FakeListener : IEtlContextRowListener
+{
+    public void OnRowCreated(IReadOnlyRow row)
+    {
+    }
+
+    public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
+    {
+    }
+
+    public void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values)
+    {
     }
 }

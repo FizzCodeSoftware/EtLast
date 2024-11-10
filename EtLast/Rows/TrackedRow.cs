@@ -214,20 +214,16 @@ public sealed class TrackedRow(IRow originalRow) : IRow
     {
         if (!multiLine)
         {
-            return "ID: "
-                + Id.ToString("D", CultureInfo.InvariantCulture)
-                + (Tag != null ? ", tag: " + Tag.ToString() : "")
+            return (Tag != null ? ", tag: " + Tag.ToString() + ", " : "")
                 + (Values.Any()
-                    ? ", " + string.Join(", ", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                    ? string.Join(", ", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
                     : "no values");
         }
         else
         {
-            return "ID: "
-                + Id.ToString("D", CultureInfo.InvariantCulture)
-                + (Tag != null ? "\ntag: " + Tag.ToString() : "")
+            return (Tag != null ? "tag: " + Tag.ToString() + "\n" : "")
                 + (Values.Any()
-                    ? "\n" + string.Join("\n", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                    ? string.Join("\n", Values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
                     : "no values");
         }
     }
