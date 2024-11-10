@@ -15,133 +15,139 @@ public sealed class SortedMemoryAggregationMutator : AbstractMemoryAggregationMu
 
         netTimeStopwatch.Stop();
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
-        netTimeStopwatch.Start();
-
         var success = true;
-
         var rowCount = 0;
         var ignoredRowCount = 0;
         var groupCount = 0;
         var aggregateCount = 0;
-        while (!FlowState.IsTerminating)
+        try
         {
-            netTimeStopwatch.Stop();
-            var finished = !enumerator.MoveNext();
-            if (finished)
-                break;
-
-            var row = enumerator.Current;
             netTimeStopwatch.Start();
 
-            if (row.Tag is HeartBeatTag)
+            while (!FlowState.IsTerminating)
             {
                 netTimeStopwatch.Stop();
-                yield return row;
+                var finished = !enumerator.MoveNext();
+                if (finished)
+                    break;
+
+                var row = enumerator.Current;
                 netTimeStopwatch.Start();
-                continue;
-            }
 
-            var apply = false;
-            if (RowFilter != null)
-            {
-                try
+                if (row.Tag is HeartBeatTag)
                 {
-                    apply = RowFilter.Invoke(row);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
                     continue;
                 }
-            }
 
-            if (RowTagFilter != null)
-            {
-                try
+                var apply = false;
+                if (RowFilter != null)
                 {
-                    apply = RowTagFilter.Invoke(row.Tag);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                    continue;
-                }
-            }
-
-            rowCount++;
-            var key = KeyGenerator.Invoke(row);
-            if (key != lastKey)
-            {
-                lastKey = key;
-
-                if (groupRows.Count > 0)
-                {
-                    var aggregates = new List<SlimRow>();
-                    groupCount++;
                     try
                     {
-                        Operation.TransformGroup(groupRows, () =>
-                        {
-                            var aggregate = new SlimRow
-                            {
-                                Tag = groupRows[0].Tag
-                            };
-
-                            if (FixColumns != null)
-                            {
-                                foreach (var column in FixColumns)
-                                {
-                                    aggregate[column.Key] = groupRows[0][column.Value ?? column.Key];
-                                }
-                            }
-
-                            aggregates.Add(aggregate);
-                            return aggregate;
-                        });
+                        apply = RowFilter.Invoke(row);
                     }
                     catch (Exception ex)
                     {
-                        FlowState.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
-                        success = false;
+                        FlowState.AddException(this, ex, row);
                         break;
                     }
 
-                    foreach (var groupRow in groupRows)
-                        (groupRow as IRow)?.SetOwner(null);
-
-                    groupRows.Clear();
-
-                    foreach (var aggregate in aggregates)
+                    if (!apply)
                     {
-                        aggregateCount++;
-                        var aggregateRow = Context.CreateRow(this, aggregate);
-
+                        ignoredRowCount++;
                         netTimeStopwatch.Stop();
-                        yield return aggregateRow;
+                        yield return row;
                         netTimeStopwatch.Start();
+                        continue;
                     }
                 }
-            }
 
-            groupRows.Add(row);
+                if (RowTagFilter != null)
+                {
+                    try
+                    {
+                        apply = RowTagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                rowCount++;
+                var key = KeyGenerator.Invoke(row);
+                if (key != lastKey)
+                {
+                    lastKey = key;
+
+                    if (groupRows.Count > 0)
+                    {
+                        var aggregates = new List<SlimRow>();
+                        groupCount++;
+                        try
+                        {
+                            Operation.TransformGroup(groupRows, () =>
+                            {
+                                var aggregate = new SlimRow
+                                {
+                                    Tag = groupRows[0].Tag
+                                };
+
+                                if (FixColumns != null)
+                                {
+                                    foreach (var column in FixColumns)
+                                    {
+                                        aggregate[column.Key] = groupRows[0][column.Value ?? column.Key];
+                                    }
+                                }
+
+                                aggregates.Add(aggregate);
+                                return aggregate;
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            FlowState.AddException(this, new MemoryAggregationException(this, Operation, groupRows, ex));
+                            success = false;
+                            break;
+                        }
+
+                        foreach (var groupRow in groupRows)
+                            (groupRow as IRow)?.SetOwner(null);
+
+                        groupRows.Clear();
+
+                        foreach (var aggregate in aggregates)
+                        {
+                            aggregateCount++;
+                            var aggregateRow = Context.CreateRow(this, aggregate);
+
+                            netTimeStopwatch.Stop();
+                            yield return aggregateRow;
+                            netTimeStopwatch.Start();
+                        }
+                    }
+                }
+
+                groupRows.Add(row);
+            }
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         netTimeStopwatch.Start();

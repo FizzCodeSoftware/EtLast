@@ -34,116 +34,129 @@ public sealed class InMemoryExplodeMutator : AbstractSequence, IMutator
     {
         netTimeStopwatch.Stop();
         var sourceEnumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
-        netTimeStopwatch.Start();
-
         var ignoredRowCount = 0;
         var rows = new List<IReadOnlySlimRow>();
-        while (!FlowState.IsTerminating)
+        try
         {
-            netTimeStopwatch.Stop();
-            var finished = !sourceEnumerator.MoveNext();
             netTimeStopwatch.Start();
-            if (finished)
-                break;
-
-            var row = sourceEnumerator.Current;
-
-            if (row.Tag is HeartBeatTag)
+            while (!FlowState.IsTerminating)
             {
                 netTimeStopwatch.Stop();
-                yield return row;
+                var finished = !sourceEnumerator.MoveNext();
                 netTimeStopwatch.Start();
-                continue;
-            }
-
-            var apply = false;
-            if (RowFilter != null)
-            {
-                try
-                {
-                    apply = RowFilter.Invoke(row);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
+                if (finished)
                     break;
-                }
 
-                if (!apply)
+                var row = sourceEnumerator.Current;
+
+                if (row.Tag is HeartBeatTag)
                 {
-                    ignoredRowCount++;
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
                     continue;
                 }
+
+                var apply = false;
+                if (RowFilter != null)
+                {
+                    try
+                    {
+                        apply = RowFilter.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                if (RowTagFilter != null)
+                {
+                    try
+                    {
+                        apply = RowTagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                rows.Add(row);
             }
-
-            if (RowTagFilter != null)
-            {
-                try
-                {
-                    apply = RowTagFilter.Invoke(row.Tag);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                    continue;
-                }
-            }
-
-            rows.Add(row);
+        }
+        finally
+        {
+            sourceEnumerator?.Dispose();
         }
 
         var resultCount = 0;
 
         netTimeStopwatch.Stop();
         var enumerator = Action.Invoke(this, rows).GetEnumerator();
-        netTimeStopwatch.Start();
-
-        if (!RemoveOriginalRow)
+        try
         {
-            netTimeStopwatch.Stop();
-            foreach (var row in rows)
+            netTimeStopwatch.Start();
+
+            if (!RemoveOriginalRow)
             {
-                yield return row as IRow;
+                netTimeStopwatch.Stop();
+                foreach (var row in rows)
+                {
+                    yield return row as IRow;
+                }
+
+                netTimeStopwatch.Start();
+                resultCount += rows.Count;
             }
 
-            netTimeStopwatch.Start();
-            resultCount += rows.Count;
-        }
-
-        while (!FlowState.IsTerminating)
-        {
-            ISlimRow newRow;
-            try
+            while (!FlowState.IsTerminating)
             {
-                if (!enumerator.MoveNext())
+                ISlimRow newRow;
+                try
+                {
+                    if (!enumerator.MoveNext())
+                        break;
+
+                    newRow = enumerator.Current;
+                }
+                catch (Exception ex)
+                {
+                    FlowState.AddException(this, ex);
                     break;
+                }
 
-                newRow = enumerator.Current;
+                resultCount++;
+                var resultRow = Context.CreateRow(this, newRow);
+
+                netTimeStopwatch.Stop();
+                yield return resultRow;
+                netTimeStopwatch.Start();
             }
-            catch (Exception ex)
-            {
-                FlowState.AddException(this, ex);
-                break;
-            }
-
-            resultCount++;
-            var resultRow = Context.CreateRow(this, newRow);
-
-            netTimeStopwatch.Stop();
-            yield return resultRow;
-            netTimeStopwatch.Start();
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         Context.Log(LogSeverity.Debug, this, "processed {InputRowCount} rows and returned {RowCount} rows",

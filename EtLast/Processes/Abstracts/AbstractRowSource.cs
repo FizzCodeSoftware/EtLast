@@ -28,33 +28,40 @@ public abstract class AbstractRowSource : AbstractSequence, IRowSource
 
         netTimeStopwatch.Stop();
         var enumerator = Produce().GetEnumerator();
-        netTimeStopwatch.Start();
-
-        while (!FlowState.IsTerminating)
+        try
         {
-            IRow row = null;
-            try
-            {
-                if (!enumerator.MoveNext())
-                    break;
+            netTimeStopwatch.Start();
 
-                row = enumerator.Current;
-
-                if (row.Tag is not HeartBeatTag && !ProcessRowBeforeYield(row))
-                    continue;
-            }
-            catch (Exception ex)
+            while (!FlowState.IsTerminating)
             {
-                FlowState.AddException(this, ex);
-            }
+                IRow row = null;
+                try
+                {
+                    if (!enumerator.MoveNext())
+                        break;
 
-            if (row != null)
-            {
-                resultCount++;
-                netTimeStopwatch.Stop();
-                yield return row;
-                netTimeStopwatch.Start();
+                    row = enumerator.Current;
+
+                    if (row.Tag is not HeartBeatTag && !ProcessRowBeforeYield(row))
+                        continue;
+                }
+                catch (Exception ex)
+                {
+                    FlowState.AddException(this, ex);
+                }
+
+                if (row != null)
+                {
+                    resultCount++;
+                    netTimeStopwatch.Stop();
+                    yield return row;
+                    netTimeStopwatch.Start();
+                }
             }
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         Context.Log(LogSeverity.Debug, this, "produced {RowCount} rows",
