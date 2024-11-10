@@ -46,44 +46,51 @@ public abstract class AbstractSequence : AbstractProcess, ISequence
                 IEnumerator<IRow> enumerator = null;
                 try
                 {
-                    enumerator = EvaluateImpl(netTimeStopwatch).GetEnumerator();
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex);
-
-                    LogResult(netTimeStopwatch);
-                    yield break;
-                }
-
-                if (enumerator != null)
-                {
-                    while (!FlowState.IsTerminating)
+                    try
                     {
-                        try
-                        {
-                            netTimeStopwatch.Stop();
-                            var finished = !enumerator.MoveNext();
-                            netTimeStopwatch.Start();
-                            if (finished)
-                                break;
-                        }
-                        catch (Exception ex)
-                        {
-                            FlowState.AddException(this, ex);
+                        enumerator = EvaluateImpl(netTimeStopwatch).GetEnumerator();
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex);
 
-                            LogResult(netTimeStopwatch);
-                            yield break;
-                        }
+                        LogResult(netTimeStopwatch);
+                        yield break;
+                    }
 
-                        if (!FlowState.IsTerminating)
+                    if (enumerator != null)
+                    {
+                        while (!FlowState.IsTerminating)
                         {
-                            netTimeStopwatch.Stop();
-                            var row = enumerator.Current;
-                            yield return row;
-                            netTimeStopwatch.Start();
+                            try
+                            {
+                                netTimeStopwatch.Stop();
+                                var finished = !enumerator.MoveNext();
+                                netTimeStopwatch.Start();
+                                if (finished)
+                                    break;
+                            }
+                            catch (Exception ex)
+                            {
+                                FlowState.AddException(this, ex);
+
+                                LogResult(netTimeStopwatch);
+                                yield break;
+                            }
+
+                            if (!FlowState.IsTerminating)
+                            {
+                                netTimeStopwatch.Stop();
+                                var row = enumerator.Current;
+                                yield return row;
+                                netTimeStopwatch.Start();
+                            }
                         }
                     }
+                }
+                finally
+                {
+                    enumerator?.Dispose();
                 }
             }
         }

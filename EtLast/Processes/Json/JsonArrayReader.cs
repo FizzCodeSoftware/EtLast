@@ -49,37 +49,44 @@ public sealed class JsonArrayReader<T> : AbstractRowSource
             {
                 var entryIndex = 0;
                 var enumerator = JsonSerializer.DeserializeAsyncEnumerable<T>(stream.Stream, cancellationToken: Context.CancellationToken).ToBlockingEnumerable().GetEnumerator();
-                while (!FlowState.IsTerminating)
+                try
                 {
-                    try
+                    while (!FlowState.IsTerminating)
                     {
-                        var finished = !enumerator.MoveNext();
-                        if (finished)
-                            break;
+                        try
+                        {
+                            var finished = !enumerator.MoveNext();
+                            if (finished)
+                                break;
+                        }
+                        catch (Exception ex)
+                        {
+                            var exception = new JsonArrayReaderException(this, "json input contains one or more errors", ex);
+                            exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "json input contains one or more errors: {0}", stream.Name));
+                            exception.Data["StreamName"] = stream.Name;
+                            exception.Data["StreamIndex"] = streamIndex;
+                            exception.Data["EntryIndex"] = entryIndex;
+                            exception.Data["ResultCount"] = resultCount;
+
+                            stream.IoCommand.Failed(exception);
+                            throw exception;
+                        }
+
+                        var entry = enumerator.Current;
+                        entryIndex++;
+
+                        resultCount++;
+                        initialValues[ColumnName] = entry;
+
+                        if (!string.IsNullOrEmpty(AddStreamIndexToColumn))
+                            initialValues[AddStreamIndexToColumn] = streamIndex;
+
+                        yield return Context.CreateRow(this, initialValues);
                     }
-                    catch (Exception ex)
-                    {
-                        var exception = new JsonArrayReaderException(this, "json input contains one or more errors", ex);
-                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "json input contains one or more errors: {0}", stream.Name));
-                        exception.Data["StreamName"] = stream.Name;
-                        exception.Data["StreamIndex"] = streamIndex;
-                        exception.Data["EntryIndex"] = entryIndex;
-                        exception.Data["ResultCount"] = resultCount;
-
-                        stream.IoCommand.Failed(exception);
-                        throw exception;
-                    }
-
-                    var entry = enumerator.Current;
-                    entryIndex++;
-
-                    resultCount++;
-                    initialValues[ColumnName] = entry;
-
-                    if (!string.IsNullOrEmpty(AddStreamIndexToColumn))
-                        initialValues[AddStreamIndexToColumn] = streamIndex;
-
-                    yield return Context.CreateRow(this, initialValues);
+                }
+                finally
+                {
+                    enumerator?.Dispose();
                 }
             }
             finally

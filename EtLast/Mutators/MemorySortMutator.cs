@@ -21,76 +21,81 @@ public class MemorySortMutator : AbstractSequence, IMutator
 
         netTimeStopwatch.Stop();
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
-        netTimeStopwatch.Start();
-
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
-
-        while (!FlowState.IsTerminating)
+        try
         {
-            netTimeStopwatch.Stop();
-            var finished = !enumerator.MoveNext();
-            if (finished)
-                break;
-
-            var row = enumerator.Current;
             netTimeStopwatch.Start();
-
-            if (row.Tag is HeartBeatTag)
+            while (!FlowState.IsTerminating)
             {
                 netTimeStopwatch.Stop();
-                yield return row;
+                var finished = !enumerator.MoveNext();
+                if (finished)
+                    break;
+
+                var row = enumerator.Current;
                 netTimeStopwatch.Start();
-                continue;
-            }
 
-            var apply = false;
-            if (RowFilter != null)
-            {
-                try
+                if (row.Tag is HeartBeatTag)
                 {
-                    apply = RowFilter.Invoke(row);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
                     continue;
                 }
+
+                var apply = false;
+                if (RowFilter != null)
+                {
+                    try
+                    {
+                        apply = RowFilter.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                if (RowTagFilter != null)
+                {
+                    try
+                    {
+                        apply = RowTagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                mutatedRowCount++;
+                rows.Add(row);
             }
-
-            if (RowTagFilter != null)
-            {
-                try
-                {
-                    apply = RowTagFilter.Invoke(row.Tag);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                    continue;
-                }
-            }
-
-            mutatedRowCount++;
-            rows.Add(row);
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         netTimeStopwatch.Start();
@@ -101,34 +106,41 @@ public class MemorySortMutator : AbstractSequence, IMutator
         IEnumerator<IRow> sortedRowsEnumerator = null;
         try
         {
-            sortedRowsEnumerator = Sorter(rows).GetEnumerator();
-        }
-        catch (Exception ex)
-        {
-            FlowState.AddException(this, new CustomCodeException(this, "error in a custom sorter", ex));
-        }
-
-        if (sortedRowsEnumerator != null)
-        {
-            while (!FlowState.IsTerminating)
+            try
             {
-                IRow row;
-                try
-                {
-                    var finished = !sortedRowsEnumerator.MoveNext();
-                    if (finished)
-                        break;
-
-                    row = sortedRowsEnumerator.Current;
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, new CustomCodeException(this, "error in a custom sorter", ex));
-                    break;
-                }
-
-                yield return row;
+                sortedRowsEnumerator = Sorter(rows).GetEnumerator();
             }
+            catch (Exception ex)
+            {
+                FlowState.AddException(this, new CustomCodeException(this, "error in a custom sorter", ex));
+            }
+
+            if (sortedRowsEnumerator != null)
+            {
+                while (!FlowState.IsTerminating)
+                {
+                    IRow row;
+                    try
+                    {
+                        var finished = !sortedRowsEnumerator.MoveNext();
+                        if (finished)
+                            break;
+
+                        row = sortedRowsEnumerator.Current;
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, new CustomCodeException(this, "error in a custom sorter", ex));
+                        break;
+                    }
+
+                    yield return row;
+                }
+            }
+        }
+        finally
+        {
+            sortedRowsEnumerator?.Dispose();
         }
 
         Context.Log(LogSeverity.Debug, this, "sorted {RowCount} rows",

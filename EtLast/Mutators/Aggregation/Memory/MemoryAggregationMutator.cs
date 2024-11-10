@@ -14,83 +14,90 @@ public sealed class MemoryAggregationMutator : AbstractMemoryAggregationMutator
 
         netTimeStopwatch.Stop();
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
-        netTimeStopwatch.Start();
-
         var rowCount = 0;
         var ignoredRowCount = 0;
-        while (!FlowState.IsTerminating)
+        try
         {
-            netTimeStopwatch.Stop();
-            var finished = !enumerator.MoveNext();
-            if (finished)
-                break;
-
-            var row = enumerator.Current;
             netTimeStopwatch.Start();
 
-            if (row.Tag is HeartBeatTag)
+            while (!FlowState.IsTerminating)
             {
                 netTimeStopwatch.Stop();
-                yield return row;
+                var finished = !enumerator.MoveNext();
+                if (finished)
+                    break;
+
+                var row = enumerator.Current;
                 netTimeStopwatch.Start();
-                continue;
-            }
 
-            var apply = false;
-            if (RowFilter != null)
-            {
-                try
+                if (row.Tag is HeartBeatTag)
                 {
-                    apply = RowFilter.Invoke(row);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
                     continue;
                 }
-            }
 
-            if (RowTagFilter != null)
-            {
-                try
+                var apply = false;
+                if (RowFilter != null)
                 {
-                    apply = RowTagFilter.Invoke(row.Tag);
+                    try
+                    {
+                        apply = RowFilter.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
                 }
-                catch (Exception ex)
+
+                if (RowTagFilter != null)
                 {
-                    FlowState.AddException(this, ex, row);
-                    break;
+                    try
+                    {
+                        apply = RowTagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
                 }
 
-                if (!apply)
+                rowCount++;
+                var key = KeyGenerator.Invoke(row);
+                if (!groups.TryGetValue(key, out var list))
                 {
-                    ignoredRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                    continue;
+                    list = [];
+                    groups.Add(key, list);
+                    groupCount++;
                 }
-            }
 
-            rowCount++;
-            var key = KeyGenerator.Invoke(row);
-            if (!groups.TryGetValue(key, out var list))
-            {
-                list = [];
-                groups.Add(key, list);
-                groupCount++;
+                list.Add(row);
             }
-
-            list.Add(row);
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         netTimeStopwatch.Start();

@@ -65,70 +65,77 @@ public sealed class ServiceModelReader<TChannel, TClient> : AbstractRowSource
         }
 
         var resultCount = 0;
-        if (enumerator != null && !FlowState.IsTerminating)
+        try
         {
-            var initialValues = new Dictionary<string, object>();
-
-            // key is the SOURCE column name
-            var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
-
-            while (!FlowState.IsTerminating)
+            if (enumerator != null && !FlowState.IsTerminating)
             {
-                try
+                var initialValues = new Dictionary<string, object>();
+
+                // key is the SOURCE column name
+                var columnMap = Columns?.ToDictionary(kvp => kvp.Value.SourceColumn ?? kvp.Key, kvp => (rowColumn: kvp.Key, config: kvp.Value), StringComparer.InvariantCultureIgnoreCase);
+
+                while (!FlowState.IsTerminating)
                 {
-                    if (!enumerator.MoveNext())
-                        break;
-                }
-                catch (Exception ex)
-                {
-                    var exception = new EtlException(this, "error while reading data from service", ex);
-                    exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
-                    exception.Data["Endpoint"] = client.Endpoint.Address.ToString();
-
-                    ioCommand.AffectedDataCount += resultCount;
-                    ioCommand.End();
-                    throw exception;
-                }
-
-                var rowData = enumerator.Current;
-
-                initialValues.Clear();
-
-                foreach (var valueKvp in rowData.Values)
-                {
-                    var column = valueKvp.Key;
-                    var value = valueKvp.Value;
-
-                    if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
-                        value = null;
-
-                    if (columnMap.TryGetValue(column, out var col))
+                    try
                     {
-                        try
+                        if (!enumerator.MoveNext())
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        var exception = new EtlException(this, "error while reading data from service", ex);
+                        exception.AddOpsMessage(string.Format(CultureInfo.InvariantCulture, "error while reading data from service: {0}", client.Endpoint.Address.ToString()));
+                        exception.Data["Endpoint"] = client.Endpoint.Address.ToString();
+
+                        ioCommand.AffectedDataCount += resultCount;
+                        ioCommand.End();
+                        throw exception;
+                    }
+
+                    var rowData = enumerator.Current;
+
+                    initialValues.Clear();
+
+                    foreach (var valueKvp in rowData.Values)
+                    {
+                        var column = valueKvp.Key;
+                        var value = valueKvp.Value;
+
+                        if (value != null && TreatEmptyStringAsNull && (value is string str) && string.IsNullOrEmpty(str))
+                            value = null;
+
+                        if (columnMap.TryGetValue(column, out var col))
                         {
-                            initialValues[col.rowColumn] = col.config.Process(this, value);
+                            try
+                            {
+                                initialValues[col.rowColumn] = col.config.Process(this, value);
+                            }
+                            catch (Exception ex)
+                            {
+                                initialValues[col.rowColumn] = new EtlRowError(this, value, ex);
+                            }
                         }
-                        catch (Exception ex)
+                        else if (DefaultColumns != null)
                         {
-                            initialValues[col.rowColumn] = new EtlRowError(this, value, ex);
+                            try
+                            {
+                                initialValues[column] = DefaultColumns.Process(this, value);
+                            }
+                            catch (Exception ex)
+                            {
+                                initialValues[column] = new EtlRowError(this, value, ex);
+                            }
                         }
                     }
-                    else if (DefaultColumns != null)
-                    {
-                        try
-                        {
-                            initialValues[column] = DefaultColumns.Process(this, value);
-                        }
-                        catch (Exception ex)
-                        {
-                            initialValues[column] = new EtlRowError(this, value, ex);
-                        }
-                    }
-                }
 
-                resultCount++;
-                yield return Context.CreateRow(this, initialValues);
+                    resultCount++;
+                    yield return Context.CreateRow(this, initialValues);
+                }
             }
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         ioCommand.AffectedDataCount += resultCount;

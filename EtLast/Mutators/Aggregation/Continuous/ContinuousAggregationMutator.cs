@@ -26,126 +26,133 @@ public class ContinuousAggregationMutator : AbstractAggregationMutator
 
         netTimeStopwatch.Stop();
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
-        netTimeStopwatch.Start();
-
         var rowCount = 0;
         var ignoredRowCount = 0;
-        while (!FlowState.IsTerminating)
+        try
         {
-            netTimeStopwatch.Stop();
-            var finished = !enumerator.MoveNext();
-            if (finished)
-                break;
-
-            var row = enumerator.Current;
             netTimeStopwatch.Start();
 
-            if (row.Tag is HeartBeatTag)
+            while (!FlowState.IsTerminating)
             {
                 netTimeStopwatch.Stop();
-                yield return row;
+                var finished = !enumerator.MoveNext();
+                if (finished)
+                    break;
+
+                var row = enumerator.Current;
                 netTimeStopwatch.Start();
-                continue;
-            }
 
-            var apply = false;
-            if (RowFilter != null)
-            {
-                try
+                if (row.Tag is HeartBeatTag)
                 {
-                    apply = RowFilter.Invoke(row);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
                     continue;
                 }
-            }
 
-            if (RowTagFilter != null)
-            {
+                var apply = false;
+                if (RowFilter != null)
+                {
+                    try
+                    {
+                        apply = RowFilter.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                if (RowTagFilter != null)
+                {
+                    try
+                    {
+                        apply = RowTagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                rowCount++;
+                ContinuousAggregate aggregate = null;
+
+                if (KeyGenerator != null)
+                {
+                    var key = KeyGenerator.Invoke(row);
+                    aggregates.TryGetValue(key, out aggregate);
+
+                    if (aggregate == null)
+                    {
+                        aggregate = new ContinuousAggregate(row.Tag);
+
+                        if (FixColumns != null)
+                        {
+                            foreach (var column in FixColumns)
+                            {
+                                aggregate.ResultRow[column.Key] = row[column.Value ?? column.Key];
+                            }
+                        }
+
+                        aggregates.Add(key, aggregate);
+                    }
+                }
+                else
+                {
+                    aggregate = singleAggregate;
+                    if (aggregate == null)
+                    {
+                        singleAggregate = aggregate = new ContinuousAggregate(row.Tag);
+
+                        if (FixColumns != null)
+                        {
+                            foreach (var column in FixColumns)
+                            {
+                                aggregate.ResultRow[column.Key] = row[column.Value ?? column.Key];
+                            }
+                        }
+                    }
+                }
+
                 try
                 {
-                    apply = RowTagFilter.Invoke(row.Tag);
+                    Operation.TransformAggregate(row, aggregate);
                 }
                 catch (Exception ex)
                 {
-                    FlowState.AddException(this, ex, row);
+                    FlowState.AddException(this, new ContinuousAggregationException(this, Operation, row, ex));
                     break;
                 }
 
-                if (!apply)
-                {
-                    ignoredRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                    continue;
-                }
+                aggregate.RowsInGroup++;
+
+                row.SetOwner(null);
             }
-
-            rowCount++;
-            ContinuousAggregate aggregate = null;
-
-            if (KeyGenerator != null)
-            {
-                var key = KeyGenerator.Invoke(row);
-                aggregates.TryGetValue(key, out aggregate);
-
-                if (aggregate == null)
-                {
-                    aggregate = new ContinuousAggregate(row.Tag);
-
-                    if (FixColumns != null)
-                    {
-                        foreach (var column in FixColumns)
-                        {
-                            aggregate.ResultRow[column.Key] = row[column.Value ?? column.Key];
-                        }
-                    }
-
-                    aggregates.Add(key, aggregate);
-                }
-            }
-            else
-            {
-                aggregate = singleAggregate;
-                if (aggregate == null)
-                {
-                    singleAggregate = aggregate = new ContinuousAggregate(row.Tag);
-
-                    if (FixColumns != null)
-                    {
-                        foreach (var column in FixColumns)
-                        {
-                            aggregate.ResultRow[column.Key] = row[column.Value ?? column.Key];
-                        }
-                    }
-                }
-            }
-
-            try
-            {
-                Operation.TransformAggregate(row, aggregate);
-            }
-            catch (Exception ex)
-            {
-                FlowState.AddException(this, new ContinuousAggregationException(this, Operation, row, ex));
-                break;
-            }
-
-            aggregate.RowsInGroup++;
-
-            row.SetOwner(null);
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         netTimeStopwatch.Start();

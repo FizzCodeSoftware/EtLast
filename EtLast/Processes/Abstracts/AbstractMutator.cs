@@ -76,130 +76,137 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
 
         netTimeStopwatch.Stop();
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
-        netTimeStopwatch.Start();
-
         var ignoredRowCount = 0;
         var removedRowCount = 0;
         var keptRowCount = 0;
         var addedRowCount = 0;
-        var mutatedRows = new List<IRow>();
-
-        var rowFilter = RowFilter;
-
-        var rowInputIndex = -1;
-
-        while (!FlowState.IsTerminating)
+        try
         {
-            netTimeStopwatch.Stop();
-            var finished = !enumerator.MoveNext();
-            if (finished)
-                break;
-
-            rowInputIndex++;
-
-            var row = enumerator.Current;
             netTimeStopwatch.Start();
 
-            if (row.Tag is HeartBeatTag tag)
-            {
-                ProcessHeartBeatTag(tag);
+            var mutatedRows = new List<IRow>();
 
+            var rowFilter = RowFilter;
+
+            var rowInputIndex = -1;
+
+            while (!FlowState.IsTerminating)
+            {
                 netTimeStopwatch.Stop();
-                yield return row;
+                var finished = !enumerator.MoveNext();
+                if (finished)
+                    break;
+
+                rowInputIndex++;
+
+                var row = enumerator.Current;
                 netTimeStopwatch.Start();
-                continue;
-            }
 
-            var apply = false;
-            if (rowFilter != null)
-            {
-                try
+                if (row.Tag is HeartBeatTag tag)
                 {
-                    apply = rowFilter.Invoke(row);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
+                    ProcessHeartBeatTag(tag);
 
-                if (!apply)
-                {
-                    ignoredRowCount++;
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
                     continue;
                 }
-            }
 
-            if (RowTagFilter != null)
-            {
-                try
+                var apply = false;
+                if (rowFilter != null)
                 {
-                    apply = RowTagFilter.Invoke(row.Tag);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                    continue;
-                }
-            }
-
-            var kept = false;
-            try
-            {
-                foreach (var mutatedRow in MutateRow(row, rowInputIndex))
-                {
-                    if (mutatedRow == row)
+                    try
                     {
-                        keptRowCount++;
-                        kept = true;
+                        apply = rowFilter.Invoke(row);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        addedRowCount++;
-                    }
-
-                    if (mutatedRow.Owner != this)
-                    {
-                        FlowState.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                        FlowState.AddException(this, ex, row);
                         break;
                     }
 
-                    mutatedRows.Add(mutatedRow);
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                FlowState.AddException(this, ex, row);
-                break;
-            }
 
-            if (!kept)
-            {
-                removedRowCount++;
-                row.SetOwner(null);
+                if (RowTagFilter != null)
+                {
+                    try
+                    {
+                        apply = RowTagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                var kept = false;
+                try
+                {
+                    foreach (var mutatedRow in MutateRow(row, rowInputIndex))
+                    {
+                        if (mutatedRow == row)
+                        {
+                            keptRowCount++;
+                            kept = true;
+                        }
+                        else
+                        {
+                            addedRowCount++;
+                        }
+
+                        if (mutatedRow.Owner != this)
+                        {
+                            FlowState.AddException(this, new ProcessExecutionException(this, mutatedRow, "mutator returned a row without proper ownership"));
+                            break;
+                        }
+
+                        mutatedRows.Add(mutatedRow);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    FlowState.AddException(this, ex, row);
+                    break;
+                }
+
+                if (!kept)
+                {
+                    removedRowCount++;
+                    row.SetOwner(null);
+                }
+
+                netTimeStopwatch.Stop();
+                foreach (var mutatedRow in mutatedRows)
+                {
+                    yield return mutatedRow;
+                }
+
+                netTimeStopwatch.Start();
+
+                mutatedRows.Clear();
             }
-
-            netTimeStopwatch.Stop();
-            foreach (var mutatedRow in mutatedRows)
-            {
-                yield return mutatedRow;
-            }
-
-            netTimeStopwatch.Start();
-
-            mutatedRows.Clear();
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         netTimeStopwatch.Start();
@@ -212,6 +219,8 @@ public abstract class AbstractMutator : AbstractProcess, IMutator
         {
             FlowState.AddException(this, ex);
         }
+
+        enumerator.Dispose();
 
         if (ignoredRowCount + keptRowCount + removedRowCount > 0)
         {

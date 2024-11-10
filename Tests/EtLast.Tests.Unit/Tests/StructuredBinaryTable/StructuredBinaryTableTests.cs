@@ -142,4 +142,64 @@ public class StructuredBinaryTableTests
             .Select(x => x.Values.ToDictionary()).ToList());
         Assert.AreEqual(0, result.Process.FlowState.Exceptions.Count);
     }
+
+    [TestMethod]
+    public void StreamDisposeTest()
+    {
+        var memoryStream = new MemoryStream();
+
+        var context = TestExecuter.GetContext();
+
+        var rows = TestData.Person().TakeRowsAndReleaseOwnership(null);
+
+        var rowCache = SequenceBuilder.Fluent
+            .ReadFrom(TestData.Person())
+            .BuildToInMemoryRowCache();
+
+        var fileName = Path.GetTempFileName();
+
+        SequenceBuilder.Fluent
+            .ReadFromInMemoryRowCache(rowCache)
+            .WriteToStructuredBinaryTable(new WriteToStructuredBinaryTableMutator()
+            {
+                DynamicColumns = () => new()
+                {
+                    ["id"] = typeof(int),
+                    ["name"] = typeof(string),
+                    ["age"] = typeof(int),
+                    ["height"] = typeof(int),
+                    ["eyeColor"] = typeof(string),
+                    ["countryId"] = typeof(int),
+                    ["birthDate"] = typeof(DateTime),
+                    ["lastChangedTime"] = typeof(DateTime),
+                },
+                SinkProvider = new LocalFileSinkProvider()
+                {
+                    Path = fileName,
+                    ActionWhenFileExists = LocalSinkFileExistsAction.Overwrite,
+                    FileMode = FileMode.Create,
+                },
+            })
+            .Build()
+            .Execute(context);
+
+        context = TestExecuter.GetContext();
+        SequenceBuilder.Fluent
+            .ReadStructuredBinaryTable(new StructuredBinaryTableReader()
+            {
+                StreamProvider = new LocalFileStreamProvider()
+                {
+                    Path = fileName,
+                },
+            })
+            .CustomCode("x", row =>
+            {
+                row["x"] = new EtlRowError(2);
+            })
+            .ThrowExceptionOnRowError()
+            .Build()
+            .Execute(context);
+
+        File.Delete(fileName);
+    }
 }

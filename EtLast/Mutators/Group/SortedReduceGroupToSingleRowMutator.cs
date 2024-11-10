@@ -33,95 +33,101 @@ public sealed class SortedReduceGroupToSingleRowMutator : AbstractSequence, IMut
 
         netTimeStopwatch.Stop();
         var enumerator = Input.TakeRowsAndTransferOwnership(this).GetEnumerator();
-        netTimeStopwatch.Start();
-
         var mutatedRowCount = 0;
         var ignoredRowCount = 0;
         var resultRowCount = 0;
-        while (!FlowState.IsTerminating)
+        try
         {
-            netTimeStopwatch.Stop();
-            var finished = !enumerator.MoveNext();
-            if (finished)
-                break;
-
-            var row = enumerator.Current;
             netTimeStopwatch.Start();
-
-            if (row.Tag is HeartBeatTag)
+            while (!FlowState.IsTerminating)
             {
                 netTimeStopwatch.Stop();
-                yield return row;
+                var finished = !enumerator.MoveNext();
+                if (finished)
+                    break;
+
+                var row = enumerator.Current;
                 netTimeStopwatch.Start();
-                continue;
-            }
 
-            var apply = false;
-            if (RowFilter != null)
-            {
-                try
+                if (row.Tag is HeartBeatTag)
                 {
-                    apply = RowFilter.Invoke(row);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
-                }
-
-                if (!apply)
-                {
-                    ignoredRowCount++;
                     netTimeStopwatch.Stop();
                     yield return row;
                     netTimeStopwatch.Start();
                     continue;
                 }
-            }
 
-            if (RowTagFilter != null)
-            {
-                try
+                var apply = false;
+                if (RowFilter != null)
                 {
-                    apply = RowTagFilter.Invoke(row.Tag);
-                }
-                catch (Exception ex)
-                {
-                    FlowState.AddException(this, ex, row);
-                    break;
+                    try
+                    {
+                        apply = RowFilter.Invoke(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
                 }
 
-                if (!apply)
+                if (RowTagFilter != null)
                 {
-                    ignoredRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return row;
-                    netTimeStopwatch.Start();
-                    continue;
+                    try
+                    {
+                        apply = RowTagFilter.Invoke(row.Tag);
+                    }
+                    catch (Exception ex)
+                    {
+                        FlowState.AddException(this, ex, row);
+                        break;
+                    }
+
+                    if (!apply)
+                    {
+                        ignoredRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return row;
+                        netTimeStopwatch.Start();
+                        continue;
+                    }
+                }
+
+                mutatedRowCount++;
+                var key = KeyGenerator.Invoke(row);
+                if (key != lastKey)
+                {
+                    lastKey = key;
+
+                    var groupRow = ReduceGroup(group);
+
+                    if (groupRow != null)
+                    {
+                        resultRowCount++;
+                        netTimeStopwatch.Stop();
+                        yield return groupRow;
+                        netTimeStopwatch.Start();
+                    }
+                }
+
+                if (!FlowState.IsTerminating)
+                {
+                    group.Add(row);
                 }
             }
-
-            mutatedRowCount++;
-            var key = KeyGenerator.Invoke(row);
-            if (key != lastKey)
-            {
-                lastKey = key;
-
-                var groupRow = ReduceGroup(group);
-
-                if (groupRow != null)
-                {
-                    resultRowCount++;
-                    netTimeStopwatch.Stop();
-                    yield return groupRow;
-                    netTimeStopwatch.Start();
-                }
-            }
-
-            if (!FlowState.IsTerminating)
-            {
-                group.Add(row);
-            }
+        }
+        finally
+        {
+            enumerator?.Dispose();
         }
 
         netTimeStopwatch.Start();
