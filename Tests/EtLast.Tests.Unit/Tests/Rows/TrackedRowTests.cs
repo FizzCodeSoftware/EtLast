@@ -7,6 +7,7 @@ public class TrackedRowTests
     public void ToDebugStringStartsWithId()
     {
         var context = TestExecuter.GetContext();
+        context.RowListeners.Add(new FakeListener());
 
         var initialValues = new Dictionary<string, object>()
         {

@@ -86,21 +86,32 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
     {
         if (!multiLine)
         {
-            return "ID: "
-                + Id.ToString("D", CultureInfo.InvariantCulture)
-                + (Tag != null ? ", tag: " + Tag.ToString() : "")
-                + (_values.Count > 0
-                    ? ", " + string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
-                    : "no values");
+            return Id != -1
+                ? "ID: "
+                    + Id.ToString("D", CultureInfo.InvariantCulture)
+                    + (Tag != null ? ", tag: " + Tag.ToString() : "")
+                    + (_values.Count > 0
+                        ? ", " + string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        : "no values")
+                : (Tag != null ? "tag: " + Tag.ToString() + ", " : "")
+                    + (_values.Count > 0
+                        ? string.Join(", ", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        : "no values");
+
         }
         else
         {
-            return "ID: "
-                + Id.ToString("D", CultureInfo.InvariantCulture)
-                + (Tag != null ? "\ttag: " + Tag.ToString() : "")
-                + (_values.Count > 0
-                    ? "\n" + string.Join("\n", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
-                    : "no values");
+            return Id != -1
+                ? "ID: "
+                    + Id.ToString("D", CultureInfo.InvariantCulture)
+                    + (Tag != null ? "\ttag: " + Tag.ToString() : "")
+                    + (_values.Count > 0
+                        ? "\n" + string.Join("\n", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        : "no values")
+                : (Tag != null ? "tag: " + Tag.ToString() + "\n" : "")
+                    + (_values.Count > 0
+                        ? string.Join("\n", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        : "no values");
         }
     }
 

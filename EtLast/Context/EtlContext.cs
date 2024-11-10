@@ -149,7 +149,11 @@ public sealed class EtlContext : IEtlContext
 
     public IRow CreateRow(IProcess process)
     {
-        var row = new Row(this, process, Interlocked.Increment(ref _nextRowId), null);
+        var id = RowListeners.Count > 0
+            ? Interlocked.Increment(ref _nextRowId)
+            : -1;
+
+        var row = new Row(this, process, id, null);
 
         foreach (var listener in RowListeners)
             listener.OnRowCreated(row);
@@ -159,7 +163,11 @@ public sealed class EtlContext : IEtlContext
 
     public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues)
     {
-        var row = new Row(this, process, Interlocked.Increment(ref _nextRowId), initialValues);
+        var id = RowListeners.Count > 0
+            ? Interlocked.Increment(ref _nextRowId)
+            : -1;
+
+        var row = new Row(this, process, id, initialValues);
 
         foreach (var listener in RowListeners)
             listener.OnRowCreated(row);
@@ -169,7 +177,11 @@ public sealed class EtlContext : IEtlContext
 
     public IRow CreateRow(IProcess process, IReadOnlySlimRow source)
     {
-        var row = new Row(this, process, Interlocked.Increment(ref _nextRowId), source.Values)
+        var id = RowListeners.Count > 0
+            ? Interlocked.Increment(ref _nextRowId)
+            : -1;
+
+        var row = new Row(this, process, id, source.Values)
         {
             Tag = source.Tag
         };
