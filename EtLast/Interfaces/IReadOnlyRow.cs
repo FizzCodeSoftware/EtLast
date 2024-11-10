@@ -2,7 +2,8 @@
 
 public interface IReadOnlyRow : IReadOnlySlimRow
 {
-    long Id { get; }
-
-    IProcess Owner { get; }
+    public long Id { get; }
+    public IProcess Owner { get; }
+    public long GetRowChecksumForSpecificColumns(string[] columns);
+    public long GetRowChecksumForAllColumns(string[] exceptColumns);
 }
