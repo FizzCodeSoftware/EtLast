@@ -12,6 +12,7 @@ public sealed class EtlContext : IEtlContext
 
     public List<IEtlContextListener> Listeners { get; }
     public List<IEtlContextRowListener> RowListeners { get; } = [];
+    public List<IEtlContextLogger> Loggers { get; } = [];
 
     /// <summary>
     /// Default value: 4 hours, but .NET maximizes the timeout in 10 minutes.
@@ -126,30 +127,45 @@ public sealed class EtlContext : IEtlContext
 
     public void Log(string transactionId, LogSeverity severity, IProcess process, string text, params object[] args)
     {
+        foreach (var logger in Loggers)
+            logger.OnLog(severity, false, transactionId, process, text, args);
+
         foreach (var listener in Listeners)
             listener.OnLog(severity, false, transactionId, process, text, args);
     }
 
     public void Log(LogSeverity severity, IProcess process, string text, params object[] args)
     {
+        foreach (var logger in Loggers)
+            logger.OnLog(severity, false, null, process, text, args);
+
         foreach (var listener in Listeners)
             listener.OnLog(severity, false, null, process, text, args);
     }
 
     public void LogOps(LogSeverity severity, IProcess process, string text, params object[] args)
     {
+        foreach (var logger in Loggers)
+            logger.OnLog(severity, true, null, process, text, args);
+
         foreach (var listener in Listeners)
             listener.OnLog(severity, true, null, process, text, args);
     }
 
     public void LogCustom(string fileName, IProcess process, string text, params object[] args)
     {
+        foreach (var logger in Loggers)
+            logger.OnCustomLog(false, fileName, process, text, args);
+
         foreach (var listener in Listeners)
             listener.OnCustomLog(false, fileName, process, text, args);
     }
 
     public void LogCustomOps(string fileName, IProcess process, string text, params object[] args)
     {
+        foreach (var logger in Loggers)
+            logger.OnCustomLog(true, fileName, process, text, args);
+
         foreach (var listener in Listeners)
             listener.OnCustomLog(true, fileName, process, text, args);
     }
@@ -158,6 +174,9 @@ public sealed class EtlContext : IEtlContext
     {
         ioCommand.Id = Interlocked.Increment(ref _nextIoCommandId);
         ioCommand.Context = this;
+
+        foreach (var logger in Loggers)
+            logger.OnContextIoCommandStart(ioCommand);
 
         foreach (var listener in Listeners)
             listener.OnContextIoCommandStart(ioCommand);
@@ -290,6 +309,14 @@ public sealed class EtlContext : IEtlContext
 
     public void Close()
     {
+        foreach (var logger in Loggers)
+        {
+            logger.OnContextClosed();
+            if (logger is IDisposable disp)
+                disp.Dispose();
+        }
+        Loggers.Clear();
+
         foreach (var listener in Listeners)
         {
             listener.OnContextClosed();

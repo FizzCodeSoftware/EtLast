@@ -1,10 +1,10 @@
 ﻿namespace FizzCode.EtLast;
 
-internal class EtlContextOpsToFileLogger : IEtlContextListener
+internal class EtlContextOpsToFileLogger : IEtlContextLogger
 {
     private readonly ILogger _logger;
     private readonly string _directory;
-    private readonly object _customFileLock = new();
+    private readonly Lock _customFileLock = new();
 
     public EtlContextOpsToFileLogger(IEtlContext context, string directory, int importantFileCount = 30, int infoFileCount = 14)
     {
@@ -173,34 +173,6 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
     {
     }
 
-    public void OnRowCreated(IReadOnlyRow row)
-    {
-    }
-
-    public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
-    {
-    }
-
-    public void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values)
-    {
-    }
-
-    public void OnSinkStarted(IProcess process, Sink sink)
-    {
-    }
-
-    public void OnWriteToSink(Sink sink, IReadOnlyRow row)
-    {
-    }
-
-    public void OnProcessStart(IProcess process)
-    {
-    }
-
-    public void OnProcessEnd(IProcess process)
-    {
-    }
-
     public void OnContextClosed()
     {
         try
@@ -214,9 +186,9 @@ internal class EtlContextOpsToFileLogger : IEtlContextListener
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class EtlContextOpsToFileLoggerFluent
 {
-    public static ISessionBuilder LogOpsToFile(this ISessionBuilder builder, int importantFileCount = 30, int infoFileCount = 14)
+    public static ISessionBuilder LogOpsToFile(this ISessionBuilder session, int importantFileCount = 30, int infoFileCount = 14)
     {
-        builder.Context.Listeners.Add(new EtlContextOpsToFileLogger(builder.Context, builder.OpsLogDirectory, importantFileCount, infoFileCount));
-        return builder;
+        session.AddLoggerCreator(() => new EtlContextOpsToFileLogger(session.Context, session.OpsLogDirectory, importantFileCount, infoFileCount));
+        return session;
     }
 }

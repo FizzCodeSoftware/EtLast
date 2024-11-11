@@ -20,6 +20,7 @@ public interface IEtlContext : ICaller
     public ContextManifest Manifest { get; }
     public List<IEtlContextListener> Listeners { get; }
     public List<IEtlContextRowListener> RowListeners { get; }
+    public List<IEtlContextLogger> Loggers { get; }
 
     public IRow CreateRow(IProcess process);
     public IRow CreateRow(IProcess process, IEnumerable<KeyValuePair<string, object>> initialValues);

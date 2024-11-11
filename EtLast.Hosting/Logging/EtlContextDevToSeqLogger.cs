@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-internal class EtlContextDevToSeqLogger : IEtlContextListener
+internal class EtlContextDevToSeqLogger : IEtlContextLogger
 {
     private readonly ILogger _logger;
 
@@ -83,34 +83,6 @@ internal class EtlContextDevToSeqLogger : IEtlContextListener
     {
     }
 
-    public void OnRowCreated(IReadOnlyRow row)
-    {
-    }
-
-    public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
-    {
-    }
-
-    public void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values)
-    {
-    }
-
-    public void OnSinkStarted(IProcess process, Sink sink)
-    {
-    }
-
-    public void OnWriteToSink(Sink sink, IReadOnlyRow row)
-    {
-    }
-
-    public void OnProcessStart(IProcess process)
-    {
-    }
-
-    public void OnProcessEnd(IProcess process)
-    {
-    }
-
     public void OnContextClosed()
     {
         try
@@ -124,9 +96,9 @@ internal class EtlContextDevToSeqLogger : IEtlContextListener
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class EtlContextDevToSeqLoggerFluent
 {
-    public static ISessionBuilder LogDevToSeq(this ISessionBuilder builder, string url, string apiKey, LogSeverity minimumLogLevel = LogSeverity.Debug)
+    public static ISessionBuilder LogDevToSeq(this ISessionBuilder session, string url, string apiKey, LogSeverity minimumLogLevel = LogSeverity.Debug)
     {
-        builder.Context.Listeners.Add(new EtlContextDevToSeqLogger(builder.Context, url, apiKey, minimumLogLevel));
-        return builder;
+        session.AddLoggerCreator(() => new EtlContextDevToSeqLogger(session.Context, url, apiKey, minimumLogLevel));
+        return session;
     }
 }

@@ -29,10 +29,11 @@ public class FlowState(IEtlContext context) : IReadOnlyFlowState
         if (ex is not EtlException)
             ex = new ProcessExecutionException(process, ex);
 
+        foreach (var logger in Context.Loggers)
+            logger.OnException(process, ex);
+
         foreach (var listener in Context.Listeners)
-        {
             listener.OnException(process, ex);
-        }
 
         Exceptions.Add(ex);
     }
@@ -58,10 +59,11 @@ public class FlowState(IEtlContext context) : IReadOnlyFlowState
             ex = new ProcessExecutionException(process, row, ex);
         }
 
+        foreach (var logger in Context.Loggers)
+            logger.OnException(process, ex);
+
         foreach (var listener in Context.Listeners)
-        {
             listener.OnException(process, ex);
-        }
 
         Exceptions.Add(ex);
     }
