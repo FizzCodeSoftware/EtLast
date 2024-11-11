@@ -96,8 +96,9 @@ internal static class ModuleLoader
             .AppendLine("global using global::System.Net.Http;")
             .AppendLine("global using global::System.Threading;")
             .AppendLine("global using global::System.Threading.Tasks;")
+            .AppendLine("global using global::FizzCode;")
             .AppendLine("global using global::FizzCode.EtLast;")
-            .AppendLine("global using global::FizzCode.LightWeight;");
+            ;
 
         syntaxTrees.Add(SyntaxFactory.ParseSyntaxTree(SourceText.From(globalUsing.ToString()), parseOptions));
 
