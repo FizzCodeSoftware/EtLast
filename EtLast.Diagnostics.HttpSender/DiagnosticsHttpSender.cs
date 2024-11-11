@@ -385,7 +385,7 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener, IEtlConte
         {
             writer.Write7BitEncodedInt64(ioCommand.Id);
             writer.WriteNullable7BitEncodedInt64(ioCommand.AffectedDataCount);
-            writer.WriteNullable(ioCommand.Exception?.FormatExceptionWithDetails());
+            writer.WriteNullable(ioCommand.Exception?.FormatWithEtlDetails());
         });
     }
 

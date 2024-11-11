@@ -2,7 +2,7 @@
 
 namespace FizzCode.EtLast;
 
-public class ColumnDataTypeInfo
+public class DataTypeInfo
 {
     public string Name { get; init; }
 
@@ -45,5 +45,47 @@ public class ColumnDataTypeInfo
     public override string ToString()
     {
         return Name + ", " + ClrTypeName + ", " + DataTypeName + (Precision != null && Scale != null ? " (" + Precision.Value.ToString(CultureInfo.InvariantCulture) + ", " + Scale.Value.ToString(CultureInfo.InvariantCulture) + ")" : "");
+    }
+
+    public static string GetSchemaVer(List<DataTypeInfo> columns, string[] keyColumns)
+    {
+        var keySet = keyColumns.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+
+        var sb = new StringBuilder();
+        foreach (var col in columns.OrderBy(x => x.Name.ToLowerInvariant()))
+        {
+            sb
+                .AppendJoin('\t',
+                    col.Name.ToLowerInvariant(),
+                    col.ClrTypeName.ToLowerInvariant(),
+                    col.DataTypeName.ToLowerInvariant(),
+                    col.Precision?.ToString(CultureInfo.InvariantCulture) ?? "-",
+                    col.Scale?.ToString(CultureInfo.InvariantCulture) ?? "-",
+                    col.Size?.ToString(CultureInfo.InvariantCulture) ?? "-",
+                    keySet.Contains(col.Name) ? "key" : "-"
+                    )
+                .Append('\n');
+        }
+
+        var content = sb.ToString();
+        var data = Encoding.UTF8.GetBytes(content);
+
+        var hash1 = 0x811C9DC5;
+        var hash2 = 0x811C9DC5;
+
+        for (var i = 0; i < data.Length; i++)
+        {
+            hash1 ^= data[i];
+            hash1 *= 0x01000193;
+        }
+
+        for (var i = data.Length; i >= 0; i--)
+        {
+            hash2 ^= data[i];
+            hash2 *= 0x01000193;
+        }
+
+        var hashStr = (columns.Count % 256).ToString("X2") + hash1.ToString("X8") + (hash2 % 256).ToString("X2");
+        return hashStr;
     }
 }

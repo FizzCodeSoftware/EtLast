@@ -183,7 +183,7 @@ public partial class CommandService : AbstractCommandService
         if (e?.ExceptionObject is not Exception ex)
             return;
 
-        var formattedMessage = ex.FormatExceptionWithDetails();
+        var formattedMessage = ex.FormatWithEtlDetails();
 
         if (Logger != null)
         {

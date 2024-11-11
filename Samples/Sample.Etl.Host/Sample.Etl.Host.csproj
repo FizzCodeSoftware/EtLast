@@ -10,10 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.EtLast.CommandService" Version="9.0.187" />
-    <PackageReference Include="FizzCode.EtLast.Diagnostics.HttpSender" Version="9.0.187" />
-    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="9.0.187" />
-    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="9.0.187" />
+    <PackageReference Include="FizzCode.EtLast.CommandService" Version="9.0.195" />
+    <PackageReference Include="FizzCode.EtLast.Diagnostics.HttpSender" Version="9.0.195" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="9.0.195" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="9.0.195" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

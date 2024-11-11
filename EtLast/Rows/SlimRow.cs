@@ -104,7 +104,7 @@ public sealed class SlimRow : ISlimRow
             exception.Data["Value"] = value != null ? value.ToString() : "NULL";
             if (value != null)
                 exception.Data["ValueType"] = value.GetType().GetFriendlyTypeName();
-            exception.Data["RequestedType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
+            exception.Data["RequestedType"] = TypeExtensions.GetFriendlyTypeName(typeof(T));
             throw exception;
         }
     }
@@ -125,7 +125,7 @@ public sealed class SlimRow : ISlimRow
             exception.Data["Column"] = column;
             exception.Data["Value"] = value.ToString();
             exception.Data["ValueType"] = value.GetType().GetFriendlyTypeName();
-            exception.Data["RequestedType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
+            exception.Data["RequestedType"] = TypeExtensions.GetFriendlyTypeName(typeof(T));
             throw exception;
         }
     }

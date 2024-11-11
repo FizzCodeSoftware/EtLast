@@ -60,7 +60,7 @@ public class LocalJsonFileManifestProcessor : IManifestProcessor
         }
         catch (Exception ex)
         {
-            _context.Log(LogSeverity.Warning, null, "error while writing manifest: {ErrorMessage}", ex.FormatExceptionWithDetails(false));
+            _context.Log(LogSeverity.Warning, null, "error while writing manifest: {ErrorMessage}", ex.FormatWithEtlDetails(false));
         }
     }
 }

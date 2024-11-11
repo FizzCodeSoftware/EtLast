@@ -68,7 +68,7 @@ public partial class CommandService
         }
         catch (Exception ex)
         {
-            var formattedMessage = ex.FormatExceptionWithDetails();
+            var formattedMessage = ex.FormatWithEtlDetails();
             context.Log(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
             context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
         }

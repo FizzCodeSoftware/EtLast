@@ -39,9 +39,9 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     /// <summary>
     /// If initialized with a list, then the column info returned by the ADO.NET connector based on the given query will be stored in it.
     /// </summary>
-    public List<ColumnDataTypeInfo> ColumnInfoList { get; init; } = [];
+    public List<DataTypeInfo> ColumnInfoList { get; init; } = [];
 
-    public Action<IReadOnlyList<ColumnDataTypeInfo>> ColumnInfoListTester { get; init; }
+    public Action<IReadOnlyList<DataTypeInfo>> ColumnInfoListTester { get; init; }
 
     public Func<string, string> SqlStatementCustomizer { get; init; }
 
@@ -225,7 +225,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
                         var clrType = reader.GetFieldType(i);
                         var hasPrecisionOrScale = clrType == typeof(decimal) || clrType == typeof(double) || clrType == typeof(float);
 
-                        var info = new ColumnDataTypeInfo()
+                        var info = new DataTypeInfo()
                         {
                             Name = columns[i].NameInRow,
                             ClrType = reader.GetFieldType(i),
@@ -454,7 +454,7 @@ public abstract class AbstractAdoNetDbReader : AbstractRowSource
     {
         public string NameInRow { get; init; }
         public ReaderColumn Config { get; init; }
-        public ColumnDataTypeInfo Info { get; set; }
+        public DataTypeInfo Info { get; set; }
     }
 
     protected abstract IoCommand RegisterIoCommand(string transactionId, int timeout, string statement);

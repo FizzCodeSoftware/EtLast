@@ -82,7 +82,7 @@ internal class EtlContextIoToFileLogger : IEtlContextListener
         if (ioCommand.Exception != null)
         {
             sb.Append('\t').Append("exception"); // message
-            sb.Append(ioCommand.Exception.FormatExceptionWithDetails().ReplaceLineEndings("\\n")); // messageExtra
+            sb.Append(ioCommand.Exception.FormatWithEtlDetails().ReplaceLineEndings("\\n")); // messageExtra
         }
 
         _logger.Write(LogEventLevel.Information, sb.ToString());

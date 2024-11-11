@@ -102,16 +102,18 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
         }
         else
         {
+            var maxColNameLength = _values.Max(x => x.Key.Length);
+
             return Id != -1
                 ? "ID: "
                     + Id.ToString("D", CultureInfo.InvariantCulture)
                     + (Tag != null ? "\ttag: " + Tag.ToString() : "")
                     + (_values.Count > 0
-                        ? "\n" + string.Join("\n", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        ? "\n" + string.Join("\n", _values.Select(kvp => ("[" + kvp.Key + "]").PadRight(maxColNameLength + 2) + " = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
                         : "no values")
                 : (Tag != null ? "tag: " + Tag.ToString() + "\n" : "")
                     + (_values.Count > 0
-                        ? string.Join("\n", _values.Select(kvp => "[" + kvp.Key + "] = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
+                        ? string.Join("\n", _values.Select(kvp => ("[" + kvp.Key + "]").PadRight(maxColNameLength + 2) + " = " + (kvp.Value != null ? kvp.Value.ToString() + " (" + kvp.Value.GetType().GetFriendlyTypeName() + ")" : "NULL")))
                         : "no values");
         }
     }
@@ -139,7 +141,7 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
             exception.Data["Value"] = value != null ? value.ToString() : "NULL";
             if (value != null)
                 exception.Data["ValueType"] = value.GetType().GetFriendlyTypeName();
-            exception.Data["RequestedType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
+            exception.Data["RequestedType"] = TypeExtensions.GetFriendlyTypeName(typeof(T));
             throw exception;
         }
     }
@@ -159,7 +161,7 @@ public sealed class Row(IEtlContext context, IProcess process, long id, IEnumera
             exception.Data["Column"] = column;
             exception.Data["Value"] = value.ToString();
             exception.Data["ValueType"] = value.GetType().GetFriendlyTypeName();
-            exception.Data["RequestedType"] = TypeHelpers.GetFriendlyTypeName(typeof(T));
+            exception.Data["RequestedType"] = TypeExtensions.GetFriendlyTypeName(typeof(T));
             throw exception;
         }
     }

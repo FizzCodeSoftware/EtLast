@@ -314,7 +314,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         }
         catch (Exception ex)
         {
-            var formattedMessage = ex.FormatExceptionWithDetails();
+            var formattedMessage = ex.FormatWithEtlDetails();
             Logger.Write(LogEventLevel.Fatal, "unexpected error during execution of command {CommandId}: {ErrorMessage}", commandId, formattedMessage);
 
             result = new ExecutionResult(ExecutionStatusCode.UnexpectedError);
@@ -331,7 +331,7 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
         if (e?.ExceptionObject is not Exception ex)
             return;
 
-        var formattedMessage = ex.FormatExceptionWithDetails();
+        var formattedMessage = ex.FormatWithEtlDetails();
 
         if (Logger != null)
         {

@@ -72,7 +72,7 @@ internal class EtlContextConsoleLogger : IEtlContextListener
 
     public void OnException(IProcess process, Exception exception)
     {
-        var msg = exception.FormatExceptionWithDetails();
+        var msg = exception.FormatWithEtlDetails();
         Log(LogSeverity.Error, false, null, process, "{ErrorMessage}", msg);
     }
 
