@@ -3,78 +3,118 @@
 internal class EtlContextDevToFileLogger : IEtlContextListener
 {
     private readonly ILogger _logger;
+    private readonly ILogger _ioLogger;
     private readonly string _directory;
-    private readonly object _customFileLock = new();
+    private readonly Lock _customFileLock = new();
 
-    public EtlContextDevToFileLogger(IEtlContext context, string directory, LogSeverity minimumLogLevel, int importantFileCount = 30, int infoFileCount = 14, int lowFileCount = 4)
+    public EtlContextDevToFileLogger(IEtlContext context, string directory, LogSeverity minimumLogLevel, int retentionHours)
     {
-        _directory = directory;
+        try
+        {
+            if (Directory.Exists(directory))
+            {
+                var existingDirectories = Directory.EnumerateDirectories(directory, "*", new EnumerationOptions()
+                {
+                    IgnoreInaccessible = true,
+                    RecurseSubdirectories = false,
+                    ReturnSpecialDirectories = false,
+                });
+
+                var now = DateTime.UtcNow;
+                foreach (var dir in existingDirectories)
+                {
+                    var n = Path.GetFileName(dir);
+                    if (DateTime.TryParseExact(n, EtlContext.ContextIdFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                    {
+                        if (date.AddHours(retentionHours) < now)
+                        {
+                            try
+                            {
+                                Directory.Delete(dir, recursive: true);
+                            }
+                            catch (Exception) { }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception) { }
+
+        _directory = Path.Combine(directory, context.Manifest.ContextId.ToString("D", CultureInfo.InvariantCulture));
+
+        if (!Directory.Exists(_directory))
+        {
+            try
+            {
+                Directory.CreateDirectory(_directory);
+            }
+            catch (Exception) { }
+        }
+
         var config = new LoggerConfiguration()
-            .WriteTo.File(Path.Combine(directory, "2-info-.txt"),
+            .WriteTo.File(Path.Combine(_directory, "2-info.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Information,
-                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: infoFileCount,
                 encoding: Encoding.UTF8)
 
-            .WriteTo.File(Path.Combine(directory, "3-warning-.txt"),
+            .WriteTo.File(Path.Combine(_directory, "3-warning.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Warning,
-                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: importantFileCount,
                 encoding: Encoding.UTF8)
 
-            .WriteTo.File(Path.Combine(directory, "4-error-.txt"),
+            .WriteTo.File(Path.Combine(_directory, "4-error.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Error,
-                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: importantFileCount,
                 encoding: Encoding.UTF8)
 
-            .WriteTo.File(Path.Combine(directory, "5-fatal-.txt"),
+            .WriteTo.File(Path.Combine(_directory, "5-fatal.txt"),
                 restrictedToMinimumLevel: LogEventLevel.Fatal,
-                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                 formatProvider: CultureInfo.InvariantCulture,
-                rollingInterval: RollingInterval.Day,
-                retainedFileCountLimit: importantFileCount,
                 encoding: Encoding.UTF8);
 
         if (minimumLogLevel <= LogSeverity.Debug)
         {
             config = config
-                .WriteTo.File(Path.Combine(directory, "1-debug-.txt"),
+                .WriteTo.File(Path.Combine(_directory, "1-debug.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Debug,
-                    outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     formatProvider: CultureInfo.InvariantCulture,
                     buffered: true,
-                    flushToDiskInterval: TimeSpan.FromSeconds(1),
-                    rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: lowFileCount,
+                    flushToDiskInterval: TimeSpan.FromSeconds(5),
                     encoding: Encoding.UTF8);
         }
 
         if (minimumLogLevel <= LogSeverity.Verbose)
         {
             config = config
-                .WriteTo.File(Path.Combine(directory, "0-verbose-.txt"),
+                .WriteTo.File(Path.Combine(_directory, "0-verbose.txt"),
                     restrictedToMinimumLevel: LogEventLevel.Verbose,
-                    outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{ContextId}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff zzz}] [{Level:u3}] {Message:l} {NewLine}{Exception}",
                     formatProvider: CultureInfo.InvariantCulture,
                     buffered: true,
-                    flushToDiskInterval: TimeSpan.FromSeconds(1),
-                    rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: lowFileCount,
+                    flushToDiskInterval: TimeSpan.FromSeconds(5),
                     encoding: Encoding.UTF8);
         }
 
         config = config
-            .MinimumLevel.Is(Debugger.IsAttached ? LogEventLevel.Verbose : LogEventLevel.Debug)
-            .Enrich.WithProperty("ContextId", context.Manifest.ContextId);
+            .MinimumLevel.Is(Debugger.IsAttached ? LogEventLevel.Verbose : LogEventLevel.Debug);
 
         _logger = config.CreateLogger();
+
+        var ioConfig = new LoggerConfiguration()
+            .WriteTo.File(Path.Combine(_directory, "io.tsv"),
+                outputTemplate: "{Timestamp:HH:mm:ss.fff zzz}\t{Message:l}{NewLine}",
+                formatProvider: CultureInfo.InvariantCulture,
+                buffered: true,
+                flushToDiskInterval: TimeSpan.FromSeconds(5),
+                encoding: Encoding.UTF8,
+                hooks: new IoFileLifecycleHooks());
+
+        _ioLogger = ioConfig.CreateLogger();
     }
 
     public void Start()
@@ -167,10 +207,53 @@ internal class EtlContextDevToFileLogger : IEtlContextListener
 
     public void OnContextIoCommandStart(IoCommand ioCommand)
     {
+        if (_ioLogger == null)
+            return;
+
+        var sb = new StringBuilder();
+        sb.Append(ioCommand.Process?.UniqueName);
+        sb.Append('\t').Append(ioCommand.Id.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(ioCommand.Kind.ToString());
+        sb.Append('\t').Append("started");
+        sb.Append('\t').Append(""); // affectedDataCount
+        sb.Append('\t').Append(ioCommand.TimeoutSeconds != null ? ioCommand.TimeoutSeconds.Value.ToString("D", CultureInfo.InvariantCulture) : "");
+        sb.Append('\t').Append(ioCommand.TransactionId);
+        sb.Append('\t').Append(ioCommand.Location);
+        sb.Append('\t').Append(ioCommand.Path);
+
+        sb.Append('\t').Append(ioCommand.Message?.ReplaceLineEndings("\\n"));
+        sb.Append('\t').Append(ioCommand.MessageExtra?.ReplaceLineEndings("\\n"));
+
+        sb.Append('\t').Append(ioCommand.Command?.ReplaceLineEndings("\\n"));
+
+        _ioLogger.Write(LogEventLevel.Information, sb.ToString());
     }
 
     public void OnContextIoCommandEnd(IoCommand ioCommand)
     {
+        if (_ioLogger == null)
+            return;
+
+        var sb = new StringBuilder();
+        sb.Append(ioCommand.Process?.UniqueName);
+        sb.Append('\t').Append(ioCommand.Id.ToString("D", CultureInfo.InvariantCulture));
+        sb.Append('\t').Append(ioCommand.Kind.ToString());
+        sb.Append('\t').Append(ioCommand.Exception != null ? "failed" : "succeeded");
+
+        sb.Append('\t').Append(ioCommand.AffectedDataCount?.ToString("D", CultureInfo.InvariantCulture));
+
+        sb.Append('\t').Append(""); // timeoutSeconds
+        sb.Append('\t').Append(""); // transactionId
+        sb.Append('\t').Append(""); // location
+        sb.Append('\t').Append(""); // path
+
+        if (ioCommand.Exception != null)
+        {
+            sb.Append('\t').Append("exception"); // message
+            sb.Append(ioCommand.Exception.FormatWithEtlDetails().ReplaceLineEndings("\\n")); // messageExtra
+        }
+
+        _ioLogger.Write(LogEventLevel.Information, sb.ToString());
     }
 
     public void OnRowCreated(IReadOnlyRow row)
@@ -209,14 +292,47 @@ internal class EtlContextDevToFileLogger : IEtlContextListener
         }
         catch (Exception) { }
     }
+
+    private class IoFileLifecycleHooks : Serilog.Sinks.File.FileLifecycleHooks
+    {
+        public override Stream OnFileOpened(string path, Stream underlyingStream, Encoding encoding)
+        {
+            if (underlyingStream.Length == 0)
+            {
+                using (var writer = new StreamWriter(underlyingStream, encoding, -1, true))
+                {
+                    var sb = new StringBuilder();
+                    sb.Append("Timestamp");
+                    sb.Append('\t').Append("ProcessUniqueName");
+                    sb.Append('\t').Append("Id");
+                    sb.Append('\t').Append("Kind");
+                    sb.Append('\t').Append("Action");
+                    sb.Append('\t').Append("AffectedDataCount");
+                    sb.Append('\t').Append("Timeout");
+                    sb.Append('\t').Append("TransactionId");
+                    sb.Append('\t').Append("Location");
+                    sb.Append('\t').Append("Path");
+                    sb.Append('\t').Append("Message");
+                    sb.Append('\t').Append("Message Extra");
+                    sb.Append('\t').Append("Command");
+
+                    writer.WriteLine(sb.ToString());
+                    writer.Flush();
+                    underlyingStream.Flush();
+                }
+            }
+
+            return base.OnFileOpened(path, underlyingStream, encoding);
+        }
+    }
 }
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class EtlContextDevToFileLoggerFluent
 {
-    public static ISessionBuilder LogDevToFile(this ISessionBuilder builder, LogSeverity minimumLogLevel = LogSeverity.Debug, int importantFileCount = 30, int infoFileCount = 14, int lowFileCount = 4)
+    public static ISessionBuilder LogDevToFile(this ISessionBuilder builder, LogSeverity minimumLogLevel = LogSeverity.Debug, int retentionHours = 24 * 31)
     {
-        builder.Context.Listeners.Add(new EtlContextDevToFileLogger(builder.Context, builder.DevLogDirectory, minimumLogLevel, importantFileCount, infoFileCount, lowFileCount));
+        builder.Context.Listeners.Add(new EtlContextDevToFileLogger(builder.Context, builder.DevLogDirectory, minimumLogLevel, retentionHours));
         return builder;
     }
 }
