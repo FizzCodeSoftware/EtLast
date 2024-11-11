@@ -79,7 +79,7 @@ public class DataTypeInfo
             hash1 *= 0x01000193;
         }
 
-        for (var i = data.Length; i >= 0; i--)
+        for (var i = data.Length - 1; i >= 0; i--)
         {
             hash2 ^= data[i];
             hash2 *= 0x01000193;
