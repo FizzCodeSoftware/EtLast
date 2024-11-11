@@ -18,7 +18,10 @@ internal class IoCommandListener : IEtlContextListener
         _counters.TryGetValue(ioCommand.Kind, out var counter);
         if (counter == null)
         {
-            _counters[ioCommand.Kind] = counter = new IoCommandCounter();
+            _counters[ioCommand.Kind] = counter = new IoCommandCounter()
+            {
+                Kind = ioCommand.Kind,
+            };
         }
 
         counter.InvocationCount++;

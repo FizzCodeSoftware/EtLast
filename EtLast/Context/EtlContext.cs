@@ -11,7 +11,7 @@ public sealed class EtlContext : IEtlContext
     public FlowState FlowState => new(this);
 
     public List<IEtlContextListener> Listeners { get; }
-    public List<IEtlContextRowListener> RowListeners { get; } = new();
+    public List<IEtlContextRowListener> RowListeners { get; } = [];
 
     /// <summary>
     /// Default value: 4 hours, but .NET maximizes the timeout in 10 minutes.
@@ -41,6 +41,11 @@ public sealed class EtlContext : IEtlContext
 
     public ContextManifest Manifest { get; }
 
+    public const string ContextIdFormat = "yyyyMMddHHmmssfffff";
+
+    private static readonly Lock _creationLock = new();
+    private static long _lastContextId;
+
     public EtlContext(IArgumentCollection arguments, string customName = null, string commandId = null)
     {
         _cancellationTokenSource = new CancellationTokenSource();
@@ -48,11 +53,24 @@ public sealed class EtlContext : IEtlContext
 
         Arguments = arguments;
 
-        var nowUtc = DateTimeOffset.UtcNow;
+        DateTimeOffset nowUtc;
+        var contextId = 0L;
+
+        lock (_creationLock)
+        {
+            do
+            {
+                nowUtc = DateTimeOffset.UtcNow;
+                contextId = long.Parse(nowUtc.ToString(ContextIdFormat, CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
+            }
+            while (contextId <= _lastContextId);
+
+            _lastContextId = contextId;
+        }
 
         Manifest = new ContextManifest()
         {
-            ContextId = long.Parse(DateTime.UtcNow.ToString("yyyyMMddHHmmssfffff", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
+            ContextId = contextId,
             CommandId = commandId,
             ContextName = customName ?? Guid.CreateVersion7().ToString("D"),
             Instance = Environment.MachineName,

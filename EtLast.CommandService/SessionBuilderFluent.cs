@@ -3,7 +3,7 @@
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class SessionBuilderFluent
 {
-    public static ISessionBuilder UseRollingDevLogManifestFiles(this ISessionBuilder session, int? maxFileCount = null, int? maxSizeOnDisk = 64 * 1024 * 1024)
+    public static ISessionBuilder UseRollingDevLogManifestFiles(this ISessionBuilder session, int? maxFileCount = null, int? maxSizeOnDisk = 256 * 1024 * 1024)
     {
         var directory = Path.Combine(session.DevLogDirectory, "manifest");
         CleanupManifestDirectory(maxFileCount, maxSizeOnDisk, directory);
@@ -11,7 +11,7 @@ public static class SessionBuilderFluent
         return session.AddManifestProcessor(new CommandServiceJsonManifestProcessor()
         {
             Directory = directory,
-            FileNameGenerator = manifest => manifest.CreatedOnUtc.ToString("yyyyMMdd-HHmmssfff", CultureInfo.InvariantCulture) + ".json",
+            FileNameGenerator = manifest => manifest.ContextId.ToString("D", CultureInfo.InvariantCulture) + ".json",
         });
     }
 
