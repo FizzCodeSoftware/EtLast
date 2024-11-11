@@ -102,7 +102,7 @@ public class ContextManifest : IEtlContextListener
             ProcessTypeName = process.GetType().GetFriendlyTypeName(),
             ProcessKind = process.Kind,
             Message = exception.Message,
-            Details = exception.FormatExceptionWithDetails(true),
+            Details = exception.FormatWithEtlDetails(true),
         };
 
         AllExceptions.Add(manifestException);

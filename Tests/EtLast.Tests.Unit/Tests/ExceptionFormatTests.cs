@@ -17,7 +17,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(context);
-        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatWithEtlDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
     }
@@ -36,7 +36,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(context);
-        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatWithEtlDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
     }
@@ -56,12 +56,15 @@ public class ExceptionFormatTests
                 },
                 RowKeyGenerator = row => row.GenerateKey("id"),
                 NoMatchAction = new NoMatchAction(MatchMode.Throw),
-                Columns = [],
+                Columns = new()
+                {
+                    ["a"] = "b",
+                },
             });
 
         var process = builder.Build();
         process.Execute(context);
-        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatWithEtlDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
     }
@@ -84,12 +87,15 @@ public class ExceptionFormatTests
                 {
                     CustomAction = _ => throw new Exception("ohh"),
                 },
-                Columns = [],
+                Columns = new()
+                {
+                    ["a"] = "b",
+                },
             });
 
         var process = builder.Build();
         process.Execute(context);
-        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatWithEtlDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
     }
@@ -114,7 +120,7 @@ public class ExceptionFormatTests
 
         var process = builder.Build();
         process.Execute(context);
-        var msg = process.FlowState.Exceptions[0].FormatExceptionWithDetails(true);
+        var msg = process.FlowState.Exceptions[0].FormatWithEtlDetails(true);
         Debug.WriteLine(msg);
         //Debugger.Break();
     }
