@@ -23,6 +23,9 @@ public class IoCommand
 
     public void End()
     {
+        foreach (var logger in Context.Loggers)
+            logger.OnContextIoCommandEnd(this);
+
         foreach (var listener in Context.Listeners)
             listener.OnContextIoCommandEnd(this);
     }

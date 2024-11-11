@@ -48,15 +48,37 @@ public partial class CommandService
         foreach (var manifestProcessor in sessionBuilder.ManifestProcessors)
             manifestProcessor?.RegisterToManifestEvents(context, context.Manifest);
 
-        try
+        if (sessionBuilder.EtlContextLoggerCreators?.Count > 0)
         {
-            if (EtlContextListenerCreators?.Count > 0)
+            try
             {
-                foreach (var listenerCreator in EtlContextListenerCreators)
+                foreach (var creator in sessionBuilder.EtlContextLoggerCreators)
                 {
-                    if (listenerCreator != null)
+                    var logger = creator?.Invoke();
+                    if (logger != null)
                     {
-                        var listener = listenerCreator.Invoke(context);
+                        logger.Start();
+                        context.Loggers.Add(logger);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var formattedMessage = ex.FormatWithEtlDetails();
+                context.Log(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
+                context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
+            }
+        }
+
+        if (EtlContextListenerCreators?.Count > 0)
+        {
+            try
+            {
+                foreach (var creator in EtlContextListenerCreators)
+                {
+                    var listener = creator?.Invoke(context);
+                    if (listener != null)
+                    {
                         listener.Start();
                         context.Listeners.Add(listener);
 
@@ -65,12 +87,12 @@ public partial class CommandService
                     }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            var formattedMessage = ex.FormatWithEtlDetails();
-            context.Log(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
-            context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
+            catch (Exception ex)
+            {
+                var formattedMessage = ex.FormatWithEtlDetails();
+                context.Log(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
+                context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
+            }
         }
 
         context.Log(LogSeverity.Information, null, "context {ContextName} started with ID: {ContextId}", context.Manifest.ContextName, context.Manifest.ContextId);

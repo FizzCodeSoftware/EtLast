@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-internal class EtlContextDevToFileLogger : IEtlContextListener
+internal class EtlContextDevToFileLogger : IEtlContextLogger
 {
     private readonly ILogger _logger;
     private readonly ILogger _ioLogger;
@@ -256,34 +256,6 @@ internal class EtlContextDevToFileLogger : IEtlContextListener
         _ioLogger.Write(LogEventLevel.Information, sb.ToString());
     }
 
-    public void OnRowCreated(IReadOnlyRow row)
-    {
-    }
-
-    public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
-    {
-    }
-
-    public void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values)
-    {
-    }
-
-    public void OnSinkStarted(IProcess process, Sink sink)
-    {
-    }
-
-    public void OnWriteToSink(Sink sink, IReadOnlyRow row)
-    {
-    }
-
-    public void OnProcessStart(IProcess process)
-    {
-    }
-
-    public void OnProcessEnd(IProcess process)
-    {
-    }
-
     public void OnContextClosed()
     {
         try
@@ -332,7 +304,7 @@ public static class EtlContextDevToFileLoggerFluent
 {
     public static ISessionBuilder LogDevToFile(this ISessionBuilder builder, LogSeverity minimumLogLevel = LogSeverity.Debug, int retentionHours = 24 * 31)
     {
-        builder.Context.Listeners.Add(new EtlContextDevToFileLogger(builder.Context, builder.DevLogDirectory, minimumLogLevel, retentionHours));
+        builder.AddLoggerCreator(() => new EtlContextDevToFileLogger(builder.Context, builder.DevLogDirectory, minimumLogLevel, retentionHours));
         return builder;
     }
 }
