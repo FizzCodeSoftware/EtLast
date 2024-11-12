@@ -21,6 +21,9 @@ jobs:
       with:
         dotnet-version: 9
         dotnet-quality: 'preview'
+        source-url: https://pkgs.dev.azure.com/fizzcode/ArtifactFeed/_packaging/FizzSuiteFeed/nuget/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.AZURE_DEVOPS_APIKEY }}
     
     - name: Restore
       run: dotnet restore /p:Configuration=${{ env.Configuration }} --verbosity normal
@@ -39,6 +42,9 @@ jobs:
 
     - name: Push to nuget.org
       run: dotnet nuget push .packages\*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_ORG_APIKEY }}
+
+    - name: Push to AzureDevops
+      run: dotnet nuget push .packages\*.nupkg --source https://pkgs.dev.azure.com/fizzcode/ArtifactFeed/_packaging/FizzSuiteFeed/nuget/v3/index.json --api-key AzureArtifacts
 
     - name: Create tag
       uses: actions/github-script@v7
