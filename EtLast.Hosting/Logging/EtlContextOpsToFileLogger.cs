@@ -188,7 +188,7 @@ public static class EtlContextOpsToFileLoggerFluent
 {
     public static ISessionBuilder LogOpsToFile(this ISessionBuilder session, int importantFileCount = 30, int infoFileCount = 14)
     {
-        session.AddLoggerCreator(() => new EtlContextOpsToFileLogger(session.Context, session.OpsLogDirectory, importantFileCount, infoFileCount));
+        session.AddLogger(() => new EtlContextOpsToFileLogger(session.Context, session.OpsLogDirectory, importantFileCount, infoFileCount));
         return session;
     }
 }

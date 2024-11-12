@@ -98,7 +98,7 @@ public static class EtlContextDevToSeqLoggerFluent
 {
     public static ISessionBuilder LogDevToSeq(this ISessionBuilder session, string url, string apiKey, LogSeverity minimumLogLevel = LogSeverity.Debug)
     {
-        session.AddLoggerCreator(() => new EtlContextDevToSeqLogger(session.Context, url, apiKey, minimumLogLevel));
+        session.AddLogger(() => new EtlContextDevToSeqLogger(session.Context, url, apiKey, minimumLogLevel));
         return session;
     }
 }
