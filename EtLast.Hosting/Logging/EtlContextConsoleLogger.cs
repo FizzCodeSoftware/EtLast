@@ -1,6 +1,6 @@
 ﻿namespace FizzCode.EtLast;
 
-internal class EtlContextConsoleLogger : IEtlContextListener
+internal class EtlContextConsoleLogger : IEtlContextLogger
 {
     private readonly ILogger _logger;
 
@@ -84,34 +84,6 @@ internal class EtlContextConsoleLogger : IEtlContextListener
     {
     }
 
-    public void OnRowCreated(IReadOnlyRow row)
-    {
-    }
-
-    public void OnRowOwnerChanged(IReadOnlyRow row, IProcess previousProcess, IProcess currentProcess)
-    {
-    }
-
-    public void OnRowValueChanged(IReadOnlyRow row, params KeyValuePair<string, object>[] values)
-    {
-    }
-
-    public void OnSinkStarted(IProcess process, Sink sink)
-    {
-    }
-
-    public void OnWriteToSink(Sink sink, IReadOnlyRow row)
-    {
-    }
-
-    public void OnProcessStart(IProcess process)
-    {
-    }
-
-    public void OnProcessEnd(IProcess process)
-    {
-    }
-
     public void OnContextClosed()
     {
         try
@@ -127,7 +99,7 @@ public static class EtlContextConsoleLoggerFluent
 {
     public static ISessionBuilder LogToConsole(this ISessionBuilder builder, LogSeverity minimumLogLevel = LogSeverity.Information)
     {
-        builder.Context.Listeners.Add(new EtlContextConsoleLogger(builder.Context, minimumLogLevel));
+        builder.Context.Loggers.Add(new EtlContextConsoleLogger(builder.Context, minimumLogLevel));
         return builder;
     }
 }

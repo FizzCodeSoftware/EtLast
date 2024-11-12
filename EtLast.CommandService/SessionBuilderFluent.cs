@@ -8,7 +8,7 @@ public static class SessionBuilderFluent
         var directory = Path.Combine(session.DevLogDirectory, "manifest");
         CleanupManifestDirectory(maxFileCount, maxSizeOnDisk, directory);
 
-        return session.AddManifestProcessor(new CommandServiceJsonManifestProcessor()
+        return session.AddManifestProcessor(() => new CommandServiceJsonManifestProcessor()
         {
             Directory = directory,
             FileNameGenerator = manifest => manifest.ContextId.ToString("D", CultureInfo.InvariantCulture) + ".json",

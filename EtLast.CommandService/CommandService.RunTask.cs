@@ -35,18 +35,33 @@ public partial class CommandService
             Tasks = tasks.ToArray(),
         };
 
-        startup?.Invoke(sessionBuilder, arguments);
-
         foreach (var configurator in SessionConfigurators)
             configurator?.Invoke(sessionBuilder, arguments);
+
+        startup?.Invoke(sessionBuilder, arguments);
 
         if (moduleName != null)
             context.Manifest.Extra["ModuleName"] = moduleName;
 
         context.Manifest.Extra["TaskNames"] = tasks.Select(x => x.GetType().GetFriendlyTypeName()).ToArray();
 
-        foreach (var manifestProcessor in sessionBuilder.ManifestProcessors)
-            manifestProcessor?.RegisterToManifestEvents(context, context.Manifest);
+        if (sessionBuilder.ManifestProcessorCreators?.Count > 0)
+        {
+            try
+            {
+                foreach (var creator in sessionBuilder.ManifestProcessorCreators)
+                {
+                    var manifestProcessor = creator?.Invoke();
+                    manifestProcessor?.RegisterToManifestEvents(context, context.Manifest);
+                }
+            }
+            catch (Exception ex)
+            {
+                var formattedMessage = ex.Format();
+                context.Log(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
+                context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
+            }
+        }
 
         if (sessionBuilder.EtlContextLoggerCreators?.Count > 0)
         {
@@ -64,7 +79,7 @@ public partial class CommandService
             }
             catch (Exception ex)
             {
-                var formattedMessage = ex.FormatWithEtlDetails();
+                var formattedMessage = ex.Format();
                 context.Log(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
                 context.LogOps(LogSeverity.Error, null, "{ErrorMessage}", formattedMessage);
             }

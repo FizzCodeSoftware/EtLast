@@ -8,18 +8,18 @@ public class SessionBuilder : ISessionBuilder
     public required string DevLogDirectory { get; init; }
     public required string OpsLogDirectory { get; init; }
 
-    public List<IManifestProcessor> ManifestProcessors { get; } = [];
+    public List<Func<IManifestProcessor>> ManifestProcessorCreators { get; } = [];
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public List<Func<IEtlContextLogger>> EtlContextLoggerCreators { get; } = [];
 
-    public ISessionBuilder AddManifestProcessor(IManifestProcessor manifestProcessor)
+    public ISessionBuilder AddManifestProcessor(Func<IManifestProcessor> manifestProcessor)
     {
-        ManifestProcessors.Add(manifestProcessor);
+        ManifestProcessorCreators.Add(manifestProcessor);
         return this;
     }
 
-    public ISessionBuilder AddLoggerCreator(Func<IEtlContextLogger> creator)
+    public ISessionBuilder AddLogger(Func<IEtlContextLogger> creator)
     {
         EtlContextLoggerCreators.Add(creator);
         return this;
