@@ -10,6 +10,10 @@ public interface ISessionBuilder
     public string OpsLogDirectory { get; }
 
     public ISessionBuilder AddManifestProcessor(Func<IManifestProcessor> manifestProcessor);
-    public ISessionBuilder AddLogger(Func<IEtlContextLogger> creator);
+    public ISessionBuilder RemoveAllManifestProcessors();
+
+    public ISessionBuilder AddContextLogger(Func<IEtlContextLogger> creator);
+    public ISessionBuilder RemoveAllContextLoggers();
+
     public ISessionBuilder UseTransactionScopeTimeout(TimeSpan timeout);
 }

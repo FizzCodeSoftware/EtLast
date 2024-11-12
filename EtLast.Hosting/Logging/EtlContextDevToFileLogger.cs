@@ -304,7 +304,7 @@ public static class EtlContextDevToFileLoggerFluent
 {
     public static ISessionBuilder LogDevToFile(this ISessionBuilder builder, LogSeverity minimumLogLevel = LogSeverity.Debug, int retentionHours = 24 * 31)
     {
-        builder.AddLogger(() => new EtlContextDevToFileLogger(builder.Context, builder.DevLogDirectory, minimumLogLevel, retentionHours));
+        builder.AddContextLogger(() => new EtlContextDevToFileLogger(builder.Context, builder.DevLogDirectory, minimumLogLevel, retentionHours));
         return builder;
     }
 }
