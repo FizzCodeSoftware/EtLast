@@ -9,6 +9,8 @@ public interface ISessionBuilder
     public string DevLogDirectory { get; }
     public string OpsLogDirectory { get; }
 
+    public bool ConsoleHidden { get; }
+
     public ISessionBuilder AddManifestProcessor(Func<IManifestProcessor> manifestProcessor);
     public ISessionBuilder RemoveAllManifestProcessors();
 

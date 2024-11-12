@@ -55,6 +55,8 @@ public abstract class AbstractCommandService : IHostedService, ICommandService
     protected abstract void ListCommands();
     protected abstract void ListModules();
 
+    public abstract bool ConsoleHidden { get; }
+
     private int _activeCommandCounter;
 
     private readonly CancellationTokenSource CommandListenerTerminationTokenSource = new();

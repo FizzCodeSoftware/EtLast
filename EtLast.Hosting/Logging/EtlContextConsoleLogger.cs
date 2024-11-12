@@ -97,9 +97,11 @@ internal class EtlContextConsoleLogger : IEtlContextLogger
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class EtlContextConsoleLoggerFluent
 {
-    public static ISessionBuilder LogToConsole(this ISessionBuilder builder, LogSeverity minimumLogLevel = LogSeverity.Information)
+    public static ISessionBuilder LogToConsole(this ISessionBuilder session, LogSeverity minimumLogLevel = LogSeverity.Information)
     {
-        builder.Context.Loggers.Add(new EtlContextConsoleLogger(builder.Context, minimumLogLevel));
-        return builder;
+        if (!session.ConsoleHidden)
+            session.Context.Loggers.Add(new EtlContextConsoleLogger(session.Context, minimumLogLevel));
+
+        return session;
     }
 }

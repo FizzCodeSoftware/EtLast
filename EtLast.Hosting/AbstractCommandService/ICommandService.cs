@@ -10,6 +10,8 @@ public interface ICommandService
 
     public ArgumentCollection ServiceArguments { get; }
 
+    public bool ConsoleHidden { get; }
+
     public void Terminate();
     public CancellationToken CancellationToken { get; }
 
