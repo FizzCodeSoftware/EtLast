@@ -63,11 +63,11 @@ public partial class CommandService
             }
         }
 
-        if (sessionBuilder.EtlContextLoggerCreators?.Count > 0)
+        if (sessionBuilder.ContextLoggerCreators?.Count > 0)
         {
             try
             {
-                foreach (var creator in sessionBuilder.EtlContextLoggerCreators)
+                foreach (var creator in sessionBuilder.ContextLoggerCreators)
                 {
                     var logger = creator?.Invoke();
                     if (logger != null)

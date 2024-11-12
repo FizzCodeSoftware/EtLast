@@ -11,7 +11,7 @@ public class SessionBuilder : ISessionBuilder
     public List<Func<IManifestProcessor>> ManifestProcessorCreators { get; } = [];
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public List<Func<IEtlContextLogger>> EtlContextLoggerCreators { get; } = [];
+    public List<Func<IEtlContextLogger>> ContextLoggerCreators { get; } = [];
 
     public ISessionBuilder AddManifestProcessor(Func<IManifestProcessor> manifestProcessor)
     {
@@ -19,15 +19,27 @@ public class SessionBuilder : ISessionBuilder
         return this;
     }
 
-    public ISessionBuilder AddLogger(Func<IEtlContextLogger> creator)
+    public ISessionBuilder AddContextLogger(Func<IEtlContextLogger> creator)
     {
-        EtlContextLoggerCreators.Add(creator);
+        ContextLoggerCreators.Add(creator);
         return this;
     }
 
     public ISessionBuilder UseTransactionScopeTimeout(TimeSpan timeout)
     {
         Context.TransactionScopeTimeout = timeout;
+        return this;
+    }
+
+    public ISessionBuilder RemoveAllManifestProcessors()
+    {
+        ManifestProcessorCreators.Clear();
+        return this;
+    }
+
+    public ISessionBuilder RemoveAllContextLoggers()
+    {
+        ContextLoggerCreators.Clear();
         return this;
     }
 }
