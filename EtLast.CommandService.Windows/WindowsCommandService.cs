@@ -7,6 +7,8 @@ public class WindowsCommandService : CommandService
     private Semaphore StopAcrossProcessesSemaphore;
     private bool StopAcrossProcessesSemaphoreTriggered = false;
 
+    public override bool ConsoleHidden { get; } = Microsoft.Extensions.Hosting.WindowsServices.WindowsServiceHelpers.IsWindowsService();
+
     public WindowsCommandService(string name, string serviceName)
         : base(name)
     {

@@ -13,6 +13,8 @@ public partial class CommandService : AbstractCommandService
 
     public List<string> ReferenceAssemblyDirectories { get; } = [];
 
+    public override bool ConsoleHidden => false;
+
     private string _modulesDirectory;
     public string ModulesDirectory
     {

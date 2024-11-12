@@ -7,6 +7,7 @@ public class SessionBuilder : ISessionBuilder
     public required string TasksDirectoryName { get; init; }
     public required string DevLogDirectory { get; init; }
     public required string OpsLogDirectory { get; init; }
+    public required bool ConsoleHidden { get; init; }
 
     public List<Func<IManifestProcessor>> ManifestProcessorCreators { get; } = [];
 

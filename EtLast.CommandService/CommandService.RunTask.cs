@@ -33,6 +33,7 @@ public partial class CommandService
             DevLogDirectory = currentDevLogDirectory,
             OpsLogDirectory = currentOpsLogDirectory,
             Tasks = tasks.ToArray(),
+            ConsoleHidden = ConsoleHidden,
         };
 
         foreach (var configurator in SessionConfigurators)
