@@ -22,13 +22,13 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9
-        dotnet-quality: 'preview'
+        #dotnet-quality: 'preview'
     
     - name: Restore
-      run: dotnet restore /p:Configuration=${{ env.Configuration }} --verbosity normal
+      run: dotnet restore FizzCode.EtLast.sln /p:Configuration=${{ env.Configuration }} --verbosity normal
     
     - name: Build
-      run: dotnet build --configuration ${{ env.Configuration }} --no-restore /p:Version=${{ env.Version }} --verbosity normal
+      run: dotnet build FizzCode.EtLast.sln --configuration ${{ env.Configuration }} --no-restore /p:Version=${{ env.Version }} --verbosity normal
     
     - name: Test
-      run: dotnet test --configuration ${{ env.Configuration }} --no-build --verbosity normal
+      run: dotnet test FizzCode.EtLast.sln --configuration ${{ env.Configuration }} --no-build --verbosity normal

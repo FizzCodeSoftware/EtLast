@@ -192,10 +192,7 @@ public class StructuredBinaryTableTests
                     Path = fileName,
                 },
             })
-            .CustomCode("x", row =>
-            {
-                row["x"] = new EtlRowError(2);
-            })
+            .CustomCode("x", row => row["x"] = new EtlRowError(2))
             .ThrowExceptionOnRowError()
             .Build()
             .Execute(context);

@@ -21,12 +21,12 @@ public class DiagnosticsHttpSender : IDisposable, IEtlContextListener, IEtlConte
     private readonly IEtlContext _context;
     private ExtendedBinaryWriter _currentWriter;
     private readonly ExtendedBinaryWriter _eventWriter = new(new MemoryStream(), Encoding.UTF8);
-    private readonly object _currentWriterLock = new();
+    private readonly Lock _currentWriterLock = new();
     private bool _finished;
     private int _communicationErrorCount;
 
     private readonly Dictionary<string, MessageTemplate> _messageTemplateCache = [];
-    private readonly object _messageTemplateCacheLock = new();
+    private readonly Lock _messageTemplateCacheLock = new();
     private readonly MessageTemplateParser _messageTemplateParser = new();
 
     public DiagnosticsHttpSender(IEtlContext context)

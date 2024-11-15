@@ -38,7 +38,7 @@ public class DiagContext
         List<AbstractEvent> newEvents;
         lock (_stagedEvents)
         {
-            newEvents = new List<AbstractEvent>(_stagedEvents);
+            newEvents = _stagedEvents.ToList();
             _stagedEvents.Clear();
         }
 

@@ -9,8 +9,8 @@ public static class ThrowsInvalidProcessParameterExceptionHelper
 
         var context = TestExecuter.GetContext();
         var builder = SequenceBuilder.Fluent
-        .ReadFrom(TestData.Person())
-        .AddMutator((T)Activator.CreateInstance(typeof(T)));
+            .ReadFrom(TestData.Person())
+            .AddMutator(Activator.CreateInstance<T>());
 
         var result = TestExecuter.Execute(context, builder);
         Assert.AreEqual(0, result.MutatedRows.Count);

@@ -112,7 +112,7 @@ internal class DiagnosticsStateManager : IDisposable
         List<DiagContext> newContexts;
         lock (_contextList)
         {
-            newContexts = new List<DiagContext>(_newContextList);
+            newContexts = _newContextList.ToList();
             _newContextList.Clear();
 
             foreach (var ctx in _newContextList)

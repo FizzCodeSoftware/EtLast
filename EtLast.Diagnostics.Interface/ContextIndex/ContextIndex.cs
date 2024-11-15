@@ -7,15 +7,15 @@ public class ContextIndex(string dataDirectory)
     private long _lastStreamSize;
 
     private readonly Dictionary<long, FileStream> _openSinkWriterStreams = [];
-    private readonly object _openSinkWriterStreamsLock = new();
+    private readonly Lock _openSinkWriterStreamsLock = new();
 
     private FileStream _rowEventStream;
     private int _lastRowEventFileIndex;
     private int _lastRowEventFileSize;
-    private readonly object _rowEventStreamLock = new();
+    private readonly Lock _rowEventStreamLock = new();
 
     private readonly Dictionary<long, ExtendedBinaryWriter> _processRowMapWriters = [];
-    private readonly object _processRowMapWritersLock = new();
+    private readonly Lock _processRowMapWritersLock = new();
 
     private readonly EventParser _eventParser = new();
 
