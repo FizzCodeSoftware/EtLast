@@ -302,9 +302,9 @@ internal class EtlContextDevToFileLogger : IEtlContextLogger
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static class EtlContextDevToFileLoggerFluent
 {
-    public static ISessionBuilder LogDevToFile(this ISessionBuilder builder, LogSeverity minimumLogLevel = LogSeverity.Debug, int retentionHours = 24 * 31)
+    public static ISessionBuilder LogDevToFile(this ISessionBuilder session, LogSeverity minimumLogLevel = LogSeverity.Debug, int retentionHours = 24 * 31)
     {
-        builder.AddContextLogger(() => new EtlContextDevToFileLogger(builder.Context, builder.DevLogDirectory, minimumLogLevel, retentionHours));
-        return builder;
+        session.AddContextLogger(() => new EtlContextDevToFileLogger(session.Context, session.DevLogDirectory, minimumLogLevel, retentionHours));
+        return session;
     }
 }
