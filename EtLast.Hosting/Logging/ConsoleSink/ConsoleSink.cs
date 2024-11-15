@@ -4,7 +4,7 @@
 public class ConsoleSink : ILogEventSink
 {
     private readonly List<Action<LogEvent, TextWriter>> _writers;
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
 
     public ConsoleSink(string outputTemplate)
     {
@@ -96,7 +96,7 @@ public class ConsoleSink : ILogEventSink
         if (logEvent.Exception == null)
             return;
 
-        var lines = logEvent.Exception.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+        var lines = logEvent.Exception.ToString().Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
         foreach (var line in lines)
         {
             ColorCodeContext.Write(builder, ColorCode.Exception, line + Environment.NewLine);

@@ -85,8 +85,7 @@ internal static class ModuleLoader
 
         var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Preview);
         var syntaxTrees = csFileNames
-            .Select(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn))
-            .ToList();
+            .ConvertAll(fn => SyntaxFactory.ParseSyntaxTree(SourceText.From(File.ReadAllText(fn)), parseOptions, fn));
 
         var globalUsing = new StringBuilder()
             .AppendLine("global using global::System;")

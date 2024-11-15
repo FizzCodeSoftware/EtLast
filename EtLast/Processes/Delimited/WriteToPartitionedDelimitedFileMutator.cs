@@ -67,7 +67,7 @@ public sealed class WriteToPartitionedDelimitedFileMutator : AbstractMutator, IR
     {
         _delimiterBytes = Encoding.GetBytes(Delimiter.ToString());
         _lineEndingBytes = Encoding.GetBytes(LineEnding);
-        _escapedQuote = new string(new[] { Escape, Quote });
+        _escapedQuote = new string([Escape, Quote]);
         _quoteRequiredChars = [Delimiter, Quote, Escape, '\r', '\n'];
         _quoteAsString = Quote.ToString();
         _quoteBytes = Encoding.GetBytes(Quote.ToString());

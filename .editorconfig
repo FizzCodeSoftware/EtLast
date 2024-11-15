@@ -181,6 +181,9 @@ dotnet_diagnostic.SYSLIB1045.severity = silent
 dotnet_diagnostic.SYSLIB1054.severity = silent
 csharp_style_prefer_utf8_string_literals = false:suggestion
 csharp_style_unused_value_expression_statement_preference = discard_variable:silent
+csharp_prefer_system_threading_lock = true:suggestion
+csharp_style_prefer_primary_constructors = false:suggestion
+
 ###############################
 # VB Coding Conventions       #
 ###############################
@@ -196,7 +199,6 @@ dotnet_diagnostic.RCS1097.severity = silent
 
 # RCS1239: Use 'for' statement instead of 'while' statement.
 dotnet_diagnostic.RCS1239.severity = silent
-csharp_style_prefer_primary_constructors = true:silent
 
 # RCS1158: Static member in generic type should use a type parameter
 dotnet_diagnostic.RCS1158.severity = silent

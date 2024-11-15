@@ -12,12 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.EtLast" Version="9.0.195" />
-    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="9.0.195" />
-    <PackageReference Include="FizzCode.EtLast.AdoNet.MsSql" Version="9.0.195" />
-    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="9.0.195" />
-    <PackageReference Include="FizzCode.EtLast.Hosting" Version="9.0.195" />
-    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="9.0.195" />
+    <PackageReference Include="FizzCode.EtLast" Version="9.0.205" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet" Version="9.0.205" />
+    <PackageReference Include="FizzCode.EtLast.AdoNet.MsSql" Version="9.0.205" />
+    <PackageReference Include="FizzCode.EtLast.EPPlus" Version="9.0.205" />
+    <PackageReference Include="FizzCode.EtLast.Hosting" Version="9.0.205" />
+    <PackageReference Include="FizzCode.EtLast.LocalFiles" Version="9.0.205" />
     <PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

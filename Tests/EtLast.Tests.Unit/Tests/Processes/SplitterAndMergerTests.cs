@@ -84,8 +84,11 @@ public class SplitterAndMergerTests
             var threadIndex = i;
             var thread = new Thread(() =>
             {
-                var rows = processes[threadIndex].TakeRowsAndReleaseOwnership(context);
-                results[threadIndex] = new List<ISlimRow>(rows);
+                var rows = processes[threadIndex]
+                    .TakeRowsAndReleaseOwnership(context)
+                    .ToList();
+
+                results[threadIndex] = rows;
             });
 
             thread.Start();

@@ -28,11 +28,11 @@ public sealed class UnpivotMutator : AbstractMutator
     protected override void StartMutator()
     {
         _fixColumnNames = FixColumns != null
-            ? new HashSet<string>(FixColumns.Select(x => x.Value ?? x.Key))
+            ? FixColumns.Select(x => x.Value ?? x.Key).ToHashSet()
             : [];
 
         _valueColumnNames = ValueColumns != null
-            ? new HashSet<string>(ValueColumns)
+            ? ValueColumns.ToHashSet()
             : [];
     }
 

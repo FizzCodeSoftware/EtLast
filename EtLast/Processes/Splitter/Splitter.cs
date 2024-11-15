@@ -7,7 +7,7 @@ public sealed class Splitter<TRowQueue> : AbstractSequence
 
     private TRowQueue _queue;
     private Thread _feederThread;
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
     private bool _finished;
 
     protected override void ValidateImpl()

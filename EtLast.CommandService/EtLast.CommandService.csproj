@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="8.0.36" />
+    <PackageReference Include="FizzCode.LightWeight.Configuration" Version="8.0.43" />
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -28,7 +28,7 @@
     </PackageReference>
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />    
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />    
   </ItemGroup>
 
   <ItemGroup>

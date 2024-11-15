@@ -8,7 +8,6 @@ public class Startup : IStartup
             .EnableMicrosoftSqlClient()
             .LogToConsole(LogSeverity.Debug)
             .LogDevToFile()
-            .LogOpsToFile()
-            .LogIoToFile();
+            .LogOpsToFile();
     }
 }
