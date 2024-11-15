@@ -63,7 +63,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtLast.AdoNet.PostgreSql", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ",github", ",github", "{7B620BDC-E7B0-4D95-98E6-63CC409508C4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actions", "Actions", "{5CCA0F47-1041-4C52-84D1-1A84297FAD79}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{5CCA0F47-1041-4C52-84D1-1A84297FAD79}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\dev-test.yml = .github\workflows\dev-test.yml
 		.github\workflows\main-release.yml = .github\workflows\main-release.yml

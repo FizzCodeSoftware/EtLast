@@ -100,7 +100,7 @@ public static class EtlContextConsoleLoggerFluent
     public static ISessionBuilder LogToConsole(this ISessionBuilder session, LogSeverity minimumLogLevel = LogSeverity.Information)
     {
         if (!session.ConsoleHidden)
-            session.Context.Loggers.Add(new EtlContextConsoleLogger(session.Context, minimumLogLevel));
+            session.AddContextLogger(() => new EtlContextConsoleLogger(session.Context, minimumLogLevel));
 
         return session;
     }
