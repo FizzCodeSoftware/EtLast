@@ -1,4 +1,7 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Buffers.Binary;
+using System.IO.Compression;
+
+namespace FizzCode.EtLast;
 
 public sealed class StructuredBinaryTableReader : AbstractRowSource
 {
@@ -37,6 +40,8 @@ public sealed class StructuredBinaryTableReader : AbstractRowSource
             ? AddRowIndexToColumn
             : null;
 
+        var lenBuffer = new byte[4];
+
         var streamIndex = 0;
         foreach (var stream in streams)
         {
@@ -46,52 +51,101 @@ public sealed class StructuredBinaryTableReader : AbstractRowSource
             if (FlowState.IsTerminating)
                 break;
 
-            BinaryReader reader = null;
             try
             {
-                reader = new BinaryReader(stream.Stream, Encoding.UTF8, leaveOpen: true);
+                int columnCount;
+                string[] columnNames;
+                string[] columnTypeNames;
+                BinaryTypeCode[] columnTypeCodes;
 
-                var formatVersion = reader.Read7BitEncodedInt();
+                stream.Stream.ReadExactly(lenBuffer, 0, 4);
+                var len = BinaryPrimitives.ReadInt32LittleEndian(lenBuffer);
+                var buffer = new byte[len];
+                stream.Stream.ReadExactly(buffer, 0, len);
 
-                var columnCount = reader.Read7BitEncodedInt();
-                var columnNames = new string[columnCount];
-                var columnTypeNames = new string[columnCount];
-                var columnTypeCodes = new BinaryTypeCode[columnCount];
-                for (var i = 0; i < columnCount; i++)
+                using (var headerUncompressed = new MemoryStream())
                 {
-                    columnNames[i] = reader.ReadString();
-                    columnTypeNames[i] = reader.ReadString();
-                    columnTypeCodes[i] = (BinaryTypeCode)reader.ReadByte();
+                    using (var bufferMs = new MemoryStream(buffer))
+                    {
+                        using (var ds = new DeflateStream(bufferMs, CompressionMode.Decompress, leaveOpen: true))
+                        {
+                            ds.CopyTo(headerUncompressed);
+                        }
+                    }
+
+                    headerUncompressed.Position = 0;
+
+                    var headerReader = new BinaryReader(headerUncompressed, Encoding.UTF8, leaveOpen: false);
+
+                    var formatVersion = headerReader.Read7BitEncodedInt();
+
+                    columnCount = headerReader.Read7BitEncodedInt();
+                    columnNames = new string[columnCount];
+                    columnTypeNames = new string[columnCount];
+                    columnTypeCodes = new BinaryTypeCode[columnCount];
+                    for (var i = 0; i < columnCount; i++)
+                    {
+                        columnNames[i] = headerReader.ReadString();
+                        columnTypeNames[i] = headerReader.ReadString();
+                        columnTypeCodes[i] = (BinaryTypeCode)headerReader.ReadByte();
+                    }
+
+                    headerReader.Dispose();
                 }
 
                 while (stream.Stream.Position < stream.Stream.Length)
                 {
-                    for (var i = 0; i < columnCount; i++)
+                    stream.Stream.ReadExactly(lenBuffer, 0, 4);
+                    len = BinaryPrimitives.ReadInt32LittleEndian(lenBuffer);
+                    buffer = new byte[len];
+                    stream.Stream.ReadExactly(buffer, 0, len);
+
+                    using (var ums = new MemoryStream())
                     {
-                        var typeCode = (BinaryTypeCode)reader.ReadByte();
-                        if (typeCode != BinaryTypeCode._null)
+                        using (var bufferMs = new MemoryStream(buffer))
+                        using (var ds = new DeflateStream(bufferMs, CompressionMode.Decompress, leaveOpen: true))
+                            ds.CopyTo(ums);
+
+                        ums.Position = 0;
+
+                        var reader = new BinaryReader(ums, Encoding.UTF8, leaveOpen: false);
+                        try
                         {
-                            var value = BinaryTypeCodeEncoder.Read(reader, typeCode);
-                            initialValues[columnNames[i]] = value;
+                            while (ums.Position < ums.Length)
+                            {
+                                for (var i = 0; i < columnCount; i++)
+                                {
+                                    var typeCode = (BinaryTypeCode)reader.ReadByte();
+                                    if (typeCode != BinaryTypeCode._null)
+                                    {
+                                        var value = BinaryTypeCodeEncoder.Read(reader, typeCode);
+                                        initialValues[columnNames[i]] = value;
+                                    }
+                                    else
+                                    {
+                                        initialValues[columnNames[i]] = null;
+                                    }
+                                }
+
+                                if (addStreamIndex != null)
+                                    initialValues[addStreamIndex] = streamIndex;
+
+                                if (addRowIndex != null)
+                                    initialValues[addRowIndex] = rowCount;
+
+                                rowCount++;
+                                yield return Context.CreateRow(this, initialValues);
+                                initialValues.Clear();
+
+                                if (FlowState.IsTerminating)
+                                    break;
+                            }
                         }
-                        else
+                        finally
                         {
-                            initialValues[columnNames[i]] = null;
+                            reader.Dispose();
                         }
                     }
-
-                    if (addStreamIndex != null)
-                        initialValues[addStreamIndex] = streamIndex;
-
-                    if (addRowIndex != null)
-                        initialValues[addRowIndex] = rowCount;
-
-                    rowCount++;
-                    yield return Context.CreateRow(this, initialValues);
-                    initialValues.Clear();
-
-                    if (FlowState.IsTerminating)
-                        break;
                 }
             }
             finally
@@ -101,7 +155,6 @@ public sealed class StructuredBinaryTableReader : AbstractRowSource
                     stream.IoCommand.AffectedDataCount += rowCount;
                     stream.IoCommand.End();
                     stream.Close();
-                    reader?.Dispose();
                 }
             }
 
