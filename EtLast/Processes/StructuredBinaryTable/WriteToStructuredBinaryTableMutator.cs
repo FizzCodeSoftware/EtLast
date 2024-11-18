@@ -1,4 +1,7 @@
-﻿namespace FizzCode.EtLast;
+﻿using System.Buffers.Binary;
+using System.IO.Compression;
+
+namespace FizzCode.EtLast;
 
 public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowSink
 {
@@ -8,7 +11,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
     /// <summary>
     /// Default value is 10000
     /// </summary>
-    public int BatchSize { get; init; } = 10000;
+    public int BufferSizeBytes { get; init; } = 10000;
 
     private SinkEntry _sinkEntry;
 
@@ -114,7 +117,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
 
             sinkEntry.RowCount++;
 
-            if (sinkEntry.RowCount >= BatchSize)
+            if (sinkEntry.Buffer.Length >= BufferSizeBytes)
                 WriteBuffer();
         }
         catch (Exception ex)
@@ -129,14 +132,29 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
 
     private void WriteBuffer()
     {
-        if (_sinkEntry.RowCount == 0)
+        if (_sinkEntry.Buffer.Position == 0)
             return;
 
         _sinkEntry.BufferWriter.Flush();
 
-        var data = _sinkEntry.Buffer.ToArray();
-        _sinkEntry.NamedSink.Stream.Write(data, 0, data.Length);
-        _sinkEntry.NamedSink.Sink.IncreaseBytes(data.Length);
+        using (var targetMs = new MemoryStream())
+        {
+            using (var ds = new DeflateStream(targetMs, CompressionLevel.Fastest))
+            {
+                _sinkEntry.Buffer.Position = 0;
+                _sinkEntry.Buffer.CopyTo(ds);
+            }
+
+            var data = targetMs.ToArray();
+
+            var buffer = new byte[4];
+            BinaryPrimitives.WriteInt32LittleEndian(buffer, data.Length);
+            _sinkEntry.NamedSink.Stream.Write(buffer);
+
+            _sinkEntry.NamedSink.Stream.Write(data, 0, data.Length);
+            _sinkEntry.NamedSink.Sink.IncreaseBytes(data.Length);
+        }
+
         _sinkEntry.RowCount = 0;
         _sinkEntry.Buffer.SetLength(0);
     }
