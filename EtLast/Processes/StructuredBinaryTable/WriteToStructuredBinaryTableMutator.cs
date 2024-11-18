@@ -11,7 +11,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
     /// <summary>
     /// Default value is 10000
     /// </summary>
-    public int BufferSizeBytes { get; init; } = 10000;
+    public int BufferSizeBytes { get; init; } = 1024 * 1024 * 10;
 
     private SinkEntry _sinkEntry;
 
