@@ -67,7 +67,7 @@ public sealed class StructuredBinaryTableReader : AbstractRowSource
                 {
                     using (var bufferMs = new MemoryStream(buffer))
                     {
-                        using (var ds = new DeflateStream(bufferMs, CompressionMode.Decompress, leaveOpen: true))
+                        using (var ds = new BrotliStream(bufferMs, CompressionMode.Decompress, leaveOpen: true))
                         {
                             ds.CopyTo(headerUncompressed);
                         }
@@ -103,7 +103,7 @@ public sealed class StructuredBinaryTableReader : AbstractRowSource
                     using (var ums = new MemoryStream())
                     {
                         using (var bufferMs = new MemoryStream(buffer))
-                        using (var ds = new DeflateStream(bufferMs, CompressionMode.Decompress, leaveOpen: true))
+                        using (var ds = new BrotliStream(bufferMs, CompressionMode.Decompress, leaveOpen: true))
                             ds.CopyTo(ums);
 
                         ums.Position = 0;

@@ -139,7 +139,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
 
         using (var targetMs = new MemoryStream())
         {
-            using (var ds = new DeflateStream(targetMs, CompressionLevel.Fastest))
+            using (var ds = new BrotliStream(targetMs, new BrotliCompressionOptions() { Quality = 5 }))
             {
                 _sinkEntry.Buffer.Position = 0;
                 _sinkEntry.Buffer.CopyTo(ds);
