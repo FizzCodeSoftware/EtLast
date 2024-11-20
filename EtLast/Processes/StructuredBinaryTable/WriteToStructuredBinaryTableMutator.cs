@@ -9,7 +9,7 @@ public sealed class WriteToStructuredBinaryTableMutator : AbstractMutator, IRowS
     [ProcessParameterMustHaveValue] public required Func<Dictionary<string, Type>> DynamicColumns { get; init; }
 
     /// <summary>
-    /// Default value is 10000
+    /// Default value is 10 MB.
     /// </summary>
     public int BufferSizeBytes { get; init; } = 1024 * 1024 * 10;
 
