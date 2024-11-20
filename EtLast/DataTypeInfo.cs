@@ -49,7 +49,7 @@ public class DataTypeInfo
 
     public static string GetSchemaVer(List<DataTypeInfo> columns, string[] keyColumns)
     {
-        var keySet = keyColumns.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+        var keySet = keyColumns?.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
 
         var sb = new StringBuilder();
         foreach (var col in columns.OrderBy(x => x.Name.ToLowerInvariant()))
@@ -62,7 +62,7 @@ public class DataTypeInfo
                     col.Precision?.ToString(CultureInfo.InvariantCulture) ?? "-",
                     col.Scale?.ToString(CultureInfo.InvariantCulture) ?? "-",
                     col.Size?.ToString(CultureInfo.InvariantCulture) ?? "-",
-                    keySet.Contains(col.Name) ? "key" : "-"
+                    keySet?.Contains(col.Name) == true ? "key" : "-"
                     )
                 .Append('\n');
         }
