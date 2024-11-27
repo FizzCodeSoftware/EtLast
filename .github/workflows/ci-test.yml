@@ -1,8 +1,8 @@
-name: dev-test
+name: ci-test
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]
   pull_request:
     types: [opened, reopened]
     
