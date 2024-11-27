@@ -217,6 +217,7 @@ dotnet_diagnostic.RCS1267.severity = none
 
 # IDE0270: Null check can be simplified
 dotnet_diagnostic.IDE0270.severity = none
+dotnet_diagnostic.RCS1021.severity = silent
 
 [*.vb]
 # Modifier preferences
